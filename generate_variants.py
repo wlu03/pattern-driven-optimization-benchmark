@@ -71,6 +71,7 @@ class VariantMetadata:
     expected_speedup_range: str  # e.g., "2x-10x" or "100x+"
     composition: List[str]       # If composed, list of pattern IDs
     conflict_note: str = ""      # COMP-4 only: describes the optimization tradeoff
+    hw_targets: List[str] = field(default_factory=list)  # HW-* only: which targets have fast variants
 
 
 class PatternTemplate:
@@ -2900,6 +2901,424 @@ void fast_comp_{suf}(ParticleSoA_{suf} *p, int n, {dtype} dt) {{
                 "test_code": "// Auto-generated\n", "metadata": asdict(meta)}
 
 
+class HW1Generator(PatternTemplate):
+    """HW-1: SIMD Vectorization via AoS -> SoA
+    Interleaved struct fields prevent autovectorization. Splitting into
+    separate arrays lets the compiler (or programmer) issue SIMD loads.
+    Optimal unroll factor is target-specific: 8-wide for AVX2, 4-wide for NEON.
+    """
+
+    def __init__(self):
+        super().__init__("HW-1", "Hardware Target", "SIMD Vectorization: AoS vs SoA")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        n_dims = rng.choice([3, 4])
+        dims = ["x", "y", "z", "w"][:n_dims]
+
+        struct_fields = " ".join(f"float {d};" for d in dims)
+        pad = " float _pad;" if n_dims == 3 else ""
+        aos_expr   = " + ".join(f"pts[i].{d} * pts[i].{d}" for d in dims)
+        soa_expr   = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
+        soa_params = ", ".join(f"float *{d}" for d in dims)
+
+        slow_code = f"""typedef struct {{ {struct_fields}{pad} }} Vec{n_dims}_{suf};
+float slow_hw1_{suf}(Vec{n_dims}_{suf} *pts, int n) {{
+    float sum = 0;
+    for (int i = 0; i < n; i++)
+        sum += {aos_expr};
+    return sum;
+}}"""
+
+        fast_generic = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+    float sum = 0;
+    for (int i = 0; i < n; i++)
+        sum += {soa_expr};
+    return sum;
+}}"""
+
+        avx_accum  = " ".join(f"float s{k} = 0;" for k in range(8))
+        avx_body   = "\n        ".join(
+            f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
+            for k in range(8)
+        )
+        avx_reduce = "+".join(f"s{k}" for k in range(8))
+        fast_x86 = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+    {avx_accum}
+    int i = 0;
+    for (; i <= n - 8; i += 8) {{
+        {avx_body}
+    }}
+    float sum = {avx_reduce};
+    for (; i < n; i++) sum += {soa_expr};
+    return sum;
+}}"""
+
+        neon_accum  = " ".join(f"float s{k} = 0;" for k in range(4))
+        neon_body   = "\n        ".join(
+            f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
+            for k in range(4)
+        )
+        neon_reduce = "+".join(f"s{k}" for k in range(4))
+        fast_arm = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+    {neon_accum}
+    int i = 0;
+    for (; i <= n - 4; i += 4) {{
+        {neon_body}
+    }}
+    float sum = {neon_reduce};
+    for (; i < n; i++) sum += {soa_expr};
+    return sum;
+}}"""
+
+        gpu_elem = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
+        fast_gpu = f"""/* CUDA - compile with nvcc */
+__global__ void hw1_kernel_{suf}({soa_params}, float *out, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = {gpu_elem};
+}}
+/* host: launch ceil(n/256) blocks of 256 threads, then reduce out[] */"""
+
+        meta = VariantMetadata(
+            pattern_id="HW-1",
+            variant_id=f"HW-1_v{variant_num:03d}",
+            category="Hardware Target",
+            pattern_name="SIMD Vectorization: AoS vs SoA",
+            variant_desc=f"{n_dims}D norm-squared, AoS struct blocks autovectorization",
+            dtype="float",
+            difficulty="medium",
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=n_dims,
+            lines_of_code=6,
+            expected_speedup_range="4x-8x (SIMD width dependent)",
+            composition=[],
+            hw_targets=["generic", "x86_avx2", "arm_neon", "gpu_cuda"],
+        )
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_generic,
+            "target_variants": {
+                "generic":  fast_generic,
+                "x86_avx2": fast_x86,
+                "arm_neon": fast_arm,
+                "gpu_cuda": fast_gpu,
+            },
+            "test_code": "// Auto-generated\n",
+            "metadata": asdict(meta),
+        }
+
+
+class HW2Generator(PatternTemplate):
+    """HW-2: Cache-Line-Dependent Tiling
+    Matrix transpose where the right tile size tracks the hardware cache line.
+    x86-64: 64-byte lines = 16 floats. Apple M-series: 128-byte lines = 32 floats.
+    Cortex-A: 64-byte lines = 16 floats. Getting this wrong costs 2-3x.
+    """
+
+    def __init__(self):
+        super().__init__("HW-2", "Hardware Target", "Cache-Line-Dependent Tiling")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        op = rng.choice(["transpose", "transpose", "scale"])  # bias toward transpose
+
+        if op == "transpose":
+            slow_code = f"""void slow_hw2_{suf}(float *dst, float *src, int n) {{
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            dst[j*n+i] = src[i*n+j];
+}}"""
+            def tiled(blk):
+                return f"""void fast_hw2_{suf}(float *dst, float *src, int n) {{
+#define BLK {blk}
+    for (int ii = 0; ii < n; ii += BLK)
+        for (int jj = 0; jj < n; jj += BLK)
+            for (int i = ii; i < ii+BLK && i < n; i++)
+                for (int j = jj; j < jj+BLK && j < n; j++)
+                    dst[j*n+i] = src[i*n+j];
+#undef BLK
+}}"""
+            desc = "matrix transpose: naive version thrashes cache on both read and write"
+        else:
+            slow_code = f"""void slow_hw2_{suf}(float *A, float *B, float *C, int n) {{
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            C[i*n+j] = A[i*n+j] + B[j*n+i];
+}}"""
+            def tiled(blk):
+                return f"""void fast_hw2_{suf}(float *A, float *B, float *C, int n) {{
+#define BLK {blk}
+    for (int ii = 0; ii < n; ii += BLK)
+        for (int jj = 0; jj < n; jj += BLK)
+            for (int i = ii; i < ii+BLK && i < n; i++)
+                for (int j = jj; j < jj+BLK && j < n; j++)
+                    C[i*n+j] = A[i*n+j] + B[j*n+i];
+#undef BLK
+}}"""
+            desc = "strided add: B accessed transposed, tiling amortizes cache misses"
+
+        meta = VariantMetadata(
+            pattern_id="HW-2",
+            variant_id=f"HW-2_v{variant_num:03d}",
+            category="Hardware Target",
+            pattern_name="Cache-Line-Dependent Tiling",
+            variant_desc=desc,
+            dtype="float",
+            difficulty="medium",
+            compiler_fixable=False,
+            num_loops=4,
+            num_arrays=2,
+            lines_of_code=5,
+            expected_speedup_range="3x-8x",
+            composition=[],
+            hw_targets=["generic", "x86_64", "arm_apple", "arm_cortex"],
+        )
+        return {
+            "slow_code": slow_code,
+            "fast_code": tiled(32),
+            "target_variants": {
+                "generic":    tiled(32),   # 32-float tile, reasonable middle ground
+                "x86_64":     tiled(16),   # 16 floats = 64 bytes = 1 x86 cache line
+                "arm_apple":  tiled(32),   # 32 floats = 128 bytes = 1 M-series cache line
+                "arm_cortex": tiled(16),   # 16 floats = 64 bytes = 1 Cortex-A cache line
+            },
+            "test_code": "// Auto-generated\n",
+            "metadata": asdict(meta),
+        }
+
+
+class HW3Generator(PatternTemplate):
+    """HW-3: GPU Memory Coalescing
+    Access patterns that are fine on CPU but cause non-coalesced global memory
+    reads on GPU. Consecutive threads (same warp) must hit consecutive addresses.
+    """
+
+    def __init__(self):
+        super().__init__("HW-3", "Hardware Target", "GPU Memory Coalescing")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        combo = rng.choice(["transpose_read", "strided_write", "indirect_gather"])
+
+        if combo == "transpose_read":
+            slow_code = f"""void slow_hw3_{suf}(float *out, float *A, int rows, int cols) {{
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            out[i*cols+j] = A[j*rows+i];
+}}"""
+            fast_cpu = f"""void fast_cpu_hw3_{suf}(float *out, float *A, int rows, int cols) {{
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            out[i*cols+j] = A[j*rows+i];
+}}"""
+            fast_gpu = f"""/* CUDA - tiled shared-memory transpose for coalesced access; compile with nvcc */
+#define TILE 32
+__global__ void hw3_kernel_{suf}(float *out, float *A, int rows, int cols) {{
+    __shared__ float tile[TILE][TILE + 1];
+    int x = blockIdx.x * TILE + threadIdx.x;
+    int y = blockIdx.y * TILE + threadIdx.y;
+    if (x < cols && y < rows) tile[threadIdx.y][threadIdx.x] = A[y * cols + x];
+    __syncthreads();
+    x = blockIdx.y * TILE + threadIdx.x;
+    y = blockIdx.x * TILE + threadIdx.y;
+    if (x < rows && y < cols) out[y * rows + x] = tile[threadIdx.x][threadIdx.y];
+}}"""
+            desc = "transposed read: fine on CPU, non-coalesced on GPU without shared-memory tiling"
+
+        elif combo == "strided_write":
+            stride = rng.choice([2, 4, 8])
+            slow_code = f"""void slow_hw3_{suf}(float *out, float *A, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i * {stride}] = A[i] * 2.0f;
+}}"""
+            fast_cpu = f"""void fast_cpu_hw3_{suf}(float *out, float *A, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i * {stride}] = A[i] * 2.0f;
+}}"""
+            fast_gpu = f"""/* CUDA - stride-{stride} writes are non-coalesced; fix by eliminating the
+   stride in the output layout rather than at the kernel level - compile with nvcc */
+__global__ void hw3_kernel_{suf}(float *out, float *A, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = A[i] * 2.0f;  /* write to compact buffer, scatter separately */
+}}"""
+            desc = f"stride-{stride} scatter: warp writes are {stride} cachelines apart on GPU"
+
+        else:
+            slow_code = f"""void slow_hw3_{suf}(float *out, float *A, int *idx, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = A[idx[i]];
+}}"""
+            fast_cpu = f"""void fast_cpu_hw3_{suf}(float *out, float *A, int *idx, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = A[idx[i]];
+}}"""
+            fast_gpu = f"""/* CUDA - irregular gather; use __ldg() to route through read-only cache
+   compile with nvcc */
+__global__ void hw3_kernel_{suf}(float *out, const float *A, const int *idx, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = __ldg(&A[idx[i]]);
+}}"""
+            desc = "indirect gather: random accesses; CPU is fine, GPU needs __ldg / texture cache"
+
+        meta = VariantMetadata(
+            pattern_id="HW-3",
+            variant_id=f"HW-3_v{variant_num:03d}",
+            category="Hardware Target",
+            pattern_name="GPU Memory Coalescing",
+            variant_desc=desc,
+            dtype="float",
+            difficulty="hard",
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=2,
+            lines_of_code=5,
+            expected_speedup_range="5x-32x on GPU",
+            composition=[],
+            hw_targets=["cpu", "gpu_cuda"],
+        )
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_cpu,
+            "target_variants": {
+                "cpu":      fast_cpu,
+                "gpu_cuda": fast_gpu,
+            },
+            "test_code": "// Auto-generated\n",
+            "metadata": asdict(meta),
+        }
+
+
+class HW4Generator(PatternTemplate):
+    """HW-4: Branch Divergence
+    Data-dependent branches cause warp divergence on GPU and branch
+    mispredictions on CPU. Branchless rewrites differ by target.
+    """
+
+    def __init__(self):
+        super().__init__("HW-4", "Hardware Target", "Branch Divergence")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(["float", "double"])
+        combo = rng.choice(["threshold_gate", "relu", "clamp", "abs_val"])
+
+        if combo == "threshold_gate":
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] > thr)
+            out[i] = A[i] * ({dtype})2.0;
+        else
+            out[i] = ({dtype})0.0;
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    for (int i = 0; i < n; i++)
+        out[i] = A[i] > thr ? A[i] * ({dtype})2.0 : ({dtype})0.0;
+}}"""
+            fast_gpu = f"""/* CUDA - ternary maps to predicated instructions, no warp divergence
+   compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+        out[i] = A[i] > thr ? A[i] * ({dtype})2.0 : ({dtype})0.0;
+}}"""
+            desc = f"threshold gate: branch diverges when data straddles threshold, {dtype}"
+
+        elif combo == "relu":
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] < ({dtype})0.0)
+            out[i] = ({dtype})0.0;
+        else
+            out[i] = A[i];
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = A[i] > ({dtype})0.0 ? A[i] : ({dtype})0.0;
+}}"""
+            fast_gpu = f"""/* CUDA - fmax avoids divergence entirely - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = fmax(A[i], ({dtype})0.0);
+}}"""
+            desc = f"ReLU: branchless via ternary on CPU, fmax on GPU, {dtype}"
+
+        elif combo == "clamp":
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} lo, {dtype} hi) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] < lo)       out[i] = lo;
+        else if (A[i] > hi)  out[i] = hi;
+        else                 out[i] = A[i];
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} lo, {dtype} hi) {{
+    for (int i = 0; i < n; i++) {{
+        {dtype} v = A[i] < lo ? lo : A[i];
+        out[i]    = v  > hi ? hi : v;
+    }}
+}}"""
+            fast_gpu = f"""/* CUDA - fmin/fmax chain, fully predicated - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n, {dtype} lo, {dtype} hi) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = fmin(fmax(A[i], lo), hi);
+}}"""
+            desc = f"clamp: two branches become fmin/fmax chain, {dtype}"
+
+        else:
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] < ({dtype})0.0)
+            out[i] = -A[i];
+        else
+            out[i] = A[i];
+    }}
+}}"""
+            fast_cpu = f"""#include <math.h>
+void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = fabs(A[i]);
+}}"""
+            fast_gpu = f"""/* CUDA - fabsf maps to a single hardware instruction - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) out[i] = fabsf(A[i]);
+}}"""
+            desc = f"abs value: manual branch replaced by fabs / fabsf, {dtype}"
+
+        meta = VariantMetadata(
+            pattern_id="HW-4",
+            variant_id=f"HW-4_v{variant_num:03d}",
+            category="Hardware Target",
+            pattern_name="Branch Divergence",
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="medium",
+            compiler_fixable=True,
+            num_loops=1,
+            num_arrays=1,
+            lines_of_code=7,
+            expected_speedup_range="1.5x-5x CPU, 10x-32x GPU",
+            composition=[],
+            hw_targets=["cpu", "gpu_cuda"],
+        )
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_cpu,
+            "target_variants": {
+                "cpu":      fast_cpu,
+                "gpu_cuda": fast_gpu,
+            },
+            "test_code": "// Auto-generated\n",
+            "metadata": asdict(meta),
+        }
+
+
 GENERATORS = {
     "SR-1": SR1_Generator(),
     "SR-2": SR2_Generator(),
@@ -2917,6 +3336,10 @@ GENERATORS = {
     "COMP-2": Comp2Generator(),
     "COMP-3": Comp3Generator(),
     "COMP-4": Comp4Generator(),
+    "HW-1":   HW1Generator(),
+    "HW-2":   HW2Generator(),
+    "HW-3":   HW3Generator(),
+    "HW-4":   HW4Generator(),
 }
 
 def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed: int = 42):
@@ -2954,6 +3377,9 @@ def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed:
                 f.write(result["fast_code"])
             with open(os.path.join(var_dir, "test.c"), "w") as f:
                 f.write(result["test_code"])
+            for target, code in result.get("target_variants", {}).items():
+                with open(os.path.join(var_dir, f"fast_{target}.c"), "w") as f:
+                    f.write(code)
             with open(os.path.join(var_dir, "metadata.json"), "w") as f:
                 json.dump(result["metadata"], f, indent=2)
 

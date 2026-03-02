@@ -26,7 +26,6 @@ from dataclasses import dataclass, field, asdict
 from typing import Optional
 
 # ── Pattern Registry ──────────────────────────────────────────
-
 @dataclass
 class PatternEntry:
     pattern_id: str          # e.g., "SR-1"
@@ -538,6 +537,28 @@ Return the pattern ID and the optimized function.
 {slow_code}
 ```"""
 
+HW_TARGET_DESCRIPTIONS = {
+    "generic":    "a generic CPU with a modern optimizing compiler (-O3)",
+    "x86_avx2":   "x86-64 with AVX2 (256-bit SIMD, 8 floats / 4 doubles per register, 64-byte cache lines)",
+    "arm_neon":   "ARM with NEON (128-bit SIMD, 4 floats / 2 doubles per register, 64-byte cache lines on Cortex-A, 128-byte on Apple M-series)",
+    "arm_apple":  "Apple M-series (ARM NEON, 128-byte cache lines, unified memory, high memory bandwidth)",
+    "arm_cortex": "ARM Cortex-A (NEON, 64-byte cache lines)",
+    "x86_64":     "x86-64 CPU (64-byte cache lines, SSE4.2 available)",
+    "gpu_cuda":   "NVIDIA CUDA GPU (32-thread warps, coalesced global memory, shared memory per block, no branch divergence within a warp)",
+    "cpu":        "a standard CPU with -O2 or -O3",
+}
+
+def make_prompt_hardware_target(slow_code: str, target: str) -> str:
+    desc = HW_TARGET_DESCRIPTIONS.get(target, target)
+    return f"""Optimize the following C code for this specific target: {desc}
+
+Consider the constraints and opportunities specific to this hardware.
+Rename the function to `optimized`. Return ONLY the optimized C code.
+
+```c
+{slow_code}
+```"""
+
 def make_prompt_diagnosis_only(slow_code: str) -> str:
     """Strategy 4: Ask LLM to ONLY diagnose, not optimize"""
     return f"""Analyze the following C code for performance inefficiencies.
@@ -566,6 +587,7 @@ class EvalResult:
     speedup_vs_slow: float
     speedup_vs_ref: float
     diagnosed_pattern: Optional[str] = None
+    hw_target: str = "generic"
 
 def compile_and_run(code: str, test_harness: str, timeout: int = 30) -> dict:
     """Compile LLM-generated code with test harness, run, parse output."""
@@ -605,7 +627,7 @@ def compile_and_run(code: str, test_harness: str, timeout: int = 30) -> dict:
 
 
 def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
-                     call_llm_fn) -> EvalResult:
+                     call_llm_fn, hw_target: str = "generic") -> EvalResult:
     """Evaluate a single pattern with a specific model and strategy."""
 
     # Select prompt
@@ -617,6 +639,8 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
         prompt = make_prompt_taxonomy_guided(pattern.slow_code)
     elif strategy == "diagnosis":
         prompt = make_prompt_diagnosis_only(pattern.slow_code)
+    elif strategy == "hardware-target":
+        prompt = make_prompt_hardware_target(pattern.slow_code, hw_target)
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
@@ -644,6 +668,7 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
         ref_fast_ms=0,
         speedup_vs_slow=0,
         speedup_vs_ref=0,
+        hw_target=hw_target,
     )
 
 
@@ -664,8 +689,12 @@ def main():
     parser.add_argument("--model", default="gpt-4o",
                         help="Model to evaluate")
     parser.add_argument("--strategy", default="generic",
-                        choices=["generic", "pattern-aware", "taxonomy-guided", "diagnosis"],
+                        choices=["generic", "pattern-aware", "taxonomy-guided", "diagnosis",
+                                 "hardware-target"],
                         help="Prompting strategy")
+    parser.add_argument("--target", default="generic",
+                        choices=list(HW_TARGET_DESCRIPTIONS.keys()),
+                        help="Hardware target for hardware-target strategy")
     parser.add_argument("--output", default="results.csv",
                         help="Output CSV file")
     parser.add_argument("--dry-run", action="store_true",
@@ -681,6 +710,8 @@ def main():
                 prompt = make_prompt_pattern_aware(p.slow_code, p)
             elif args.strategy == "taxonomy-guided":
                 prompt = make_prompt_taxonomy_guided(p.slow_code)
+            elif args.strategy == "hardware-target":
+                prompt = make_prompt_hardware_target(p.slow_code, args.target)
             else:
                 prompt = make_prompt_diagnosis_only(p.slow_code)
 
