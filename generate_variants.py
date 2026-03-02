@@ -2914,83 +2914,241 @@ class HW1Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        n_dims = rng.choice([3, 4])
-        dims = ["x", "y", "z", "w"][:n_dims]
+        combo = rng.choice(["norm_sq", "norm_sq", "complex_mul", "rgb_luma", "min_field"])
 
-        struct_fields = " ".join(f"float {d};" for d in dims)
-        pad = " float _pad;" if n_dims == 3 else ""
-        aos_expr   = " + ".join(f"pts[i].{d} * pts[i].{d}" for d in dims)
-        soa_expr   = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
-        soa_params = ", ".join(f"float *{d}" for d in dims)
+        if combo == "norm_sq":
+            n_dims = rng.choice([3, 4])
+            dims = ["x", "y", "z", "w"][:n_dims]
+            struct_fields = " ".join(f"float {d};" for d in dims)
+            pad        = " float _pad;" if n_dims == 3 else ""
+            aos_expr   = " + ".join(f"pts[i].{d} * pts[i].{d}" for d in dims)
+            soa_expr   = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
+            soa_params = ", ".join(f"float *{d}" for d in dims)
 
-        slow_code = f"""typedef struct {{ {struct_fields}{pad} }} Vec{n_dims}_{suf};
+            slow_code    = f"""typedef struct {{ {struct_fields}{pad} }} Vec{n_dims}_{suf};
 float slow_hw1_{suf}(Vec{n_dims}_{suf} *pts, int n) {{
     float sum = 0;
     for (int i = 0; i < n; i++)
         sum += {aos_expr};
     return sum;
 }}"""
-
-        fast_generic = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+            fast_generic = f"""float fast_hw1_{suf}({soa_params}, int n) {{
     float sum = 0;
     for (int i = 0; i < n; i++)
         sum += {soa_expr};
     return sum;
 }}"""
-
-        avx_accum  = " ".join(f"float s{k} = 0;" for k in range(8))
-        avx_body   = "\n        ".join(
-            f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
-            for k in range(8)
-        )
-        avx_reduce = "+".join(f"s{k}" for k in range(8))
-        fast_x86 = f"""float fast_hw1_{suf}({soa_params}, int n) {{
-    {avx_accum}
+            avx_body   = "\n        ".join(
+                f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
+                for k in range(8)
+            )
+            fast_x86 = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+    float {", ".join(f"s{k} = 0" for k in range(8))};
     int i = 0;
     for (; i <= n - 8; i += 8) {{
         {avx_body}
     }}
-    float sum = {avx_reduce};
+    float sum = {"+".join(f"s{k}" for k in range(8))};
     for (; i < n; i++) sum += {soa_expr};
     return sum;
 }}"""
-
-        neon_accum  = " ".join(f"float s{k} = 0;" for k in range(4))
-        neon_body   = "\n        ".join(
-            f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
-            for k in range(4)
-        )
-        neon_reduce = "+".join(f"s{k}" for k in range(4))
-        fast_arm = f"""float fast_hw1_{suf}({soa_params}, int n) {{
-    {neon_accum}
+            neon_body   = "\n        ".join(
+                f"s{k} += {' + '.join(f'{d}[i+{k}] * {d}[i+{k}]' for d in dims)};"
+                for k in range(4)
+            )
+            fast_arm = f"""float fast_hw1_{suf}({soa_params}, int n) {{
+    float {", ".join(f"s{k} = 0" for k in range(4))};
     int i = 0;
     for (; i <= n - 4; i += 4) {{
         {neon_body}
     }}
-    float sum = {neon_reduce};
+    float sum = {"+".join(f"s{k}" for k in range(4))};
     for (; i < n; i++) sum += {soa_expr};
     return sum;
 }}"""
-
-        gpu_elem = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
-        fast_gpu = f"""/* CUDA - compile with nvcc */
+            gpu_elem = " + ".join(f"{d}[i] * {d}[i]" for d in dims)
+            fast_gpu = f"""/* CUDA - compile with nvcc */
 __global__ void hw1_kernel_{suf}({soa_params}, float *out, int n) {{
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < n) out[i] = {gpu_elem};
 }}
 /* host: launch ceil(n/256) blocks of 256 threads, then reduce out[] */"""
+            desc      = f"{n_dims}D norm-squared, AoS struct blocks autovectorization"
+            n_arrays  = n_dims
+
+        elif combo == "complex_mul":
+            slow_code = f"""typedef struct {{ float re, im; }} Cplx_{suf};
+void slow_hw1_{suf}(Cplx_{suf} *c, Cplx_{suf} *a, Cplx_{suf} *b, int n) {{
+    for (int i = 0; i < n; i++) {{
+        c[i].re = a[i].re * b[i].re - a[i].im * b[i].im;
+        c[i].im = a[i].re * b[i].im + a[i].im * b[i].re;
+    }}
+}}"""
+            fast_generic = f"""void fast_hw1_{suf}(float *cr, float *ci,
+                      float *ar, float *ai,
+                      float *br, float *bi, int n) {{
+    for (int i = 0; i < n; i++) {{
+        cr[i] = ar[i] * br[i] - ai[i] * bi[i];
+        ci[i] = ar[i] * bi[i] + ai[i] * br[i];
+    }}
+}}"""
+            avx_lines = "\n        ".join(
+                f"cr[i+{k}] = ar[i+{k}]*br[i+{k}] - ai[i+{k}]*bi[i+{k}]; "
+                f"ci[i+{k}] = ar[i+{k}]*bi[i+{k}] + ai[i+{k}]*br[i+{k}];"
+                for k in range(8)
+            )
+            fast_x86 = f"""void fast_hw1_{suf}(float *cr, float *ci,
+                      float *ar, float *ai,
+                      float *br, float *bi, int n) {{
+    int i = 0;
+    for (; i <= n - 8; i += 8) {{
+        {avx_lines}
+    }}
+    for (; i < n; i++) {{
+        cr[i] = ar[i]*br[i] - ai[i]*bi[i];
+        ci[i] = ar[i]*bi[i] + ai[i]*br[i];
+    }}
+}}"""
+            neon_lines = "\n        ".join(
+                f"cr[i+{k}] = ar[i+{k}]*br[i+{k}] - ai[i+{k}]*bi[i+{k}]; "
+                f"ci[i+{k}] = ar[i+{k}]*bi[i+{k}] + ai[i+{k}]*br[i+{k}];"
+                for k in range(4)
+            )
+            fast_arm = f"""void fast_hw1_{suf}(float *cr, float *ci,
+                      float *ar, float *ai,
+                      float *br, float *bi, int n) {{
+    int i = 0;
+    for (; i <= n - 4; i += 4) {{
+        {neon_lines}
+    }}
+    for (; i < n; i++) {{
+        cr[i] = ar[i]*br[i] - ai[i]*bi[i];
+        ci[i] = ar[i]*bi[i] + ai[i]*br[i];
+    }}
+}}"""
+            fast_gpu = f"""/* CUDA - compile with nvcc */
+__global__ void hw1_kernel_{suf}(float *cr, float *ci,
+                                  float *ar, float *ai,
+                                  float *br, float *bi, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) {{
+        cr[i] = ar[i]*br[i] - ai[i]*bi[i];
+        ci[i] = ar[i]*bi[i] + ai[i]*br[i];
+    }}
+}}"""
+            desc     = "complex multiply: interleaved re/im struct prevents SIMD, SoA enables it"
+            n_arrays = 3
+
+        elif combo == "rgb_luma":
+            slow_code = f"""typedef struct {{ float r, g, b; }} RGB_{suf};
+void slow_hw1_{suf}(float *luma, RGB_{suf} *pixels, int n) {{
+    for (int i = 0; i < n; i++)
+        luma[i] = 0.299f * pixels[i].r + 0.587f * pixels[i].g + 0.114f * pixels[i].b;
+}}"""
+            fast_generic = f"""void fast_hw1_{suf}(float *luma, float *R, float *G, float *B, int n) {{
+    for (int i = 0; i < n; i++)
+        luma[i] = 0.299f * R[i] + 0.587f * G[i] + 0.114f * B[i];
+}}"""
+            avx_luma = "\n        ".join(
+                f"luma[i+{k}] = 0.299f*R[i+{k}] + 0.587f*G[i+{k}] + 0.114f*B[i+{k}];"
+                for k in range(8)
+            )
+            fast_x86 = f"""void fast_hw1_{suf}(float *luma, float *R, float *G, float *B, int n) {{
+    int i = 0;
+    for (; i <= n - 8; i += 8) {{
+        {avx_luma}
+    }}
+    for (; i < n; i++)
+        luma[i] = 0.299f * R[i] + 0.587f * G[i] + 0.114f * B[i];
+}}"""
+            neon_luma = "\n        ".join(
+                f"luma[i+{k}] = 0.299f*R[i+{k}] + 0.587f*G[i+{k}] + 0.114f*B[i+{k}];"
+                for k in range(4)
+            )
+            fast_arm = f"""void fast_hw1_{suf}(float *luma, float *R, float *G, float *B, int n) {{
+    int i = 0;
+    for (; i <= n - 4; i += 4) {{
+        {neon_luma}
+    }}
+    for (; i < n; i++)
+        luma[i] = 0.299f * R[i] + 0.587f * G[i] + 0.114f * B[i];
+}}"""
+            fast_gpu = f"""/* CUDA - compile with nvcc */
+__global__ void hw1_kernel_{suf}(float *luma, float *R, float *G, float *B, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+        luma[i] = 0.299f * R[i] + 0.587f * G[i] + 0.114f * B[i];
+}}"""
+            desc     = "RGB luma: packed pixel struct loads 3 floats but CPU/SIMD wants planar R,G,B"
+            n_arrays = 4
+
+        else:  # min_field
+            slow_code = f"""typedef struct {{ float x, y, z, vx, vy, vz, energy, mass; }} Particle_{suf};
+float slow_hw1_{suf}(Particle_{suf} *p, int n) {{
+    float mn = p[0].mass;
+    for (int i = 1; i < n; i++)
+        if (p[i].mass < mn) mn = p[i].mass;
+    return mn;
+}}"""
+            fast_generic = f"""float fast_hw1_{suf}(float *mass, int n) {{
+    float mn = mass[0];
+    for (int i = 1; i < n; i++)
+        if (mass[i] < mn) mn = mass[i];
+    return mn;
+}}"""
+            avx_min = "\n        ".join(
+                f"if (mass[i+{k}] < mn) mn = mass[i+{k}];" for k in range(8)
+            )
+            fast_x86 = f"""float fast_hw1_{suf}(float *mass, int n) {{
+    float mn = mass[0];
+    int i = 1;
+    for (; i <= n - 8; i += 8) {{
+        {avx_min}
+    }}
+    for (; i < n; i++)
+        if (mass[i] < mn) mn = mass[i];
+    return mn;
+}}"""
+            neon_min = "\n        ".join(
+                f"if (mass[i+{k}] < mn) mn = mass[i+{k}];" for k in range(4)
+            )
+            fast_arm = f"""float fast_hw1_{suf}(float *mass, int n) {{
+    float mn = mass[0];
+    int i = 1;
+    for (; i <= n - 4; i += 4) {{
+        {neon_min}
+    }}
+    for (; i < n; i++)
+        if (mass[i] < mn) mn = mass[i];
+    return mn;
+}}"""
+            fast_gpu = f"""/* CUDA - parallel min reduction - compile with nvcc */
+__global__ void hw1_kernel_{suf}(float *mass, float *out, int n) {{
+    extern __shared__ float sdata[];
+    int tid = threadIdx.x;
+    int i   = blockIdx.x * blockDim.x + tid;
+    sdata[tid] = (i < n) ? mass[i] : 1e38f;
+    __syncthreads();
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {{
+        if (tid < s) sdata[tid] = fminf(sdata[tid], sdata[tid + s]);
+        __syncthreads();
+    }}
+    if (tid == 0) out[blockIdx.x] = sdata[0];
+}}"""
+            desc     = "min over one field: AoS loads 8 floats per element but uses 1, wasting 7/8 cache bandwidth"
+            n_arrays = 1
 
         meta = VariantMetadata(
             pattern_id="HW-1",
             variant_id=f"HW-1_v{variant_num:03d}",
             category="Hardware Target",
             pattern_name="SIMD Vectorization: AoS vs SoA",
-            variant_desc=f"{n_dims}D norm-squared, AoS struct blocks autovectorization",
+            variant_desc=desc,
             dtype="float",
             difficulty="medium",
             compiler_fixable=False,
             num_loops=1,
-            num_arrays=n_dims,
+            num_arrays=n_arrays,
             lines_of_code=6,
             expected_speedup_range="4x-8x (SIMD width dependent)",
             composition=[],
@@ -3023,7 +3181,7 @@ class HW2Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        op = rng.choice(["transpose", "transpose", "scale"])  # bias toward transpose
+        op = rng.choice(["transpose", "transpose", "scale", "stencil_2d", "matvec"])
 
         if op == "transpose":
             slow_code = f"""void slow_hw2_{suf}(float *dst, float *src, int n) {{
@@ -3042,7 +3200,7 @@ class HW2Generator(PatternTemplate):
 #undef BLK
 }}"""
             desc = "matrix transpose: naive version thrashes cache on both read and write"
-        else:
+        elif op == "scale":
             slow_code = f"""void slow_hw2_{suf}(float *A, float *B, float *C, int n) {{
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
@@ -3059,6 +3217,49 @@ class HW2Generator(PatternTemplate):
 #undef BLK
 }}"""
             desc = "strided add: B accessed transposed, tiling amortizes cache misses"
+
+        elif op == "stencil_2d":
+            slow_code = f"""void slow_hw2_{suf}(float *out, float *in, int n) {{
+    for (int i = 1; i < n - 1; i++)
+        for (int j = 1; j < n - 1; j++)
+            out[i*n+j] = in[(i-1)*n+j] + in[(i+1)*n+j]
+                       + in[i*n+(j-1)] + in[i*n+(j+1)]
+                       - 4.0f * in[i*n+j];
+}}"""
+            def tiled(blk):
+                return f"""void fast_hw2_{suf}(float *out, float *in, int n) {{
+#define BLK {blk}
+    for (int ii = 1; ii < n - 1; ii += BLK)
+        for (int jj = 1; jj < n - 1; jj += BLK)
+            for (int i = ii; i < ii+BLK && i < n-1; i++)
+                for (int j = jj; j < jj+BLK && j < n-1; j++)
+                    out[i*n+j] = in[(i-1)*n+j] + in[(i+1)*n+j]
+                               + in[i*n+(j-1)] + in[i*n+(j+1)]
+                               - 4.0f * in[i*n+j];
+#undef BLK
+}}"""
+            desc = "2D 5-point stencil: without tiling, neighbor rows evict each other from L1/L2"
+
+        else:  # matvec
+            slow_code = f"""void slow_hw2_{suf}(float *y, float *A, float *x, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        float sum = 0;
+        for (int j = 0; j < cols; j++)
+            sum += A[i*cols+j] * x[j];
+        y[i] = sum;
+    }}
+}}"""
+            def tiled(blk):
+                return f"""void fast_hw2_{suf}(float *y, float *A, float *x, int rows, int cols) {{
+#define BLK {blk}
+    for (int i = 0; i < rows; i++) y[i] = 0;
+    for (int jj = 0; jj < cols; jj += BLK)
+        for (int i = 0; i < rows; i++)
+            for (int j = jj; j < jj+BLK && j < cols; j++)
+                y[i] += A[i*cols+j] * x[j];
+#undef BLK
+}}"""
+            desc = "matrix-vector multiply: tiling keeps x[jj..jj+BLK] hot in cache across all rows"
 
         meta = VariantMetadata(
             pattern_id="HW-2",
@@ -3102,7 +3303,8 @@ class HW3Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        combo = rng.choice(["transpose_read", "strided_write", "indirect_gather"])
+        combo = rng.choice(["transpose_read", "strided_write", "indirect_gather",
+                            "col_reduction", "histogram"])
 
         if combo == "transpose_read":
             slow_code = f"""void slow_hw3_{suf}(float *out, float *A, int rows, int cols) {{
@@ -3147,7 +3349,7 @@ __global__ void hw3_kernel_{suf}(float *out, float *A, int n) {{
 }}"""
             desc = f"stride-{stride} scatter: warp writes are {stride} cachelines apart on GPU"
 
-        else:
+        elif combo == "indirect_gather":
             slow_code = f"""void slow_hw3_{suf}(float *out, float *A, int *idx, int n) {{
     for (int i = 0; i < n; i++)
         out[i] = A[idx[i]];
@@ -3163,6 +3365,64 @@ __global__ void hw3_kernel_{suf}(float *out, const float *A, const int *idx, int
     if (i < n) out[i] = __ldg(&A[idx[i]]);
 }}"""
             desc = "indirect gather: random accesses; CPU is fine, GPU needs __ldg / texture cache"
+
+        elif combo == "col_reduction":
+            slow_code = f"""void slow_hw3_{suf}(float *out, float *mat, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        float sum = 0;
+        for (int i = 0; i < rows; i++)
+            sum += mat[i*cols+j];
+        out[j] = sum;
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw3_{suf}(float *out, float *mat, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) out[j] = 0;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            out[j] += mat[i*cols+j];
+}}"""
+            fast_gpu = f"""/* CUDA - per-thread-column reduction is stride-cols = non-coalesced;
+   better: each block loads a tile of rows with coalesced reads - compile with nvcc */
+#define TILE 32
+__global__ void hw3_kernel_{suf}(float *out, float *mat, int rows, int cols) {{
+    __shared__ float buf[TILE][TILE];
+    int j  = blockIdx.x * TILE + threadIdx.x;
+    float sum = 0;
+    for (int ii = 0; ii < rows; ii += TILE) {{
+        int i = ii + threadIdx.y;
+        buf[threadIdx.y][threadIdx.x] = (i < rows && j < cols) ? mat[i*cols+j] : 0;
+        __syncthreads();
+        if (threadIdx.y == 0)
+            for (int t = 0; t < TILE; t++) sum += buf[t][threadIdx.x];
+        __syncthreads();
+    }}
+    if (threadIdx.y == 0 && j < cols) out[j] = sum;
+}}"""
+            desc = "column reduction: outer loop over columns = stride-cols reads, swap loop order on CPU, tile on GPU"
+
+        else:  # histogram
+            nbins = rng.choice([64, 128, 256])
+            slow_code = f"""void slow_hw3_{suf}(int *hist, int *data, int n) {{
+    for (int i = 0; i < n; i++)
+        hist[data[i] % {nbins}]++;
+}}"""
+            fast_cpu = f"""void fast_cpu_hw3_{suf}(int *hist, int *data, int n) {{
+    for (int i = 0; i < n; i++)
+        hist[data[i] % {nbins}]++;
+}}"""
+            fast_gpu = f"""/* CUDA - global atomics serialize on hot buckets; use per-block shared histogram
+   compile with nvcc */
+__global__ void hw3_kernel_{suf}(int *hist, int *data, int n) {{
+    __shared__ int local[{nbins}];
+    int tid = threadIdx.x;
+    for (int b = tid; b < {nbins}; b += blockDim.x) local[b] = 0;
+    __syncthreads();
+    int i = blockIdx.x * blockDim.x + tid;
+    if (i < n) atomicAdd(&local[data[i] % {nbins}], 1);
+    __syncthreads();
+    for (int b = tid; b < {nbins}; b += blockDim.x) atomicAdd(&hist[b], local[b]);
+}}"""
+            desc = f"{nbins}-bin histogram: random scatter causes GPU global-memory atomic contention, use shared-mem staging"
 
         meta = VariantMetadata(
             pattern_id="HW-3",
@@ -3205,7 +3465,8 @@ class HW4Generator(PatternTemplate):
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        combo = rng.choice(["threshold_gate", "relu", "clamp", "abs_val"])
+        combo = rng.choice(["threshold_gate", "relu", "clamp", "abs_val",
+                            "leaky_relu", "sign_fn", "dead_zone"])
 
         if combo == "threshold_gate":
             slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
@@ -3270,7 +3531,7 @@ __global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n, {dtype} lo, {d
 }}"""
             desc = f"clamp: two branches become fmin/fmax chain, {dtype}"
 
-        else:
+        elif combo == "abs_val":
             slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
     for (int i = 0; i < n; i++) {{
         if (A[i] < ({dtype})0.0)
@@ -3290,6 +3551,73 @@ __global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n) {{
     if (i < n) out[i] = fabsf(A[i]);
 }}"""
             desc = f"abs value: manual branch replaced by fabs / fabsf, {dtype}"
+
+        elif combo == "leaky_relu":
+            slope = rng.choice(["0.01", "0.1", "0.2"])
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] >= ({dtype})0.0)
+            out[i] = A[i];
+        else
+            out[i] = ({dtype}){slope} * A[i];
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++) {{
+        {dtype} slope = A[i] >= ({dtype})0.0 ? ({dtype})1.0 : ({dtype}){slope};
+        out[i] = A[i] * slope;
+    }}
+}}"""
+            fast_gpu = f"""/* CUDA - slope selection is predicated, no warp divergence - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) {{
+        {dtype} slope = A[i] >= ({dtype})0.0 ? ({dtype})1.0 : ({dtype}){slope};
+        out[i] = A[i] * slope;
+    }}
+}}"""
+            desc = f"leaky ReLU (slope={slope}): branch on sign becomes slope-select multiply, {dtype}"
+
+        elif combo == "sign_fn":
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] > ({dtype})0.0)       out[i] =  ({dtype})1.0;
+        else if (A[i] < ({dtype})0.0)  out[i] = -({dtype})1.0;
+        else                           out[i] =  ({dtype})0.0;
+    }}
+}}"""
+            fast_cpu = f"""void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = ({dtype})((A[i] > ({dtype})0.0) - (A[i] < ({dtype})0.0));
+}}"""
+            fast_gpu = f"""/* CUDA - arithmetic sign, no divergence - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+        out[i] = ({dtype})((A[i] > ({dtype})0.0) - (A[i] < ({dtype})0.0));
+}}"""
+            desc = f"signum: two branches replaced by comparison subtraction (yields -1, 0, 1), {dtype}"
+
+        else:  # dead_zone
+            slow_code = f"""void slow_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    for (int i = 0; i < n; i++) {{
+        if (A[i] > thr)        out[i] = A[i] - thr;
+        else if (A[i] < -thr)  out[i] = A[i] + thr;
+        else                   out[i] = ({dtype})0.0;
+    }}
+}}"""
+            fast_cpu = f"""#include <math.h>
+void fast_cpu_hw4_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    for (int i = 0; i < n; i++)
+        out[i] = fmax(A[i] - thr, ({dtype})0.0) + fmin(A[i] + thr, ({dtype})0.0);
+}}"""
+            fast_gpu = f"""/* CUDA - fmaxf/fminf map to hardware instructions, no divergence - compile with nvcc */
+__global__ void hw4_kernel_{suf}({dtype} *out, {dtype} *A, int n, {dtype} thr) {{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+        out[i] = fmax(A[i] - thr, ({dtype})0.0) + fmin(A[i] + thr, ({dtype})0.0);
+}}"""
+            desc = f"dead-zone nonlinearity: two branches become fmax/fmin pair, {dtype}"
 
         meta = VariantMetadata(
             pattern_id="HW-4",
