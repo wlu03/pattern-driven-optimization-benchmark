@@ -70,6 +70,7 @@ class VariantMetadata:
     lines_of_code: int           # Approximate LOC of slow version
     expected_speedup_range: str  # e.g., "2x-10x" or "100x+"
     composition: List[str]       # If composed, list of pattern IDs
+    conflict_note: str = ""      # COMP-4 only: describes the optimization tradeoff
 
 
 class PatternTemplate:
@@ -1257,6 +1258,871 @@ class AL1_Generator(PatternTemplate):
             "metadata": asdict(metadata)
         }
 
+class SR2_Generator(PatternTemplate):
+    """SR-2: Recomputable Expression Decomposition.
+    Complex expression inside a loop can be algebraically decomposed
+    into independent accumulators multiplied by constants at the end."""
+
+    def __init__(self):
+        super().__init__("SR-2", "Semantic Redundancy",
+                         "Recomputable Expression Decomposition")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(["float", "double"])
+        n_arrays = rng.choice([2, 3, 4])
+        n_terms = rng.choice([2, 3, 4, 5])
+        n_consts = rng.choice([1, 2, 3])
+        loop_style = rng.choice(["for", "while"])
+        N = rng.choice([5000000, 10000000, 20000000])
+
+        arr_names = ["X", "Y", "Z", "W"][:n_arrays]
+        const_names = ["alpha", "beta", "gamma"][:n_consts]
+
+        # Build terms: e.g. "alpha * X[i] * X[i]", "beta * Y[i]", "alpha * beta"
+        term_types = [
+            ("sq", lambda a, c: f"{c} * {a}[i] * {a}[i]"),
+            ("lin", lambda a, c: f"{c} * {a}[i]"),
+            ("cube", lambda a, c: f"{c} * {a}[i] * {a}[i] * {a}[i]"),
+            ("cross", lambda a, c: f"{c} * {a}[i]"),
+            ("const", lambda a, c: f"{c}"),
+        ]
+
+        terms = []
+        accum_fast_lines = []
+        final_parts = []
+        accum_decls = []
+
+        for t_idx in range(n_terms):
+            arr = rng.choice(arr_names)
+            cst = rng.choice(const_names)
+            kind = rng.choice(["sq", "lin", "cube", "const"])
+
+            if kind == "sq":
+                terms.append(f"{cst} * {arr}[i] * {arr}[i]")
+                acc_name = f"sum{arr}sq"
+                if acc_name not in [a[0] for a in accum_decls]:
+                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i];"))
+                final_parts.append(f"{cst} * {acc_name}")
+            elif kind == "lin":
+                terms.append(f"{cst} * {arr}[i]")
+                acc_name = f"sum{arr}"
+                if acc_name not in [a[0] for a in accum_decls]:
+                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i];"))
+                final_parts.append(f"{cst} * {acc_name}")
+            elif kind == "cube":
+                terms.append(f"{cst} * {arr}[i] * {arr}[i] * {arr}[i]")
+                acc_name = f"sum{arr}cb"
+                if acc_name not in [a[0] for a in accum_decls]:
+                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i] * {arr}[i];"))
+                final_parts.append(f"{cst} * {acc_name}")
+            else:
+                terms.append(f"{cst}")
+                final_parts.append(f"({dtype})n * {cst}")
+
+        slow_expr = " + ".join(terms)
+        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
+        const_params = ", ".join(f"{dtype} {c}" for c in const_names)
+        all_params = f"{arr_params}, int n, {const_params}"
+
+        if loop_style == "for":
+            slow_loop = f"for (int i = 0; i < n; i++)"
+            fast_loop = f"for (int i = 0; i < n; i++)"
+        else:
+            slow_loop = f"int i = 0;\n    while (i < n)"
+            fast_loop = f"int i = 0;\n    while (i < n)"
+
+        # Deduplicate accumulators
+        seen_acc = {}
+        unique_accums = []
+        for name, line in accum_decls:
+            if name not in seen_acc:
+                seen_acc[name] = True
+                unique_accums.append((name, line))
+
+        acc_init = "\n    ".join(f"{dtype} {name} = 0.0;" for name, _ in unique_accums)
+        acc_body = "\n        ".join(line for _, line in unique_accums)
+        if loop_style == "while":
+            acc_body += "\n        i++;"
+        final_expr = " + ".join(final_parts)
+
+        slow_code = f"""{dtype} slow_sr2_{suf}({all_params}) {{
+    {dtype} result = 0.0;
+    {slow_loop} {{
+        result += {slow_expr};
+    {"    i++;" if loop_style == "while" else ""}
+    }}
+    return result;
+}}"""
+
+        fast_code = f"""{dtype} fast_sr2_{suf}({all_params}) {{
+    {acc_init}
+    {fast_loop} {{
+        {acc_body}
+    }}
+    return {final_expr};
+}}"""
+
+        # Test harness
+        arr_allocs = "\n    ".join(f'{dtype} *{a} = malloc({N} * sizeof({dtype})); for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})(k % 100) * 0.01f;' for a in arr_names)
+        const_vals = ", ".join("2.5" if i == 0 else "1.7" if i == 1 else "0.3" for i in range(n_consts))
+        arr_args = ", ".join(arr_names)
+        arr_frees = "\n    ".join(f"free({a});" for a in arr_names)
+
+        test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+{dtype} slow_sr2_{suf}({all_params});
+{dtype} fast_sr2_{suf}({all_params});
+int main() {{
+    int n = {N};
+    {arr_allocs}
+    {dtype} r_slow = slow_sr2_{suf}({arr_args}, n, {const_vals});
+    {dtype} r_fast = fast_sr2_{suf}({arr_args}, n, {const_vals});
+    double diff = fabs((double)(r_slow - r_fast));
+    double rel = (fabs((double)r_slow) > 1e-15) ? diff / fabs((double)r_slow) : diff;
+    printf("slow=%g fast=%g rel_err=%g %s\\n", (double)r_slow, (double)r_fast, rel, rel < 1e-4 ? "PASS" : "FAIL");
+    {arr_frees}
+    return rel < 1e-4 ? 0 : 1;
+}}
+"""
+
+        desc = f"{n_terms}-term expression decomposition, {n_arrays} arrays, {n_consts} constants, {dtype}, {loop_style}-loop"
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"SR-2_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty=rng.choice(["easy", "medium"]),
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=n_arrays,
+            lines_of_code=6 + n_terms,
+            expected_speedup_range="1.5x-5x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
+class CF1_Generator(PatternTemplate):
+    """CF-1: Loop-Invariant Conditional (Hoistable Branch).
+    A branch on a loop-invariant value checked every iteration.
+    Optimization: hoist the branch outside the loop."""
+
+    def __init__(self):
+        super().__init__("CF-1", "Control Flow",
+                         "Loop-Invariant Conditional")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        n_modes = rng.choice([2, 3, 4, 5])
+        n_arrays = rng.choice([2, 3])
+        loop_style = rng.choice(["for", "while"])
+        N = rng.choice([5000000, 10000000, 20000000])
+
+        ops = rng.sample(["+", "-", "*"], min(n_modes, 3))
+        while len(ops) < n_modes:
+            ops.append(rng.choice(["+", "-", "*"]))
+
+        arr_names = ["A", "B", "C"][:n_arrays]
+        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
+
+        # Build slow: branch inside loop
+        slow_branches = []
+        fast_loops = []
+        for m_idx in range(n_modes):
+            op = ops[m_idx]
+            if n_arrays == 2:
+                expr = f"{arr_names[0]}[i] {op} {arr_names[1]}[i]"
+            else:
+                expr = f"({arr_names[0]}[i] {op} {arr_names[1]}[i]) {rng.choice(['+', '-'])} {arr_names[2]}[i]"
+
+            cond = f"mode == {m_idx + 1}" if m_idx < n_modes - 1 else None
+            if cond:
+                prefix = "if" if m_idx == 0 else "} else if"
+                slow_branches.append(f"        {prefix} ({cond}) {{\n            out[i] = {expr};")
+            else:
+                slow_branches.append(f"        }} else {{\n            out[i] = {expr};")
+
+            if_kw = "if" if m_idx == 0 else "} else if" if m_idx < n_modes - 1 else "} else"
+            cond_str = f" (mode == {m_idx + 1})" if m_idx < n_modes - 1 else ""
+            fast_loops.append(f"    {if_kw}{cond_str} {{\n        for (int i = 0; i < n; i++) out[i] = {expr};")
+
+        slow_branch_code = "\n".join(slow_branches) + "\n        }"
+        fast_branch_code = "\n".join(fast_loops) + "\n    }"
+
+        if loop_style == "for":
+            slow_loop_head = "for (int i = 0; i < n; i++)"
+        else:
+            slow_loop_head = "int i = 0;\n    while (i < n)"
+
+        slow_code = f"""void slow_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode) {{
+    {slow_loop_head} {{
+{slow_branch_code}
+{"        i++;" if loop_style == "while" else ""}
+    }}
+}}"""
+
+        fast_code = f"""void fast_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode) {{
+{fast_branch_code}
+}}"""
+
+        # Test harness
+        arr_allocs = "\n    ".join(f'{dtype} *{a} = malloc({N} * sizeof({dtype})); for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})(k % 200) * 0.05f;' for a in arr_names)
+        arr_args = ", ".join(arr_names)
+        arr_frees = "\n    ".join(f"free({a});" for a in arr_names)
+        mode_val = rng.randint(1, n_modes)
+
+        suf_t = "f" if dtype == "float" else ""
+        test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode);
+void fast_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode);
+int main() {{
+    int n = {N};
+    {arr_allocs}
+    {dtype} *out_s = malloc(n * sizeof({dtype}));
+    {dtype} *out_f = malloc(n * sizeof({dtype}));
+    slow_cf1_{suf}(out_s, {arr_args}, n, {mode_val});
+    fast_cf1_{suf}(out_f, {arr_args}, n, {mode_val});
+    int pass = 1;
+    for (int i = 0; i < n; i++) {{
+        if (fabs{suf_t}(out_s[i] - out_f[i]) > 1e-6{suf_t}) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    {arr_frees}
+    free(out_s); free(out_f);
+    return pass ? 0 : 1;
+}}
+"""
+
+        desc = f"{n_modes} modes, {n_arrays} arrays, {dtype}, {loop_style}-loop"
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"CF-1_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="easy",
+            compiler_fixable=True,
+            num_loops=1,
+            num_arrays=n_arrays + 1,
+            lines_of_code=6 + n_modes * 2,
+            expected_speedup_range="1.2x-3x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
+class CF2_Generator(PatternTemplate):
+    """CF-2: Redundant Bounds Checking.
+    Defensive bounds checks inside hot inner loops that are
+    guaranteed by the outer loop structure."""
+
+    def __init__(self):
+        super().__init__("CF-2", "Control Flow",
+                         "Redundant Bounds Checking")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        layout = rng.choice(["row_sum", "col_sum", "scale", "transpose_sum"])
+        n_checks = rng.choice([2, 3, 4])
+        loop_style = rng.choice(["for", "while"])
+        rows = rng.choice([1000, 2000, 3000, 4000])
+        cols = rng.choice([1000, 2000, 3000, 4000])
+
+        # Build redundant checks
+        checks_2d = [
+            "i >= 0 && i < rows",
+            "j >= 0 && j < cols",
+            "i * cols + j < rows * cols",
+            "i * cols + j >= 0",
+        ]
+        chosen_checks = rng.sample(checks_2d, n_checks)
+        check_cond = " && ".join(chosen_checks)
+
+        if layout == "row_sum":
+            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums) {{
+    for (int i = 0; i < rows; i++) {{
+        row_sums[i] = 0;
+        {"int j = 0;" if loop_style == "while" else ""}
+        {f"while (j < cols)" if loop_style == "while" else "for (int j = 0; j < cols; j++)"} {{
+            if ({check_cond}) {{
+                row_sums[i] += matrix[i * cols + j];
+            }}
+            {"j++;" if loop_style == "while" else ""}
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums) {{
+    for (int i = 0; i < rows; i++) {{
+        row_sums[i] = 0;
+        for (int j = 0; j < cols; j++) {{
+            row_sums[i] += matrix[i * cols + j];
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums);
+void fast_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *mat = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) mat[k] = ({dtype})(k % 100) * 0.1;
+    {dtype} *s_slow = malloc(rows * sizeof({dtype}));
+    {dtype} *s_fast = malloc(rows * sizeof({dtype}));
+    slow_cf2_{suf}(mat, rows, cols, s_slow);
+    fast_cf2_{suf}(mat, rows, cols, s_fast);
+    int pass = 1;
+    for (int i = 0; i < rows; i++) {{
+        if (fabs((double)(s_slow[i] - s_fast[i])) > 1e-4) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(mat); free(s_slow); free(s_fast);
+    return pass ? 0 : 1;
+}}
+"""
+        elif layout == "col_sum":
+            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums) {{
+    for (int j = 0; j < cols; j++) {{
+        col_sums[j] = 0;
+        for (int i = 0; i < rows; i++) {{
+            if ({check_cond}) {{
+                col_sums[j] += matrix[i * cols + j];
+            }}
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums) {{
+    for (int j = 0; j < cols; j++) {{
+        col_sums[j] = 0;
+        for (int i = 0; i < rows; i++) {{
+            col_sums[j] += matrix[i * cols + j];
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums);
+void fast_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *mat = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) mat[k] = ({dtype})(k % 100) * 0.1;
+    {dtype} *s_slow = malloc(cols * sizeof({dtype}));
+    {dtype} *s_fast = malloc(cols * sizeof({dtype}));
+    slow_cf2_{suf}(mat, rows, cols, s_slow);
+    fast_cf2_{suf}(mat, rows, cols, s_fast);
+    int pass = 1;
+    for (int j = 0; j < cols; j++) {{
+        if (fabs((double)(s_slow[j] - s_fast[j])) > 1e-4) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(mat); free(s_slow); free(s_fast);
+    return pass ? 0 : 1;
+}}
+"""
+        elif layout == "scale":
+            scalar_val = rng.choice(["2.0", "0.5", "3.14"])
+            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            if ({check_cond}) {{
+                matrix[i * cols + j] *= ({dtype}){scalar_val};
+            }}
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_cf2_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            matrix[i * cols + j] *= ({dtype}){scalar_val};
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols);
+void fast_cf2_{suf}({dtype} *matrix, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *slow = malloc(rows * cols * sizeof({dtype}));
+    {dtype} *fast = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) slow[k] = ({dtype})(k % 100) * 0.1;
+    memcpy(fast, slow, rows * cols * sizeof({dtype}));
+    slow_cf2_{suf}(slow, rows, cols);
+    fast_cf2_{suf}(fast, rows, cols);
+    int pass = 1;
+    for (int k = 0; k < rows * cols; k++) {{
+        if (fabs((double)(slow[k] - fast[k])) > 1e-4) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(slow); free(fast);
+    return pass ? 0 : 1;
+}}
+"""
+        else:  # transpose_sum
+            slow_code = f"""{dtype} slow_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols) {{
+    {dtype} total = 0;
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            if ({check_cond}) {{
+                total += A[i * cols + j] + B[j * rows + i];
+            }}
+        }}
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols) {{
+    {dtype} total = 0;
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            total += A[i * cols + j] + B[j * rows + i];
+        }}
+    }}
+    return total;
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+{dtype} slow_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols);
+{dtype} fast_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *A = malloc(rows * cols * sizeof({dtype}));
+    {dtype} *B = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) {{ A[k] = ({dtype})(k % 100) * 0.1; B[k] = ({dtype})(k % 50) * 0.2; }}
+    {dtype} s = slow_cf2_{suf}(A, B, rows, cols);
+    {dtype} f = fast_cf2_{suf}(A, B, rows, cols);
+    double diff = fabs((double)(s - f));
+    printf("slow=%g fast=%g %s\\n", (double)s, (double)f, diff < 1e-2 ? "PASS" : "FAIL");
+    free(A); free(B);
+    return diff < 1e-2 ? 0 : 1;
+}}
+"""
+
+        desc = f"{layout} with {n_checks} redundant checks, {dtype}, {rows}x{cols}, {loop_style}-loop"
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"CF-2_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="easy",
+            compiler_fixable=True,
+            num_loops=2,
+            num_arrays=1,
+            lines_of_code=10,
+            expected_speedup_range="1.1x-2x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
+class HR1_Generator(PatternTemplate):
+    """HR-1: Redundant Temporary Variables.
+    Unnecessary intermediate variables that force extra memory writes
+    and prevent register optimization."""
+
+    def __init__(self):
+        super().__init__("HR-1", "Human Readability Style",
+                         "Redundant Temporary Variables")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        n_temps = rng.choice([2, 3, 4, 5, 6])
+        n_input_arrays = rng.choice([2, 3, 4])
+        loop_style = rng.choice(["for", "while"])
+        N = rng.choice([5000000, 10000000, 20000000])
+        use_math = rng.random() < 0.3
+
+        arr_names = ["A", "B", "C", "D"][:n_input_arrays]
+        ops = rng.choices(["+", "-", "*"], k=n_temps)
+        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
+
+        # Build the chain of temporaries (slow)
+        temp_lines = []
+        expr_parts = []
+        for t_idx in range(n_temps):
+            arr = arr_names[t_idx % n_input_arrays]
+            op = ops[t_idx]
+            if t_idx == 0:
+                prev = f"{arr}[i]"
+                next_arr = arr_names[(t_idx + 1) % n_input_arrays]
+                if use_math and t_idx == 0:
+                    expr = f"sqrt({prev} * {prev} + {next_arr}[i] * {next_arr}[i])"
+                else:
+                    expr = f"{prev} {op} {next_arr}[i]"
+                temp_lines.append(f"        {dtype} temp{t_idx + 1} = {expr};")
+                expr_parts.append(expr)
+            else:
+                next_arr = arr_names[(t_idx + 1) % n_input_arrays] if t_idx < n_temps - 1 else arr_names[0]
+                expr = f"temp{t_idx} {op} {next_arr}[i]"
+                temp_lines.append(f"        {dtype} temp{t_idx + 1} = {expr};")
+                expr_parts.append(f"{op} {next_arr}[i]")
+
+        temp_lines.append(f"        {dtype} result = temp{n_temps};")
+        temp_lines.append(f"        out[i] = result;")
+
+        # Build the single expression (fast)
+        # Reconstruct the nested expression
+        fast_expr = expr_parts[0]
+        for i in range(1, len(expr_parts)):
+            part = expr_parts[i]
+            fast_expr = f"({fast_expr}) {part}"
+
+        if loop_style == "for":
+            loop_head_slow = "for (int i = 0; i < n; i++)"
+            loop_head_fast = "for (int i = 0; i < n; i++)"
+            loop_inc = ""
+        else:
+            loop_head_slow = "int i = 0;\n    while (i < n)"
+            loop_head_fast = "int i = 0;\n    while (i < n)"
+            loop_inc = "\n        i++;"
+
+        math_inc = "#include <math.h>\n" if use_math else ""
+
+        slow_code = f"""{math_inc}void slow_hr1_{suf}({dtype} *out, {arr_params}, int n) {{
+    {loop_head_slow} {{
+{chr(10).join(temp_lines)}{loop_inc}
+    }}
+}}"""
+
+        fast_code = f"""{math_inc}void fast_hr1_{suf}({dtype} *out, {arr_params}, int n) {{
+    {loop_head_fast} {{
+        out[i] = {fast_expr};{loop_inc}
+    }}
+}}"""
+
+        arr_allocs = "\n    ".join(f'{dtype} *{a} = malloc({N} * sizeof({dtype})); for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})((k % 100) + 1) * 0.1;' for a in arr_names)
+        arr_args = ", ".join(arr_names)
+        arr_frees = "\n    ".join(f"free({a});" for a in arr_names)
+        suf_t = "f" if dtype == "float" else ""
+
+        test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_hr1_{suf}({dtype} *out, {arr_params}, int n);
+void fast_hr1_{suf}({dtype} *out, {arr_params}, int n);
+int main() {{
+    int n = {N};
+    {arr_allocs}
+    {dtype} *out_s = malloc(n * sizeof({dtype}));
+    {dtype} *out_f = malloc(n * sizeof({dtype}));
+    slow_hr1_{suf}(out_s, {arr_args}, n);
+    fast_hr1_{suf}(out_f, {arr_args}, n);
+    int pass = 1;
+    for (int i = 0; i < n; i++) {{
+        if (fabs{suf_t}(out_s[i] - out_f[i]) > 1e-4{suf_t}) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    {arr_frees}
+    free(out_s); free(out_f);
+    return pass ? 0 : 1;
+}}
+"""
+
+        desc = f"{n_temps} temporaries, {n_input_arrays} arrays, {dtype}, {loop_style}-loop"
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"HR-1_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="easy",
+            compiler_fixable=True,
+            num_loops=1,
+            num_arrays=n_input_arrays + 1,
+            lines_of_code=6 + n_temps,
+            expected_speedup_range="1.1x-2x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
+class MI4_Generator(PatternTemplate):
+    """MI-4: Column-Major vs Row-Major Access.
+    Accessing a 2D array in column-major order in C (row-major language)
+    causes cache misses. Optimization: swap loop order."""
+
+    def __init__(self):
+        super().__init__("MI-4", "Memory & IO",
+                         "Column vs Row Major Access")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        op_type = rng.choice(["scale", "add_arrays", "reduce", "copy", "transform"])
+        rows = rng.choice([1000, 2000, 3000, 4000, 5000])
+        cols = rng.choice([1000, 2000, 3000, 4000, 5000])
+        scalar = rng.choice(["2.0", "0.5", "3.14", "1.001"])
+        use_math = op_type == "transform"
+
+        math_inc = "#include <math.h>\n" if use_math else ""
+
+        if op_type == "scale":
+            slow_code = f"""{math_inc}void slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            matrix[i * cols + j] *= ({dtype}){scalar};
+        }}
+    }}
+}}"""
+            fast_code = f"""{math_inc}void fast_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            matrix[i * cols + j] *= ({dtype}){scalar};
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+void slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
+void fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *slow = malloc(rows * cols * sizeof({dtype}));
+    {dtype} *fast = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) slow[k] = ({dtype})(k % 100) * 0.1;
+    memcpy(fast, slow, rows * cols * sizeof({dtype}));
+    slow_mi4_{suf}(slow, rows, cols);
+    fast_mi4_{suf}(fast, rows, cols);
+    int pass = 1;
+    for (int k = 0; k < rows * cols; k++) {{
+        if (fabs((double)(slow[k] - fast[k])) > 1e-4) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(slow); free(fast);
+    return pass ? 0 : 1;
+}}
+"""
+
+        elif op_type == "add_arrays":
+            slow_code = f"""{math_inc}void slow_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            out[i * cols + j] = A[i * cols + j] + B[i * cols + j];
+        }}
+    }}
+}}"""
+            fast_code = f"""{math_inc}void fast_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            out[i * cols + j] = A[i * cols + j] + B[i * cols + j];
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols);
+void fast_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols}, total = rows * cols;
+    {dtype} *A = malloc(total * sizeof({dtype}));
+    {dtype} *B = malloc(total * sizeof({dtype}));
+    {dtype} *s = malloc(total * sizeof({dtype}));
+    {dtype} *f = malloc(total * sizeof({dtype}));
+    for (int k = 0; k < total; k++) {{ A[k] = ({dtype})(k % 100) * 0.1; B[k] = ({dtype})(k % 50) * 0.2; }}
+    slow_mi4_{suf}(s, A, B, rows, cols);
+    fast_mi4_{suf}(f, A, B, rows, cols);
+    int pass = 1;
+    for (int k = 0; k < total; k++) {{
+        if (fabs((double)(s[k] - f[k])) > 1e-4) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(A); free(B); free(s); free(f);
+    return pass ? 0 : 1;
+}}
+"""
+
+        elif op_type == "reduce":
+            slow_code = f"""{math_inc}{dtype} slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    {dtype} total = 0;
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            total += matrix[i * cols + j];
+        }}
+    }}
+    return total;
+}}"""
+            fast_code = f"""{math_inc}{dtype} fast_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    {dtype} total = 0;
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            total += matrix[i * cols + j];
+        }}
+    }}
+    return total;
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+{dtype} slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
+{dtype} fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *mat = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) mat[k] = ({dtype})(k % 100) * 0.01;
+    {dtype} s = slow_mi4_{suf}(mat, rows, cols);
+    {dtype} f = fast_mi4_{suf}(mat, rows, cols);
+    double diff = fabs((double)(s - f));
+    printf("slow=%g fast=%g %s\\n", (double)s, (double)f, diff < 1e-2 ? "PASS" : "FAIL");
+    free(mat);
+    return diff < 1e-2 ? 0 : 1;
+}}
+"""
+
+        elif op_type == "copy":
+            slow_code = f"""{math_inc}void slow_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            dst[i * cols + j] = src[i * cols + j];
+        }}
+    }}
+}}"""
+            fast_code = f"""{math_inc}void fast_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            dst[i * cols + j] = src[i * cols + j];
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void slow_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols);
+void fast_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols}, total = rows * cols;
+    {dtype} *src = malloc(total * sizeof({dtype}));
+    {dtype} *s = malloc(total * sizeof({dtype}));
+    {dtype} *f = malloc(total * sizeof({dtype}));
+    for (int k = 0; k < total; k++) src[k] = ({dtype})(k % 100) * 0.1;
+    slow_mi4_{suf}(s, src, rows, cols);
+    fast_mi4_{suf}(f, src, rows, cols);
+    int pass = 1;
+    for (int k = 0; k < total; k++) {{
+        if (fabs((double)(s[k] - f[k])) > 1e-9) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(src); free(s); free(f);
+    return pass ? 0 : 1;
+}}
+"""
+
+        else:  # transform
+            fn = rng.choice(UNARY_MATH_FNS)
+            slow_code = f"""#include <math.h>
+void slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            matrix[i * cols + j] = ({dtype}){fn}((double)matrix[i * cols + j]);
+        }}
+    }}
+}}"""
+            fast_code = f"""#include <math.h>
+void fast_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            matrix[i * cols + j] = ({dtype}){fn}((double)matrix[i * cols + j]);
+        }}
+    }}
+}}"""
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+void slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
+void fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+int main() {{
+    int rows = {rows}, cols = {cols};
+    {dtype} *slow = malloc(rows * cols * sizeof({dtype}));
+    {dtype} *fast = malloc(rows * cols * sizeof({dtype}));
+    for (int k = 0; k < rows * cols; k++) slow[k] = ({dtype})((k % 100) + 1) * 0.01;
+    memcpy(fast, slow, rows * cols * sizeof({dtype}));
+    slow_mi4_{suf}(slow, rows, cols);
+    fast_mi4_{suf}(fast, rows, cols);
+    int pass = 1;
+    for (int k = 0; k < rows * cols; k++) {{
+        if (fabs((double)(slow[k] - fast[k])) > 1e-6) {{ pass = 0; break; }}
+    }}
+    printf("%s\\n", pass ? "PASS" : "FAIL");
+    free(slow); free(fast);
+    return pass ? 0 : 1;
+}}
+"""
+
+        desc = f"{op_type} operation, {dtype}, {rows}x{cols} matrix"
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"MI-4_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="medium",
+            compiler_fixable=False,
+            num_loops=2,
+            num_arrays=1 if op_type in ["scale", "reduce", "transform"] else 2,
+            lines_of_code=8,
+            expected_speedup_range="2x-10x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
 class ComposedGenerator(PatternTemplate):
     """Generate programs with 2-3 overlapping patterns."""
 
@@ -1267,66 +2133,60 @@ class ComposedGenerator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
 
         combo = rng.choice([
-            # SR-3 + MI-4: Redundant aggregation + column-major access
-            "sr3_mi4",
-            # SR-1 + CF-1: Loop-invariant computation + branch in loop
-            "sr1_cf1",
-            # HR-2 + IS-1: Copy-paste duplication + sparse data
-            "hr2_is1",
-            # SR-4 + HR-4: Invariant call + defensive checks
-            "sr4_hr4",
-            # DS-4 + CF-2: AoS access + redundant bounds
-            "ds4_cf2",
+            "sr3_mi4",        # Redundant aggregation + column-major access
+            "sr1_cf1",        # Loop-invariant computation + branch in loop
+            "hr2_is1",        # Copy-paste duplication + sparse data
+            "sr4_hr4",        # Invariant call + defensive checks
+            "ds4_cf2",        # AoS access + redundant bounds
+            "sr2_hr1",        # Expression decomposition + redundant temps
+            "cf1_mi4",        # Hoistable branch + column-major access
+            "sr1_sr2_cf2",    # Triple: loop-invariant + decomposition + bounds
+            "hr1_cf2_mi4",    # Triple: temps + bounds + cache
+            "sr4_cf1_hr1",    # Triple: invariant call + branch + temps
         ])
 
         if combo == "sr3_mi4":
-            slow_code = f"""void slow_comp_{suf}(double *mat, double *col_avgs, int rows, int cols) {{
-    // Pattern 1 (MI-4): Column-major traversal
-    // Pattern 2 (SR-3): Recompute column sum from scratch for each row prefix
+            slow_code = f"""void slow_comp_{suf}({dtype} *mat, {dtype} *col_avgs, int rows, int cols) {{
     for (int j = 0; j < cols; j++) {{
-        double sum = 0.0;
+        {dtype} sum = 0;
         for (int i = 0; i < rows; i++) {{
-            sum = 0.0;
+            sum = 0;
             for (int k = 0; k <= i; k++) {{
-                sum += mat[k * cols + j];  // Column-major access
+                sum += mat[k * cols + j];
             }}
         }}
-        col_avgs[j] = sum / rows;
+        col_avgs[j] = sum / ({dtype})rows;
     }}
 }}"""
-            fast_code = f"""void fast_comp_{suf}(double *mat, double *col_avgs, int rows, int cols) {{
-    // Fix MI-4: Row-major access order
-    // Fix SR-3: Running accumulator instead of recomputation
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0.0;
+            fast_code = f"""void fast_comp_{suf}({dtype} *mat, {dtype} *col_avgs, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
     for (int i = 0; i < rows; i++) {{
         for (int j = 0; j < cols; j++) {{
             col_avgs[j] += mat[i * cols + j];
         }}
     }}
-    for (int j = 0; j < cols; j++) col_avgs[j] /= rows;
+    for (int j = 0; j < cols; j++) col_avgs[j] /= ({dtype})rows;
 }}"""
             patterns = ["SR-3", "MI-4"]
-            desc = "Redundant aggregation + column-major access"
+            desc = f"Redundant aggregation + column-major, {dtype}"
 
         elif combo == "sr1_cf1":
-            slow_code = f"""double slow_comp_{suf}(double *A, double *B, int n, double k, int mode) {{
-    double total = 0.0;
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k, int mode) {{
+    {dtype} total = 0;
     for (int i = 0; i < n; i++) {{
-        // Pattern CF-1: Branch on invariant `mode`
-        double val;
-        if (mode == 1) val = A[i] + B[i] * k;      // Pattern SR-1
-        else if (mode == 2) val = A[i] - B[i] * k;  // Pattern SR-1
-        else val = A[i] * B[i] * k;                  // Pattern SR-1
+        {dtype} val;
+        if (mode == 1) val = A[i] + B[i] * k;
+        else if (mode == 2) val = A[i] - B[i] * k;
+        else val = A[i] * B[i] * k;
         total += val;
     }}
     return total;
 }}"""
-            fast_code = f"""double fast_comp_{suf}(double *A, double *B, int n, double k, int mode) {{
-    double sumA = 0.0, sumB = 0.0;
-    // Fix CF-1: Hoist branch
-    // Fix SR-1: Factor out invariant k
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k, int mode) {{
+    {dtype} sumA = 0, sumB = 0;
     if (mode == 1) {{
         for (int i = 0; i < n; i++) {{ sumA += A[i]; sumB += B[i]; }}
         return sumA + sumB * k;
@@ -1334,67 +2194,189 @@ class ComposedGenerator(PatternTemplate):
         for (int i = 0; i < n; i++) {{ sumA += A[i]; sumB += B[i]; }}
         return sumA - sumB * k;
     }} else {{
-        double sumAB = 0.0;
+        {dtype} sumAB = 0;
         for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
         return sumAB * k;
     }}
 }}"""
             patterns = ["SR-1", "CF-1"]
-            desc = "Loop-invariant computation + branch in loop"
+            desc = f"Loop-invariant computation + branch, {dtype}"
 
         elif combo == "sr4_hr4":
             slow_code = f"""#include <math.h>
-double config_val_{suf}(int key) {{
-    double r = 0.0;
-    for (int i = 0; i < 100; i++) r += sin((double)(key+i));
+{dtype} config_val_{suf}(int key) {{
+    {dtype} r = 0;
+    for (int i = 0; i < 100; i++) r += ({dtype})sin((double)(key+i));
     return r;
 }}
-double slow_comp_{suf}(double *arr, int n, int key) {{
-    double sum = 0.0;
+{dtype} slow_comp_{suf}({dtype} *arr, int n, int key) {{
+    {dtype} sum = 0;
     for (int i = 0; i < n; i++) {{
-        // Pattern HR-4: Redundant checks
         if (arr == NULL) continue;
         if (n <= 0) break;
         if (i < 0 || i >= n) continue;
-        // Pattern SR-4: Invariant function call
-        double factor = config_val_{suf}(key);
+        {dtype} factor = config_val_{suf}(key);
         sum += arr[i] * factor;
     }}
     return sum;
 }}"""
-            fast_code = f"""double fast_comp_{suf}(double *arr, int n, int key) {{
-    if (arr == NULL || n <= 0) return 0.0;
-    // Fix SR-4: Hoist invariant call
-    double factor = config_val_{suf}(key);
-    // Fix HR-4: Remove redundant checks
-    double sum = 0.0;
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *arr, int n, int key) {{
+    if (arr == NULL || n <= 0) return 0;
+    {dtype} factor = config_val_{suf}(key);
+    {dtype} sum = 0;
     for (int i = 0; i < n; i++) sum += arr[i] * factor;
     return sum;
 }}"""
             patterns = ["SR-4", "HR-4"]
-            desc = "Invariant function call + defensive checks"
+            desc = f"Invariant function call + defensive checks, {dtype}"
 
-        else:  # ds4_cf2
-            slow_code = f"""typedef struct {{ double x,y,z,vx,vy,vz,mass,charge; }} P_{suf};
-double slow_comp_{suf}(P_{suf} *p, int n) {{
-    double total = 0.0;
+        elif combo == "ds4_cf2":
+            slow_code = f"""typedef struct {{ {dtype} x,y,z,vx,vy,vz,mass,charge; }} P_{suf};
+{dtype} slow_comp_{suf}(P_{suf} *p, int n) {{
+    {dtype} total = 0;
     for (int i = 0; i < n; i++) {{
-        // Pattern CF-2: Redundant bounds check
         if (i >= 0 && i < n) {{
-            // Pattern DS-4: AoS access for single field
             total += p[i].mass;
         }}
     }}
     return total;
 }}"""
-            fast_code = f"""double fast_comp_{suf}(double *mass, int n) {{
-    // Fix DS-4: SoA layout, Fix CF-2: Remove redundant check
-    double total = 0.0;
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *mass, int n) {{
+    {dtype} total = 0;
     for (int i = 0; i < n; i++) total += mass[i];
     return total;
 }}"""
             patterns = ["DS-4", "CF-2"]
-            desc = "AoS access + redundant bounds checking"
+            desc = f"AoS access + redundant bounds, {dtype}"
+
+        elif combo == "sr2_hr1":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha, {dtype} beta) {{
+    {dtype} result = 0;
+    for (int i = 0; i < n; i++) {{
+        {dtype} t1 = X[i] * X[i];
+        {dtype} t2 = alpha * t1;
+        {dtype} t3 = beta * Y[i];
+        {dtype} t4 = t2 + t3;
+        {dtype} t5 = t4 + alpha * beta;
+        {dtype} t6 = t5;
+        result += t6;
+    }}
+    return result;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha, {dtype} beta) {{
+    {dtype} sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {{
+        sumXsq += X[i] * X[i];
+        sumY += Y[i];
+    }}
+    return alpha * sumXsq + beta * sumY + ({dtype})n * alpha * beta;
+}}"""
+            patterns = ["SR-2", "HR-1"]
+            desc = f"Expression decomposition + redundant temps, {dtype}"
+
+        elif combo == "cf1_mi4":
+            slow_code = f"""void slow_comp_{suf}({dtype} *mat, int rows, int cols, int mode) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            if (mode == 1) mat[i * cols + j] *= ({dtype})2.0;
+            else if (mode == 2) mat[i * cols + j] += ({dtype})1.0;
+            else mat[i * cols + j] -= ({dtype})0.5;
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *mat, int rows, int cols, int mode) {{
+    if (mode == 1) {{
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] *= ({dtype})2.0;
+    }} else if (mode == 2) {{
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] += ({dtype})1.0;
+    }} else {{
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] -= ({dtype})0.5;
+    }}
+}}"""
+            patterns = ["CF-1", "MI-4"]
+            desc = f"Hoistable branch + column-major access, {dtype}"
+
+        elif combo == "sr1_sr2_cf2":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int rows, int cols, {dtype} k) {{
+    {dtype} result = 0;
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {{
+                result += k * A[i*cols+j] * A[i*cols+j] + k * B[i*cols+j];
+            }}
+        }}
+    }}
+    return result;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int rows, int cols, {dtype} k) {{
+    {dtype} sumAsq = 0, sumB = 0;
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            int idx = i*cols+j;
+            sumAsq += A[idx] * A[idx];
+            sumB += B[idx];
+        }}
+    }}
+    return k * sumAsq + k * sumB;
+}}"""
+            patterns = ["SR-1", "SR-2", "CF-2"]
+            desc = f"Triple: invariant + decomposition + bounds, {dtype}"
+
+        elif combo == "hr1_cf2_mi4":
+            slow_code = f"""void slow_comp_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {{
+                {dtype} t1 = A[i*cols+j] + B[i*cols+j];
+                {dtype} t2 = t1 * ({dtype})2.0;
+                {dtype} t3 = t2 + ({dtype})1.0;
+                {dtype} result = t3;
+                out[i*cols+j] = result;
+            }}
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols) {{
+    for (int i = 0; i < rows; i++) {{
+        for (int j = 0; j < cols; j++) {{
+            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * ({dtype})2.0 + ({dtype})1.0;
+        }}
+    }}
+}}"""
+            patterns = ["HR-1", "CF-2", "MI-4"]
+            desc = f"Triple: temps + bounds + cache, {dtype}"
+
+        else:  # sr4_cf1_hr1
+            slow_code = f"""#include <math.h>
+{dtype} compute_{suf}(int key) {{
+    {dtype} r = 0;
+    for (int i = 0; i < 50; i++) r += ({dtype})sin((double)(key+i));
+    return r;
+}}
+void slow_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
+    for (int i = 0; i < n; i++) {{
+        {dtype} factor = compute_{suf}(key);
+        {dtype} t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        {dtype} t2 = t1 + ({dtype})1.0;
+        {dtype} t3 = t2;
+        out[i] = t3;
+    }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
+    {dtype} factor = compute_{suf}(key);
+    if (mode == 1) {{
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + ({dtype})1.0;
+    }} else {{
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + ({dtype})1.0;
+    }}
+}}"""
+            patterns = ["SR-4", "CF-1", "HR-1"]
+            desc = f"Triple: invariant call + branch + temps, {dtype}"
 
         metadata = VariantMetadata(
             pattern_id="COMP",
@@ -1402,7 +2384,7 @@ double slow_comp_{suf}(P_{suf} *p, int n) {{
             category="Composed",
             pattern_name="Multiple Overlapping Patterns",
             variant_desc=desc,
-            dtype="double",
+            dtype=dtype,
             difficulty="hard",
             compiler_fixable=False,
             num_loops=2,
@@ -1419,14 +2401,522 @@ double slow_comp_{suf}(P_{suf} *p, int n) {{
             "metadata": asdict(metadata)
         }
 
+class Comp1Generator(PatternTemplate):
+    def __init__(self):
+        super().__init__("COMP-1", "Composed/Difficulty", "Single Pattern Baseline")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        combo = rng.choice(["sr1_only", "hr1_only", "cf2_only", "mi4_only"])
+
+        if combo == "sr1_only":
+            n_consts = rng.randint(1, 3)
+            k_params = ", ".join(f"{dtype} k{i}" for i in range(n_consts))
+            inv_expr = " + ".join(f"k{i} * k{i}" for i in range(n_consts))
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, int n, {k_params}) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        {dtype} inv = {inv_expr};
+        total += A[i] + inv;
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, int n, {k_params}) {{
+    {dtype} inv = {inv_expr};
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i] + inv;
+    return total;
+}}"""
+            patterns = ["SR-1"]
+            desc = f"loop-invariant sum of {n_consts} constants, {dtype}"
+            speedup = "1.1x-2x"
+
+        elif combo == "hr1_only":
+            depth = rng.randint(2, 4)
+            chain = "\n        ".join(
+                [f"{dtype} t0 = A[i] * B[i];"] + [f"{dtype} t{j} = t{j-1};" for j in range(1, depth)]
+            )
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int n) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        {chain}
+        total += t{depth-1};
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int n) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i] * B[i];
+    return total;
+}}"""
+            patterns = ["HR-1"]
+            desc = f"{depth}-deep temp chain, {dtype}"
+            speedup = "1.1x-1.5x"
+
+        elif combo == "cf2_only":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, int n) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        if (i >= 0 && i < n)
+            total += A[i];
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, int n) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i];
+    return total;
+}}"""
+            patterns = ["CF-2"]
+            desc = f"redundant bounds check, {dtype}"
+            speedup = "1.1x-1.3x"
+
+        else:
+            slow_code = f"""void slow_comp_{suf}({dtype} *mat, int rows, int cols) {{
+    for (int j = 0; j < cols; j++)
+        for (int i = 0; i < rows; i++)
+            mat[i * cols + j] *= ({dtype})2.0;
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *mat, int rows, int cols) {{
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            mat[i * cols + j] *= ({dtype})2.0;
+}}"""
+            patterns = ["MI-4"]
+            desc = f"column-major traversal of row-major matrix, {dtype}"
+            speedup = "2x-10x"
+
+        meta = VariantMetadata(
+            pattern_id="COMP-1",
+            variant_id=f"COMP-1_v{variant_num:03d}",
+            category="Composed/Difficulty",
+            pattern_name="Single Pattern Baseline",
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="easy",
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=2,
+            lines_of_code=8,
+            expected_speedup_range=speedup,
+            composition=patterns,
+        )
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": "// Auto-generated\n", "metadata": asdict(meta)}
+
+
+class Comp2Generator(PatternTemplate):
+    def __init__(self):
+        super().__init__("COMP-2", "Composed/Difficulty", "Two Independent Overlapping Patterns")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        combo = rng.choice(["sr1_hr1", "cf2_mi4", "sr4_hr1", "sr2_cf2"])
+
+        if combo == "sr1_hr1":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        {dtype} inv = k * k;
+        {dtype} t1  = A[i] * B[i];
+        {dtype} t2  = t1;
+        total += t2 + inv;
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k) {{
+    {dtype} inv = k * k;
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i] * B[i] + inv;
+    return total;
+}}"""
+            patterns = ["SR-1", "HR-1"]
+            desc = f"loop-invariant + redundant temp, {dtype}"
+
+        elif combo == "cf2_mi4":
+            slow_code = f"""void slow_comp_{suf}({dtype} *mat, int rows, int cols) {{
+    for (int j = 0; j < cols; j++)
+        for (int i = 0; i < rows; i++)
+            if (i >= 0 && i < rows && j >= 0 && j < cols)
+                mat[i * cols + j] += ({dtype})1.0;
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *mat, int rows, int cols) {{
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            mat[i * cols + j] += ({dtype})1.0;
+}}"""
+            patterns = ["CF-2", "MI-4"]
+            desc = f"redundant bounds check + column-major traversal, {dtype}"
+
+        elif combo == "sr4_hr1":
+            slow_code = f"""#include <math.h>
+{dtype} slow_comp_{suf}({dtype} *A, int n, int key) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        {dtype} factor = ({dtype})sin((double)key);
+        {dtype} t1 = A[i] * factor;
+        {dtype} t2 = t1;
+        total += t2;
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, int n, int key) {{
+    {dtype} factor = ({dtype})sin((double)key);
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i] * factor;
+    return total;
+}}"""
+            patterns = ["SR-4", "HR-1"]
+            desc = f"invariant function call + redundant temp, {dtype}"
+
+        else:
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha) {{
+    {dtype} result = 0;
+    for (int i = 0; i < n; i++) {{
+        if (i >= 0 && i < n)
+            result += alpha * X[i] * X[i] + alpha * Y[i];
+    }}
+    return result;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha) {{
+    {dtype} sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {{
+        sumXsq += X[i] * X[i];
+        sumY   += Y[i];
+    }}
+    return alpha * (sumXsq + sumY);
+}}"""
+            patterns = ["SR-2", "CF-2"]
+            desc = f"expression decomp + redundant bounds, {dtype}"
+
+        meta = VariantMetadata(
+            pattern_id="COMP-2",
+            variant_id=f"COMP-2_v{variant_num:03d}",
+            category="Composed/Difficulty",
+            pattern_name="Two Independent Overlapping Patterns",
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="medium",
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=2,
+            lines_of_code=12,
+            expected_speedup_range="5x-50x",
+            composition=patterns,
+        )
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": "// Auto-generated\n", "metadata": asdict(meta)}
+
+
+class Comp3Generator(PatternTemplate):
+    def __init__(self):
+        super().__init__("COMP-3", "Composed/Difficulty", "Three Interacting Patterns")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(list(DTYPES.keys()))
+        combo = rng.choice(["sr1_hr1_cf2", "sr2_hr1_cf2", "sr4_cf1_hr1", "cf1_mi4_sr1"])
+
+        if combo == "sr1_hr1_cf2":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k) {{
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++) {{
+        if (i >= 0 && i < n) {{
+            {dtype} inv  = k * ({dtype})3.14;
+            {dtype} prod = A[i] * B[i];
+            {dtype} tmp  = prod;
+            total += tmp + inv;
+        }}
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int n, {dtype} k) {{
+    {dtype} inv = k * ({dtype})3.14;
+    {dtype} total = 0;
+    for (int i = 0; i < n; i++)
+        total += A[i] * B[i] + inv;
+    return total;
+}}"""
+            patterns = ["SR-1", "HR-1", "CF-2"]
+            desc = f"invariant + temp chain + bounds check, {dtype}"
+
+        elif combo == "sr2_hr1_cf2":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha, {dtype} beta) {{
+    {dtype} result = 0;
+    for (int i = 0; i < n; i++) {{
+        if (i >= 0 && i < n) {{
+            {dtype} t1 = alpha * X[i];
+            {dtype} t2 = t1 * X[i];
+            {dtype} t3 = beta * Y[i];
+            {dtype} t4 = t3;
+            result += t2 + t4;
+        }}
+    }}
+    return result;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *X, {dtype} *Y, int n, {dtype} alpha, {dtype} beta) {{
+    {dtype} sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {{
+        sumXsq += X[i] * X[i];
+        sumY   += Y[i];
+    }}
+    return alpha * sumXsq + beta * sumY;
+}}"""
+            patterns = ["SR-2", "HR-1", "CF-2"]
+            desc = f"expression decomp + temp chain + bounds check, {dtype}"
+
+        elif combo == "sr4_cf1_hr1":
+            slow_code = f"""#include <math.h>
+{dtype} cfg_{suf}(int key) {{
+    {dtype} r = 0;
+    for (int i = 0; i < 50; i++) r += ({dtype})sin((double)(key + i));
+    return r;
+}}
+void slow_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
+    for (int i = 0; i < n; i++) {{
+        {dtype} factor = cfg_{suf}(key);
+        {dtype} val;
+        if (mode == 1) val = A[i] * factor;
+        else           val = A[i] + factor;
+        {dtype} tmp = val;
+        out[i] = tmp;
+    }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
+    {dtype} factor = cfg_{suf}(key);
+    if (mode == 1) {{
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor;
+    }} else {{
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor;
+    }}
+}}"""
+            patterns = ["SR-4", "CF-1", "HR-1"]
+            desc = f"invariant call + hoistable branch + temp chain, {dtype}"
+
+        else:
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *mat, int rows, int cols, {dtype} k, int mode) {{
+    {dtype} total = 0;
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            {dtype} inv = k + ({dtype})j;
+            if (mode > 0)
+                total += mat[i * cols + j] * inv;
+        }}
+    }}
+    return total;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *mat, int rows, int cols, {dtype} k, int mode) {{
+    if (mode <= 0) return ({dtype})0;
+    {dtype} total = 0;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            total += mat[i * cols + j] * (k + ({dtype})j);
+    return total;
+}}"""
+            patterns = ["CF-1", "MI-4", "SR-1"]
+            desc = f"hoistable branch + column-major + partial loop invariant, {dtype}"
+
+        meta = VariantMetadata(
+            pattern_id="COMP-3",
+            variant_id=f"COMP-3_v{variant_num:03d}",
+            category="Composed/Difficulty",
+            pattern_name="Three Interacting Patterns",
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="hard",
+            compiler_fixable=False,
+            num_loops=2,
+            num_arrays=2,
+            lines_of_code=18,
+            expected_speedup_range="20x-500x",
+            composition=patterns,
+        )
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": "// Auto-generated\n", "metadata": asdict(meta)}
+
+
+class Comp4Generator(PatternTemplate):
+    """Conflicting patterns: optimizing one goal makes another harder.
+    The fast version requires a non-obvious resolution, not just applying both fixes."""
+
+    def __init__(self):
+        super().__init__("COMP-4", "Composed/Difficulty", "Conflicting Pattern Tradeoffs")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(["float", "double"])
+        combo = rng.choice(["sr4_vs_mi4", "fusion_vs_cache", "soa_vs_multifield", "tiling_vs_small_n"])
+
+        if combo == "sr4_vs_mi4":
+            slow_code = f"""#include <math.h>
+{dtype} col_scale_{suf}(int j, int key) {{
+    {dtype} r = 0;
+    for (int i = 0; i < 64; i++) r += ({dtype})sin((double)(j * key + i));
+    return r;
+}}
+void slow_comp_{suf}({dtype} *mat, int rows, int cols, int key) {{
+    for (int j = 0; j < cols; j++) {{
+        for (int i = 0; i < rows; i++) {{
+            mat[i * cols + j] *= col_scale_{suf}(j, key);
+        }}
+    }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *mat, int rows, int cols, int key) {{
+    {dtype} *scales = ({dtype} *)malloc(cols * sizeof({dtype}));
+    for (int j = 0; j < cols; j++)
+        scales[j] = col_scale_{suf}(j, key);
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            mat[i * cols + j] *= scales[j];
+    free(scales);
+}}"""
+            patterns = ["SR-4", "MI-4"]
+            desc = f"column-scale loop: hoisting call forces column-major, row-major forces recomputation, {dtype}"
+            conflict = (
+                "Hoisting col_scale() outside the inner loop requires iterating columns in the outer loop "
+                "(column-major), which thrashes the cache. Switching to row-major forces recomputing "
+                "col_scale() cols*rows times. Resolution: precompute all column scales into a temporary "
+                "array, then traverse row-major."
+            )
+
+        elif combo == "fusion_vs_cache":
+            slow_code = f"""{dtype} slow_comp_{suf}({dtype} *A, {dtype} *B, int n) {{
+    {dtype} sumA = 0;
+    for (int i = 0; i < n; i++) sumA += A[i] * A[i];
+    {dtype} sumB = 0;
+    for (int i = 0; i < n; i++) sumB += B[i] * B[i];
+    return sumA + sumB;
+}}"""
+            fast_code = f"""{dtype} fast_comp_{suf}({dtype} *A, {dtype} *B, int n) {{
+    {dtype} sumA = 0, sumB = 0;
+    if (n * (int)sizeof({dtype}) * 2 < 256 * 1024) {{
+        for (int i = 0; i < n; i++) {{ sumA += A[i] * A[i]; sumB += B[i] * B[i]; }}
+    }} else {{
+        for (int i = 0; i < n; i++) sumA += A[i] * A[i];
+        for (int i = 0; i < n; i++) sumB += B[i] * B[i];
+    }}
+    return sumA + sumB;
+}}"""
+            patterns = ["SR-3", "MI-4"]
+            desc = f"loop fusion doubles working set for large arrays, {dtype}"
+            conflict = (
+                "Fusing the two reduction loops halves loop overhead and improves pipelining, but doubles "
+                "the working set from N to 2N elements. When 2N exceeds L2 cache, the fused version "
+                "suffers more cache misses per pass than two separate loops. Resolution: choose based on "
+                "whether 2*N*sizeof(T) fits in cache."
+            )
+
+        elif combo == "soa_vs_multifield":
+            slow_code = f"""typedef struct {{ {dtype} x, y, z, vx, vy, vz; }} Particle_{suf};
+void slow_comp_{suf}(Particle_{suf} *p, int n, {dtype} dt) {{
+    for (int i = 0; i < n; i++) {{
+        p[i].x += p[i].vx * dt;
+        p[i].y += p[i].vy * dt;
+        p[i].z += p[i].vz * dt;
+    }}
+}}"""
+            fast_code = f"""typedef struct {{
+    {dtype} *x, *y, *z;
+    {dtype} *vx, *vy, *vz;
+}} ParticleSoA_{suf};
+void fast_comp_{suf}(ParticleSoA_{suf} *p, int n, {dtype} dt) {{
+    for (int i = 0; i < n; i++) p->x[i]  += p->vx[i] * dt;
+    for (int i = 0; i < n; i++) p->y[i]  += p->vy[i] * dt;
+    for (int i = 0; i < n; i++) p->z[i]  += p->vz[i] * dt;
+}}"""
+            patterns = ["DS-4", "MI-4"]
+            desc = f"AoS->SoA helps position-only update but hurts if all fields are touched together, {dtype}"
+            conflict = (
+                "Converting AoS to SoA improves cache efficiency when accessing one field at a time, "
+                "but this kernel reads both position and velocity for every particle. AoS keeps "
+                "co-located fields together; SoA splits them into separate arrays, requiring two cache "
+                "lines per particle instead of one. Resolution depends on which other kernels share "
+                "the same layout — there is no universally correct answer."
+            )
+
+        else:
+            block = rng.choice([16, 32, 64])
+            slow_code = f"""void slow_comp_{suf}({dtype} *C, {dtype} *A, {dtype} *B, int n) {{
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) {{
+            {dtype} s = 0;
+            for (int k = 0; k < n; k++)
+                s += A[i*n+k] * B[k*n+j];
+            C[i*n+j] = s;
+        }}
+}}"""
+            fast_code = f"""void fast_comp_{suf}({dtype} *C, {dtype} *A, {dtype} *B, int n) {{
+#define BLK {block}
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) C[i*n+j] = 0;
+    for (int ii = 0; ii < n; ii += BLK)
+        for (int jj = 0; jj < n; jj += BLK)
+            for (int kk = 0; kk < n; kk += BLK)
+                for (int i = ii; i < ii+BLK && i < n; i++)
+                    for (int k = kk; k < kk+BLK && k < n; k++) {{
+                        {dtype} a = A[i*n+k];
+                        for (int j = jj; j < jj+BLK && j < n; j++)
+                            C[i*n+j] += a * B[k*n+j];
+                    }}
+#undef BLK
+}}"""
+            patterns = ["MI-4", "SR-3"]
+            desc = f"loop tiling (block={block}) reduces cache misses but adds overhead for small n, {dtype}"
+            conflict = (
+                f"Tiling with block size {block} improves cache reuse for large matrices but introduces "
+                "extra loop bounds checks and index arithmetic that cost more than they save when n is "
+                "small. The naive triple-loop is faster for n < ~64. Resolution: branch on n, or pick "
+                "a block size that degrades gracefully."
+            )
+
+        meta = VariantMetadata(
+            pattern_id="COMP-4",
+            variant_id=f"COMP-4_v{variant_num:03d}",
+            category="Composed/Difficulty",
+            pattern_name="Conflicting Pattern Tradeoffs",
+            variant_desc=desc,
+            dtype=dtype,
+            difficulty="expert",
+            compiler_fixable=False,
+            num_loops=2,
+            num_arrays=2,
+            lines_of_code=20,
+            expected_speedup_range="2x-100x (input-dependent)",
+            composition=patterns,
+            conflict_note=conflict,
+        )
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": "// Auto-generated\n", "metadata": asdict(meta)}
+
+
 GENERATORS = {
     "SR-1": SR1_Generator(),
+    "SR-2": SR2_Generator(),
     "SR-3": SR3_Generator(),
     "SR-4": SR4_Generator(),
     "IS-1": IS1_Generator(),
+    "CF-1": CF1_Generator(),
+    "CF-2": CF2_Generator(),
+    "HR-1": HR1_Generator(),
     "DS-4": DS4_Generator(),
     "AL-1": AL1_Generator(),
-    "COMP": ComposedGenerator(),
+    "MI-4": MI4_Generator(),
+    "COMP":   ComposedGenerator(),
+    "COMP-1": Comp1Generator(),
+    "COMP-2": Comp2Generator(),
+    "COMP-3": Comp3Generator(),
+    "COMP-4": Comp4Generator(),
 }
 
 def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed: int = 42):
