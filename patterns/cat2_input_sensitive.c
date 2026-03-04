@@ -87,29 +87,53 @@ int is3_fast(double *arr, int n, double threshold) {
     return 1;
 }
 
-// IS-4: Sorted/Presorted Input Exploitation
-// When input is already sorted (or nearly sorted), using a
-// generic O(n log n) sort is wasteful. An insertion sort or
-// just a verification pass is sufficient.
+// IS-4: Adaptive Algorithm Selection (Nearly-Sorted Detection)
+// When input is nearly sorted (e.g. 99% elements already in order with a
+// handful of local swaps), qsort still performs O(n log n) comparisons
+// because it cannot inspect the data before choosing an algorithm.
+// The compiler cannot substitute insertion sort — it doesn't know the
+// data distribution until runtime. The fast version samples a fixed set
+// of random index pairs to estimate the inversion rate. If the rate is
+// below a threshold it falls through to insertion sort, which degrades
+// to O(n) for nearly-ordered input. For genuinely random input both
+// versions use qsort so performance is identical.
 static int cmp_int(const void *a, const void *b) {
     return (*(int*)a - *(int*)b);
 }
 
 void is4_slow(int *arr, int n) {
-    // Always use generic sort regardless of input order
+    // Always delegates to generic O(n log n) sort
     qsort(arr, n, sizeof(int), cmp_int);
 }
 
 void is4_fast(int *arr, int n) {
-    // Check if already sorted (or nearly sorted) first
-    int sorted = 1;
-    for (int i = 1; i < n; i++) {
-        if (arr[i] < arr[i-1]) { sorted = 0; break; }
+    // Sample SAMPLE_K random adjacent-ish pairs to estimate inversion rate.
+    // This is O(1) and tells us whether insertion sort will be efficient.
+    #define SAMPLE_K 64
+    #define NEARLY_SORTED_THRESH 4   // ≤4 inversions in 64 samples ≈ ≤6% rate
+    int inv = 0;
+    unsigned seed = 12345u;
+    for (int s = 0; s < SAMPLE_K; s++) {
+        seed = seed * 1664525u + 1013904223u;  // LCG
+        int i = (int)((seed >> 1) % (unsigned)(n - 1));
+        if (arr[i] > arr[i + 1]) inv++;
     }
-    if (sorted) return;  // O(n) check saves O(n log n) sort
-
-    // Fallback to sort
-    qsort(arr, n, sizeof(int), cmp_int);
+    if (inv <= NEARLY_SORTED_THRESH) {
+        // Insertion sort: O(n + k*n) where k = actual inversion density.
+        // For nearly-sorted input this is effectively O(n).
+        for (int i = 1; i < n; i++) {
+            int key = arr[i], j = i - 1;
+            while (j >= 0 && arr[j] > key) {
+                arr[j + 1] = arr[j];
+                j--;
+            }
+            arr[j + 1] = key;
+        }
+    } else {
+        qsort(arr, n, sizeof(int), cmp_int);
+    }
+    #undef SAMPLE_K
+    #undef NEARLY_SORTED_THRESH
 }
 
 
@@ -244,12 +268,19 @@ void run_input_sensitive(void) {
         free(arr);
     }
 
-    // IS-4: Already-sorted input
+    // IS-4: Nearly-sorted input (1% random swaps)
     {
         int n4 = 5000000;
         int *arr_slow = malloc(n4 * sizeof(int));
         int *arr_fast = malloc(n4 * sizeof(int));
-        for (int i = 0; i < n4; i++) arr_slow[i] = i;  // Already sorted
+        // Start sorted, then introduce ~1% local swaps so it's "nearly sorted"
+        for (int i = 0; i < n4; i++) arr_slow[i] = i;
+        srand(99);
+        int swaps = n4 / 100;
+        for (int s = 0; s < swaps; s++) {
+            int i = rand() % (n4 - 1);
+            int tmp = arr_slow[i]; arr_slow[i] = arr_slow[i+1]; arr_slow[i+1] = tmp;
+        }
         memcpy(arr_fast, arr_slow, n4 * sizeof(int));
 
         BenchTimer t;
@@ -262,7 +293,7 @@ void run_input_sensitive(void) {
         double ms_fast = timer_stop(&t);
 
         int ok = verify_array_int(arr_slow, arr_fast, n4);
-        record_result("IS-4", "Sorted Input Exploitation", ms_slow, ms_fast, ok);
+        record_result("IS-4", "Adaptive Sort (nearly-sorted detection)", ms_slow, ms_fast, ok);
         printf("[IS-4] Slow=%.2fms Fast=%.2fms Speedup=%.2fx %s\n",
                ms_slow, ms_fast, ms_slow/ms_fast, ok ? "PASS" : "FAIL");
 
