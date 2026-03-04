@@ -1,8 +1,28 @@
-"""Batch test all generated variants and produce summary report."""
+"""Batch test all generated variants and produce summary report.
+
+Compiles slow.c, fast.c, and test.c as THREE SEPARATE TRANSLATION UNITS
+with -fno-lto so the compiler cannot inline or perform cross-function
+optimizations across file boundaries. This ensures the measured inefficiency
+is genuine and not already optimized away by the compiler.
+"""
 import os, sys, json, subprocess, tempfile, csv
 from collections import defaultdict
 
 DATASET_DIR = sys.argv[1] if len(sys.argv) > 1 else "dataset"
+
+# Headers prepended to slow.c / fast.c so they compile standalone.
+# The on-disk files may omit these (they're just function bodies).
+_C_HEADERS = "#include <stdio.h>\n#include <stdlib.h>\n#include <math.h>\n#include <string.h>\n\n"
+
+def extract_extern_decl(code):
+    """Turn a function definition into an extern forward declaration.
+
+    e.g. 'double slow_sr_1_v000(double *A, int n) { ... }'
+      -> 'extern double slow_sr_1_v000(double *A, int n);'
+    """
+    brace = code.index('{')
+    sig = code[:brace].strip()
+    return f"extern {sig};"
 
 results = []
 errors = []
@@ -21,12 +41,29 @@ for root, dirs, files in os.walk(DATASET_DIR):
         if "SLOW_CODE_HERE" not in test:
             continue
 
-        full = test.replace("// SLOW_CODE_HERE", slow).replace("// FAST_CODE_HERE", fast)
+        # Replace inline placeholders with extern declarations so test.c
+        # cannot see the function bodies at compile time.
+        slow_decl = extract_extern_decl(slow)
+        fast_decl = extract_extern_decl(fast)
+        test_with_decls = (test
+            .replace("// SLOW_CODE_HERE", slow_decl)
+            .replace("// FAST_CODE_HERE", fast_decl))
 
         with tempfile.TemporaryDirectory() as tmp:
-            src = os.path.join(tmp, "test.c")
-            with open(src, "w") as f:
-                f.write(full)
+            # Three separate translation units
+            slow_src = os.path.join(tmp, "slow.c")
+            fast_src = os.path.join(tmp, "fast.c")
+            test_src = os.path.join(tmp, "test.c")
+
+            with open(slow_src, "w") as f:
+                # Prepend headers if not already present
+                prefix = _C_HEADERS if "#include" not in slow else ""
+                f.write(prefix + slow)
+            with open(fast_src, "w") as f:
+                prefix = _C_HEADERS if "#include" not in fast else ""
+                f.write(prefix + fast)
+            with open(test_src, "w") as f:
+                f.write(test_with_decls)
 
             row = {
                 "variant_id": meta["variant_id"],
@@ -41,8 +78,11 @@ for root, dirs, files in os.walk(DATASET_DIR):
             for opt in ["-O0", "-O3"]:
                 tag = opt.replace("-", "")
                 bin_path = os.path.join(tmp, f"test{opt}")
-                r = subprocess.run(["gcc", opt, "-o", bin_path, src, "-lm"],
-                                   capture_output=True, text=True, timeout=10)
+                # -fno-lto: prevent link-time inlining across TU boundaries
+                r = subprocess.run(
+                    ["gcc", opt, "-fno-lto", "-o", bin_path,
+                     test_src, slow_src, fast_src, "-lm"],
+                    capture_output=True, text=True, timeout=10)
                 if r.returncode != 0:
                     errors.append(f"{meta['variant_id']} compile {opt}: {r.stderr[:100]}")
                     continue

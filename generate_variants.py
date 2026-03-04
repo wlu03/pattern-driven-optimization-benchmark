@@ -2444,10 +2444,14 @@ def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed:
             os.makedirs(var_dir, exist_ok=True)
 
             # Write files
+            # slow.c / fast.c are compiled as standalone translation units
+            # (separate from test.c) so the compiler cannot inline across the
+            # boundary. __attribute__((noinline)) is added as extra insurance.
+            _hdr = "#include <stdio.h>\n#include <stdlib.h>\n#include <math.h>\n#include <string.h>\n\n"
             with open(os.path.join(var_dir, "slow.c"), "w") as f:
-                f.write(result["slow_code"])
+                f.write(_hdr + "__attribute__((noinline))\n" + result["slow_code"])
             with open(os.path.join(var_dir, "fast.c"), "w") as f:
-                f.write(result["fast_code"])
+                f.write(_hdr + "__attribute__((noinline))\n" + result["fast_code"])
             with open(os.path.join(var_dir, "test.c"), "w") as f:
                 f.write(result["test_code"])
             with open(os.path.join(var_dir, "metadata.json"), "w") as f:
