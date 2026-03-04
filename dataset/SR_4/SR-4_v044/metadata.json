@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-4",
+  "variant_id": "SR-4_v044",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Invariant Function Call in Loop",
+  "variant_desc": "hash_chain function, 4 invariant calls, work=200, double",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 20,
+  "expected_speedup_range": "100x-1000x",
+  "composition": []
+}

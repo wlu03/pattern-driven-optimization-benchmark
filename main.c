@@ -7,7 +7,6 @@
  * This measures the baseline: how much does the compiler
  * optimize the SLOW versions? Then compare with LLM output.
  */
-
 #include "harness/bench_harness.h"
 #include "patterns/cat1_semantic_redundancy.c"
 #include "patterns/cat2_input_sensitive.c"

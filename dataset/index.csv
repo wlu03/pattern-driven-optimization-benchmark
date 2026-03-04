@@ -1,0 +1,351 @@
+variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
+SR-1_v000,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 3 invariants, double, mul op, while-loop, product reduction",double,hard,False,1.1x-2x
+SR-1_v001,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 2 invariants, double, mul op, log() wrapping, 2D layout",double,hard,False,1.1x-2x
+SR-1_v002,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 3 invariants, float, sub op, product reduction",float,hard,False,1.1x-2x
+SR-1_v003,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 1 invariants, double, sub op, while-loop",double,easy,False,1.1x-2x
+SR-1_v004,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 4 invariants, float, mul op, 2D layout, product reduction",float,hard,False,1.1x-2x
+SR-1_v005,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 2 invariants, float, sub op, 2D layout, while-loop, product reduction",float,medium,False,1.1x-2x
+SR-1_v006,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 1 invariants, int, mul op, fabs() wrapping, while-loop",int,easy,False,1.1x-2x
+SR-1_v007,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 4 invariants, int, sub op, log() wrapping",int,hard,False,1.1x-2x
+SR-1_v008,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 2 invariants, float, sub op",float,medium,False,1.1x-2x
+SR-1_v009,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 1 invariants, float, add op, log() wrapping, 2D layout, while-loop",float,hard,False,1.1x-2x
+SR-1_v010,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 4 invariants, float, mul op, product reduction",float,hard,False,1.1x-2x
+SR-1_v011,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 3 invariants, float, add op, while-loop",float,hard,False,1.1x-2x
+SR-1_v012,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 1 invariants, int, sub op, 2D layout, while-loop",int,medium,False,1.1x-2x
+SR-1_v013,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 1 invariants, float, mul op, sin() wrapping",float,easy,False,1.1x-2x
+SR-1_v014,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 3 invariants, int, sub op, cos() wrapping, 2D layout, while-loop",int,hard,False,1.1x-2x
+SR-1_v015,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 2 invariants, float, mul op, log() wrapping",float,hard,False,1.1x-2x
+SR-1_v016,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 3 invariants, float, add op, sqrt() wrapping, 2D layout, while-loop",float,hard,False,1.1x-2x
+SR-1_v017,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 1 invariants, double, add op",double,easy,False,1.1x-2x
+SR-1_v018,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 1 invariants, float, sub op, 2D layout, product reduction",float,medium,False,1.1x-2x
+SR-1_v019,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 1 invariants, int, add op, fabs() wrapping",int,easy,False,1.1x-2x
+SR-1_v020,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"3 arrays, 2 invariants, float, mul op, cos() wrapping, product reduction",float,hard,False,1.1x-2x
+SR-1_v021,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 4 invariants, float, mul op, sin() wrapping",float,hard,False,1.1x-2x
+SR-1_v022,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 3 invariants, int, sub op, sin() wrapping",int,hard,False,1.1x-2x
+SR-1_v023,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 4 invariants, float, sub op, sin() wrapping",float,hard,False,1.1x-2x
+SR-1_v024,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 2 invariants, int, mul op, while-loop",int,medium,False,1.1x-2x
+SR-1_v025,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 1 invariants, double, sub op, while-loop, product reduction",double,easy,False,1.1x-2x
+SR-1_v026,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 1 invariants, float, add op, sin() wrapping",float,easy,False,1.1x-2x
+SR-1_v027,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 4 invariants, float, sub op",float,hard,False,1.1x-2x
+SR-1_v028,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 2 invariants, double, mul op, log() wrapping, 2D layout",double,hard,False,1.1x-2x
+SR-1_v029,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 2 invariants, float, sub op, 2D layout",float,medium,False,1.1x-2x
+SR-1_v030,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 2 invariants, double, sub op, while-loop, product reduction",double,medium,False,1.1x-2x
+SR-1_v031,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 3 invariants, double, sub op",double,hard,False,1.1x-2x
+SR-1_v032,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"3 arrays, 3 invariants, double, add op, log() wrapping, 2D layout",double,hard,False,1.1x-2x
+SR-1_v033,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 3 invariants, double, sub op, while-loop",double,hard,False,1.1x-2x
+SR-1_v034,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 4 invariants, float, add op, 2D layout",float,hard,False,1.1x-2x
+SR-1_v035,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 4 invariants, double, mul op, 2D layout, product reduction",double,hard,False,1.1x-2x
+SR-1_v036,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 1 invariants, int, mul op, exp() wrapping, 2D layout, while-loop",int,hard,False,1.1x-2x
+SR-1_v037,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"3 arrays, 3 invariants, int, mul op, sin() wrapping, 2D layout, while-loop",int,hard,False,1.1x-2x
+SR-1_v038,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 2 invariants, float, sub op",float,medium,False,1.1x-2x
+SR-1_v039,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"3 arrays, 1 invariants, int, mul op, fabs() wrapping, 2D layout, while-loop",int,hard,False,1.1x-2x
+SR-1_v040,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 1 invariants, float, sub op, sqrt() wrapping, while-loop",float,easy,False,1.1x-2x
+SR-1_v041,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 1 invariants, int, sub op, while-loop",int,easy,False,1.1x-2x
+SR-1_v042,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"6 arrays, 4 invariants, float, mul op, cos() wrapping",float,hard,False,1.1x-2x
+SR-1_v043,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"3 arrays, 1 invariants, float, mul op, 2D layout, while-loop",float,medium,False,1.1x-2x
+SR-1_v044,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 4 invariants, double, add op, product reduction",double,hard,False,1.1x-2x
+SR-1_v045,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 2 invariants, int, add op",int,medium,False,1.1x-2x
+SR-1_v046,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 2 invariants, double, add op, while-loop",double,medium,False,1.1x-2x
+SR-1_v047,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"2 arrays, 2 invariants, double, mul op, while-loop",double,medium,False,1.1x-2x
+SR-1_v048,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"5 arrays, 1 invariants, double, add op, 2D layout",double,medium,False,1.1x-2x
+SR-1_v049,SR-1,Semantic Redundancy,Loop-Invariant Semantic Computation,"4 arrays, 1 invariants, float, mul op, while-loop, product reduction",float,easy,False,1.1x-2x
+SR-3_v000,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window mean (window=32) recomputed from scratch, int, N=10000",int,medium,False,100x-10000x
+SR-3_v001,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative variance recomputed from scratch (O(n^2) -> O(n)), float, N=50000",float,easy,False,100x-10000x
+SR-3_v002,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, float, N=100000",float,easy,False,100x-10000x
+SR-3_v003,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running minimum recomputed from scratch, int, while-loop, N=10000",int,easy,False,100x-10000x
+SR-3_v004,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window mean (window=32) recomputed from scratch, float, while-loop, N=50000",float,medium,False,100x-10000x
+SR-3_v005,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=32) recomputed from scratch, float, N=50000",float,medium,False,100x-10000x
+SR-3_v006,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, float, N=10000",float,easy,False,100x-10000x
+SR-3_v007,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, double, N=50000",double,easy,False,100x-10000x
+SR-3_v008,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, double, N=100000",double,easy,False,100x-10000x
+SR-3_v009,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window mean (window=4) recomputed from scratch, float, N=10000",float,medium,False,100x-10000x
+SR-3_v010,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, int, N=100000",int,easy,False,100x-10000x
+SR-3_v011,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, float, while-loop, N=10000",float,easy,False,100x-10000x
+SR-3_v012,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, int, while-loop, N=30000",int,easy,False,100x-10000x
+SR-3_v013,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative variance recomputed from scratch (O(n^2) -> O(n)), double, while-loop, N=30000",double,easy,False,100x-10000x
+SR-3_v014,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, float, N=50000",float,easy,False,100x-10000x
+SR-3_v015,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running minimum recomputed from scratch, double, while-loop, N=100000",double,easy,False,100x-10000x
+SR-3_v016,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative variance recomputed from scratch (O(n^2) -> O(n)), float, N=30000",float,easy,False,100x-10000x
+SR-3_v017,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, double, N=100000",double,easy,False,100x-10000x
+SR-3_v018,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.1) recomputed from scratch, float, N=50000",float,easy,False,100x-10000x
+SR-3_v019,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, float, N=100000",float,easy,False,100x-10000x
+SR-3_v020,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, float, N=100000",float,easy,False,100x-10000x
+SR-3_v021,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=8) recomputed from scratch, float, N=10000",float,medium,False,100x-10000x
+SR-3_v022,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, double, N=10000",double,easy,False,100x-10000x
+SR-3_v023,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=128) recomputed from scratch, float, N=100000",float,medium,False,100x-10000x
+SR-3_v024,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, float, N=30000",float,easy,False,100x-10000x
+SR-3_v025,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, double, N=50000",double,easy,False,100x-10000x
+SR-3_v026,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=64) recomputed from scratch, double, N=100000",double,medium,False,100x-10000x
+SR-3_v027,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.1) recomputed from scratch, float, N=10000",float,easy,False,100x-10000x
+SR-3_v028,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, int, N=50000",int,easy,False,100x-10000x
+SR-3_v029,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, double, while-loop, N=50000",double,easy,False,100x-10000x
+SR-3_v030,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.5) recomputed from scratch, double, N=100000",double,easy,False,100x-10000x
+SR-3_v031,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running minimum recomputed from scratch, double, N=100000",double,easy,False,100x-10000x
+SR-3_v032,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=32) recomputed from scratch, float, while-loop, N=10000",float,medium,False,100x-10000x
+SR-3_v033,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative variance recomputed from scratch (O(n^2) -> O(n)), double, N=100000",double,easy,False,100x-10000x
+SR-3_v034,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, int, N=30000",int,easy,False,100x-10000x
+SR-3_v035,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, float, N=10000",float,easy,False,100x-10000x
+SR-3_v036,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.2) recomputed from scratch, double, while-loop, N=100000",double,easy,False,100x-10000x
+SR-3_v037,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=128) recomputed from scratch, int, while-loop, N=50000",int,medium,False,100x-10000x
+SR-3_v038,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, double, N=100000",double,easy,False,100x-10000x
+SR-3_v039,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, float, N=50000",float,easy,False,100x-10000x
+SR-3_v040,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, float, N=10000",float,easy,False,100x-10000x
+SR-3_v041,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window mean (window=8) recomputed from scratch, float, N=30000",float,medium,False,100x-10000x
+SR-3_v042,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, int, N=10000",int,easy,False,100x-10000x
+SR-3_v043,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, float, N=100000",float,easy,False,100x-10000x
+SR-3_v044,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, float, N=10000",float,easy,False,100x-10000x
+SR-3_v045,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, float, N=10000",float,easy,False,100x-10000x
+SR-3_v046,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running minimum recomputed from scratch, int, N=10000",int,easy,False,100x-10000x
+SR-3_v047,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window mean (window=32) recomputed from scratch, int, while-loop, N=10000",int,medium,False,100x-10000x
+SR-3_v048,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, float, while-loop, N=100000",float,easy,False,100x-10000x
+SR-3_v049,SR-3,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, float, while-loop, N=100000",float,easy,False,100x-10000x
+SR-4_v000,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 2 invariant calls, work=30, float, while-loop",float,hard,False,100x-1000x
+SR-4_v001,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 2 invariant calls, work=50, float",float,hard,False,100x-1000x
+SR-4_v002,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 4 invariant calls, work=100, double",double,hard,False,100x-1000x
+SR-4_v003,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 2 invariant calls, work=1000, double, while-loop, additive apply",double,hard,False,100x-1000x
+SR-4_v004,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 2 invariant calls, work=50, double",double,hard,False,100x-1000x
+SR-4_v005,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 4 invariant calls, work=200, double",double,hard,False,100x-1000x
+SR-4_v006,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 4 invariant calls, work=50, float",float,hard,False,100x-1000x
+SR-4_v007,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 1 invariant calls, work=50, float, additive apply",float,easy,False,100x-1000x
+SR-4_v008,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 3 invariant calls, work=100, double",double,hard,False,100x-1000x
+SR-4_v009,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 1 invariant calls, work=100, float, while-loop",float,easy,False,100x-1000x
+SR-4_v010,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 4 invariant calls, work=500, double",double,hard,False,100x-1000x
+SR-4_v011,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 2 invariant calls, work=500, double",double,hard,False,100x-1000x
+SR-4_v012,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"nested_sqrt function, 1 invariant calls, work=50, double, while-loop",double,easy,False,100x-1000x
+SR-4_v013,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=500, float",float,hard,False,100x-1000x
+SR-4_v014,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=200, double, additive apply",double,easy,False,100x-1000x
+SR-4_v015,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 4 invariant calls, work=50, float",float,hard,False,100x-1000x
+SR-4_v016,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 3 invariant calls, work=1000, float, additive apply",float,hard,False,100x-1000x
+SR-4_v017,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 3 invariant calls, work=500, double, additive apply",double,hard,False,100x-1000x
+SR-4_v018,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 3 invariant calls, work=200, float",float,hard,False,100x-1000x
+SR-4_v019,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 3 invariant calls, work=30, double",double,hard,False,100x-1000x
+SR-4_v020,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 1 invariant calls, work=100, float",float,easy,False,100x-1000x
+SR-4_v021,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 2 invariant calls, work=100, float",float,hard,False,100x-1000x
+SR-4_v022,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=30, double, while-loop",double,hard,False,100x-1000x
+SR-4_v023,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 3 invariant calls, work=30, float, while-loop",float,hard,False,100x-1000x
+SR-4_v024,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 1 invariant calls, work=1000, double",double,easy,False,100x-1000x
+SR-4_v025,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"nested_sqrt function, 3 invariant calls, work=200, float",float,hard,False,100x-1000x
+SR-4_v026,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 4 invariant calls, work=100, double, while-loop",double,hard,False,100x-1000x
+SR-4_v027,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 1 invariant calls, work=500, float, additive apply",float,easy,False,100x-1000x
+SR-4_v028,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"nested_sqrt function, 4 invariant calls, work=500, float, while-loop",float,hard,False,100x-1000x
+SR-4_v029,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 4 invariant calls, work=1000, float, while-loop",float,hard,False,100x-1000x
+SR-4_v030,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 2 invariant calls, work=1000, double",double,hard,False,100x-1000x
+SR-4_v031,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=200, double, additive apply",double,easy,False,100x-1000x
+SR-4_v032,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 2 invariant calls, work=200, float, while-loop",float,hard,False,100x-1000x
+SR-4_v033,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=500, float",float,easy,False,100x-1000x
+SR-4_v034,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 3 invariant calls, work=30, float, additive apply",float,hard,False,100x-1000x
+SR-4_v035,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=500, float",float,hard,False,100x-1000x
+SR-4_v036,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 4 invariant calls, work=100, double",double,hard,False,100x-1000x
+SR-4_v037,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 1 invariant calls, work=50, double, additive apply",double,easy,False,100x-1000x
+SR-4_v038,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 2 invariant calls, work=30, float, additive apply",float,hard,False,100x-1000x
+SR-4_v039,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 3 invariant calls, work=500, double",double,hard,False,100x-1000x
+SR-4_v040,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 4 invariant calls, work=500, double, while-loop, additive apply",double,hard,False,100x-1000x
+SR-4_v041,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=200, double",double,easy,False,100x-1000x
+SR-4_v042,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 1 invariant calls, work=100, double, additive apply",double,easy,False,100x-1000x
+SR-4_v043,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 2 invariant calls, work=500, double, while-loop",double,hard,False,100x-1000x
+SR-4_v044,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 4 invariant calls, work=200, double",double,hard,False,100x-1000x
+SR-4_v045,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 4 invariant calls, work=50, float, while-loop, additive apply",float,hard,False,100x-1000x
+SR-4_v046,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=50, double, while-loop, additive apply",double,hard,False,100x-1000x
+SR-4_v047,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 3 invariant calls, work=50, double, additive apply",double,hard,False,100x-1000x
+SR-4_v048,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 1 invariant calls, work=200, float, while-loop, additive apply",float,easy,False,100x-1000x
+SR-4_v049,SR-4,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 4 invariant calls, work=1000, float",float,hard,False,100x-1000x
+IS-1_v000,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (70% zeros in x), skip zero entries, double",double,medium,False,3x
+IS-1_v001,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (70% zeros), skip zero pairs, double",double,medium,False,3x
+IS-1_v002,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (80% zeros), skip zero elements, float",float,medium,False,5x
+IS-1_v003,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (70% zeros in x), skip zero entries, double",double,medium,False,3x
+IS-1_v004,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (90% zeros), skip zero pairs, double",double,easy,False,10x
+IS-1_v005,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (90% zeros), skip zero elements, double",double,easy,False,10x
+IS-1_v006,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (90% zeros), skip zero elements, double, while-loop",double,easy,False,10x
+IS-1_v007,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (70% zeros), skip zero pairs, double, while-loop",double,medium,False,3x
+IS-1_v008,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise * (90% zeros), double",double,easy,False,10x
+IS-1_v009,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (50% zeros), skip zero rows/cols, float, while-loop",float,medium,False,2x
+IS-1_v010,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (80% zeros), skip zero elements, float",float,hard,False,5x
+IS-1_v011,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (99% zeros), skip zero elements, float",float,hard,False,100x
+IS-1_v012,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise - (80% zeros), float",float,medium,False,5x
+IS-1_v013,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (99% zeros), skip zero elements, double",double,easy,False,100x
+IS-1_v014,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (70% zeros in x), skip zero entries, float",float,medium,False,3x
+IS-1_v015,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (95% zeros in x), skip zero entries, double",double,easy,False,20x
+IS-1_v016,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (80% zeros in x), skip zero entries, double, while-loop",double,medium,False,5x
+IS-1_v017,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (80% zeros), skip zero elements, float",float,medium,False,5x
+IS-1_v018,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95% zeros), skip zero rows/cols, float, while-loop",float,easy,False,20x
+IS-1_v019,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95% zeros), skip zero rows/cols, double",double,easy,False,20x
+IS-1_v020,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise + (95% zeros), float, while-loop",float,easy,False,20x
+IS-1_v021,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (70% zeros in x), skip zero entries, double",double,medium,False,3x
+IS-1_v022,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (99% zeros), skip zero elements, float",float,easy,False,100x
+IS-1_v023,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (90% zeros), skip zero elements, double",double,easy,False,10x
+IS-1_v024,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise * (80% zeros), double, while-loop",double,medium,False,5x
+IS-1_v025,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise * (99% zeros), float, while-loop",float,easy,False,100x
+IS-1_v026,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (50% zeros), skip zero elements, double, while-loop",double,hard,False,2x
+IS-1_v027,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (80% zeros in x), skip zero entries, float, while-loop",float,medium,False,5x
+IS-1_v028,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (50% zeros), skip zero elements, float, while-loop",float,hard,False,2x
+IS-1_v029,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise - (70% zeros), double",double,medium,False,3x
+IS-1_v030,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (70% zeros), skip zero pairs, float",float,medium,False,3x
+IS-1_v031,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (99% zeros), skip zero rows/cols, double",double,easy,False,100x
+IS-1_v032,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (99% zeros), skip zero elements, float",float,hard,False,100x
+IS-1_v033,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (50% zeros), skip zero rows/cols, float, while-loop",float,medium,False,2x
+IS-1_v034,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (99% zeros), skip zero rows/cols, float",float,easy,False,100x
+IS-1_v035,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95% zeros), skip zero rows/cols, double, while-loop",double,easy,False,20x
+IS-1_v036,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (50% zeros), skip zero elements, float",float,hard,False,2x
+IS-1_v037,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (95% zeros), skip zero elements, float, while-loop",float,easy,False,20x
+IS-1_v038,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (70% zeros), skip zero rows/cols, double",double,medium,False,3x
+IS-1_v039,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (99% zeros), skip zero elements, float",float,easy,False,100x
+IS-1_v040,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (70% zeros), skip zero pairs, float, while-loop",float,medium,False,3x
+IS-1_v041,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (80% zeros), skip zero elements, float",float,medium,False,5x
+IS-1_v042,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (99% zeros), skip zero elements, float, while-loop",float,easy,False,100x
+IS-1_v043,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (50% zeros in x), skip zero entries, float",float,medium,False,2x
+IS-1_v044,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse SAXPY (95% zeros in x), skip zero entries, float",float,easy,False,20x
+IS-1_v045,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse element-wise * (50% zeros), float, while-loop",float,medium,False,2x
+IS-1_v046,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (80% zeros), skip zero pairs, float, while-loop",float,medium,False,5x
+IS-1_v047,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (95% zeros), skip zero elements, double",double,hard,False,20x
+IS-1_v048,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-vector multiply (95% zeros), skip zero elements, double",double,easy,False,20x
+IS-1_v049,IS-1,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse dot product (70% zeros), skip zero pairs, float",float,medium,False,3x
+DS-4_v000,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (8 fields), accessing ['flags', 'value', 'weight'], min reduction",double,medium,False,2x-8x
+DS-4_v001,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (6 fields), accessing ['nx', 'ny', 'pz', 'py'], min reduction, while-loop",double,medium,False,1x-6x
+DS-4_v002,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (7 fields), accessing ['value', 'category', 'flags', 'timestamp'], sum reduction",double,medium,False,1x-7x
+DS-4_v003,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (8 fields), accessing ['rank', 'timestamp', 'weight'], max reduction, while-loop",double,medium,False,2x-8x
+DS-4_v004,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (6 fields), accessing ['weight', 'flags', 'id', 'timestamp'], sum reduction, while-loop",double,medium,False,1x-6x
+DS-4_v005,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (8 fields), accessing ['phase'], min reduction",double,hard,False,8x-8x
+DS-4_v006,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (6 fields), accessing ['wind_speed', 'wind_dir', 'light', 'pressure'], sum reduction, while-loop",double,medium,False,1x-6x
+DS-4_v007,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['pz', 'ny', 'v', 'u'], min reduction",double,medium,False,2x-8x
+DS-4_v008,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (6 fields), accessing ['y', 'x', 'b', 'g'], sum reduction",double,medium,False,1x-6x
+DS-4_v009,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['v', 'py', 'nz'], sum reduction, while-loop",double,medium,False,2x-8x
+DS-4_v010,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (8 fields), accessing ['r', 'b'], min reduction",double,medium,False,4x-8x
+DS-4_v011,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['py', 'pz'], max reduction, while-loop",double,medium,False,4x-8x
+DS-4_v012,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (6 fields), accessing ['px', 'ny', 'pz'], max reduction",double,medium,False,2x-6x
+DS-4_v013,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (8 fields), accessing ['b', 'g', 'normal_x'], sum reduction",double,medium,False,2x-8x
+DS-4_v014,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (6 fields), accessing ['id', 'flags'], sum reduction",double,medium,False,3x-6x
+DS-4_v015,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (7 fields), accessing ['y'], min reduction, while-loop",double,medium,False,7x-7x
+DS-4_v016,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['nz', 'pz', 'u', 'px'], sum reduction, while-loop",double,medium,False,2x-8x
+DS-4_v017,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (8 fields), accessing ['r'], min reduction",double,hard,False,8x-8x
+DS-4_v018,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['px', 'pz', 'v', 'nx'], min reduction",double,medium,False,2x-8x
+DS-4_v019,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (6 fields), accessing ['value', 'weight', 'flags', 'id'], sum reduction",double,medium,False,1x-6x
+DS-4_v020,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['px', 'py', 'pz', 'nz'], min reduction",double,medium,False,2x-8x
+DS-4_v021,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (6 fields), accessing ['weight', 'value', 'category', 'flags'], sum reduction",double,medium,False,1x-6x
+DS-4_v022,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (6 fields), accessing ['vx', 'vy', 'vz', 'x'], max reduction",double,medium,False,1x-6x
+DS-4_v023,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (8 fields), accessing ['noise', 'light', 'wind_dir'], min reduction",double,medium,False,2x-8x
+DS-4_v024,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (7 fields), accessing ['y', 'amplitude', 'channel'], max reduction",double,medium,False,2x-7x
+DS-4_v025,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['u', 'py'], max reduction, while-loop",double,medium,False,4x-8x
+DS-4_v026,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (7 fields), accessing ['z'], min reduction, while-loop",double,medium,False,7x-7x
+DS-4_v027,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (6 fields), accessing ['energy', 'x', 'channel'], sum reduction",double,medium,False,2x-6x
+DS-4_v028,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (8 fields), accessing ['charge', 'z'], sum reduction, while-loop",double,medium,False,4x-8x
+DS-4_v029,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (8 fields), accessing ['pressure', 'wind_dir', 'co2', 'noise'], max reduction",double,medium,False,2x-8x
+DS-4_v030,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (8 fields), accessing ['u', 'px', 'pz'], sum reduction, while-loop",double,medium,False,2x-8x
+DS-4_v031,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (6 fields), accessing ['quality', 'y'], min reduction",double,medium,False,3x-6x
+DS-4_v032,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (8 fields), accessing ['amplitude'], min reduction",double,hard,False,8x-8x
+DS-4_v033,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (6 fields), accessing ['x'], sum reduction, while-loop",double,medium,False,6x-6x
+DS-4_v034,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (7 fields), accessing ['vx'], max reduction, while-loop",double,medium,False,7x-7x
+DS-4_v035,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (7 fields), accessing ['vx', 'vz', 'vy', 'z'], min reduction",double,medium,False,1x-7x
+DS-4_v036,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (8 fields), accessing ['vy', 'mass', 'x'], max reduction",double,medium,False,2x-8x
+DS-4_v037,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (6 fields), accessing ['x', 'time', 'energy'], sum reduction",double,medium,False,2x-6x
+DS-4_v038,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (8 fields), accessing ['vy', 'z', 'vx'], max reduction, while-loop",double,medium,False,2x-8x
+DS-4_v039,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (8 fields), accessing ['value', 'timestamp', 'rank', 'weight'], sum reduction",double,medium,False,2x-8x
+DS-4_v040,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (6 fields), accessing ['x'], sum reduction, while-loop",double,medium,False,6x-6x
+DS-4_v041,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (6 fields), accessing ['y', 'vy', 'vx', 'vz'], max reduction, while-loop",double,medium,False,1x-6x
+DS-4_v042,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (6 fields), accessing ['y', 'a'], sum reduction",double,medium,False,3x-6x
+DS-4_v043,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (6 fields), accessing ['timestamp'], max reduction",double,medium,False,6x-6x
+DS-4_v044,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (7 fields), accessing ['light', 'wind_dir', 'wind_speed', 'pressure'], max reduction, while-loop",double,medium,False,1x-7x
+DS-4_v045,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (8 fields), accessing ['a', 'y', 'normal_x'], max reduction",double,medium,False,2x-8x
+DS-4_v046,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (7 fields), accessing ['pz'], sum reduction",double,medium,False,7x-7x
+DS-4_v047,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (6 fields), accessing ['px'], max reduction, while-loop",double,medium,False,6x-6x
+DS-4_v048,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (6 fields), accessing ['y', 'x', 'vy'], max reduction",double,medium,False,2x-6x
+DS-4_v049,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (8 fields), accessing ['normal_x', 'depth', 'x'], sum reduction, while-loop",double,medium,False,2x-8x
+AL-1_v000,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Integer partition count: exponential -> O(n * max_val) DP,long long,medium,False,1000x+
+AL-1_v001,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v002,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Fibonacci: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v003,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v004,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v005,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v006,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..4): O(4^n) -> O(n*4),long long,medium,False,1000x+
+AL-1_v007,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Fibonacci: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v008,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v009,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v010,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Grid paths: exponential recursive -> O(r*c) DP,long long,hard,False,1000x+
+AL-1_v011,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v012,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Catalan numbers: exponential recursive -> O(n^2) DP,long long,hard,False,1000x+
+AL-1_v013,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v014,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v015,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Integer partition count: exponential -> O(n * max_val) DP,long long,medium,False,1000x+
+AL-1_v016,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v017,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v018,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v019,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v020,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Catalan numbers: exponential recursive -> O(n^2) DP,long long,hard,False,1000x+
+AL-1_v021,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Grid paths: exponential recursive -> O(r*c) DP,long long,hard,False,1000x+
+AL-1_v022,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Integer partition count: exponential -> O(n * max_val) DP,long long,medium,False,1000x+
+AL-1_v023,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v024,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..3): O(3^n) -> O(n*3),long long,medium,False,1000x+
+AL-1_v025,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v026,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v027,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v028,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v029,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v030,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v031,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v032,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v033,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..4): O(4^n) -> O(n*4),long long,medium,False,1000x+
+AL-1_v034,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v035,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v036,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v037,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v038,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v039,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Integer partition count: exponential -> O(n * max_val) DP,long long,medium,False,1000x+
+AL-1_v040,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1000x+
+AL-1_v041,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Grid paths: exponential recursive -> O(r*c) DP,long long,hard,False,1000x+
+AL-1_v042,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v043,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v044,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Catalan numbers: exponential recursive -> O(n^2) DP,long long,hard,False,1000x+
+AL-1_v045,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1000x+
+AL-1_v046,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,"Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",long long,medium,False,1000x+
+AL-1_v047,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Fibonacci: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v048,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Fibonacci: O(2^n) recursive -> O(n) iterative,long long,medium,False,1000x+
+AL-1_v049,AL-1,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..4): O(4^n) -> O(n*4),long long,medium,False,1000x+
+COMP_v000,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v001,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v002,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v003,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v004,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v005,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v006,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v007,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v008,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v009,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v010,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v011,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v012,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v013,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v014,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v015,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v016,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v017,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v018,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v019,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v020,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v021,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v022,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v023,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v024,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v025,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v026,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v027,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v028,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v029,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v030,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v031,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v032,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v033,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v034,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v035,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v036,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v037,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v038,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v039,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v040,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v041,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v042,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v043,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v044,COMP,Composed,Multiple Overlapping Patterns,Redundant aggregation + column-major access,double,hard,False,10x-1000x
+COMP_v045,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v046,COMP,Composed,Multiple Overlapping Patterns,Loop-invariant computation + branch in loop,double,hard,False,10x-1000x
+COMP_v047,COMP,Composed,Multiple Overlapping Patterns,AoS access + redundant bounds checking,double,hard,False,10x-1000x
+COMP_v048,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x
+COMP_v049,COMP,Composed,Multiple Overlapping Patterns,Invariant function call + defensive checks,double,hard,False,10x-1000x

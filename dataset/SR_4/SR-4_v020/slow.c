@@ -1,0 +1,13 @@
+float expensive_fn_v020(int key) {
+    float r = 0.0f;
+    for (int i = 0; i < 100; i++)
+        r += sin((float)(key + i)) * cos((float)(key - i));
+    return r;
+}
+
+void slow_sr4_v020(float *arr, int n, int key) {
+    for (int i = 0; i < n; i++) {
+        float f0 = expensive_fn_v020(key);
+        arr[i] *= f0;
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-3",
+  "variant_id": "SR-3_v013",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Redundant Aggregation Recomputation",
+  "variant_desc": "Cumulative variance recomputed from scratch (O(n^2) -> O(n)), double, while-loop, N=30000",
+  "dtype": "double",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 1,
+  "lines_of_code": 10,
+  "expected_speedup_range": "100x-10000x",
+  "composition": []
+}

@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-4",
+  "variant_id": "SR-4_v027",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Invariant Function Call in Loop",
+  "variant_desc": "power_tower function, 1 invariant calls, work=500, float, additive apply",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 14,
+  "expected_speedup_range": "100x-1000x",
+  "composition": []
+}

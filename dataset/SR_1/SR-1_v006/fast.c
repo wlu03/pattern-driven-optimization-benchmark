@@ -1,0 +1,17 @@
+int fast_sr_1_v006(int *A, int *B, int *C, int *D, int *E, int n, int k0) {
+    int sum_A = 0;
+    int sum_B = 0;
+    int sum_C = 0;
+    int sum_D = 0;
+    int sum_E = 0;
+    int i = 0;
+    while (i < n) {
+        sum_A += A[i];
+        sum_B += B[i];
+        sum_C += C[i];
+        sum_D += D[i];
+        sum_E += E[i];
+        i++;
+    }
+    return (k0 * sum_A) + sum_B + sum_C + sum_D + sum_E;
+}

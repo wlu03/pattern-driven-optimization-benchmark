@@ -1,0 +1,15 @@
+{
+  "pattern_id": "AL-1",
+  "variant_id": "AL-1_v029",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Brute Force vs Memoization/DP",
+  "variant_desc": "Binomial C(n,k): O(2^n) recursive -> O(n*k) DP",
+  "dtype": "long long",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 0,
+  "lines_of_code": 8,
+  "expected_speedup_range": "1000x+",
+  "composition": []
+}

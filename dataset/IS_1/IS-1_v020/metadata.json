@@ -1,0 +1,15 @@
+{
+  "pattern_id": "IS-1",
+  "variant_id": "IS-1_v020",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Sparse Data Redundancy",
+  "variant_desc": "Sparse element-wise + (95% zeros), float, while-loop",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 10,
+  "expected_speedup_range": "20x",
+  "composition": []
+}

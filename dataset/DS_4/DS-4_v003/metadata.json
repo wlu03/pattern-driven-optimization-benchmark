@@ -1,0 +1,15 @@
+{
+  "pattern_id": "DS-4",
+  "variant_id": "DS-4_v003",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
+  "variant_desc": "records struct (8 fields), accessing ['rank', 'timestamp', 'weight'], max reduction, while-loop",
+  "dtype": "double",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 12,
+  "expected_speedup_range": "2x-8x",
+  "composition": []
+}

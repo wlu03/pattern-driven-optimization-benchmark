@@ -1,0 +1,5 @@
+void slow_is1_v024(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * B[i];
+    }
+}

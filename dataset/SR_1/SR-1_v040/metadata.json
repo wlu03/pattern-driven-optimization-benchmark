@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-1",
+  "variant_id": "SR-1_v040",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Loop-Invariant Semantic Computation",
+  "variant_desc": "2 arrays, 1 invariants, float, sub op, sqrt() wrapping, while-loop",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 8,
+  "expected_speedup_range": "1.1x-2x",
+  "composition": []
+}

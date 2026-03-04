@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N 10000
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {
+    int *data = malloc(N * sizeof(int));
+    int *res_slow = malloc(N * sizeof(int));
+    int *res_fast = malloc(N * sizeof(int));
+    srand(42);
+    for (int i = 0; i < N; i++) data[i] = (int)(rand() % 1000) * 0.01;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_sr3_v042(data, res_slow, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_sr3_v042(data, res_fast, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < N; i++) {
+        double err = fabs((double)(res_slow[i] - res_fast[i]));
+        if (err > 1e-4) { correct = 0; break; }
+    }
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+
+    free(data); free(res_slow); free(res_fast);
+    return 0;
+}

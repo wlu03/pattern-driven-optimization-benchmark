@@ -1,0 +1,18 @@
+{
+  "pattern_id": "COMP",
+  "variant_id": "COMP_v032",
+  "category": "Composed",
+  "pattern_name": "Multiple Overlapping Patterns",
+  "variant_desc": "AoS access + redundant bounds checking",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 15,
+  "expected_speedup_range": "10x-1000x",
+  "composition": [
+    "DS-4",
+    "CF-2"
+  ]
+}

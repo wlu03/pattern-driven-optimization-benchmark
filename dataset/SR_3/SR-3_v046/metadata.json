@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-3",
+  "variant_id": "SR-3_v046",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Redundant Aggregation Recomputation",
+  "variant_desc": "Running minimum recomputed from scratch, int, N=10000",
+  "dtype": "int",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 1,
+  "lines_of_code": 10,
+  "expected_speedup_range": "100x-10000x",
+  "composition": []
+}
