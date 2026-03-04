@@ -17,11 +17,32 @@ _C_HEADERS = "#include <stdio.h>\n#include <stdlib.h>\n#include <math.h>\n#inclu
 def extract_extern_decl(code):
     """Turn a function definition into an extern forward declaration.
 
-    e.g. 'double slow_sr_1_v000(double *A, int n) { ... }'
-      -> 'extern double slow_sr_1_v000(double *A, int n);'
+    Robust against files that include #include headers, blank lines, and
+    __attribute__((noinline)) prefixes added by the generator pipeline.
+
+    Strategy: scan lines top-to-bottom, resetting whenever we see a
+    preprocessor directive or a standalone __attribute__ line, then capture
+    everything up to (but not including) the first '{'.
     """
-    brace = code.index('{')
-    sig = code[:brace].strip()
+    sig_parts = []
+    for line in code.split('\n'):
+        stripped = line.strip()
+        # Preprocessor or standalone attribute — reset and keep scanning
+        if stripped.startswith('#') or stripped.startswith('__attribute__'):
+            sig_parts = []
+            continue
+        if not stripped:
+            if sig_parts:
+                sig_parts = []   # blank line between attribute and sig: reset
+            continue
+        if '{' in stripped and not stripped.startswith('//'):
+            before = stripped[:stripped.index('{')].strip()
+            if before:
+                sig_parts.append(before)
+            break
+        sig_parts.append(stripped)
+
+    sig = ' '.join(sig_parts).strip()
     return f"extern {sig};"
 
 results = []

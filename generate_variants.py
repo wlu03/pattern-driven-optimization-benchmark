@@ -2400,12 +2400,262 @@ void slow_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
             "metadata": asdict(metadata)
         }
 
+class IS5_Generator(PatternTemplate):
+    """IS-5: Runtime Alias Check for Restrict Fast-Path Vectorization
+
+    The slow version uses plain (non-restrict) pointers. The compiler must
+    conservatively guard against aliasing — inserting runtime overlap checks
+    or scalar fallback loops before the vectorized path. The fast version
+    checks for non-overlap at runtime (almost always true for separately
+    malloc'd buffers) and dispatches to a __restrict__-qualified kernel,
+    letting the compiler emit unguarded SIMD without alias guards.
+
+    Varies: number of input arrays (2 or 3), data type (float/double),
+    expression style (linear/quadratic/mixed/polynomial/inplace/FMA),
+    loop style (for/while).
+    """
+
+    # (expression template, label, is_inplace)
+    EXPRS_2 = [
+        ("out[i] = A[i] + B[i]",                                          "linear add",        False),
+        ("out[i] = A[i] * A[i] + B[i] * 2.0{s}",                         "quadratic",         False),
+        ("out[i] = A[i] * B[i] + A[i] - B[i] * 0.5{s}",                  "mixed multiply",    False),
+        ("out[i] = A[i] * A[i] - A[i] * 0.5{s} + B[i] * B[i] + B[i]",   "polynomial",        False),
+        ("out[i] += A[i] * 2.0{s} + B[i] * 0.5{s}",                      "in-place SAXPY",    True),
+        ("out[i] = A[i] * B[i] + A[i] + B[i]",                           "FMA-style",         False),
+    ]
+
+    EXPRS_3 = [
+        ("out[i] = A[i] + B[i] + C[i]",                                   "sum-3",             False),
+        ("out[i] = A[i] * B[i] + C[i] * 0.5{s}",                         "product+shift",     False),
+        ("out[i] = A[i] * A[i] + B[i] * B[i] - C[i] * 0.5{s}",          "polynomial-3",      False),
+        ("out[i] += A[i] * B[i] + C[i]",                                  "in-place 3-way",    True),
+        ("out[i] = 0.5{s} * A[i] + 0.3{s} * B[i] + 0.2{s} * C[i]",      "weighted sum",      False),
+    ]
+
+    def __init__(self):
+        super().__init__("IS-5", "Input-Sensitive Inefficiency",
+                         "Runtime Alias Check (restrict fast path)")
+
+    def generate(self, variant_num: int, seed: int) -> dict:
+        rng = random.Random(seed)
+        dtype  = rng.choice(["float", "double"])
+        n_inputs = rng.choice([2, 2, 3])        # bias toward 2-input
+        loop_style = rng.choice(["for", "while", "for"])
+        suf = f"v{variant_num:03d}"
+        s   = DTYPES[dtype]['suffix']
+
+        exprs = self.EXPRS_2 if n_inputs == 2 else self.EXPRS_3
+        expr_template, label, is_inplace = rng.choice(exprs)
+        expr = expr_template.format(s=s)
+
+        # ── Parameter strings ─────────────────────────────────────────────
+        if n_inputs == 2:
+            slow_params     = f"{dtype} *out, {dtype} *A, {dtype} *B, int n"
+            restrict_params = (f"{dtype} * __restrict__ out, "
+                               f"const {dtype} * __restrict__ A, "
+                               f"const {dtype} * __restrict__ B, int n")
+            alias_check     = ("(out + n <= A || A + n <= out) && "
+                               "(out + n <= B || B + n <= out)")
+            call_args       = "out, A, B, n"
+            alloc_inputs    = (f"    {dtype} *A = malloc(N * sizeof({dtype}));\n"
+                               f"    {dtype} *B = malloc(N * sizeof({dtype}));")
+            init_inputs     = (f"    for (int i = 0; i < N; i++) "
+                               f"A[i] = ({dtype})(i % 1000 + 1) * 0.001{s};\n"
+                               f"    for (int i = 0; i < N; i++) "
+                               f"B[i] = ({dtype})(i % 997  + 1) * 0.001{s};")
+            free_inputs     = "    free(A); free(B);"
+        else:
+            slow_params     = f"{dtype} *out, {dtype} *A, {dtype} *B, {dtype} *C, int n"
+            restrict_params = (f"{dtype} * __restrict__ out, "
+                               f"const {dtype} * __restrict__ A, "
+                               f"const {dtype} * __restrict__ B, "
+                               f"const {dtype} * __restrict__ C, int n")
+            alias_check     = ("(out + n <= A || A + n <= out) && "
+                               "(out + n <= B || B + n <= out) && "
+                               "(out + n <= C || C + n <= out)")
+            call_args       = "out, A, B, C, n"
+            alloc_inputs    = (f"    {dtype} *A = malloc(N * sizeof({dtype}));\n"
+                               f"    {dtype} *B = malloc(N * sizeof({dtype}));\n"
+                               f"    {dtype} *C = malloc(N * sizeof({dtype}));")
+            init_inputs     = (f"    for (int i = 0; i < N; i++) "
+                               f"A[i] = ({dtype})(i % 1000 + 1) * 0.001{s};\n"
+                               f"    for (int i = 0; i < N; i++) "
+                               f"B[i] = ({dtype})(i % 997  + 1) * 0.001{s};\n"
+                               f"    for (int i = 0; i < N; i++) "
+                               f"C[i] = ({dtype})(i % 991  + 1) * 0.001{s};")
+            free_inputs     = "    free(A); free(B); free(C);"
+
+        # ── Loop scaffolding ──────────────────────────────────────────────
+        if loop_style == "for":
+            loop_open  = "    for (int i = 0; i < n; i++) {"
+            loop_close = "    }"
+        else:
+            loop_open  = "    int i = 0;\n    while (i < n) {"
+            loop_close = "        i++;\n    }"
+
+        # ── Restrict expression: replace array names with restrict locals ──
+        # e.g. out[i] -> ro[i], A[i] -> rA[i], B[i] -> rB[i]
+        restrict_expr = (expr
+            .replace("out[i]", "ro[i]")
+            .replace("A[i]",   "rA[i]")
+            .replace("B[i]",   "rB[i]")
+            .replace("C[i]",   "rC[i]"))
+
+        # Restrict-qualified local pointer declarations for the fast path
+        if n_inputs == 2:
+            restrict_locals = (
+                f"        {dtype} * __restrict__ ro = out;\n"
+                f"        const {dtype} * __restrict__ rA = "
+                f"(const {dtype} * __restrict__)A;\n"
+                f"        const {dtype} * __restrict__ rB = "
+                f"(const {dtype} * __restrict__)B;"
+            )
+        else:
+            restrict_locals = (
+                f"        {dtype} * __restrict__ ro = out;\n"
+                f"        const {dtype} * __restrict__ rA = "
+                f"(const {dtype} * __restrict__)A;\n"
+                f"        const {dtype} * __restrict__ rB = "
+                f"(const {dtype} * __restrict__)B;\n"
+                f"        const {dtype} * __restrict__ rC = "
+                f"(const {dtype} * __restrict__)C;"
+            )
+
+        # ── Slow version: plain pointers, no alias guarantee ─────────────
+        slow_code = (
+            f"__attribute__((noinline))\n"
+            f"void slow_is5_{suf}({slow_params}) {{\n"
+            f"{loop_open}\n"
+            f"        {expr};\n"
+            f"{loop_close}\n"
+            f"}}"
+        )
+
+        # ── Fast version: single function, inline restrict cast ───────────
+        # Avoids a two-function file (static kernel + dispatcher) which
+        # complicates extern declaration extraction.  Instead, re-cast the
+        # incoming pointers to restrict-qualified locals inside the if-branch.
+        fast_code = (
+            f"void fast_is5_{suf}({slow_params}) {{\n"
+            f"    int no_alias = {alias_check};\n"
+            f"    if (no_alias) {{\n"
+            f"        // Non-aliasing: cast to restrict-qualified locals\n"
+            f"        // so the compiler can emit unguarded SIMD\n"
+            f"{restrict_locals}\n"
+            f"        for (int i = 0; i < n; i++) {{\n"
+            f"            {restrict_expr};\n"
+            f"        }}\n"
+            f"    }} else {{\n"
+            f"        // Aliasing fallback (rare)\n"
+            f"{loop_open}\n"
+            f"        {expr};\n"
+            f"{loop_close}\n"
+            f"    }}\n"
+            f"}}"
+        )
+
+        # ── Test harness ──────────────────────────────────────────────────
+        n_val = 5000000
+        # Inplace (+=) needs zero-initialised output: calloc.
+        # Non-inplace overwrites every element: malloc is fine.
+        out_alloc_slow = (f"calloc(N, sizeof({dtype}))"
+                          if is_inplace else f"malloc(N * sizeof({dtype}))")
+        out_alloc_fast = out_alloc_slow
+        reps = 1 if is_inplace else 5
+        div  = f" / {reps}.0" if reps > 1 else ""
+        tol  = "1e-5" if dtype == "float" else "1e-10"
+
+        # Call args for test.c: use the actual variable names in main()
+        if n_inputs == 2:
+            tc_slow = f"out_slow, A, B, N"
+            tc_fast = f"out_fast, A, B, N"
+        else:
+            tc_slow = f"out_slow, A, B, C, N"
+            tc_fast = f"out_fast, A, B, C, N"
+
+        if reps > 1:
+            time_slow = (f"    for (int r = 0; r < {reps}; r++) "
+                         f"slow_is5_{suf}({tc_slow});")
+            time_fast = (f"    for (int r = 0; r < {reps}; r++) "
+                         f"fast_is5_{suf}({tc_fast});")
+        else:
+            time_slow = f"    slow_is5_{suf}({tc_slow});"
+            time_fast = f"    fast_is5_{suf}({tc_fast});"
+
+        test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N {n_val}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+{alloc_inputs}
+{init_inputs}
+    {dtype} *out_slow = {out_alloc_slow};
+    {dtype} *out_fast = {out_alloc_fast};
+
+    struct timespec t0, t1;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+{time_slow}
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6{div};
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+{time_fast}
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6{div};
+
+    double err = 0.0;
+    for (int i = 0; i < N; i++) {{
+        double d = fabs((double)(out_slow[i] - out_fast[i])) / fmax(fabs((double)out_slow[i]), 1e-12);
+        if (d > err) err = d;
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, err < {tol}, ms_slow / fmax(ms_fast, 0.001));
+
+{free_inputs}
+    free(out_slow); free(out_fast);
+    return 0;
+}}"""
+
+        metadata = VariantMetadata(
+            pattern_id=self.pattern_id,
+            variant_id=f"IS-5_v{variant_num:03d}",
+            category=self.category,
+            pattern_name=self.name,
+            variant_desc=f"{label}, {n_inputs} inputs, {dtype}, {loop_style}-loop",
+            dtype=dtype,
+            difficulty="medium" if n_inputs == 2 else "hard",
+            compiler_fixable=False,
+            num_loops=1,
+            num_arrays=n_inputs + 1,
+            lines_of_code=8 + n_inputs,
+            expected_speedup_range="1.2x-3x",
+            composition=[]
+        )
+
+        return {
+            "slow_code": slow_code,
+            "fast_code": fast_code,
+            "test_code": test_code,
+            "metadata": asdict(metadata)
+        }
+
+
 GENERATORS = {
     "SR-1": SR1_Generator(),
     "SR-2": SR2_Generator(),
     "SR-3": SR3_Generator(),
     "SR-4": SR4_Generator(),
     "IS-1": IS1_Generator(),
+    "IS-5": IS5_Generator(),
     "CF-1": CF1_Generator(),
     "CF-2": CF2_Generator(),
     "HR-1": HR1_Generator(),
