@@ -113,6 +113,50 @@ void is4_fast(int *arr, int n) {
 }
 
 
+// IS-5: Runtime Alias Check for Fast-Path Vectorization
+// When output and input buffers might alias, the compiler must generate
+// conservative aliasing-safe code (runtime overlap checks or scalar
+// fallback), blocking clean SIMD. The compiler cannot prove at compile
+// time whether separately-allocated buffers overlap — that's determined
+// by runtime pointer values. In practice, callers always pass disjoint
+// malloc'd arrays. The fast version checks this once at runtime and
+// dispatches to a __restrict__-qualified kernel, letting the compiler
+// emit unguarded vectorized code with no alias guards.
+
+// Separate noinline kernel so restrict applies even in single-TU builds
+static void __attribute__((noinline))
+is5_restrict_kernel(double * __restrict__ out,
+                    const double * __restrict__ A,
+                    const double * __restrict__ B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+    }
+}
+
+// noinline forces the compiler to compile conservatively (no call-site
+// alias info): it can't prove A, B, out don't overlap from the definition.
+__attribute__((noinline))
+void is5_slow(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+    }
+}
+
+void is5_fast(double *out, double *A, double *B, int n) {
+    // Runtime check: are all buffer pairs non-overlapping? (almost always true)
+    int no_alias = (out + n <= A || A + n <= out) &&
+                   (out + n <= B || B + n <= out);
+    if (no_alias) {
+        is5_restrict_kernel(out, A, B, n);  // Fast: restrict enables clean SIMD
+    } else {
+        // Correct fallback for aliasing callers (rare)
+        for (int i = 0; i < n; i++) {
+            out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+        }
+    }
+}
+
+
 void run_input_sensitive(void) {
     srand(42);
     // IS-1: Sparse neural network weights
@@ -223,5 +267,31 @@ void run_input_sensitive(void) {
                ms_slow, ms_fast, ms_slow/ms_fast, ok ? "PASS" : "FAIL");
 
         free(arr_slow); free(arr_fast);
+    }
+
+    // IS-5: Runtime alias check — separately malloc'd buffers never overlap
+    {
+        double *A   = malloc(N * sizeof(double));
+        double *B   = malloc(N * sizeof(double));
+        double *out_slow = malloc(N * sizeof(double));
+        double *out_fast = malloc(N * sizeof(double));
+        fill_random_double(A, N, 0.5, 5.0);
+        fill_random_double(B, N, 0.5, 5.0);
+
+        BenchTimer t;
+        timer_start(&t);
+        for (int r = 0; r < 5; r++) is5_slow(out_slow, A, B, N);
+        double ms_slow = timer_stop(&t) / 5.0;
+
+        timer_start(&t);
+        for (int r = 0; r < 5; r++) is5_fast(out_fast, A, B, N);
+        double ms_fast = timer_stop(&t) / 5.0;
+
+        int ok = verify_array_double(out_slow, out_fast, N, 1e-12);
+        record_result("IS-5", "Runtime Alias Check (restrict fast path)", ms_slow, ms_fast, ok);
+        printf("[IS-5] Slow=%.2fms Fast=%.2fms Speedup=%.2fx %s\n",
+               ms_slow, ms_fast, ms_slow/ms_fast, ok ? "PASS" : "FAIL");
+
+        free(A); free(B); free(out_slow); free(out_fast);
     }
 }
