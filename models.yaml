@@ -1,0 +1,395 @@
+# LLM Model Configuration for Pattern-Driven Optimization Benchmark
+#
+# Each entry under `models` defines one model to evaluate.
+# Set API keys via environment variables (never hardcode them here).
+#
+# Hosted closed-source providers:
+#   export ANTHROPIC_API_KEY=sk-ant-...
+#   export OPENAI_API_KEY=sk-...
+#   export DEEPSEEK_API_KEY=sk-...
+#   export GOOGLE_API_KEY=...
+#
+# Open-weight models — two hosting options:
+#   Together AI (https://www.together.ai):
+#     export TOGETHER_API_KEY=...
+#   Groq (https://console.groq.com):
+#     export GROQ_API_KEY=...
+#   Ollama (local, no key required):
+#     ollama serve   # start daemon, then pull models:
+#     ollama pull llama3.1   ollama pull mistral   ollama pull gemma2
+#     ollama pull phi3       ollama pull phi4      ollama pull qwen2.5
+#     ollama pull mixtral    ollama pull falcon
+#
+#   python3 evaluate_llm.py --config models.yaml --model claude-sonnet-4-6 --strategy generic
+#   python3 evaluate_llm.py --config models.yaml --all-models --strategy taxonomy-guided
+#   python3 evaluate_llm.py --list-models   # check which API keys are set
+
+# ── Default evaluation settings ───────────────────────────────────────────────
+defaults:
+  temperature: 0.2          # Low temperature for deterministic code generation
+  max_tokens: 2048
+  timeout_seconds: 60       # Per-request timeout
+  retries: 2                # Retry on transient API errors
+
+# ── Model definitions ─────────────────────────────────────────────────────────
+models:
+
+  # ── Anthropic Claude ──────────────────────────────────────────────────────
+  - id: claude-opus-4-6
+    provider: anthropic
+    model_name: claude-opus-4-6
+    api_key_env: ANTHROPIC_API_KEY
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Claude Opus 4.6 — most capable Anthropic model"
+
+  - id: claude-sonnet-4-6
+    provider: anthropic
+    model_name: claude-sonnet-4-6
+    api_key_env: ANTHROPIC_API_KEY
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Claude Sonnet 4.6 — balanced speed/quality"
+
+  - id: claude-haiku-4-5
+    provider: anthropic
+    model_name: claude-haiku-4-5-20251001
+    api_key_env: ANTHROPIC_API_KEY
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Claude Haiku 4.5 — fastest Anthropic model"
+
+  # ── OpenAI ────────────────────────────────────────────────────────────────
+  - id: gpt-4o
+    provider: openai
+    model_name: gpt-4o
+    api_key_env: OPENAI_API_KEY
+    max_tokens: 4096
+    temperature: 0.2
+    description: "GPT-4o — OpenAI flagship"
+
+  - id: gpt-4o-mini
+    provider: openai
+    model_name: gpt-4o-mini
+    api_key_env: OPENAI_API_KEY
+    max_tokens: 2048
+    temperature: 0.2
+    description: "GPT-4o Mini — fast/cheap OpenAI model"
+
+  - id: o3-mini
+    provider: openai
+    model_name: o3-mini
+    api_key_env: OPENAI_API_KEY
+    max_tokens: 4096
+    temperature: 1          # o-series models require temperature=1
+    description: "OpenAI o3-mini — reasoning model"
+
+  # ── DeepSeek (OpenAI-compatible API) ──────────────────────────────────────
+  - id: deepseek-v3
+    provider: openai_compat
+    model_name: deepseek-chat
+    api_key_env: DEEPSEEK_API_KEY
+    base_url: https://api.deepseek.com/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "DeepSeek-V3 — strong open-weight model"
+
+  - id: deepseek-r1
+    provider: openai_compat
+    model_name: deepseek-reasoner
+    api_key_env: DEEPSEEK_API_KEY
+    base_url: https://api.deepseek.com/v1
+    max_tokens: 4096
+    temperature: 0.6
+    description: "DeepSeek-R1 — reasoning chain model"
+
+  # ── Google Gemini ─────────────────────────────────────────────────────────
+  - id: gemini-2-flash
+    provider: google
+    model_name: gemini-2.0-flash
+    api_key_env: GOOGLE_API_KEY
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Gemini 2.0 Flash — fast Google model"
+
+  - id: gemini-2-pro
+    provider: google
+    model_name: gemini-2.0-pro-exp
+    api_key_env: GOOGLE_API_KEY
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Gemini 2.0 Pro (experimental)"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Open-weight models — hosted on Together AI
+  # Sign up: https://www.together.ai  |  export TOGETHER_API_KEY=...
+  # ══════════════════════════════════════════════════════════════════════════
+
+  # ── Meta Llama ────────────────────────────────────────────────────────────
+  - id: llama-3.1-8b-together
+    provider: openai_compat
+    model_name: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 8B Instruct (Together AI) — fast, LoRA baseline"
+
+  - id: llama-3.1-70b-together
+    provider: openai_compat
+    model_name: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 70B Instruct (Together AI)"
+
+  - id: llama-3.1-405b-together
+    provider: openai_compat
+    model_name: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 405B Instruct (Together AI) — largest open Llama"
+
+  - id: llama-3.2-11b-together
+    provider: openai_compat
+    model_name: meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.2 11B Instruct (Together AI)"
+
+  - id: llama-3.3-70b-together
+    provider: openai_compat
+    model_name: meta-llama/Llama-3.3-70B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.3 70B Instruct (Together AI) — latest Llama 3 generation"
+
+  # ── Mistral / Mixtral ─────────────────────────────────────────────────────
+  - id: mistral-7b-together
+    provider: openai_compat
+    model_name: mistralai/Mistral-7B-Instruct-v0.3
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mistral 7B v0.3 (Together AI) — efficient LoRA-friendly base"
+
+  - id: mixtral-8x7b-together
+    provider: openai_compat
+    model_name: mistralai/Mixtral-8x7B-Instruct-v0.1
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mixtral 8x7B MoE (Together AI)"
+
+  - id: mixtral-8x22b-together
+    provider: openai_compat
+    model_name: mistralai/Mixtral-8x22B-Instruct-v0.1
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mixtral 8x22B MoE (Together AI) — largest Mixtral"
+
+  # ── Google Gemma 2 ────────────────────────────────────────────────────────
+  - id: gemma2-9b-together
+    provider: openai_compat
+    model_name: google/gemma-2-9b-it
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Gemma 2 9B IT (Together AI) — compact, instruction-tuned"
+
+  - id: gemma2-27b-together
+    provider: openai_compat
+    model_name: google/gemma-2-27b-it
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Gemma 2 27B IT (Together AI)"
+
+  # ── Microsoft Phi ─────────────────────────────────────────────────────────
+  - id: phi-3-mini-together
+    provider: openai_compat
+    model_name: microsoft/Phi-3-mini-4k-instruct
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Phi-3 Mini 4K (Together AI) — resource-constrained benchmark"
+
+  - id: phi-3-medium-together
+    provider: openai_compat
+    model_name: microsoft/Phi-3-medium-4k-instruct
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Phi-3 Medium 4K (Together AI)"
+
+  # ── Alibaba Qwen 2.5 ──────────────────────────────────────────────────────
+  - id: qwen2.5-7b-together
+    provider: openai_compat
+    model_name: Qwen/Qwen2.5-7B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Qwen 2.5 7B (Together AI) — strong multilingual, code-capable"
+
+  - id: qwen2.5-72b-together
+    provider: openai_compat
+    model_name: Qwen/Qwen2.5-72B-Instruct-Turbo
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Qwen 2.5 72B (Together AI)"
+
+  # ── Falcon ────────────────────────────────────────────────────────────────
+  - id: falcon-7b-together
+    provider: openai_compat
+    model_name: togethercomputer/falcon-7b-instruct
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Falcon 7B Instruct (Together AI)"
+
+  - id: falcon-40b-together
+    provider: openai_compat
+    model_name: togethercomputer/falcon-40b-instruct
+    api_key_env: TOGETHER_API_KEY
+    base_url: https://api.together.xyz/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Falcon 40B Instruct (Together AI)"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Open-weight models — hosted on Groq (ultra-fast inference)
+  # Sign up: https://console.groq.com  |  export GROQ_API_KEY=...
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - id: llama-3.1-8b-groq
+    provider: openai_compat
+    model_name: llama-3.1-8b-instant
+    api_key_env: GROQ_API_KEY
+    base_url: https://api.groq.com/openai/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 8B (Groq) — fastest inference available"
+
+  - id: llama-3.1-70b-groq
+    provider: openai_compat
+    model_name: llama-3.1-70b-versatile
+    api_key_env: GROQ_API_KEY
+    base_url: https://api.groq.com/openai/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 70B (Groq)"
+
+  - id: mixtral-8x7b-groq
+    provider: openai_compat
+    model_name: mixtral-8x7b-32768
+    api_key_env: GROQ_API_KEY
+    base_url: https://api.groq.com/openai/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mixtral 8x7B (Groq) — 32K context"
+
+  - id: gemma2-9b-groq
+    provider: openai_compat
+    model_name: gemma2-9b-it
+    api_key_env: GROQ_API_KEY
+    base_url: https://api.groq.com/openai/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Gemma 2 9B (Groq)"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Open-weight models — Ollama (local, no API key required)
+  # Install: https://ollama.com  |  ollama serve
+  # Pull models before use, e.g.:  ollama pull llama3.1
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - id: llama3.1-ollama
+    provider: ollama
+    model_name: llama3.1
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.1 8B via Ollama (local)"
+
+  - id: llama3.2-ollama
+    provider: ollama
+    model_name: llama3.2
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Llama 3.2 3B via Ollama (local)"
+
+  - id: mistral-ollama
+    provider: ollama
+    model_name: mistral
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mistral 7B via Ollama (local)"
+
+  - id: mixtral-ollama
+    provider: ollama
+    model_name: mixtral
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Mixtral 8x7B via Ollama (local)"
+
+  - id: gemma2-ollama
+    provider: ollama
+    model_name: gemma2
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Gemma 2 9B via Ollama (local)"
+
+  - id: phi3-ollama
+    provider: ollama
+    model_name: phi3
+    base_url: http://localhost:11434/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Phi-3 Mini via Ollama (local)"
+
+  - id: phi4-ollama
+    provider: ollama
+    model_name: phi4
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Phi-4 via Ollama (local)"
+
+  - id: qwen2.5-ollama
+    provider: ollama
+    model_name: qwen2.5
+    base_url: http://localhost:11434/v1
+    max_tokens: 4096
+    temperature: 0.2
+    description: "Qwen 2.5 7B via Ollama (local)"
+
+  - id: falcon-ollama
+    provider: ollama
+    model_name: falcon
+    base_url: http://localhost:11434/v1
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Falcon 7B via Ollama (local)"
