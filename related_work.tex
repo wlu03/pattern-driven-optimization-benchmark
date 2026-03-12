@@ -1,0 +1,102 @@
+\section{Related Work}
+
+\subsection{Large Language Models for Code}
+
+The application of large language models to source code has advanced rapidly in recent years. Codex~\cite{chen2021codex}, trained on a large corpus of publicly available code, demonstrated that generative models could synthesize functionally correct programs from natural language descriptions, establishing code generation as a tractable LLM task. CodeBERT~\cite{feng2020codebert} introduced bimodal pre-training over code and natural language, producing representations useful for downstream tasks including code search and summarization. Subsequent models including CodeT5~\cite{wang2021codet5}, InCoder~\cite{fried2022incoder}, and StarCoder~\cite{li2023starcoder} refined these capabilities through improved pre-training objectives and larger corpora. More recently, general-purpose frontier models such as GPT-4~\cite{openai2023gpt4} and Claude~\cite{anthropic2024claude} have demonstrated strong performance on code-related tasks without code-specific pre-training. AlphaCode~\cite{li2022alphacode} extended these results to competitive programming, achieving performance comparable to median human participants on contest problems. While these works establish that LLMs can produce correct code, they do not specifically examine whether models can identify and eliminate semantic inefficiencies of the kind that compilers leave untouched.
+
+\subsection{Machine Learning for Code Optimization}
+
+Several lines of work apply machine learning to problems in compiler optimization. Early work on learned compiler heuristics trained models to predict beneficial optimization sequences or flag configurations for a given program~\cite{ashouri2018survey}. MLGO~\cite{trofin2021mlgo} integrated reinforcement learning directly into the LLVM inlining pipeline, replacing hand-tuned heuristics with a learned policy. ProGraML~\cite{cummins2021programl} represented programs as graphs to support a range of compiler analysis tasks. These approaches operate at the level of compiler intermediate representations and focus on tuning transformations that the compiler already knows how to perform.
+
+Most closely related to our work is PIE~\cite{shypula2023pie}, which constructs a dataset of performance-improving edits mined from competitive programming submissions and fine-tunes LLMs to generate faster variants. PIE demonstrates that models can learn to produce speedups on real programs. However, its optimization targets are drawn from competitive programming contexts and are not categorized by why the compiler fails to apply them automatically. BeyondO3 complements PIE by focusing on a controlled taxonomy of patterns that are empirically verified to survive \texttt{-O3} compilation unchanged, isolating the contribution of semantic reasoning from mechanical transformation.
+
+AlphaDev~\cite{mankowitz2023alphadev} used reinforcement learning to discover novel sorting algorithms expressed in assembly, achieving improvements over hand-optimized routines. While impressive, this approach targets instruction-level search rather than the semantic-level pattern recognition that characterizes the inefficiencies we study.
+
+\subsection{Code Benchmarks and Evaluation}
+
+A number of benchmarks have been proposed to evaluate LLM code capabilities. HumanEval~\cite{chen2021codex} and MBPP~\cite{austin2021mbpp} measure functional correctness on short synthesis tasks using unit tests. EvalPlus~\cite{liu2023evalplus} extends HumanEval with a larger and more rigorous test suite. SWE-bench~\cite{jimenez2024swebench} evaluates models on real GitHub issues requiring multi-file edits, shifting focus from synthesis to software engineering in context. CodeContests~\cite{li2022alphacode} provides a large collection of competitive programming problems for training and evaluation.
+
+These benchmarks share a correctness-first orientation: success is defined by whether the output passes a test suite, not by whether it is efficient. BeyondO3 differs in that correctness is a necessary but not sufficient condition for success. The primary evaluation axis is whether the model identifies the correct optimization, compiles cleanly, and produces a measurable runtime speedup over the unoptimized baseline.
+
+\subsection{Compiler Optimization and Program Analysis}
+
+Classical compiler optimizations such as common subexpression elimination, loop-invariant code motion, strength reduction, and dead code elimination are well studied~\cite{aho2006compilers}. Modern compilers implement sophisticated variants of these transformations but remain conservative under aliasing uncertainty and floating-point non-associativity~\cite{allen2001optimizing}. Polyhedral-model compilers such as Polly~\cite{grosser2012polly} and PLUTO~\cite{bondhugula2008pluto} extend this to affine loop nests, enabling transformations for locality and parallelism. Auto-vectorization frameworks detect patterns suitable for SIMD execution~\cite{nuzman2006auto}.
+
+Despite this breadth, these techniques share a fundamental limitation: they operate on static program structure and cannot reason about runtime data distributions, semantic algebraic equivalences that alter floating-point behavior, or algorithmic restructurings that change computational complexity. The patterns in BeyondO3 are specifically designed to fall outside the scope of these classical techniques, making them a natural evaluation target for reasoning-capable models.
+
+\subsection{Prompting Strategies for Code Tasks}
+
+Recent work has explored how prompting design affects LLM performance on code tasks. Chain-of-thought prompting~\cite{wei2022chain} improves multi-step reasoning and has been shown to benefit code generation when the model is asked to explain its reasoning before producing an answer. Studies on prompt sensitivity~\cite{sclar2023quantifying} demonstrate that superficially equivalent prompts can produce substantially different outputs, motivating systematic evaluation across prompt variants. BeyondO3 operationalizes this by evaluating five prompting strategies --- generic, pattern-aware, taxonomy-guided, diagnosis-only, and hardware-targeted --- over the same pattern set, providing a controlled measurement of how semantic guidance in the prompt affects optimization success.
+
+\begin{thebibliography}{99}
+
+\bibitem{chen2021codex}
+M.~Chen et al., ``Evaluating large language models trained on code,'' \textit{arXiv preprint arXiv:2107.03374}, 2021.
+
+\bibitem{feng2020codebert}
+Z.~Feng et al., ``CodeBERT: A pre-trained model for programming and natural languages,'' in \textit{Proc. EMNLP Findings}, 2020, pp. 1536--1547.
+
+\bibitem{wang2021codet5}
+Y.~Wang, W.~Wang, S.~Joty, and S.~C.~Hoi, ``CodeT5: Identifier-aware unified pre-trained encoder-decoder models for code understanding and generation,'' in \textit{Proc. EMNLP}, 2021, pp. 8696--8708.
+
+\bibitem{fried2022incoder}
+D.~Fried et al., ``InCoder: A generative model for code infilling and synthesis,'' in \textit{Proc. ICLR}, 2023.
+
+\bibitem{li2023starcoder}
+R.~Li et al., ``StarCoder: May the source be with you!'' \textit{arXiv preprint arXiv:2305.06161}, 2023.
+
+\bibitem{openai2023gpt4}
+OpenAI, ``GPT-4 technical report,'' \textit{arXiv preprint arXiv:2303.08774}, 2023.
+
+\bibitem{anthropic2024claude}
+Anthropic, ``The Claude 3 model family: Opus, Sonnet, Haiku,'' Technical Report, 2024.
+
+\bibitem{li2022alphacode}
+Y.~Li et al., ``Competition-level code generation with AlphaCode,'' \textit{Science}, vol. 378, no. 6624, pp. 1092--1097, 2022.
+
+\bibitem{ashouri2018survey}
+A.~H.~Ashouri, W.~Killian, J.~Cavazos, G.~Palermo, and C.~Silvano, ``A survey on compiler autotuning using machine learning,'' \textit{ACM Comput. Surv.}, vol. 51, no. 5, pp. 1--42, 2018.
+
+\bibitem{trofin2021mlgo}
+M.~Trofin, Y.~Qian, E.~Brevdo, Z.~Lin, K.~Choromanski, and D.~Li, ``MLGO: A machine learning guided compiler optimizations framework,'' \textit{arXiv preprint arXiv:2101.04808}, 2021.
+
+\bibitem{cummins2021programl}
+C.~Cummins, Z.~V.~Fisches, T.~Ben-Nun, T.~Hoefler, M.~F.~P.~O'Boyle, and H.~Leather, ``ProGraML: A graph-based program representation for data flow analysis and compiler optimizations,'' in \textit{Proc. ICML}, 2021, pp. 2244--2253.
+
+\bibitem{shypula2023pie}
+A.~Shypula et al., ``Learning performance-improving code edits,'' in \textit{Proc. ICLR}, 2024.
+
+\bibitem{mankowitz2023alphadev}
+D.~J.~Mankowitz et al., ``Faster sorting algorithms discovered using deep reinforcement learning,'' \textit{Nature}, vol. 618, pp. 257--263, 2023.
+
+\bibitem{austin2021mbpp}
+J.~Austin et al., ``Program synthesis with large language models,'' \textit{arXiv preprint arXiv:2108.07732}, 2021.
+
+\bibitem{liu2023evalplus}
+J.~Liu, C.~S.~Xia, Y.~Wang, and L.~Zhang, ``Is your code generated by ChatGPT really correct? Rigorous evaluation of large language models for code generation,'' in \textit{Proc. NeurIPS}, 2023.
+
+\bibitem{jimenez2024swebench}
+C.~E.~Jimenez et al., ``SWE-bench: Can language models resolve real-world GitHub issues?'' in \textit{Proc. ICLR}, 2024.
+
+\bibitem{aho2006compilers}
+A.~V.~Aho, M.~S.~Lam, R.~Sethi, and J.~D.~Ullman, \textit{Compilers: Principles, Techniques, and Tools}, 2nd~ed. Pearson, 2006.
+
+\bibitem{allen2001optimizing}
+R.~Allen and K.~Kennedy, \textit{Optimizing Compilers for Modern Architectures}. Morgan Kaufmann, 2001.
+
+\bibitem{grosser2012polly}
+T.~Grosser, A.~Groesslinger, and C.~Lengauer, ``Polly --- Performing polyhedral optimizations on a low-level intermediate representation,'' \textit{Parallel Process. Lett.}, vol. 22, no. 4, 2012.
+
+\bibitem{bondhugula2008pluto}
+U.~Bondhugula, A.~Hartono, J.~Ramanujam, and P.~Sadayappan, ``A practical automatic polyhedral parallelizer and locality optimizer,'' in \textit{Proc. PLDI}, 2008, pp. 101--113.
+
+\bibitem{nuzman2006auto}
+D.~Nuzman and R.~Henderson, ``Multi-platform auto-vectorization,'' in \textit{Proc. CGO}, 2006, pp. 281--294.
+
+\bibitem{wei2022chain}
+J.~Wei et al., ``Chain-of-thought prompting elicits reasoning in large language models,'' in \textit{Proc. NeurIPS}, 2022.
+
+\bibitem{sclar2023quantifying}
+M.~Sclar, Y.~Choi, Y.~Tsvetkov, and A.~Suhr, ``Quantifying language models' sensitivity to spurious features in prompt design,'' \textit{arXiv preprint arXiv:2310.11324}, 2023.
+
+\end{thebibliography}
