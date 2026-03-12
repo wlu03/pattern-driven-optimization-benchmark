@@ -17,16 +17,25 @@ _C_HEADERS = "#include <stdio.h>\n#include <stdlib.h>\n#include <math.h>\n#inclu
 def extract_extern_decl(code):
     """Turn a function definition into an extern forward declaration.
 
-    Robust against files that include #include headers, blank lines, and
-    __attribute__((noinline)) prefixes added by the generator pipeline.
+    Robust against files that include #include headers, blank lines,
+    __attribute__((noinline)) prefixes, and typedef struct definitions
+    added by the generator pipeline.
 
     Strategy: scan lines top-to-bottom, resetting whenever we see a
     preprocessor directive or a standalone __attribute__ line, then capture
-    everything up to (but not including) the first '{'.
+    everything up to (but not including) the first '{' that belongs to a
+    function (not a struct/enum/union definition).
     """
     sig_parts = []
+    in_block = 0  # brace-nesting depth for skipping struct/enum/union blocks
     for line in code.split('\n'):
         stripped = line.strip()
+        # Skip lines inside a struct/enum/union block
+        if in_block > 0:
+            in_block += stripped.count('{') - stripped.count('}')
+            if in_block < 0:
+                in_block = 0
+            continue
         # Preprocessor or standalone attribute — reset and keep scanning
         if stripped.startswith('#') or stripped.startswith('__attribute__'):
             sig_parts = []
@@ -34,6 +43,19 @@ def extract_extern_decl(code):
         if not stripped:
             if sig_parts:
                 sig_parts = []   # blank line between attribute and sig: reset
+            continue
+        # Detect typedef struct/union/enum or standalone struct/union/enum definition
+        lower = stripped.lower()
+        is_type_def = (lower.startswith('typedef struct') or
+                       lower.startswith('typedef union') or
+                       lower.startswith('typedef enum') or
+                       (lower.startswith('struct ') and '{' in stripped) or
+                       (lower.startswith('union ') and '{' in stripped) or
+                       (lower.startswith('enum ') and '{' in stripped))
+        if is_type_def and '{' in stripped:
+            # Enter the block, reset sig_parts, skip until closing '}'
+            in_block = stripped.count('{') - stripped.count('}')
+            sig_parts = []
             continue
         if '{' in stripped and not stripped.startswith('//'):
             before = stripped[:stripped.index('{')].strip()
