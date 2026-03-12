@@ -1,0 +1,45 @@
+\section{Implementation}
+
+\subsection{Pattern Implementation}
+
+The benchmark suite consists of 28 inefficiency patterns implemented in C, organized across seven source files corresponding to the taxonomy categories described in Section~IV. Each file exposes a pair of functions per pattern: a \texttt{\_slow} variant containing the target inefficiency and a semantically equivalent \texttt{\_fast} variant implementing the hand-optimized transformation. All patterns operate on double-precision floating-point or integer arrays with problem sizes chosen to produce stable timing measurements in the range of one to several hundred milliseconds on modern hardware.
+
+To validate the compiler-cannot-fix constraint that is central to the benchmark, each pattern is compiled and executed at four optimization levels: \texttt{-O0}, \texttt{-O1}, \texttt{-O2}, and \texttt{-O3} using GCC. Patterns are accepted into the benchmark only if the slow variant does not close the performance gap to within a factor of 1.1$\times$ of the fast variant at \texttt{-O3}. This compilation-level validation is automated through the \texttt{make compare} target, which records timing results at each level to \texttt{results\_O*.txt} and surfaces patterns where the compiler has already resolved the inefficiency. Patterns that the compiler fixes are excluded or reclassified.
+
+\subsection{Benchmark Harness}
+
+All timing and correctness infrastructure is provided by \texttt{harness/bench\_harness.h}, a single-header library included by each pattern file. Elapsed time is measured using \texttt{clock\_gettime(CLOCK\_MONOTONIC)}, which provides nanosecond-resolution wall-clock time unaffected by system clock adjustments. Each pattern is preceded by two warm-up runs to populate instruction and data caches, followed by five timed measurement runs; the reported time is the arithmetic mean of the five runs to reduce variance from OS scheduling.
+
+Correctness verification compares the output of the slow and fast implementations using relative error tolerance. Scalar outputs use a relative tolerance of $10^{-6}$; array outputs use element-wise comparison with tolerances ranging from $10^{-9}$ to $10^{-12}$ depending on the expected numerical sensitivity of the transformation. Integer outputs are compared with exact equality. Results are accumulated in a global \texttt{BenchResult} array and summarized at the end of each run as both a formatted table and a CSV row, enabling downstream analysis.
+
+The harness also provides deterministic data generators: \texttt{fill\_random\_double} and \texttt{fill\_random\_int} for uniform random data, and \texttt{fill\_sparse\_double} for sparse arrays with a configurable zero fraction. Fixed random seeds are used throughout to ensure reproducibility across runs and platforms.
+
+\subsection{Variant Generation Pipeline}
+
+A single hand-written pattern pair is insufficient for training or robustly evaluating large language models, as models may learn to recognize specific variable names, loop structures, or constant values rather than the underlying optimization pattern. To address this, the benchmark includes \texttt{generate\_variants.py}, a script-based pipeline that automatically produces $N$ syntactically distinct variants of each pattern pair while preserving the inefficiency and the semantic equivalence of the transformation.
+
+The pipeline applies a set of surface-level transformations to each template pattern: variable and function renaming, loop structure variations (e.g., loop splitting and fusion), expression reordering within arithmetic equivalences, constant placement changes, control-flow restructuring, and adjustments to data types and problem sizes. The combination of these transformations produces variants that share the same optimization structure but differ substantially in their syntactic appearance. Each generated variant is stored as a directory containing \texttt{slow.c}, \texttt{fast.c}, \texttt{test.c}, and \texttt{metadata.json}, where the metadata records the pattern identifier, category, compiler difficulty rating, and expected speedup range.
+
+A master index of all generated variants is maintained as both \texttt{dataset/index.json} and \texttt{dataset/index.csv} for programmatic access and spreadsheet-based analysis respectively. The default configuration generates 30 variants per pattern, producing a dataset of over 200 paired programs. Generated variants are verified for compilation correctness and output equivalence using \texttt{scripts/batch\_test.py} before inclusion.
+
+\subsection{LLM Evaluation Pipeline}
+
+The evaluation pipeline is implemented in \texttt{evaluate\_llm.py} and supports end-to-end assessment of any model against the benchmark. The pipeline accepts a slow function as input, constructs a prompt according to the selected strategy, sends the prompt to a language model API, extracts the generated C code from the response, compiles it against a test harness, and records timing and correctness results to a CSV file.
+
+Model configuration is decoupled from evaluation logic through \texttt{models.yaml}, a YAML file that defines each model entry with fields for provider, API model name, environment variable for the API key, and per-model generation parameters including temperature and maximum token count. This design allows new models to be added without modifying the evaluation code. The pipeline supports five provider backends: Anthropic (Claude family), OpenAI (GPT and o-series), OpenAI-compatible endpoints for DeepSeek and other models served via the OpenAI API format, Google Generative AI (Gemini family), and Ollama for locally hosted open-weight models. The Ollama backend requires no API key and communicates with a local server, enabling evaluation of open-weight models such as Llama~3, Mistral, Mixtral, Gemma~2, Phi, Qwen~2.5, and Falcon without external API access.
+
+Code extraction from model responses handles both fenced (\texttt{```c \ldots ```}) and unfenced output formats. Compilation uses GCC at \texttt{-O0} to isolate the effect of the LLM transformation from any additional speedup the compiler might contribute. The test harness measures the wall-clock execution time of the LLM-generated function and compares its output against the reference result from the slow implementation using the same tolerance thresholds used in the base benchmark. Each evaluation result records the pattern identifier, model name, prompting strategy, whether the code compiled, whether it produced correct output, the LLM execution time in milliseconds, and the speedup relative to the unoptimized slow baseline.
+
+\subsection{Prompting Strategies}
+
+The pipeline implements five prompting strategies to evaluate how semantic context in the prompt affects optimization success.
+
+The \textit{generic} strategy provides no information about the inefficiency beyond the source code itself, asking the model to optimize the function and rename it to \texttt{optimized}. This strategy measures baseline optimization capability without any task-specific guidance.
+
+The \textit{pattern-aware} strategy augments the prompt with the pattern category, pattern name, and a one-sentence description of the inefficiency. This tests whether naming the inefficiency class is sufficient to elicit the correct transformation.
+
+The \textit{taxonomy-guided} strategy provides the full seven-category taxonomy as context and asks the model to first identify which inefficiency pattern is present and then optimize accordingly. This is the highest-information strategy for optimization.
+
+The \textit{diagnosis-only} strategy asks the model to identify the inefficiency class and describe the transformation that would fix it, without generating optimized code. This strategy decouples identification from code generation, enabling separate measurement of each capability.
+
+The \textit{hardware-target} strategy asks for optimization toward a specific hardware configuration selected from a predefined set including x86-64 with AVX2, ARM with NEON, Apple M-series, and NVIDIA CUDA. Each target is described with its relevant hardware characteristics such as SIMD register width, cache line size, and memory bandwidth constraints.
