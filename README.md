@@ -23,8 +23,24 @@ export TOGETHER_API_KEY=...           # Llama / Mistral / Mixtral / Gemma / Phi 
 export GROQ_API_KEY=...               # same models, ultra-fast inference
 # Ollama (local, no key): ollama serve && ollama pull llama3.1
 ```
+## Setting up Ollama for Open Model Inference
+```markdown
+Start Ollama: `ollama serve`
 
-### See all available models
+In a new terminal pull the model: `ollama pull qwen2.5-coder:7b`
+
+This download 5GB of the its GGUF
+
+After it finishes, run the model: `ollama run qwen2.5-coder:7b
+
+Also, this can be ran as a background service. Instead of manually running 
+`ollama serve`, you cna start it as a daemon on MacOS: `brew services start ollama`
+
+Then it will automatically run and you can use it by running pull command.
+
+```
+
+## See all available models
 ```bash
 python3 evaluate_llm.py --list-models
 ```
