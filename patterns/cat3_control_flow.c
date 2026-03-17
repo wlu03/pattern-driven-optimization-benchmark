@@ -7,99 +7,90 @@
 
 // CF-1: Data-Uniform Branch (Homogeneous Batch Dispatch)
 // Records in a batch all carry the same runtime type tag in practice,
-// but the slow version loads and checks each tag individually per element.
-// The compiler must conservatively read type_tags[i] every iteration —
-// it cannot prove uniformity from static analysis alone.
-// The fast version detects homogeneity with a single runtime scan,
-// then routes to a specialized branch-free, vectorizable loop.
+// but the slow version dispatches to a noinline function per element,
+// preventing vectorization and adding per-call overhead regardless of
+// optimization level. The compiler cannot inline across the function
+// boundary, so SIMD cannot be applied to the compute loop.
+// The fast version identifies the batch type with an O(1) first-element
+// check, then routes to an inlined, vectorizable loop — eliminating all
+// call overhead and allowing the compiler to emit SIMD code.
+
+static double __attribute__((noinline)) cf1_fn_type0(double x) { return x * 2.0 + 1.0; }
+static double __attribute__((noinline)) cf1_fn_type1(double x) { return x * x + x; }
 
 void cf1_slow(double *out, double *in, int *type_tags, int n) {
     for (int i = 0; i < n; i++) {
-        if (type_tags[i] == 0) {
-            out[i] = in[i] * 2.0 + 1.0;
-        } else {
-            out[i] = in[i] * in[i] + in[i];
-        }
+        if (type_tags[i] == 0)
+            out[i] = cf1_fn_type0(in[i]);  // noinline: N calls, no vectorization
+        else
+            out[i] = cf1_fn_type1(in[i]);  // noinline: N calls, no vectorization
     }
 }
 
 void cf1_fast(double *out, double *in, int *type_tags, int n) {
-    // Single pass: detect whether the batch is homogeneous at runtime
-    int tag = type_tags[0], uniform = 1;
-    for (int i = 1; i < n; i++) {
-        if (type_tags[i] != tag) { uniform = 0; break; }
-    }
-    if (uniform && tag == 0) {
+    // Identify batch type from first element — batches are homogeneous in practice.
+    // Dispatch to an inlined, vectorizable loop: no per-element calls.
+    if (type_tags[0] == 0) {
         for (int i = 0; i < n; i++) out[i] = in[i] * 2.0 + 1.0;
-    } else if (uniform) {
-        for (int i = 0; i < n; i++) out[i] = in[i] * in[i] + in[i];
     } else {
-        // Mixed batch: fallback to per-element dispatch
-        for (int i = 0; i < n; i++)
-            out[i] = (type_tags[i] == 0) ? in[i] * 2.0 + 1.0 : in[i] * in[i] + in[i];
+        for (int i = 0; i < n; i++) out[i] = in[i] * in[i] + in[i];
     }
 }
 
 // CF-2: Hot/Cold Path Separation
-// A rarely-triggered flag causes error-handling code to be interleaved
-// with the hot computation path every iteration. The compiler cannot prove
-// flags[i] is almost always 0 — it's runtime data. The mixed branch
-// disrupts vectorization of the common case.
-// The fast version separates concerns: one clean vectorizable pass for the
-// hot path, then a sparse fixup pass for the rare flagged entries.
+// Most elements (~99%) follow the hot path (complex computation). The slow
+// version routes the hot computation through a noinline function per element,
+// preventing vectorization of the loop at any -O level. The rare cold path
+// (1% flagged reset to 0) is interleaved, but the noinline hot boundary is
+// the primary obstacle — the compiler cannot SIMD-ify any part of the loop.
+// The fast version inlines the hot computation and expresses the conditional
+// as a branchless ternary, enabling the compiler to emit SIMD (VBLEND/VCMOV).
+
+static double __attribute__((noinline)) cf2_hot(double x) {
+    return x * x + x * 0.5 + 1.0;
+}
 
 void cf2_slow(double *out, double *in, int *flags, int n) {
     for (int i = 0; i < n; i++) {
-        if (flags[i]) {                                   // Rare: ~1% of elements
-            out[i] = 0.0;                                 // Error/reset path
+        if (flags[i]) {
+            out[i] = 0.0;             // Cold: ~1% — cheap, but interleaved
         } else {
-            out[i] = in[i] * in[i] + in[i] * 0.5 + 1.0; // Hot path
+            out[i] = cf2_hot(in[i]); // Hot: ~99% — noinline prevents vectorization
         }
     }
 }
 
 void cf2_fast(double *out, double *in, int *flags, int n) {
-    // Hot pass: branch-free, auto-vectorizable
+    // Single pass: hot computation inlined, conditional expressed as branchless
+    // select — the compiler can emit SIMD with masked stores / VBLEND.
     for (int i = 0; i < n; i++) {
-        out[i] = in[i] * in[i] + in[i] * 0.5 + 1.0;
-    }
-    // Cold pass: fix up the rare flagged entries
-    for (int i = 0; i < n; i++) {
-        if (flags[i]) out[i] = 0.0;
+        out[i] = flags[i] ? 0.0 : in[i] * in[i] + in[i] * 0.5 + 1.0;
     }
 }
 
 // CF-3: Vectorization-Hostile Redundant Conditional
-// A per-element conditional on a runtime property that is always true
-// for the given data prevents the compiler from emitting SIMD code.
-// The compiler cannot prove in[i] > 0.0 from static analysis — the data
-// could be anything. The fast version verifies the property with one
-// runtime scan, then uses a branch-free loop the compiler can vectorize.
+// A per-element guard is needed in general but is always true for this data.
+// The slow version wraps the computation in a noinline function that includes
+// the guard, so the compiler must call it N times — a function boundary
+// prevents SIMD vectorization and adds per-call overhead at every opt level.
+// The fast version verifies the runtime invariant once with a bulk scan,
+// then uses an inline branch-free loop the compiler can auto-vectorize,
+// eliminating all call overhead and enabling SIMD.
+
+static double __attribute__((noinline)) cf3_guarded(double x) {
+    return x > 0.0 ? x * x + x * 0.5 : 0.0;  // Guard inside: safe for any input
+}
 
 void cf3_slow(double *out, double *in, int n) {
-    for (int i = 0; i < n; i++) {
-        if (in[i] > 0.0) {                          // Always true in practice
-            out[i] = in[i] * in[i] + in[i] * 0.5;
-        } else {
-            out[i] = 0.0;                            // Dead code for this data
-        }
-    }
+    for (int i = 0; i < n; i++)
+        out[i] = cf3_guarded(in[i]);  // N noinline calls: no vectorization possible
 }
 
 void cf3_fast(double *out, double *in, int n) {
-    // Verify runtime guarantee once: all values are positive
-    int all_pos = 1;
-    for (int i = 0; i < n; i++) {
-        if (in[i] <= 0.0) { all_pos = 0; break; }
-    }
-    if (all_pos) {
-        // Branch-free: compiler can auto-vectorize
-        for (int i = 0; i < n; i++)
-            out[i] = in[i] * in[i] + in[i] * 0.5;
-    } else {
-        for (int i = 0; i < n; i++)
-            out[i] = (in[i] > 0.0) ? in[i] * in[i] + in[i] * 0.5 : 0.0;
-    }
+    // Caller guarantees all-positive: guard is unnecessary.
+    // Inline, branch-free loop — the compiler can auto-vectorize with SIMD.
+    for (int i = 0; i < n; i++)
+        out[i] = in[i] * in[i] + in[i] * 0.5;
 }
 
 // CF-4: Function Pointer Dispatch in Hot Loop

@@ -50,27 +50,34 @@ PATTERNS = [
     PatternEntry(
         pattern_id="SR-1",
         category="Semantic Redundancy",
-        name="Loop-Invariant Semantic Computation",
-        compiler_difficulty="High",
-        description="Expression `A[i] + B[i] * delta` is accumulated in a loop. "
-                    "The multiply by delta can be factored out as a single multiply "
-                    "after accumulating B separately.",
+        name="Loop-Invariant Function Call (Log Series)",
+        compiler_difficulty="Very High",
+        description="A log-series calibration function with loop-invariant arguments "
+                    "is called on every iteration. The compiler cannot hoist it because "
+                    "the inner transcendental loop prevents const/pure analysis. "
+                    "Hoist once before the loop.",
         slow_code="""
-double sr1_slow(double *A, double *B, int n, double delta) {
-    double t = 0.0;
-    for (int i = 0; i < n; i++) {
-        t += A[i] + B[i] * delta;
-    }
-    return t;
+#include <math.h>
+/* 40-term log series — transcendental inner loop blocks compiler hoisting */
+static double log_series(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 40; k++) r += log(base * k + 1.0) / k;
+    return r;
+}
+void sr1_slow(double *arr, int n, double base) {
+    for (int i = 0; i < n; i++)
+        arr[i] *= log_series(base);  /* same result every iteration */
 }""",
         fast_code="""
-double sr1_fast(double *A, double *B, int n, double delta) {
-    double sumA = 0.0, sumB = 0.0;
-    for (int i = 0; i < n; i++) {
-        sumA += A[i];
-        sumB += B[i];
-    }
-    return sumA + sumB * delta;
+#include <math.h>
+static double log_series(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 40; k++) r += log(base * k + 1.0) / k;
+    return r;
+}
+void sr1_fast(double *arr, int n, double base) {
+    double scale = log_series(base);  /* hoisted once */
+    for (int i = 0; i < n; i++) arr[i] *= scale;
 }""",
         test_harness="""
 #include <stdio.h>
@@ -81,30 +88,34 @@ double sr1_fast(double *A, double *B, int n, double delta) {
 // LLM_CODE_HERE
 
 int main() {
-    int n = 10000000;
-    double *A = malloc(n * sizeof(double));
-    double *B = malloc(n * sizeof(double));
+    int n = 1000000;
+    double base = 1.5;
+    double *arr      = malloc(n * sizeof(double));
+    double *expected = malloc(n * sizeof(double));
     srand(42);
-    for (int i = 0; i < n; i++) {
-        A[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
-        B[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
-    }
+    for (int i = 0; i < n; i++)
+        arr[i] = expected[i] = 0.5 + ((double)rand() / RAND_MAX);
+
+    /* compute scale inline — independent of LLM code */
+    double scale = 0.0;
+    for (int k = 1; k <= 40; k++) scale += log(base * k + 1.0) / k;
+    for (int i = 0; i < n; i++) expected[i] *= scale;
 
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
-    double result = optimized(A, B, n, 3.14159);
+    optimized(arr, n, base);
     clock_gettime(CLOCK_MONOTONIC, &end);
-
     double ms = (end.tv_sec - start.tv_sec) * 1000.0
               + (end.tv_nsec - start.tv_nsec) / 1e6;
 
-    // Expected result (computed with slow version)
-    double expected = 0.0;
-    for (int i = 0; i < n; i++) expected += A[i] + B[i] * 3.14159;
-    double err = fabs(result - expected) / fmax(fabs(expected), 1e-12);
-
-    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, err < 1e-6);
-    free(A); free(B);
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(arr[i] - expected[i]) / fmax(fabs(expected[i]), 1e-12) > 1e-6) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", arr[0], ms, correct);
+    free(arr); free(expected);
     return 0;
 }"""
     ),
@@ -112,28 +123,80 @@ int main() {
     PatternEntry(
         pattern_id="SR-2",
         category="Semantic Redundancy",
-        name="Recomputable Expression Decomposition",
-        compiler_difficulty="High",
-        description="Expression `alpha*X[i]*X[i] + beta*Y[i] + alpha*beta` can be "
-                    "decomposed into separate accumulators for X^2 and Y sums.",
+        name="Loop-Invariant Term in Mixed Expression",
+        compiler_difficulty="Very High",
+        description="Loop body contains `alpha*X[i]*X[i] + beta*Y[i] + penalty(alpha,beta)` "
+                    "where penalty() has a transcendental inner loop with loop-invariant arguments. "
+                    "Optimization: separate accumulators for data-dependent terms, "
+                    "call penalty once and multiply by n.",
         slow_code="""
+#include <math.h>
+/* regularization penalty — sin/exp inner loop blocks compiler hoisting */
+static double penalty(double a, double b) {
+    double r = 0.0;
+    for (int k = 1; k <= 20; k++) r += sin(a * k) * exp(-b * k * 0.05);
+    return r;
+}
+__attribute__((noinline))
 double sr2_slow(double *X, double *Y, int n, double alpha, double beta) {
     double result = 0.0;
-    for (int i = 0; i < n; i++) {
-        result += alpha * X[i] * X[i] + beta * Y[i] + alpha * beta;
-    }
+    for (int i = 0; i < n; i++)
+        result += alpha * X[i] * X[i] + beta * Y[i] + penalty(alpha, beta);
     return result;
 }""",
         fast_code="""
+#include <math.h>
+static double penalty(double a, double b) {
+    double r = 0.0;
+    for (int k = 1; k <= 20; k++) r += sin(a * k) * exp(-b * k * 0.05);
+    return r;
+}
+__attribute__((noinline))
 double sr2_fast(double *X, double *Y, int n, double alpha, double beta) {
     double sumXsq = 0.0, sumY = 0.0;
     for (int i = 0; i < n; i++) {
         sumXsq += X[i] * X[i];
-        sumY += Y[i];
+        sumY   += Y[i];
     }
-    return alpha * sumXsq + beta * sumY + (double)n * alpha * beta;
+    return alpha * sumXsq + beta * sumY + (double)n * penalty(alpha, beta);
 }""",
-        test_harness=""  # Similar structure, omitted for brevity
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 1000000;
+    double *X = malloc(n * sizeof(double));
+    double *Y = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        X[i] = -5.0 + 10.0 * ((double)rand() / RAND_MAX);
+        Y[i] = -5.0 + 10.0 * ((double)rand() / RAND_MAX);
+    }
+    double alpha = 2.5, beta = 1.5;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double result = optimized(X, Y, n, alpha, beta);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* compute expected independently — penalty inlined in harness, no LLM dependency */
+    double p = 0.0;
+    for (int k = 1; k <= 20; k++) p += sin(alpha * k) * exp(-beta * k * 0.05);
+    double expected = 0.0;
+    for (int i = 0; i < n; i++)
+        expected += alpha * X[i] * X[i] + beta * Y[i] + p;
+    double err = fabs(result - expected) / fmax(fabs(expected), 1e-12);
+
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, err < 1e-4);
+    free(X); free(Y);
+    return 0;
+}"""
     ),
 
     PatternEntry(
@@ -161,7 +224,40 @@ void sr3_fast(double *data, double *running_avg, int n) {
         running_avg[i] = sum / (i + 1);
     }
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 20000;
+    double *data = malloc(n * sizeof(double));
+    double *result = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) data[i] = (double)rand() / RAND_MAX;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(data, result, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    double sum = 0.0;
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        sum += data[i];
+        double expected_i = sum / (i + 1);
+        if (fabs(result[i] - expected_i) / fmax(fabs(expected_i), 1e-12) > 1e-6) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result[n-1], ms, correct);
+    free(data); free(result);
+    return 0;
+}"""
     ),
 
     PatternEntry(
@@ -197,31 +293,118 @@ void sr4_fast(double *arr, int n, int config_key) {
     double factor = expensive_lookup(config_key);
     for (int i = 0; i < n; i++) arr[i] *= factor;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 2000000;
+    double *arr = malloc(n * sizeof(double));
+    double *expected = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) arr[i] = expected[i] = (double)(i % 100) * 0.01 + 0.1;
+    int config_key = 7;
+
+    double factor = 0.0;
+    for (int i = 0; i < 100; i++)
+        factor += sin((double)(config_key+i)) * cos((double)(config_key-i));
+    for (int i = 0; i < n; i++) expected[i] *= factor;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(arr, n, config_key);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(arr[i] - expected[i]) / fmax(fabs(expected[i]), 1e-12) > 1e-6) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", arr[0], ms, correct);
+    free(arr); free(expected);
+    return 0;
+}"""
     ),
 
     PatternEntry(
         pattern_id="SR-5",
         category="Semantic Redundancy",
-        name="Algebraic Strength Reduction",
-        compiler_difficulty="Medium",
-        description="Using sqrt for distance when only relative comparison needed. "
-                    "Squared distance avoids expensive sqrt.",
+        name="Repeated Division by Loop-Invariant Denominator",
+        compiler_difficulty="Very High",
+        description="Each element is divided by a value that is loop-invariant but "
+                    "computed by a function whose result GCC cannot hoist due to aliasing: "
+                    "without restrict qualifiers, out[] could alias w[], so the compiler "
+                    "must re-evaluate compute_norm each iteration. "
+                    "Optimize: call once, precompute reciprocal, multiply.",
         slow_code="""
 #include <math.h>
-void sr5_slow(double *dist, double *X, double *Y, int n, double cx, double cy) {
-    for (int i = 0; i < n; i++) {
-        dist[i] = sqrt((X[i]-cx)*(X[i]-cx) + (Y[i]-cy)*(Y[i]-cy));
-    }
+/* L2 norm — compiler cannot hoist: out[] may alias w[], making w loop-variant */
+static double compute_norm(double *w, int m) {
+    double s = 0.0;
+    for (int j = 0; j < m; j++) s += w[j] * w[j];
+    return sqrt(s);
+}
+__attribute__((noinline))
+void sr5_slow(double *out, double *data, int n, double *w, int m) {
+    for (int i = 0; i < n; i++)
+        out[i] = data[i] / compute_norm(w, m);  /* recomputed every iteration */
 }""",
         fast_code="""
-void sr5_fast(double *dist, double *X, double *Y, int n, double cx, double cy) {
-    for (int i = 0; i < n; i++) {
-        double dx = X[i]-cx, dy = Y[i]-cy;
-        dist[i] = dx*dx + dy*dy;
-    }
+#include <math.h>
+static double compute_norm(double *w, int m) {
+    double s = 0.0;
+    for (int j = 0; j < m; j++) s += w[j] * w[j];
+    return sqrt(s);
+}
+__attribute__((noinline))
+void sr5_fast(double *out, double *data, int n, double *w, int m) {
+    double inv = 1.0 / compute_norm(w, m);  /* hoist call + precompute reciprocal */
+    for (int i = 0; i < n; i++) out[i] = data[i] * inv;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 1000000, m = 256;
+    double *data = malloc(n * sizeof(double));
+    double *out  = malloc(n * sizeof(double));
+    double *w    = malloc(m * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) data[i] = -5.0 + 10.0 * ((double)rand() / RAND_MAX);
+    for (int j = 0; j < m; j++) w[j]    = ((double)rand() / RAND_MAX);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, data, n, w, m);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* compute norm inline — independent of LLM */
+    double s = 0.0;
+    for (int j = 0; j < m; j++) s += w[j] * w[j];
+    double norm = sqrt(s);
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double expected = data[i] / norm;
+        if (fabs(out[i] - expected) / fmax(fabs(expected), 1e-12) > 1e-9) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(data); free(out); free(w);
+    return 0;
+}"""
     ),
 
     # ── CATEGORY 2: Input-Sensitive ──
@@ -251,40 +434,130 @@ void is1_fast(double *w, double *delta, double *layer, int nj, int nk) {
         }
     }
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int nj = 512, nk = 512;
+    double *w        = calloc(nk * nj, sizeof(double));
+    double *expected = calloc(nk * nj, sizeof(double));
+    double *delta    = calloc(nj, sizeof(double));
+    double *layer    = calloc(nk, sizeof(double));
+    srand(42);
+    for (int j = 0; j < nj; j++)
+        delta[j] = (rand() % 10 == 0) ? ((double)rand() / RAND_MAX) : 0.0;
+    for (int k = 0; k < nk; k++)
+        layer[k] = (rand() % 10 == 0) ? ((double)rand() / RAND_MAX) : 0.0;
+
+    for (int k = 0; k < nk; k++)
+        for (int j = 0; j < nj; j++)
+            expected[k * nj + j] += delta[j] * layer[k];
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(w, delta, layer, nj, nk);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < nk * nj; i++) {
+        if (fabs(w[i] - expected[i]) / fmax(fabs(expected[i]), 1e-12) > 1e-6) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", w[0], ms, correct);
+    free(w); free(expected); free(delta); free(layer);
+    return 0;
+}"""
     ),
 
     PatternEntry(
         pattern_id="IS-2",
         category="Input-Sensitive Inefficiency",
-        name="Data Distribution Skew",
+        name="Unconditional Expensive Call on Skewed Data",
         compiler_difficulty="Very High",
-        description="Expensive gradient clipping applied to all values when 99% "
-                    "are within threshold. Fast path for common case.",
+        description="soft_clip() (containing log()) is called unconditionally for every "
+                    "element, even though 99% are within threshold and the result is "
+                    "discarded via ternary. Because soft_clip is noinline, the compiler "
+                    "cannot eliminate the dead call. Add a branch guard so the expensive "
+                    "path only runs for the 1% outliers.",
         slow_code="""
 #include <math.h>
+/* soft gradient clipping — noinline so compiler cannot eliminate dead calls */
+static double __attribute__((noinline)) soft_clip(double val, double thresh) {
+    double sign = (val >= 0.0) ? 1.0 : -1.0;
+    return sign * (thresh + log(1.0 + fabs(val) - thresh));
+}
 void is2_slow(double *out, double *in, int n, double thresh) {
     for (int i = 0; i < n; i++) {
         double val = in[i];
-        double sign = (val >= 0) ? 1.0 : -1.0;
-        double abs_val = fabs(val);
-        if (abs_val > thresh)
-            out[i] = sign * (thresh + log(1.0 + abs_val - thresh));
-        else
-            out[i] = val;
+        double clipped = soft_clip(val, thresh);        /* always called */
+        out[i] = (fabs(val) > thresh) ? clipped : val; /* but only used 1% of the time */
     }
 }""",
         fast_code="""
 #include <math.h>
+static double __attribute__((noinline)) soft_clip(double val, double thresh) {
+    double sign = (val >= 0.0) ? 1.0 : -1.0;
+    return sign * (thresh + log(1.0 + fabs(val) - thresh));
+}
 void is2_fast(double *out, double *in, int n, double thresh) {
     for (int i = 0; i < n; i++) {
         double val = in[i];
-        if (fabs(val) <= thresh) { out[i] = val; continue; }
-        double sign = (val >= 0) ? 1.0 : -1.0;
-        out[i] = sign * (thresh + log(1.0 + fabs(val) - thresh));
+        if (fabs(val) > thresh)         /* guard: only call for the 1% outliers */
+            out[i] = soft_clip(val, thresh);
+        else
+            out[i] = val;
     }
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 5000000;
+    double *in  = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    double thresh = 1.0;
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        if (rand() % 100 == 0)
+            in[i] = 1.5 + 3.5 * ((double)rand() / RAND_MAX);  /* 1% outliers > thresh */
+        else
+            in[i] = -0.9 + 1.8 * ((double)rand() / RAND_MAX); /* 99% within thresh */
+        if (rand() % 2) in[i] = -in[i];                        /* random sign */
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, n, thresh);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double val = in[i], sign = (val >= 0) ? 1.0 : -1.0;
+        double abs_val = fabs(val);
+        double expected_i = (abs_val > thresh)
+            ? sign * (thresh + log(1.0 + abs_val - thresh))
+            : val;
+        if (fabs(out[i] - expected_i) / fmax(fabs(expected_i), 1e-12) > 1e-6) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out);
+    return 0;
+}"""
     ),
 
     PatternEntry(
@@ -309,7 +582,34 @@ int is3_fast(double *arr, int n, double threshold) {
     }
     return 1;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *arr = malloc(n * sizeof(double));
+    double thresh = 0.5;
+    srand(42);
+    for (int i = 0; i < n; i++)
+        arr[i] = (double)rand() / RAND_MAX;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    int result = optimized(arr, n, thresh);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int violations = 0;
+    for (int i = 0; i < n; i++) if (arr[i] > thresh) violations++;
+    int expected = (violations == 0) ? 1 : 0;
+    printf("result=%d time_ms=%.4f correct=%d\\n", result, ms, result == expected);
+    free(arr);
+    return 0;
+}"""
     ),
 
     PatternEntry(
@@ -339,99 +639,256 @@ void is4_fast(int *arr, int n) {
     }
     if (!sorted) qsort(arr, n, sizeof(int), cmp_int);
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+static int _ref_cmp(const void *a, const void *b) { return (*(int*)a - *(int*)b); }
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 5000000;
+    int *arr = malloc(n * sizeof(int));
+    int *expected = malloc(n * sizeof(int));
+    srand(42);
+    for (int i = 0; i < n; i++) arr[i] = expected[i] = i + (rand() % 3 == 0 ? -1 : 0);
+
+    int tmp = arr[n/2]; arr[n/2] = arr[n/2 - 1]; arr[n/2 - 1] = tmp;
+    tmp = expected[n/2]; expected[n/2] = expected[n/2-1]; expected[n/2-1] = tmp;
+
+    qsort(expected, n, sizeof(int), _ref_cmp);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(arr, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (arr[i] != expected[i]) { correct = 0; break; }
+    }
+    printf("result=%d time_ms=%.4f correct=%d\\n", arr[0], ms, correct);
+    free(arr); free(expected);
+    return 0;
+}"""
     ),
 
     # ── CATEGORY 3: Control-Flow ──
-    PatternEntry(pattern_id="CF-1", category="Control-Flow", name="Loop-Invariant Conditional",
-        compiler_difficulty="Medium",
-        description="Branch on `mode` checked every iteration. Hoist outside loop.",
+    PatternEntry(pattern_id="CF-1", category="Control-Flow", name="Batch Dispatch Devirtualization",
+        compiler_difficulty="High",
+        description="Per-element dispatch through a noinline function prevents vectorization. "
+                    "Detect the batch type from the first element and dispatch to an inline loop.",
         slow_code="""
-void cf1_slow(double *out, double *A, double *B, int n, int mode) {
+static double __attribute__((noinline)) cf1_fn0(double x) { return x * 2.0 + 1.0; }
+static double __attribute__((noinline)) cf1_fn1(double x) { return x * x + x; }
+void cf1_slow(double *out, double *in, int *tags, int n) {
+    for (int i = 0; i < n; i++)
+        out[i] = tags[i] == 0 ? cf1_fn0(in[i]) : cf1_fn1(in[i]);
+}""",
+        fast_code="""
+void cf1_fast(double *out, double *in, int *tags, int n) {
+    if (tags[0] == 0) { for (int i = 0; i < n; i++) out[i] = in[i] * 2.0 + 1.0; }
+    else              { for (int i = 0; i < n; i++) out[i] = in[i] * in[i] + in[i]; }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+static double __attribute__((noinline)) cf1_fn0(double x) { return x * 2.0 + 1.0; }
+static double __attribute__((noinline)) cf1_fn1(double x) { return x * x + x; }
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *in  = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    int    *tags = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) { in[i] = (double)(i % 200 + 1) * 0.05; tags[i] = 0; }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, tags, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
     for (int i = 0; i < n; i++) {
-        if (mode == 1) out[i] = A[i] + B[i];
-        else if (mode == 2) out[i] = A[i] * B[i];
-        else out[i] = A[i] - B[i];
+        double expected = in[i] * 2.0 + 1.0;
+        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
     }
-}""",
-        fast_code="""
-void cf1_fast(double *out, double *A, double *B, int n, int mode) {
-    if (mode == 1) { for (int i = 0; i < n; i++) out[i] = A[i] + B[i]; }
-    else if (mode == 2) { for (int i = 0; i < n; i++) out[i] = A[i] * B[i]; }
-    else { for (int i = 0; i < n; i++) out[i] = A[i] - B[i]; }
-}""",
-        test_harness=""
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out); free(tags);
+    return 0;
+}"""
     ),
 
-    PatternEntry(pattern_id="CF-2", category="Control-Flow", name="Redundant Bounds Checking",
-        compiler_difficulty="Medium",
-        description="Checking `i >= 0 && i < rows && j >= 0 && j < cols` inside nested loops "
-                    "that already guarantee bounds.",
+    PatternEntry(pattern_id="CF-2", category="Control-Flow", name="Hot/Cold Path Separation",
+        compiler_difficulty="High",
+        description="A noinline hot-path function prevents vectorization of a loop where 99% of "
+                    "elements need complex computation and 1% need a cheap reset. "
+                    "Inline the hot computation so the compiler can emit SIMD.",
         slow_code="""
-void cf2_slow(double *mat, int rows, int cols, double *sums) {
-    for (int i = 0; i < rows; i++) {
-        sums[i] = 0.0;
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols)
-                sums[i] += mat[i * cols + j];
-        }
-    }
-}""",
-        fast_code="""
-void cf2_fast(double *mat, int rows, int cols, double *sums) {
-    for (int i = 0; i < rows; i++) {
-        sums[i] = 0.0;
-        for (int j = 0; j < cols; j++)
-            sums[i] += mat[i * cols + j];
-    }
-}""",
-        test_harness=""
-    ),
-
-    PatternEntry(pattern_id="CF-3", category="Control-Flow", name="Unnecessary Loop Nesting",
-        compiler_difficulty="Low",
-        description="Nested loops over flat iteration space. Collapse into single loop.",
-        slow_code="""
-void cf3_slow(double *mat, int rows, int cols, double scalar) {
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            mat[i * cols + j] *= scalar;
-}""",
-        fast_code="""
-void cf3_fast(double *mat, int rows, int cols, double scalar) {
-    int total = rows * cols;
-    for (int i = 0; i < total; i++) mat[i] *= scalar;
-}""",
-        test_harness=""
-    ),
-
-    PatternEntry(pattern_id="CF-4", category="Control-Flow", name="Premature Generalization",
-        compiler_difficulty="Medium",
-        description="Switch/dispatch inside hot loop when operation is invariant. "
-                    "Resolve dispatch once outside loop.",
-        slow_code="""
-typedef enum { OP_ADD, OP_MUL, OP_SUB } OpType;
-double apply_op(OpType op, double a, double b) {
-    switch(op) {
-        case OP_ADD: return a + b;
-        case OP_MUL: return a * b;
-        case OP_SUB: return a - b;
-        default: return 0.0;
-    }
+static double __attribute__((noinline)) cf2_hot(double x) {
+    return x * x + x * 0.5 + 1.0;
 }
-void cf4_slow(double *out, double *A, double *B, int n, OpType op) {
-    for (int i = 0; i < n; i++) out[i] = apply_op(op, A[i], B[i]);
+void cf2_slow(double *out, double *in, int *flags, int n) {
+    for (int i = 0; i < n; i++)
+        out[i] = flags[i] ? 0.0 : cf2_hot(in[i]);
 }""",
         fast_code="""
-typedef enum { OP_ADD, OP_MUL, OP_SUB } OpType;
-void cf4_fast(double *out, double *A, double *B, int n, OpType op) {
-    switch(op) {
-        case OP_ADD: for (int i=0;i<n;i++) out[i]=A[i]+B[i]; break;
-        case OP_MUL: for (int i=0;i<n;i++) out[i]=A[i]*B[i]; break;
-        case OP_SUB: for (int i=0;i<n;i++) out[i]=A[i]-B[i]; break;
-    }
+void cf2_fast(double *out, double *in, int *flags, int n) {
+    for (int i = 0; i < n; i++)
+        out[i] = flags[i] ? 0.0 : in[i] * in[i] + in[i] * 0.5 + 1.0;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+static double __attribute__((noinline)) cf2_hot(double x) {
+    return x * x + x * 0.5 + 1.0;
+}
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *in   = malloc(n * sizeof(double));
+    double *out  = malloc(n * sizeof(double));
+    int    *flags = calloc(n, sizeof(int));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        in[i] = (double)(i % 200 + 1) * 0.05;
+        if (rand() % 100 == 0) flags[i] = 1;
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, flags, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double expected = flags[i] ? 0.0 : in[i] * in[i] + in[i] * 0.5 + 1.0;
+        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out); free(flags);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(pattern_id="CF-3", category="Control-Flow", name="Runtime Guard Elimination",
+        compiler_difficulty="High",
+        description="A noinline function wraps a computation with a runtime guard (always true "
+                    "for this data). Verify the invariant once, then use an inline branch-free loop.",
+        slow_code="""
+static double __attribute__((noinline)) cf3_guarded(double x) {
+    return x > 0.0 ? x * x + x * 0.5 : 0.0;
+}
+void cf3_slow(double *out, double *in, int n) {
+    for (int i = 0; i < n; i++) out[i] = cf3_guarded(in[i]);
+}""",
+        fast_code="""
+void cf3_fast(double *out, double *in, int n) {
+    for (int i = 0; i < n; i++) out[i] = in[i] * in[i] + in[i] * 0.5;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+static double __attribute__((noinline)) cf3_guarded(double x) {
+    return x > 0.0 ? x * x + x * 0.5 : 0.0;
+}
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *in  = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) in[i] = (double)(i % 100 + 1) * 0.1;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double expected = in[i] * in[i] + in[i] * 0.5;
+        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(pattern_id="CF-4", category="Control-Flow", name="Function Pointer Devirtualization",
+        compiler_difficulty="High",
+        description="Per-element indirect call through a function pointer (or noinline dispatch) "
+                    "prevents vectorization. Identify the concrete function at runtime and "
+                    "dispatch to an inline tight loop.",
+        slow_code="""
+typedef double (*TransformFn)(double);
+static double __attribute__((noinline)) fn_scale(double x) { return x * 1.5; }
+static double __attribute__((noinline)) fn_square(double x) { return x * x; }
+static double __attribute__((noinline)) fn_shift(double x)  { return x + 1.0; }
+void cf4_slow(double *out, double *in, int n, TransformFn fn) {
+    for (int i = 0; i < n; i++) out[i] = fn(in[i]);
+}""",
+        fast_code="""
+void cf4_fast(double *out, double *in, int n, TransformFn fn) {
+    if      (fn == fn_scale)  { for (int i=0;i<n;i++) out[i]=in[i]*1.5; }
+    else if (fn == fn_square) { for (int i=0;i<n;i++) out[i]=in[i]*in[i]; }
+    else if (fn == fn_shift)  { for (int i=0;i<n;i++) out[i]=in[i]+1.0; }
+    else                      { for (int i=0;i<n;i++) out[i]=fn(in[i]); }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+typedef double (*TransformFn)(double);
+static double __attribute__((noinline)) fn_scale(double x)  { return x * 1.5; }
+static double __attribute__((noinline)) fn_square(double x) { return x * x; }
+static double __attribute__((noinline)) fn_shift(double x)  { return x + 1.0; }
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *in  = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) in[i] = (double)(i % 200 + 1) * 0.05;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, n, fn_scale);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(out[i] - in[i] * 1.5) > 1e-9) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out);
+    return 0;
+}"""
     ),
 
     # ── CATEGORY 4-7: Abbreviated (same structure) ──
@@ -455,7 +912,38 @@ double ds4_fast(double *mass, int n) {
     for (int i = 0; i < n; i++) total += mass[i];
     return total;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+typedef struct { double x,y,z,vx,vy,vz,mass,charge; } Particle;
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 5000000;
+    Particle *p = malloc(n * sizeof(Particle));
+    srand(42);
+    double expected = 0.0;
+    for (int i = 0; i < n; i++) {
+        p[i].x = p[i].y = p[i].z = p[i].vx = p[i].vy = p[i].vz = p[i].charge = 1.0;
+        p[i].mass = (double)rand() / RAND_MAX;
+        expected += p[i].mass;
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double result = optimized(p, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    double err = fabs(result - expected) / fmax(fabs(expected), 1e-12);
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, err < 1e-6);
+    free(p);
+    return 0;
+}"""
     ),
 
     PatternEntry(pattern_id="AL-1", category="Algorithmic", name="Recursive vs DP Fibonacci",
@@ -474,7 +962,29 @@ long long al1_fast(int n) {
     for (int i=2; i<=n; i++) { long long t=a+b; a=b; b=t; }
     return b;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 40;
+    long long expected = 102334155LL;
+
+    /* Warm up + timed loop so fast O(n) code still registers */
+    optimized(n);
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    long long result = 0;
+    for (int rep = 0; rep < 100000; rep++) result = optimized(n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    printf("result=%lld time_ms=%.4f correct=%d\\n", result, ms, result == expected);
+    return 0;
+}"""
     ),
 
     PatternEntry(pattern_id="MI-4", category="Memory/IO", name="Column vs Row Major Access",
@@ -493,16 +1003,53 @@ void mi4_fast(double *mat, int rows, int cols) {
         for (int j = 0; j < cols; j++)
             mat[i * cols + j] *= 2.0;
 }""",
-        test_harness=""
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int rows = 4000, cols = 4000;
+    double *mat      = malloc(rows * cols * sizeof(double));
+    double *expected = malloc(rows * cols * sizeof(double));
+    srand(42);
+    for (int i = 0; i < rows * cols; i++) mat[i] = expected[i] = (double)rand() / RAND_MAX;
+    for (int i = 0; i < rows * cols; i++) expected[i] *= 2.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(mat, rows, cols);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < rows * cols; i++) {
+        if (fabs(mat[i] - expected[i]) > 1e-9) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", mat[0], ms, correct);
+    free(mat); free(expected);
+    return 0;
+}"""
     ),
 ]
 
+
+_PORTABILITY_NOTE = (
+    "Important: write portable standard C (C99/C11). "
+    "Do NOT use x86-specific intrinsics (SSE/AVX/AVX2) or any "
+    "#include <immintrin.h> / <xmmintrin.h> / <emmintrin.h>. "
+    "Use plain loops that the compiler can auto-vectorize."
+)
 
 def make_prompt_generic(slow_code: str) -> str:
     """Strategy 1: Generic optimization request"""
     return f"""Optimize the following C code for better performance.
 Return ONLY the optimized C function. Do not change the function signature.
 Rename the function to `optimized`.
+{_PORTABILITY_NOTE}
 
 ```c
 {slow_code}
@@ -517,6 +1064,7 @@ Description: {pattern.description}
 
 Optimize this code to eliminate the inefficiency. Rename the function to `optimized`.
 Return ONLY the optimized C function.
+{_PORTABILITY_NOTE}
 
 ```c
 {slow_code}
@@ -538,7 +1086,8 @@ Inefficient Code Pattern Taxonomy:
 
 Analyze the following C code. First identify which inefficiency pattern(s) it contains,
 then optimize accordingly. Rename the function to `optimized`.
-Return the pattern ID and the optimized function.
+Return ONLY the optimized C function — no explanation, no pattern ID, just the code.
+{_PORTABILITY_NOTE}
 
 ```c
 {slow_code}
@@ -596,8 +1145,13 @@ class EvalResult:
     diagnosed_pattern: Optional[str] = None
     hw_target: str = "generic"
 
-def compile_and_run(code: str, test_harness: str, timeout: int = 30) -> dict:
-    """Compile LLM-generated code with test harness, run, parse output."""
+def compile_and_run(code: str, test_harness: str, timeout: int = 30,
+                    opt_level: str = "O2", runs: int = 3) -> dict:
+    """Compile LLM-generated code with test harness, run, parse output.
+
+    Compiles at opt_level (default O2) and takes the median of `runs`
+    executions for stable timing.
+    """
     with tempfile.TemporaryDirectory() as tmpdir:
         src_path = os.path.join(tmpdir, "test.c")
         bin_path = os.path.join(tmpdir, "test")
@@ -608,36 +1162,51 @@ def compile_and_run(code: str, test_harness: str, timeout: int = 30) -> dict:
 
         # Compile
         result = subprocess.run(
-            ["gcc", "-O0", "-o", bin_path, src_path, "-lm"],
+            ["gcc", f"-{opt_level}", "-o", bin_path, src_path, "-lm"],
             capture_output=True, text=True, timeout=10
         )
         if result.returncode != 0:
             return {"compiles": False, "error": result.stderr}
 
-        # Run
-        result = subprocess.run(
-            [bin_path], capture_output=True, text=True, timeout=timeout
-        )
-        if result.returncode != 0:
-            return {"compiles": True, "correct": False, "error": "runtime error"}
+        # Run multiple times and take median for stable timing
+        times = []
+        correct = False
+        result_val = ""
+        for _ in range(runs):
+            run = subprocess.run(
+                [bin_path], capture_output=True, text=True, timeout=timeout
+            )
+            if run.returncode != 0:
+                return {"compiles": True, "correct": False, "error": "runtime error"}
+            output = run.stdout.strip()
+            parts = dict(p.split("=") for p in output.split() if "=" in p)
+            correct = parts.get("correct", "0") == "1"
+            result_val = parts.get("result", "")
+            t = float(parts.get("time_ms", 0))
+            if t > 0:
+                times.append(t)
 
-        # Parse output: "result=X time_ms=Y correct=Z"
-        output = result.stdout.strip()
-        parts = dict(p.split("=") for p in output.split() if "=" in p)
+        times.sort()
+        time_ms = times[len(times) // 2] if times else 0.0
 
         return {
             "compiles": True,
-            "correct": parts.get("correct", "0") == "1",
-            "time_ms": float(parts.get("time_ms", 0)),
-            "result": parts.get("result", "")
+            "correct": correct,
+            "time_ms": time_ms,
+            "result": result_val
         }
 
 
 def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
-                     call_llm_fn, hw_target: str = "generic") -> EvalResult:
-    """Evaluate a single pattern with a specific model and strategy."""
+                     call_llm_fn, hw_target: str = "generic",
+                     max_retries: int = 3) -> EvalResult:
+    """Evaluate a single pattern with a specific model and strategy.
 
-    # Select prompt
+    Retries up to max_retries times if the code fails to compile or produces
+    wrong output, feeding the error back to the model each attempt.
+    """
+
+    # Build the initial prompt
     if strategy == "generic":
         prompt = make_prompt_generic(pattern.slow_code)
     elif strategy == "pattern-aware":
@@ -651,17 +1220,69 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
-    # Call LLM
-    llm_response = call_llm_fn(prompt, model)
+    llm_code = ""
+    result: dict = {"compiles": False, "correct": False, "time_ms": 0}
 
-    # Extract code from response
-    llm_code = extract_code_from_response(llm_response)
+    for attempt in range(1, max_retries + 1):
+        # On retries, append the error as feedback
+        if attempt > 1:
+            error_msg = result.get("error", "")
+            if not result.get("compiles", False):
+                feedback = (
+                    f"\n\nYour previous attempt failed to compile with this error:\n"
+                    f"{error_msg}\n\n"
+                    f"Previous code:\n```c\n{llm_code}\n```\n\n"
+                    f"Fix the code and return ONLY the corrected C function."
+                )
+            else:
+                feedback = (
+                    f"\n\nYour previous attempt compiled but produced wrong output.\n"
+                    f"Previous code:\n```c\n{llm_code}\n```\n\n"
+                    f"Fix the logic and return ONLY the corrected C function."
+                )
+            retry_prompt = prompt + feedback
+        else:
+            retry_prompt = prompt
 
-    # Compile and test
-    if pattern.test_harness:
-        result = compile_and_run(llm_code, pattern.test_harness)
-    else:
-        result = {"compiles": False, "correct": False, "time_ms": 0}
+        # Call LLM
+        llm_response = call_llm_fn(retry_prompt, model)
+        llm_code = extract_code_from_response(llm_response)
+
+        # Sanitize
+        if pattern.test_harness:
+            llm_code = _sanitize_llm_code(llm_code, pattern.test_harness)
+
+        # Compile and test
+        if pattern.test_harness:
+            result = compile_and_run(llm_code, pattern.test_harness)
+        else:
+            result = {"compiles": False, "correct": False, "time_ms": 0}
+
+        if result.get("compiles") and result.get("correct"):
+            break  # Success — stop retrying
+
+    # Benchmark slow and fast reference code for speedup comparison
+    slow_ms = 0.0
+    ref_fast_ms = 0.0
+    speedup_vs_slow = 0.0
+    speedup_vs_ref = 0.0
+    llm_ms = result.get("time_ms", 0)
+
+    if pattern.test_harness and result.get("correct"):
+        slow_ref = _normalize_function_name(pattern.slow_code.strip())
+        slow_ref = _sanitize_llm_code(slow_ref, pattern.test_harness)
+        slow_result = compile_and_run(slow_ref, pattern.test_harness)
+        slow_ms = slow_result.get("time_ms", 0)
+
+        fast_ref = _normalize_function_name(pattern.fast_code.strip())
+        fast_ref = _sanitize_llm_code(fast_ref, pattern.test_harness)
+        fast_result = compile_and_run(fast_ref, pattern.test_harness)
+        ref_fast_ms = fast_result.get("time_ms", 0)
+
+        if slow_ms > 0:
+            speedup_vs_slow = slow_ms / llm_ms if llm_ms > 0 else 0
+        if ref_fast_ms > 0:
+            speedup_vs_ref = ref_fast_ms / llm_ms if llm_ms > 0 else 0
 
     return EvalResult(
         pattern_id=pattern.pattern_id,
@@ -670,11 +1291,11 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
         llm_code=llm_code,
         compiles=result.get("compiles", False),
         correct=result.get("correct", False),
-        slow_ms=0,  # Filled in by benchmark runner
-        llm_ms=result.get("time_ms", 0),
-        ref_fast_ms=0,
-        speedup_vs_slow=0,
-        speedup_vs_ref=0,
+        slow_ms=slow_ms,
+        llm_ms=llm_ms,
+        ref_fast_ms=ref_fast_ms,
+        speedup_vs_slow=speedup_vs_slow,
+        speedup_vs_ref=speedup_vs_ref,
         hw_target=hw_target,
     )
 
@@ -684,12 +1305,95 @@ def extract_code_from_response(response: str) -> str:
     if "```c" in response:
         start = response.index("```c") + 4
         end = response.index("```", start)
-        return response[start:end].strip()
-    if "```" in response:
+        code = response[start:end].strip()
+    elif "```" in response:
         start = response.index("```") + 3
         end = response.index("```", start)
-        return response[start:end].strip()
-    return response.strip()
+        code = response[start:end].strip()
+    else:
+        code = response.strip()
+    return _normalize_function_name(code)
+
+
+def _normalize_function_name(code: str) -> str:
+    """Rename the last defined C function to `optimized`.
+
+    Models often ignore the rename instruction and use names like
+    `sr1_optimized`, `sr1_fast`, or `optimized_sr1`. This finds the
+    last function definition in the code and renames it (and all calls
+    to it) to `optimized`, which is what the test harnesses expect.
+    """
+    import re
+    # Match a C function definition: return_type name(...)
+    # Capture the function name — look for the last definition in the code.
+    pattern = re.compile(
+        r'\b([A-Za-z_]\w*)\s*\('          # function name followed by (
+        r'[^)]*\)\s*\{',                   # parameter list and opening brace
+        re.MULTILINE,
+    )
+    matches = list(pattern.finditer(code))
+    if not matches:
+        return code
+
+    # Find the last function that looks like a definition (not a call):
+    # it must be preceded by a return type on the same or previous line.
+    func_name = None
+    for m in reversed(matches):
+        name = m.group(1)
+        # Skip obvious non-function-definition keywords
+        if name in ("if", "for", "while", "switch", "return"):
+            continue
+        func_name = name
+        break
+
+    if func_name is None or func_name == "optimized":
+        return code
+
+    # Replace all occurrences of the function name with `optimized`
+    return re.sub(r'\b' + re.escape(func_name) + r'\b', 'optimized', code)
+
+
+def _sanitize_llm_code(code: str, test_harness: str) -> str:
+    """Strip typedef/struct/enum re-definitions from LLM code that would
+    conflict with types already pre-defined in the test harness.
+
+    Also strips x86-specific SIMD headers (immintrin.h, xmmintrin.h, etc.)
+    that won't compile on non-x86 hosts (e.g. Apple Silicon arm64).
+    """
+    import re
+
+    # Strip x86 SIMD includes — these won't compile on arm64
+    x86_simd_headers = [
+        "immintrin.h", "xmmintrin.h", "emmintrin.h", "pmmintrin.h",
+        "tmmintrin.h", "smmintrin.h", "nmmintrin.h", "avxintrin.h",
+        "avx2intrin.h", "avx512fintrin.h",
+    ]
+    for hdr in x86_simd_headers:
+        code = re.sub(
+            r'#\s*include\s*[<"]' + re.escape(hdr) + r'[>"]\s*\n?',
+            '', code
+        )
+
+    # Find type names defined before // LLM_CODE_HERE in the harness
+    before_llm = test_harness.split("// LLM_CODE_HERE")[0]
+    pre_names = set(re.findall(
+        r'typedef\s+(?:struct|enum)\s*(?:\w+\s*)?\{[^}]*\}\s*(\w+)\s*;',
+        before_llm, re.DOTALL
+    ))
+
+    for name in pre_names:
+        # Remove "typedef struct { ... } Name;" from LLM output
+        code = re.sub(
+            r'typedef\s+struct\s*(?:\w+\s*)?\{[^}]*\}\s*' + re.escape(name) + r'\s*;',
+            '', code, flags=re.DOTALL
+        )
+        # Remove "typedef enum { ... } Name;" from LLM output
+        code = re.sub(
+            r'typedef\s+enum\s*(?:\w+\s*)?\{[^}]*\}\s*' + re.escape(name) + r'\s*;',
+            '', code, flags=re.DOTALL
+        )
+
+    return code.strip()
 
 # ── Model config loading ────────────────────────────────────────────────────
 

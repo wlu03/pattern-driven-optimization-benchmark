@@ -85,15 +85,16 @@ class PatternTemplate:
         raise NotImplementedError
 
 class SR1_Generator(PatternTemplate):
-    """SR-1: Loop-Invariant Semantic Computation
-    Varies: array count, invariant count, dtype, binary operation,
-    unary math wrapping, loop style (for/while), dimensionality (1D/2D),
-    reduction operator
+    """SR-1: Loop-Invariant Function Call (Transcendental Series)
+    A transcendental series function is called with loop-invariant arguments
+    on every iteration. The inner loop containing log/sin/exp prevents the
+    compiler from proving loop-invariance. Optimization: hoist once before loop.
+    Varies: series type (log/sin/exp/mixed), number of terms, array size, dtype.
     """
 
     def __init__(self):
         super().__init__("SR-1", "Semantic Redundancy",
-                         "Loop-Invariant Semantic Computation")
+                         "Loop-Invariant Function Call (Transcendental Series)")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
@@ -1994,13 +1995,13 @@ int main() {{
 
 
 class CF1_Generator(PatternTemplate):
-    """CF-1: Loop-Invariant Conditional (Hoistable Branch).
-    A branch on a loop-invariant value checked every iteration.
-    Optimization: hoist the branch outside the loop."""
+    """CF-1: Batch Type Dispatch Devirtualization.
+    Per-element dispatch through a noinline function prevents vectorization.
+    Optimization: check mode once (O(1)) and dispatch to an inline loop."""
 
     def __init__(self):
         super().__init__("CF-1", "Control Flow",
-                         "Loop-Invariant Conditional")
+                         "Batch Type Dispatch Devirtualization")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
@@ -2018,40 +2019,46 @@ class CF1_Generator(PatternTemplate):
         arr_names = ["A", "B", "C"][:n_arrays]
         arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
 
-        # Build slow: branch inside loop
-        slow_branches = []
+        # Build noinline dispatch function (slow) and inline hoisted loops (fast)
+        # Scalar expressions for noinline dispatch function
+        scalar_exprs = []
         fast_loops = []
         for m_idx in range(n_modes):
             op = ops[m_idx]
             if n_arrays == 2:
-                expr = f"{arr_names[0]}[i] {op} {arr_names[1]}[i]"
+                scalar_expr = f"a {op} b"
+                array_expr = f"{arr_names[0]}[i] {op} {arr_names[1]}[i]"
             else:
-                expr = f"({arr_names[0]}[i] {op} {arr_names[1]}[i]) {rng.choice(['+', '-'])} {arr_names[2]}[i]"
-
-            cond = f"mode == {m_idx + 1}" if m_idx < n_modes - 1 else None
-            if cond:
-                prefix = "if" if m_idx == 0 else "} else if"
-                slow_branches.append(f"        {prefix} ({cond}) {{\n            out[i] = {expr};")
-            else:
-                slow_branches.append(f"        }} else {{\n            out[i] = {expr};")
+                combiner = rng.choice(['+', '-'])
+                scalar_expr = f"(a {op} b) {combiner} c"
+                array_expr = f"({arr_names[0]}[i] {op} {arr_names[1]}[i]) {combiner} {arr_names[2]}[i]"
+            scalar_exprs.append(scalar_expr)
 
             if_kw = "if" if m_idx == 0 else "} else if" if m_idx < n_modes - 1 else "} else"
             cond_str = f" (mode == {m_idx + 1})" if m_idx < n_modes - 1 else ""
-            fast_loops.append(f"    {if_kw}{cond_str} {{\n        for (int i = 0; i < n; i++) out[i] = {expr};")
+            fast_loops.append(f"    {if_kw}{cond_str} {{\n        for (int i = 0; i < n; i++) out[i] = {array_expr};")
 
-        slow_branch_code = "\n".join(slow_branches) + "\n        }"
         fast_branch_code = "\n".join(fast_loops) + "\n    }"
 
-        if loop_style == "for":
-            slow_loop_head = "for (int i = 0; i < n; i++)"
-        else:
-            slow_loop_head = "int i = 0;\n    while (i < n)"
+        # Build dispatch branches inside the noinline function
+        dispatch_branches = []
+        for m_idx in range(n_modes - 1):
+            dispatch_branches.append(f"    if (mode == {m_idx + 1}) return {scalar_exprs[m_idx]};")
+        dispatch_branches.append(f"    return {scalar_exprs[n_modes - 1]};")
+        dispatch_body = "\n".join(dispatch_branches)
 
-        slow_code = f"""void slow_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode) {{
-    {slow_loop_head} {{
-{slow_branch_code}
-{"        i++;" if loop_style == "while" else ""}
-    }}
+        if n_arrays == 2:
+            dispatch_params = f"{dtype} a, {dtype} b, int mode"
+            dispatch_call = f"cf1_dispatch_{suf}({arr_names[0]}[i], {arr_names[1]}[i], mode)"
+        else:
+            dispatch_params = f"{dtype} a, {dtype} b, {dtype} c, int mode"
+            dispatch_call = f"cf1_dispatch_{suf}({arr_names[0]}[i], {arr_names[1]}[i], {arr_names[2]}[i], mode)"
+
+        slow_code = f"""static {dtype} __attribute__((noinline)) cf1_dispatch_{suf}({dispatch_params}) {{
+{dispatch_body}
+}}
+void slow_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode) {{
+    for (int i = 0; i < n; i++) out[i] = {dispatch_call};
 }}"""
 
         fast_code = f"""void fast_cf1_{suf}({dtype} *out, {arr_params}, int n, int mode) {{
@@ -2101,7 +2108,7 @@ int main() {{
 }}
 """
 
-        desc = f"{n_modes} modes, {n_arrays} arrays, {dtype}, {loop_style}-loop"
+        desc = f"{n_modes} modes, {n_arrays} arrays, {dtype}, noinline dispatch"
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"CF-1_v{variant_num:03d}",
@@ -2109,12 +2116,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=desc,
             dtype=dtype,
-            difficulty="easy",
-            compiler_fixable=True,
+            difficulty="medium",
+            compiler_fixable=False,
             num_loops=1,
             num_arrays=n_arrays + 1,
-            lines_of_code=6 + n_modes * 2,
-            expected_speedup_range="1.2x-3x",
+            lines_of_code=8 + n_modes * 2,
+            expected_speedup_range="2x-5x",
             composition=[]
         )
 
@@ -2127,13 +2134,13 @@ int main() {{
 
 
 class CF2_Generator(PatternTemplate):
-    """CF-2: Redundant Bounds Checking.
-    Defensive bounds checks inside hot inner loops that are
-    guaranteed by the outer loop structure."""
+    """CF-2: Noinline Bounds Check Elimination.
+    A noinline bounds-check function called per element prevents vectorization.
+    Optimization: remove the check entirely (the loop bounds already guarantee validity)."""
 
     def __init__(self):
         super().__init__("CF-2", "Control Flow",
-                         "Redundant Bounds Checking")
+                         "Noinline Bounds Check Elimination")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
@@ -2156,15 +2163,16 @@ class CF2_Generator(PatternTemplate):
         check_cond = " && ".join(chosen_checks)
 
         if layout == "row_sum":
-            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums) {{
+            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
+    return ({check_cond});
+}}
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums) {{
     for (int i = 0; i < rows; i++) {{
         row_sums[i] = 0;
-        {"int j = 0;" if loop_style == "while" else ""}
-        {f"while (j < cols)" if loop_style == "while" else "for (int j = 0; j < cols; j++)"} {{
-            if ({check_cond}) {{
+        for (int j = 0; j < cols; j++) {{
+            if (cf2_check_{suf}(i, j, rows, cols)) {{
                 row_sums[i] += matrix[i * cols + j];
             }}
-            {"j++;" if loop_style == "while" else ""}
         }}
     }}
 }}"""
@@ -2212,11 +2220,14 @@ int main() {{
 }}
 """
         elif layout == "col_sum":
-            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums) {{
+            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
+    return ({check_cond});
+}}
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums) {{
     for (int j = 0; j < cols; j++) {{
         col_sums[j] = 0;
         for (int i = 0; i < rows; i++) {{
-            if ({check_cond}) {{
+            if (cf2_check_{suf}(i, j, rows, cols)) {{
                 col_sums[j] += matrix[i * cols + j];
             }}
         }}
@@ -2267,10 +2278,13 @@ int main() {{
 """
         elif layout == "scale":
             scalar_val = rng.choice(["2.0", "0.5", "3.14"])
-            slow_code = f"""void slow_cf2_{suf}({dtype} *matrix, int rows, int cols) {{
+            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
+    return ({check_cond});
+}}
+void slow_cf2_{suf}({dtype} *matrix, int rows, int cols) {{
     for (int i = 0; i < rows; i++) {{
         for (int j = 0; j < cols; j++) {{
-            if ({check_cond}) {{
+            if (cf2_check_{suf}(i, j, rows, cols)) {{
                 matrix[i * cols + j] *= ({dtype}){scalar_val};
             }}
         }}
@@ -2320,11 +2334,14 @@ int main() {{
 }}
 """
         else:  # transpose_sum
-            slow_code = f"""{dtype} slow_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols) {{
+            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
+    return ({check_cond});
+}}
+{dtype} slow_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols) {{
     {dtype} total = 0;
     for (int i = 0; i < rows; i++) {{
         for (int j = 0; j < cols; j++) {{
-            if ({check_cond}) {{
+            if (cf2_check_{suf}(i, j, rows, cols)) {{
                 total += A[i * cols + j] + B[j * rows + i];
             }}
         }}
@@ -2373,7 +2390,7 @@ int main() {{
 }}
 """
 
-        desc = f"{layout} with {n_checks} redundant checks, {dtype}, {rows}x{cols}, {loop_style}-loop"
+        desc = f"{layout} with noinline check, {dtype}, {rows}x{cols}"
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"CF-2_v{variant_num:03d}",
@@ -2381,12 +2398,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=desc,
             dtype=dtype,
-            difficulty="easy",
-            compiler_fixable=True,
+            difficulty="medium",
+            compiler_fixable=False,
             num_loops=2,
             num_arrays=1,
-            lines_of_code=10,
-            expected_speedup_range="1.1x-2x",
+            lines_of_code=14,
+            expected_speedup_range="2x-5x",
             composition=[]
         )
 
@@ -4262,23 +4279,16 @@ class CF3_Generator(PatternTemplate):
     for (int i = 0; i < n; i++) if (in[i] < ({dtype}){lo}{suf_t} || in[i] > ({dtype}){hi}{suf_t}) {{ all_ok = 0; break; }}"""
             desc_cond = f"all-in-range [{lo},{hi}]"
 
-        slow_code = f"""void slow_cf3_{suf}({dtype} *out, {dtype} *in, int n) {{
-    for (int i = 0; i < n; i++) {{
-        if ({check}) {{
-            out[i] = {hot_expr};
-        }} else {{
-            out[i] = {cold_expr};
-        }}
-    }}
+        slow_code = f"""static {dtype} __attribute__((noinline)) cf3_guarded_{suf}({dtype} x) {{
+    return ({check.replace('in[i]', 'x')}) ? ({hot_expr.replace('in[i]', 'x')}) : ({cold_expr.replace('in[i]', 'x')});
+}}
+void slow_cf3_{suf}({dtype} *out, {dtype} *in, int n) {{
+    for (int i = 0; i < n; i++)
+        out[i] = cf3_guarded_{suf}(in[i]);
 }}"""
         fast_code = f"""void fast_cf3_{suf}({dtype} *out, {dtype} *in, int n) {{
-{runtime_check}
-    if (all_ok) {{
-        for (int i = 0; i < n; i++) out[i] = {hot_expr};
-    }} else {{
-        for (int i = 0; i < n; i++)
-            out[i] = ({check}) ? ({hot_expr}) : ({cold_expr});
-    }}
+    // Caller guarantees {desc_cond}: guard is unnecessary, use inline loop.
+    for (int i = 0; i < n; i++) out[i] = {hot_expr};
 }}"""
 
         test_code = f"""#include <stdio.h>
