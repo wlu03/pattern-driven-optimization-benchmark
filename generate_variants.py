@@ -135,18 +135,20 @@ class SR1_Generator(PatternTemplate):
             slow_loop = f"    for (int i = 0; i < n; i++)\n        arr[i] *= series_fn(base);"
             fast_loop = f"    {dtype} scale = series_fn(base);\n    for (int i = 0; i < n; i++)\n        arr[i] *= scale;"
 
-        slow_code = f"""#include <math.h>
-static {dtype} series_fn({dtype} base) {{
+        helper_code = f"""#include <math.h>
+__attribute__((noinline, noclone))
+{dtype} series_fn({dtype} base) {{
 {helper_body}
-}}
+}}"""
+
+        slow_code = f"""#include <math.h>
+{dtype} series_fn({dtype} base);
 void slow_sr1_{suf}({dtype} *arr, int n, {dtype} base) {{
 {slow_loop}
 }}"""
 
         fast_code = f"""#include <math.h>
-static {dtype} series_fn({dtype} base) {{
-{helper_body}
-}}
+{dtype} series_fn({dtype} base);
 void fast_sr1_{suf}({dtype} *arr, int n, {dtype} base) {{
 {fast_loop}
 }}"""
@@ -216,6 +218,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -559,6 +562,10 @@ class SR4_Generator(PatternTemplate):
             loop_open_slow = "    for (int i = 0; i < n; i++) {"
             loop_close_slow = "    }"
 
+        helper_code = f"""#include <math.h>
+__attribute__((noinline, noclone))
+{fn_code}"""
+
         # Forward decl first (no {), blank line resets sig_parts so extract_extern_decl
         # captures slow_sr4 (not expensive_fn) as the SLOW_CODE_HERE extern decl.
         slow_code = f"""{dtype} expensive_fn_{suf}(int key);
@@ -568,8 +575,7 @@ void slow_sr4_{suf}({dtype} *arr, int n, {key_params}) {{
 {chr(10).join(call_lines_slow)}
         arr[i] {arr_op} {combine_expr};
 {loop_close_slow}
-}}
-{fn_code}"""
+}}"""
 
         # fast.c needs expensive_fn too (hoisted outside loop); it's defined in slow.c.
         fast_code = f"""{dtype} expensive_fn_{suf}(int key);
@@ -651,6 +657,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -1813,13 +1820,16 @@ class SR2_Generator(PatternTemplate):
             slow_loop = f"    int i = 0;\n    while (i < n) {{\n        result += {slow_expr};\n        i++;\n    }}"
             fast_loop = f"    {acc_init}\n    int i = 0;\n    while (i < n) {{\n        {acc_body_lines}\n    }}"
 
-        slow_code = f"""#include <math.h>
-/* sin*exp penalty — inner loop blocks compiler from hoisting as loop-invariant */
-static {dtype} penalty({dtype} a, {dtype} b) {{
+        helper_code = f"""#include <math.h>
+__attribute__((noinline, noclone))
+{dtype} penalty({dtype} a, {dtype} b) {{
     {dtype} r = 0.0;
     for (int k = 1; k <= {n_penalty_terms}; k++) r += ({dtype})sin(a * k) * ({dtype})exp(-b * k * {decay});
     return r;
-}}
+}}"""
+
+        slow_code = f"""#include <math.h>
+{dtype} penalty({dtype} a, {dtype} b);
 __attribute__((noinline))
 {dtype} slow_sr2_{suf}({all_params}) {{
     {dtype} result = 0.0;
@@ -1828,11 +1838,7 @@ __attribute__((noinline))
 }}"""
 
         fast_code = f"""#include <math.h>
-static {dtype} penalty({dtype} a, {dtype} b) {{
-    {dtype} r = 0.0;
-    for (int k = 1; k <= {n_penalty_terms}; k++) r += ({dtype})sin(a * k) * ({dtype})exp(-b * k * {decay});
-    return r;
-}}
+{dtype} penalty({dtype} a, {dtype} b);
 __attribute__((noinline))
 {dtype} fast_sr2_{suf}({all_params}) {{
 {fast_loop}
@@ -1916,6 +1922,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -3720,20 +3727,21 @@ class SR5_Generator(PatternTemplate):
             slow_inner = f"    int i = 0;\n    while (i < n) {{\n        out[i] = data[i] / compute_norm(w, m);\n        i++;\n    }}"
             fast_inner = f"    {dtype} inv = ({dtype})1.0 / compute_norm(w, m);\n    int i = 0;\n    while (i < n) {{\n        out[i] = data[i] * inv;\n        i++;\n    }}"
 
-        slow_code = f"""#include <math.h>
-/* {norm_desc} norm — aliasing: out[] may alias w[], compiler cannot hoist */
-static {dtype} compute_norm({dtype} *w, int m) {{
+        helper_code = f"""#include <math.h>
+__attribute__((noinline, noclone))
+{dtype} compute_norm({dtype} *w, int m) {{
 {norm_body}
-}}
+}}"""
+
+        slow_code = f"""#include <math.h>
+{dtype} compute_norm({dtype} *w, int m);
 __attribute__((noinline))
 void slow_sr5_{suf}({dtype} *out, {dtype} *data, int n, {dtype} *w, int m) {{
 {slow_inner}
 }}"""
 
         fast_code = f"""#include <math.h>
-static {dtype} compute_norm({dtype} *w, int m) {{
-{norm_body}
-}}
+{dtype} compute_norm({dtype} *w, int m);
 __attribute__((noinline))
 void fast_sr5_{suf}({dtype} *out, {dtype} *data, int n, {dtype} *w, int m) {{
 {fast_inner}
@@ -3800,7 +3808,8 @@ int main() {{
             composition=[]
         )
         return {"slow_code": slow_code, "fast_code": fast_code,
-                "test_code": test_code, "metadata": asdict(metadata)}
+                "test_code": test_code, "helper_code": helper_code,
+                "metadata": asdict(metadata)}
 
 
 class IS2_Generator(PatternTemplate):
@@ -5886,6 +5895,9 @@ def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed:
             _write_tu(os.path.join(var_dir, "fast.c"), result["fast_code"])
             with open(os.path.join(var_dir, "test.c"), "w") as f:
                 f.write(result["test_code"])
+            if result.get("helper_code"):
+                with open(os.path.join(var_dir, "helper.c"), "w") as f:
+                    f.write(result["helper_code"])
             with open(os.path.join(var_dir, "metadata.json"), "w") as f:
                 json.dump(result["metadata"], f, indent=2)
 

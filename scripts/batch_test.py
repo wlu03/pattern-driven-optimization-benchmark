@@ -82,6 +82,9 @@ results = []
 errors = []
 
 # Find all variant directories
+print(f"  {'':2} {'Variant':<22} {'Speedup -O0':>12}  {'Speedup -O3':>12}  {'Difficulty'}")
+print(f"  {'-'*2} {'-'*22} {'-'*12}  {'-'*12}  {'-'*10}")
+
 for root, dirs, files in os.walk(DATASET_DIR):
     if "metadata.json" in files and "slow.c" in files:
         meta = json.load(open(os.path.join(root, "metadata.json")))
@@ -108,6 +111,7 @@ for root, dirs, files in os.walk(DATASET_DIR):
             slow_src = os.path.join(tmp, "slow.c")
             fast_src = os.path.join(tmp, "fast.c")
             test_src = os.path.join(tmp, "test.c")
+            helper_path = os.path.join(root, "helper.c")
 
             with open(slow_src, "w") as f:
                 # Prepend headers if not already present
@@ -133,9 +137,10 @@ for root, dirs, files in os.walk(DATASET_DIR):
                 tag = opt.replace("-", "")
                 bin_path = os.path.join(tmp, f"test{opt}")
                 # -fno-lto: prevent link-time inlining across TU boundaries
+                extra_tus = [helper_path] if os.path.exists(helper_path) else []
                 r = subprocess.run(
                     ["gcc", opt, "-fno-lto", "-o", bin_path,
-                     test_src, slow_src, fast_src, "-lm"],
+                     test_src, slow_src, fast_src] + extra_tus + ["-lm"],
                     capture_output=True, text=True, timeout=10)
                 if r.returncode != 0:
                     errors.append(f"{meta['variant_id']} compile {opt}: {r.stderr[:100]}")
@@ -157,27 +162,31 @@ for root, dirs, files in os.walk(DATASET_DIR):
 
             results.append(row)
             status = "✓" if row["correct_O0"] else "✗"
-            print(f"  {status} {meta['variant_id']:20s}  O0: {row['speedup_O0']:8.1f}x  O3: {row['speedup_O3']:8.1f}x  [{meta['difficulty']}]")
+            compiler_resistant = "  ← compiler-resistant" if row["speedup_O3"] > 2.0 else "  ← compiler fixes this"
+            print(f"  {status} {meta['variant_id']:<22} fast/slow -O0: {row['speedup_O0']:6.1f}x  fast/slow -O3: {row['speedup_O3']:6.1f}x  [{meta['difficulty']}]{compiler_resistant}")
 
 
-print(f"\n{'='*70}")
-print(f"results: {len(results)} variants tested, {sum(1 for r in results if r['correct_O0'])} correct")
-
+total = len(results)
+correct = sum(1 for r in results if r['correct_O0'])
+resistant = sum(1 for r in results if r['speedup_O3'] > 2.0)
+print(f"\n{'='*90}")
+print(f"Summary: {total} variants tested  |  {correct}/{total} correct  |  {resistant}/{total} compiler-resistant at -O3")
+print(f"  (compiler-resistant = fast/slow speedup remains >2x even at -O3)\n")
 
 by_pattern = defaultdict(list)
 for r in results:
     by_pattern[r["pattern_id"]].append(r)
 
-print(f"\n{'Pattern':<10} {'Count':>5} {'Compile':>8} {'Correct':>8} {'Avg Spd O0':>12} {'Avg Spd O3':>12}")
-print("-" * 60)
+print(f"{'Pattern':<10} {'Variants':>8} {'Correct':>8} {'Avg fast/slow -O0':>18} {'Avg fast/slow -O3':>18}  {'Compiler-resistant?'}")
+print("-" * 90)
 for pid in sorted(by_pattern.keys()):
     rows = by_pattern[pid]
     n = len(rows)
-    comp = sum(1 for r in rows if r["compiles_O0"])
     corr = sum(1 for r in rows if r["correct_O0"])
     avg_o0 = sum(r["speedup_O0"] for r in rows if r["correct_O0"]) / max(corr, 1)
     avg_o3 = sum(r["speedup_O3"] for r in rows if r["correct_O3"]) / max(corr, 1)
-    print(f"{pid:<10} {n:>5} {comp:>8} {corr:>8} {avg_o0:>11.1f}x {avg_o3:>11.1f}x")
+    resistant_flag = "yes" if avg_o3 > 2.0 else "no — compiler closes the gap"
+    print(f"{pid:<10} {n:>8} {corr:>8} {avg_o0:>17.1f}x {avg_o3:>17.1f}x  {resistant_flag}")
 
 if errors:
     print(f"\n{len(errors)} errors:")
