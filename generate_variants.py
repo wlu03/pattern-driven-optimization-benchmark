@@ -98,185 +98,117 @@ class SR1_Generator(PatternTemplate):
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
-        dtype = rng.choice(["float", "double"])   # drop int: 0.01*int truncates badly
-        n_arrays = rng.randint(2, 6)           # 2-6 input arrays
-        n_invariants = rng.randint(1, 4)       # 1-4 loop-invariant terms
-        use_2d = rng.choice([False, False, True])  # sometimes 2D
+        suf = f"v{variant_num:03d}"
+        dtype = rng.choice(["float", "double"])
+        suf_t = DTYPES[dtype]['suffix']
+        n_terms = rng.randint(15, 50)          # inner loop length — expensive enough to measure
+        N = rng.choice([500000, 1000000, 2000000])
         loop_style = rng.choice(["for", "while", "for"])  # bias toward for
-        # bin_op MUST be * for the fast "separate accumulators" trick to be
-        # algebraically equivalent: sum(k * A[i]) == k * sum(A[i]).
-        # Addition would require sum(k + A[i]) == k + sum(A[i]) which is wrong
-        # (off by (N-1)*k).
-        bin_op, bin_op_name = "*", "multiply"
-        # Sometimes wrap array access in a unary math fn
-        use_unary = rng.choice([False, False, True])
-        unary_fn = rng.choice(UNARY_MATH_FNS)[0] if use_unary else None
-        # Always use sum reduction (product reduction would need init=1 for fast accumulators)
-        red_op, red_name = "+=", "sum"
 
-        arr_names = [chr(65 + i) for i in range(n_arrays)]  # A, B, C, ...
-        inv_names = [f"k{i}" for i in range(n_invariants)]
+        # Choose series type and build helper + expected inline computation
+        series_type = rng.choice(["log", "sin", "exp_decay", "log_sin"])
 
-        fn_name = f"{self.pattern_id.lower().replace('-','_')}_v{variant_num:03d}"
+        if series_type == "log":
+            helper_body = f"    {dtype} r = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) r += ({dtype})log(base * k + 1.0) / k;\n    return r;"
+            expected_loop = f"    {dtype} scale = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) scale += ({dtype})log(base * k + 1.0) / k;"
+            desc_series = f"log-series({n_terms} terms)"
+        elif series_type == "sin":
+            freq = rng.choice([0.5, 1.0, 2.0])
+            helper_body = f"    {dtype} r = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) r += ({dtype})sin(base * k * {freq});\n    return r;"
+            expected_loop = f"    {dtype} scale = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) scale += ({dtype})sin(base * k * {freq});"
+            desc_series = f"sin-series({n_terms} terms, freq={freq})"
+        elif series_type == "exp_decay":
+            decay = rng.choice([0.05, 0.1, 0.02])
+            helper_body = f"    {dtype} r = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) r += ({dtype})exp(-base * k * {decay});\n    return r;"
+            expected_loop = f"    {dtype} scale = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) scale += ({dtype})exp(-base * k * {decay});"
+            desc_series = f"exp-decay({n_terms} terms, decay={decay})"
+        else:  # log_sin
+            helper_body = f"    {dtype} r = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) r += ({dtype})log(k + 1.0) * ({dtype})sin(base * k);\n    return r;"
+            expected_loop = f"    {dtype} scale = 0.0;\n    for (int k = 1; k <= {n_terms}; k++) scale += ({dtype})log(k + 1.0) * ({dtype})sin(base * k);"
+            desc_series = f"log*sin-series({n_terms} terms)"
 
-        # Expression building
-        def arr_access(arr):
-            acc = f"{arr}[i]" if not use_2d else f"{arr}[row * cols + col]"
-            if unary_fn and dtype != "int":
-                acc = f"{unary_fn}({acc})"
-            return acc
-
-        slow_terms = []
-        fast_accumulators = []
-        fast_combine = []
-
-        for idx, arr in enumerate(arr_names):
-            acc = arr_access(arr)
-            if idx < n_invariants:
-                inv = inv_names[idx]
-                slow_terms.append(f"({inv} {bin_op} {acc})")
-                fast_accumulators.append(f"    {dtype} sum_{arr} = {DTYPES[dtype]['zero']};")
-                fast_combine.append(f"({inv} {bin_op} sum_{arr})")
-            else:
-                slow_terms.append(acc)
-                fast_accumulators.append(f"    {dtype} sum_{arr} = {DTYPES[dtype]['zero']};")
-                fast_combine.append(f"sum_{arr}")
-
-        joiner = " + " if red_name == "sum" else " * "
-        slow_expr = joiner.join(slow_terms)
-
-        # Parameter declarations
-        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
-        inv_params = ", ".join(f"{dtype} {k}" for k in inv_names)
-        if use_2d:
-            size_params = "int rows, int cols"
-            all_params = f"{arr_params}, {size_params}, {inv_params}"
+        # Loop body
+        if loop_style == "while":
+            slow_loop = f"    int i = 0;\n    while (i < n) {{\n        arr[i] *= series_fn(base);\n        i++;\n    }}"
+            fast_loop = f"    {dtype} scale = series_fn(base);\n    int i = 0;\n    while (i < n) {{\n        arr[i] *= scale;\n        i++;\n    }}"
         else:
-            all_params = f"{arr_params}, int n, {inv_params}"
+            slow_loop = f"    for (int i = 0; i < n; i++)\n        arr[i] *= series_fn(base);"
+            fast_loop = f"    {dtype} scale = series_fn(base);\n    for (int i = 0; i < n; i++)\n        arr[i] *= scale;"
 
-        # Loop scaffolding
-        if use_2d:
-            slow_loop_open = "    for (int row = 0; row < rows; row++) {\n        for (int col = 0; col < cols; col++) {"
-            slow_loop_close = "        }\n    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
-        elif loop_style == "while":
-            slow_loop_open = "    int i = 0;\n    while (i < n) {"
-            slow_loop_close = "        i++;\n    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
-        else:
-            slow_loop_open = "    for (int i = 0; i < n; i++) {"
-            slow_loop_close = "    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
-
-        loop_var = "row * cols + col" if use_2d else "i"
-
-        slow_code = f"""{dtype} slow_{fn_name}({all_params}) {{
-{total_init}
-{slow_loop_open}
-        total {red_op} {slow_expr};
-{slow_loop_close}
-    return total;
+        slow_code = f"""#include <math.h>
+static {dtype} series_fn({dtype} base) {{
+{helper_body}
+}}
+void slow_sr1_{suf}({dtype} *arr, int n, {dtype} base) {{
+{slow_loop}
 }}"""
 
-        # Fast version: separate accumulators, single combine at end
-        acc_loop_body = "\n".join(
-            f"        sum_{a} {red_op} {arr_access(a)};" for a in arr_names
-        )
-        combine_expr = joiner.join(fast_combine)
-
-        fast_code = f"""{dtype} fast_{fn_name}({all_params}) {{
-{chr(10).join(fast_accumulators)}
-{fast_loop_open}
-{acc_loop_body}
-{fast_loop_close}
-    return {combine_expr};
+        fast_code = f"""#include <math.h>
+static {dtype} series_fn({dtype} base) {{
+{helper_body}
+}}
+void fast_sr1_{suf}({dtype} *arr, int n, {dtype} base) {{
+{fast_loop}
 }}"""
 
-        # Test harness
-        n_val = "5000000"
-        if use_2d:
-            n_val_total = "ROWS * COLS"
-            size_def = "#define ROWS 2000\n#define COLS 2500"
-            size_args = "ROWS, COLS"
-        else:
-            n_val_total = "N"
-            size_def = f"#define N {n_val}"
-            size_args = "N"
-
-        arr_allocs = "\n".join(
-            f"    {dtype} *{a} = malloc({n_val_total} * sizeof({dtype}));\n"
-            f"    for (int i = 0; i < {n_val_total}; i++) {a}[i] = ({dtype})(i % 100) * 0.01{DTYPES[dtype]['suffix']};"
-            for a in arr_names
-        )
-        arr_args = ", ".join(arr_names)
-        inv_args = ", ".join(f"2.{i}{DTYPES[dtype]['suffix']}" for i in range(n_invariants))
-        arr_frees = "\n".join(f"    free({a});" for a in arr_names)
-        needs_math = use_unary or dtype != "int"
-
+        base_val = rng.choice([1.5, 2.0, 0.5, 3.0])
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
-{"#include <math.h>" if needs_math else ""}
+#include <math.h>
 #include <time.h>
-
-{size_def}
+#define N {N}
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {{
-{arr_allocs}
+    {dtype} *arr_slow = malloc(N * sizeof({dtype}));
+    {dtype} *arr_fast = malloc(N * sizeof({dtype}));
+    {dtype} *expected = malloc(N * sizeof({dtype}));
+    for (int i = 0; i < N; i++) arr_slow[i] = arr_fast[i] = expected[i] = ({dtype})(i % 100 + 1) * 0.01{suf_t};
+
+    {dtype} base = ({dtype}){base_val}{suf_t};
+
+    /* compute expected inline — independent of slow/fast implementations */
+{expected_loop}
+    for (int i = 0; i < N; i++) expected[i] *= scale;
 
     struct timespec t0, t1;
-
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_slow = slow_{fn_name}({arr_args}, {size_args}, {inv_args});
+    slow_sr1_{suf}(arr_slow, N, base);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_fast = fast_{fn_name}({arr_args}, {size_args}, {inv_args});
+    fast_sr1_{suf}(arr_fast, N, base);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
-    double err = fabs((double)(r_slow - r_fast)) / fmax(fabs((double)r_slow), 1e-12);
-    double tol = {"1e-2" if dtype == "float" else "1e-4"};
+    int correct = 1;
+    for (int i = 0; i < N; i++) {{
+        double diff = fabs((double)(arr_slow[i] - expected[i])) / fmax(fabs((double)expected[i]), 1e-12);
+        if (diff > {"1e-2" if dtype == "float" else "1e-6"}) {{ correct = 0; break; }}
+    }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
-           ms_slow, ms_fast, err < tol, ms_slow / fmax(ms_fast, 0.001));
-
-{arr_frees}
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(arr_slow); free(arr_fast); free(expected);
     return 0;
 }}"""
 
-        desc_parts = [f"{n_arrays} arrays", f"{n_invariants} invariants", dtype, f"{bin_op_name} op"]
-        if use_unary:
-            desc_parts.append(f"{unary_fn}() wrapping")
-        if use_2d:
-            desc_parts.append("2D layout")
-        if loop_style == "while":
-            desc_parts.append("while-loop")
-        if red_name != "sum":
-            desc_parts.append(f"{red_name} reduction")
-
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
-            variant_id=f"{self.pattern_id}_v{variant_num:03d}",
+            variant_id=f"SR-1_v{variant_num:03d}",
             category=self.category,
             pattern_name=self.name,
-            variant_desc=", ".join(desc_parts),
+            variant_desc=f"{desc_series}, n={N}, {dtype}, {loop_style}-loop",
             dtype=dtype,
-            difficulty="easy" if n_invariants <= 1 and not use_2d else ("hard" if n_invariants >= 3 or use_unary else "medium"),
+            difficulty="medium" if n_terms <= 20 else "hard",
             compiler_fixable=False,
-            num_loops=2 if use_2d else 1,
-            num_arrays=n_arrays,
-            lines_of_code=6 + n_arrays + (2 if use_2d else 0),
-            expected_speedup_range="1.1x-2x",
+            num_loops=1,
+            num_arrays=1,
+            lines_of_code=8,
+            expected_speedup_range=f"{n_terms//2}x-{n_terms}x",
             composition=[]
         )
 
@@ -403,13 +335,15 @@ class SR3_Generator(PatternTemplate):
             var_sum += diff * diff;
         }}
         result[i] = var_sum / (i + 1);"""
-            fast_body = f"""    {dtype} sum = {DTYPES[dtype]['zero']};
-    {dtype} sum_sq = {DTYPES[dtype]['zero']};
+            # Welford's online algorithm: numerically stable, avoids E[X^2]-E[X]^2 cancellation
+            fast_body = f"""    {dtype} mean = {DTYPES[dtype]['zero']};
+    {dtype} M2 = {DTYPES[dtype]['zero']};
 {loop_open}
-        sum += data[i];
-        sum_sq += data[i] * data[i];
-        {dtype} mean = sum / (i + 1);
-        result[i] = sum_sq / (i + 1) - mean * mean;
+        {dtype} delta = data[i] - mean;
+        mean += delta / (i + 1);
+        {dtype} delta2 = data[i] - mean;
+        M2 += delta * delta2;
+        result[i] = M2 / (i + 1);
 {loop_close}"""
             desc = "Cumulative variance recomputed from scratch (O(n^2) -> O(n))"
 
@@ -479,8 +413,10 @@ int main() {{
 
     int correct = 1;
     for (int i = 0; i < N; i++) {{
-        double err = fabs((double)(res_slow[i] - res_fast[i]));
-        if (err > 1e-4) {{ correct = 0; break; }}
+        /* relative tolerance: large N float accumulation can diverge by > 1 ULP */
+        double denom = fmax(fabs((double)res_slow[i]), 1.0);
+        double err = fabs((double)(res_slow[i] - res_fast[i])) / denom;
+        if (err > 1e-3) {{ correct = 0; break; }}
     }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
@@ -1823,153 +1759,143 @@ int main() {{
         }
 
 class SR2_Generator(PatternTemplate):
-    """SR-2: Recomputable Expression Decomposition.
-    Complex expression inside a loop can be algebraically decomposed
-    into independent accumulators multiplied by constants at the end."""
+    """SR-2: Loop-Invariant Term in Mixed Expression.
+    A transcendental penalty function with loop-invariant arguments is called
+    every iteration inside a mixed expression. The sin/exp inner loop prevents
+    the compiler from hoisting it as pure/const.
+    Optimization: separate accumulators for data-dependent terms, call penalty once.
+    Varies: number of arrays, penalty terms, expression terms, dtype, loop style.
+    """
 
     def __init__(self):
         super().__init__("SR-2", "Semantic Redundancy",
-                         "Recomputable Expression Decomposition")
+                         "Loop-Invariant Term in Mixed Expression")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        n_arrays = rng.choice([2, 3, 4])
-        n_terms = rng.choice([2, 3, 4, 5])
-        n_consts = rng.choice([1, 2, 3])
+        suf_t = DTYPES[dtype]['suffix']
+        n_arrays = rng.choice([2, 3])           # X+Y or X+Y+Z
+        n_penalty_terms = rng.randint(10, 30)   # terms in the sin*exp inner loop
+        decay = rng.choice([0.05, 0.1, 0.02])
+        N = rng.choice([500000, 1000000, 2000000])
         loop_style = rng.choice(["for", "while"])
-        N = rng.choice([5000000, 10000000, 20000000])
+        n_consts = 2  # always alpha, beta
 
-        arr_names = ["X", "Y", "Z", "W"][:n_arrays]
-        const_names = ["alpha", "beta", "gamma"][:n_consts]
-
-        # Build terms: e.g. "alpha * X[i] * X[i]", "beta * Y[i]", "alpha * beta"
-        term_types = [
-            ("sq", lambda a, c: f"{c} * {a}[i] * {a}[i]"),
-            ("lin", lambda a, c: f"{c} * {a}[i]"),
-            ("cube", lambda a, c: f"{c} * {a}[i] * {a}[i] * {a}[i]"),
-            ("cross", lambda a, c: f"{c} * {a}[i]"),
-            ("const", lambda a, c: f"{c}"),
-        ]
-
-        terms = []
-        accum_fast_lines = []
-        final_parts = []
-        accum_decls = []
-
-        for t_idx in range(n_terms):
-            arr = rng.choice(arr_names)
-            cst = rng.choice(const_names)
-            # "const" removed: slow sums cst N times but fast only adds cst once,
-            # making them mathematically inequivalent (off by (N-1)*cst).
-            kind = rng.choice(["sq", "lin", "cube"])
-
-            if kind == "sq":
-                terms.append(f"{cst} * {arr}[i] * {arr}[i]")
-                acc_name = f"sum{arr}sq"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            elif kind == "lin":
-                terms.append(f"{cst} * {arr}[i]")
-                acc_name = f"sum{arr}"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            elif kind == "cube":
-                terms.append(f"{cst} * {arr}[i] * {arr}[i] * {arr}[i]")
-                acc_name = f"sum{arr}cb"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i] * {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            else:
-                terms.append(f"{cst}")
-                final_parts.append(f"({dtype})n * {cst}")
-
-        slow_expr = " + ".join(terms)
+        arr_names = ["X", "Y", "Z"][:n_arrays]
         arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
-        const_params = ", ".join(f"{dtype} {c}" for c in const_names)
+        const_params = f"{dtype} alpha, {dtype} beta"
         all_params = f"{arr_params}, int n, {const_params}"
 
-        if loop_style == "for":
-            slow_loop = f"for (int i = 0; i < n; i++)"
-            fast_loop = f"for (int i = 0; i < n; i++)"
-        else:
-            slow_loop = f"int i = 0;\n    while (i < n)"
-            fast_loop = f"int i = 0;\n    while (i < n)"
+        # Build data-dependent expression terms (vary per variant)
+        # Always include alpha*X[i]*X[i] + beta*Y[i]; optionally add more terms
+        data_terms = [f"alpha * X[i] * X[i]", f"beta * Y[i]"]
+        fast_accums = [("sumXsq", "sumXsq += X[i] * X[i];"), ("sumY", "sumY += Y[i];")]
+        fast_final_parts = ["alpha * sumXsq", "beta * sumY"]
 
-        # Deduplicate accumulators
-        seen_acc = {}
-        unique_accums = []
-        for name, line in accum_decls:
-            if name not in seen_acc:
-                seen_acc[name] = True
-                unique_accums.append((name, line))
+        if n_arrays >= 3:
+            data_terms.append(f"alpha * Z[i]")
+            fast_accums.append(("sumZ", "sumZ += Z[i];"))
+            fast_final_parts.append("alpha * sumZ")
 
-        acc_init = "\n    ".join(f"{dtype} {name} = 0.0;" for name, _ in unique_accums)
-        acc_body = "\n        ".join(line for _, line in unique_accums)
+        slow_expr = " + ".join(data_terms) + " + penalty(alpha, beta)"
+        acc_init = "\n    ".join(f"{dtype} {name} = 0.0;" for name, _ in fast_accums)
+        acc_body_lines = "\n        ".join(line for _, line in fast_accums)
         if loop_style == "while":
-            acc_body += "\n        i++;"
-        final_expr = " + ".join(final_parts)
+            acc_body_lines += "\n        i++;"
+        fast_final = " + ".join(fast_final_parts) + " + (double)n * penalty(alpha, beta)"
 
-        slow_code = f"""{dtype} slow_sr2_{suf}({all_params}) {{
+        if loop_style == "for":
+            slow_loop = f"    for (int i = 0; i < n; i++) {{\n        result += {slow_expr};\n    }}"
+            fast_loop = f"    {acc_init}\n    for (int i = 0; i < n; i++) {{\n        {acc_body_lines}\n    }}"
+        else:
+            slow_loop = f"    int i = 0;\n    while (i < n) {{\n        result += {slow_expr};\n        i++;\n    }}"
+            fast_loop = f"    {acc_init}\n    int i = 0;\n    while (i < n) {{\n        {acc_body_lines}\n    }}"
+
+        slow_code = f"""#include <math.h>
+/* sin*exp penalty — inner loop blocks compiler from hoisting as loop-invariant */
+static {dtype} penalty({dtype} a, {dtype} b) {{
+    {dtype} r = 0.0;
+    for (int k = 1; k <= {n_penalty_terms}; k++) r += ({dtype})sin(a * k) * ({dtype})exp(-b * k * {decay});
+    return r;
+}}
+__attribute__((noinline))
+{dtype} slow_sr2_{suf}({all_params}) {{
     {dtype} result = 0.0;
-    {slow_loop} {{
-        result += {slow_expr};
-    {"    i++;" if loop_style == "while" else ""}
-    }}
+{slow_loop}
     return result;
 }}"""
 
-        fast_code = f"""{dtype} fast_sr2_{suf}({all_params}) {{
-    {acc_init}
-    {fast_loop} {{
-        {acc_body}
-    }}
-    return {final_expr};
+        fast_code = f"""#include <math.h>
+static {dtype} penalty({dtype} a, {dtype} b) {{
+    {dtype} r = 0.0;
+    for (int k = 1; k <= {n_penalty_terms}; k++) r += ({dtype})sin(a * k) * ({dtype})exp(-b * k * {decay});
+    return r;
+}}
+__attribute__((noinline))
+{dtype} fast_sr2_{suf}({all_params}) {{
+{fast_loop}
+    return {fast_final};
 }}"""
 
-        # Test harness
-        arr_allocs = "\n    ".join(f'{dtype} *{a} = malloc({N} * sizeof({dtype})); for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})(k % 100) * 0.01f;' for a in arr_names)
-        const_vals = ", ".join("2.5" if i == 0 else "1.7" if i == 1 else "0.3" for i in range(n_consts))
+        # Test harness — computes expected inline without calling slow/fast
+        arr_allocs = "\n    ".join(
+            f"{dtype} *{a} = malloc({N} * sizeof({dtype}));\n    "
+            f"for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})(k % 100 - 50) * 0.1{suf_t};"
+            for a in arr_names
+        )
         arr_args = ", ".join(arr_names)
         arr_frees = "\n    ".join(f"free({a});" for a in arr_names)
+        alpha_val, beta_val = rng.choice([(2.5, 1.5), (1.0, 0.5), (3.0, 2.0)])
+
+        # Inline expected computation
+        expected_data_terms = " + ".join(
+            f"alpha * X[k] * X[k]" if a == "X" else f"beta * Y[k]" if a == "Y" else f"alpha * Z[k]"
+            for a in arr_names
+        )
 
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#define N {N}
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {{
-    int n = {N};
+    int n = N;
     {arr_allocs}
-    {dtype} r_slow = 0, r_fast = 0;
+    {dtype} alpha = ({dtype}){alpha_val}{suf_t}, beta = ({dtype}){beta_val}{suf_t};
+
     struct timespec t0, t1;
-    int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_slow = slow_sr2_{suf}({arr_args}, n, {const_vals});
+    {dtype} r_slow = slow_sr2_{suf}({arr_args}, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
+    double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
+
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_sr2_{suf}({arr_args}, n, {const_vals});
+    {dtype} r_fast = fast_sr2_{suf}({arr_args}, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    double diff = fabs((double)(r_slow - r_fast));
-    double rel = (fabs((double)r_slow) > 1e-15) ? diff / fabs((double)r_slow) : diff;
-    int correct = rel < 1e-2;  /* 1% relative tolerance: accumulation order differs slightly */
+    double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
+
+    /* compute expected inline — penalty inlined here, no dependency on slow/fast */
+    {dtype} p = 0.0;
+    for (int k = 1; k <= {n_penalty_terms}; k++) p += ({dtype})sin(alpha * k) * ({dtype})exp(-beta * k * {decay});
+    {dtype} expected = 0.0;
+    for (int k = 0; k < N; k++) expected += {expected_data_terms} + p;
+
+    double rel = fabs((double)(r_slow - expected)) / fmax(fabs((double)expected), 1e-12);
+    int correct = rel < 1e-2;
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     {arr_frees}
     return 0;
-}}
-"""
+}}"""
 
-        desc = f"{n_terms}-term expression decomposition, {n_arrays} arrays, {n_consts} constants, {dtype}, {loop_style}-loop"
+        desc = f"{n_penalty_terms}-term sin*exp penalty, {n_arrays} arrays, n={N}, {dtype}, {loop_style}-loop"
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"SR-2_v{variant_num:03d}",
@@ -1977,12 +1903,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=desc,
             dtype=dtype,
-            difficulty=rng.choice(["easy", "medium"]),
+            difficulty="medium" if n_penalty_terms <= 15 else "hard",
             compiler_fixable=False,
             num_loops=1,
             num_arrays=n_arrays,
-            lines_of_code=6 + n_terms,
-            expected_speedup_range="1.5x-5x",
+            lines_of_code=10 + n_arrays,
+            expected_speedup_range=f"{n_penalty_terms//2}x-{n_penalty_terms}x",
             composition=[]
         )
 
@@ -2448,7 +2374,8 @@ class HR1_Generator(PatternTemplate):
                 prev = f"{arr}[i]"
                 next_arr = arr_names[(t_idx + 1) % n_input_arrays]
                 if use_math and t_idx == 0:
-                    expr = f"sqrt({prev} * {prev} + {next_arr}[i] * {next_arr}[i])"
+                    # Cast to dtype so slow (temp1 = expr) and fast (inlined expr) truncate identically
+                    expr = f"({dtype})sqrt({prev} * {prev} + {next_arr}[i] * {next_arr}[i])"
                 else:
                     expr = f"{prev} {op} {next_arr}[i]"
                 temp_lines.append(f"        {dtype} temp{t_idx + 1} = {expr};")
@@ -2523,7 +2450,9 @@ int main() {{
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = 1;
     for (int i = 0; i < n; i++) {{
-        if (fabs{suf_t}(out_s[i] - out_f[i]) > 1e-4{suf_t}) {{ correct = 0; break; }}
+        /* relative tolerance: FMA contraction on fast path may shift by 1 ULP */
+        {dtype} denom = fmax{suf_t}(fabs{suf_t}(out_s[i]), ({dtype})1.0);
+        if (fabs{suf_t}(out_s[i] - out_f[i]) / denom > 1e-3{suf_t}) {{ correct = 0; break; }}
     }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
@@ -2727,7 +2656,7 @@ int main() {{
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     /* relative tolerance: float summation order differs between row/col traversal */
-    int correct = fabs((double)(s - f)) / fmax(fabs((double)s), 1.0) < 1e-3;
+    int correct = fabs((double)(s - f)) / fmax(fabs((double)s), 1.0) < 5e-3;
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(mat);
@@ -2952,7 +2881,7 @@ class ComposedGenerator(PatternTemplate):
 {dtype} slow_comp_{suf}({dtype} *arr, int n, int key) {{
     {dtype} sum = 0;
     for (int i = 0; i < n; i++) {{
-        if (arr == NULL) continue;
+        if (arr == 0) continue;
         if (n <= 0) break;
         if (i < 0 || i >= n) continue;
         {dtype} factor = config_val_{suf}(key);
@@ -2968,7 +2897,7 @@ class ComposedGenerator(PatternTemplate):
             fast_code = f"""{dtype} config_val_{suf}(int key);
 
 {dtype} fast_comp_{suf}({dtype} *arr, int n, int key) {{
-    if (arr == NULL || n <= 0) return 0;
+    if (arr == 0 || n <= 0) return 0;
     {dtype} factor = config_val_{suf}(key);
     {dtype} sum = 0;
     for (int i = 0; i < n; i++) sum += arr[i] * factor;
@@ -3753,156 +3682,108 @@ int main() {{
 
 
 class SR5_Generator(PatternTemplate):
-    """SR-5: Algebraic Strength Reduction.
-    Varies: reduction type (pow->mul, div->recip, sqrt->fabs, horner),
-    data type, array size, loop style."""
+    """SR-5: Repeated Division by Loop-Invariant Denominator.
+    compute_norm(w, m) is called every iteration. Without restrict qualifiers,
+    the compiler cannot prove w[] is loop-invariant (out[] could alias w[]).
+    Optimization: call once, precompute reciprocal, use multiply.
+    Varies: weight vector size, norm type (L2/L1/power), array size, dtype.
+    """
 
     def __init__(self):
         super().__init__("SR-5", "Semantic Redundancy",
-                         "Algebraic Strength Reduction")
+                         "Repeated Division by Loop-Invariant Denominator")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        variant = rng.choice(["pow2", "pow3", "div_recip", "sqrt_abs", "horner"])
         dtype = rng.choice(["float", "double"])
-        N = rng.choice([5000000, 10000000, 20000000])
-        loop_style = rng.choice(["for", "while"])
         suf_t = DTYPES[dtype]['suffix']
+        N = rng.choice([500000, 1000000, 2000000])
+        m = rng.choice([64, 128, 256, 512])
+        loop_style = rng.choice(["for", "while"])
+        norm_type = rng.choice(["l2", "l2", "l1"])  # bias toward l2
+
+        # Build the norm function body and inline expected expression
+        if norm_type == "l2":
+            norm_body = f"    {dtype} s = 0.0;\n    for (int j = 0; j < m; j++) s += w[j] * w[j];\n    return ({dtype})sqrt((double)s);"
+            expected_norm = f"    {dtype} ns = 0.0; for (int j = 0; j < M; j++) ns += w[j] * w[j];\n    {dtype} norm = ({dtype})sqrt((double)ns);"
+            norm_desc = "L2"
+        else:  # l1
+            norm_body = f"    {dtype} s = 0.0;\n    for (int j = 0; j < m; j++) s += ({dtype})fabs((double)w[j]);\n    return s;"
+            expected_norm = f"    {dtype} ns = 0.0; for (int j = 0; j < M; j++) ns += ({dtype})fabs((double)w[j]);\n    {dtype} norm = ns;"
+            norm_desc = "L1"
 
         if loop_style == "for":
-            loop_open = "    for (int i = 0; i < n; i++) {"
-            loop_close = "    }"
-            loop_inc = ""
+            slow_inner = f"    for (int i = 0; i < n; i++)\n        out[i] = data[i] / compute_norm(w, m);"
+            fast_inner = f"    {dtype} inv = ({dtype})1.0 / compute_norm(w, m);\n    for (int i = 0; i < n; i++)\n        out[i] = data[i] * inv;"
         else:
-            loop_open = "    int i = 0;\n    while (i < n) {"
-            loop_close = "    }"
-            loop_inc = "\n        i++;"
+            slow_inner = f"    int i = 0;\n    while (i < n) {{\n        out[i] = data[i] / compute_norm(w, m);\n        i++;\n    }}"
+            fast_inner = f"    {dtype} inv = ({dtype})1.0 / compute_norm(w, m);\n    int i = 0;\n    while (i < n) {{\n        out[i] = data[i] * inv;\n        i++;\n    }}"
 
-        if variant == "pow2":
-            slow_code = f"""void slow_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = ({dtype})pow((double)in[i], 2.0);{loop_inc}
-{loop_close}
+        slow_code = f"""#include <math.h>
+/* {norm_desc} norm — aliasing: out[] may alias w[], compiler cannot hoist */
+static {dtype} compute_norm({dtype} *w, int m) {{
+{norm_body}
+}}
+__attribute__((noinline))
+void slow_sr5_{suf}({dtype} *out, {dtype} *data, int n, {dtype} *w, int m) {{
+{slow_inner}
 }}"""
-            fast_code = f"""void fast_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = in[i] * in[i];{loop_inc}
-{loop_close}
-}}"""
-            slow_call = f"slow_sr5_{suf}(out_slow, data, N);"
-            fast_call = f"fast_sr5_{suf}(out_fast, data, N);"
-            desc = f"pow(x,2) -> x*x, {dtype}"
-            tol = "1e-4" if dtype == "float" else "1e-9"
 
-        elif variant == "pow3":
-            slow_code = f"""void slow_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = ({dtype})pow((double)in[i], 3.0);{loop_inc}
-{loop_close}
+        fast_code = f"""#include <math.h>
+static {dtype} compute_norm({dtype} *w, int m) {{
+{norm_body}
+}}
+__attribute__((noinline))
+void fast_sr5_{suf}({dtype} *out, {dtype} *data, int n, {dtype} *w, int m) {{
+{fast_inner}
 }}"""
-            fast_code = f"""void fast_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = in[i] * in[i] * in[i];{loop_inc}
-{loop_close}
-}}"""
-            slow_call = f"slow_sr5_{suf}(out_slow, data, N);"
-            fast_call = f"fast_sr5_{suf}(out_fast, data, N);"
-            desc = f"pow(x,3) -> x*x*x, {dtype}"
-            tol = "1e-4" if dtype == "float" else "1e-9"
 
-        elif variant == "div_recip":
-            divisor = rng.choice([3.0, 7.0, 2.5, 1.5, 4.0])
-            slow_code = f"""void slow_sr5_{suf}({dtype} *out, {dtype} *in, int n, {dtype} divisor) {{
-{loop_open}
-        out[i] = in[i] / divisor;{loop_inc}
-{loop_close}
-}}"""
-            fast_code = f"""void fast_sr5_{suf}({dtype} *out, {dtype} *in, int n, {dtype} divisor) {{
-    {dtype} inv = ({dtype})1.0 / divisor;
-{loop_open}
-        out[i] = in[i] * inv;{loop_inc}
-{loop_close}
-}}"""
-            slow_call = f"slow_sr5_{suf}(out_slow, data, N, ({dtype}){divisor}{suf_t});"
-            fast_call = f"fast_sr5_{suf}(out_fast, data, N, ({dtype}){divisor}{suf_t});"
-            desc = f"division-per-iter -> precomputed reciprocal, divisor={divisor}, {dtype}"
-            tol = "1e-4" if dtype == "float" else "1e-6"
-
-        elif variant == "sqrt_abs":
-            slow_code = f"""void slow_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = ({dtype})sqrt((double)(in[i] * in[i]));{loop_inc}
-{loop_close}
-}}"""
-            fast_code = f"""void fast_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        out[i] = ({dtype})fabs((double)in[i]);{loop_inc}
-{loop_close}
-}}"""
-            slow_call = f"slow_sr5_{suf}(out_slow, data, N);"
-            fast_call = f"fast_sr5_{suf}(out_fast, data, N);"
-            desc = f"sqrt(x*x) -> fabs(x), {dtype}"
-            tol = "1e-6"
-
-        else:  # horner
-            a = rng.randint(1, 3)
-            b = rng.randint(1, 4)
-            c_coef = rng.randint(0, 3)
-            slow_code = f"""void slow_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        {dtype} x = in[i];
-        out[i] = ({dtype}){a} * x * x * x + ({dtype}){b} * x * x + ({dtype}){c_coef} * x + ({dtype})1;{loop_inc}
-{loop_close}
-}}"""
-            fast_code = f"""void fast_sr5_{suf}({dtype} *out, {dtype} *in, int n) {{
-{loop_open}
-        {dtype} x = in[i];
-        out[i] = ((({dtype}){a} * x + ({dtype}){b}) * x + ({dtype}){c_coef}) * x + ({dtype})1;{loop_inc}
-{loop_close}
-}}"""
-            slow_call = f"slow_sr5_{suf}(out_slow, data, N);"
-            fast_call = f"fast_sr5_{suf}(out_fast, data, N);"
-            desc = f"naive polynomial -> Horner form, {dtype}"
-            tol = "1e-4" if dtype == "float" else "1e-9"
-
+        tol = "1e-4" if dtype == "float" else "1e-9"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #define N {N}
+#define M {m}
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {{
-    {dtype} *data = malloc(N * sizeof({dtype}));
+    {dtype} *data     = malloc(N * sizeof({dtype}));
     {dtype} *out_slow = malloc(N * sizeof({dtype}));
     {dtype} *out_fast = malloc(N * sizeof({dtype}));
+    {dtype} *w        = malloc(M * sizeof({dtype}));
     for (int i = 0; i < N; i++) data[i] = ({dtype})((i % 200) - 100) * 0.1{suf_t};
+    for (int j = 0; j < M; j++) w[j] = ({dtype})(j % 50 + 1) * 0.02{suf_t};
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {slow_call}
+    slow_sr5_{suf}(out_slow, data, N, w, M);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {fast_call}
+    fast_sr5_{suf}(out_fast, data, N, w, M);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
+    /* expected: compute norm inline, divide each element */
+{expected_norm}
     int correct = 1;
     for (int i = 0; i < N; i++) {{
-        if (fabs((double)(out_slow[i] - out_fast[i])) > {tol}) {{ correct = 0; break; }}
+        double diff = fabs((double)(out_slow[i] - data[i] / norm)) / fmax(fabs((double)(data[i] / norm)), 1e-12);
+        if (diff > {tol}) {{ correct = 0; break; }}
     }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(data); free(out_slow); free(out_fast);
+    free(data); free(out_slow); free(out_fast); free(w);
     return 0;
 }}"""
 
+        desc = f"{norm_desc}-norm, m={m}, n={N}, {dtype}, {loop_style}-loop"
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"SR-5_v{variant_num:03d}",
@@ -3910,12 +3791,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=desc,
             dtype=dtype,
-            difficulty="easy",
-            compiler_fixable=True,
+            difficulty="medium" if m <= 128 else "hard",
+            compiler_fixable=False,
             num_loops=1,
             num_arrays=2,
-            lines_of_code=6,
-            expected_speedup_range="2x-10x",
+            lines_of_code=8,
+            expected_speedup_range=f"{m//32}x-{m//8}x",
             composition=[]
         )
         return {"slow_code": slow_code, "fast_code": fast_code,
@@ -5518,8 +5399,8 @@ class AL4_Generator(PatternTemplate):
         problem = rng.choice(["grid_paths", "grid_paths", "triangle", "binomial"])
 
         if problem == "grid_paths":
-            r = rng.choice([16, 17, 18, 19])
-            c = rng.choice([16, 17, 18])
+            r = rng.choice([15, 16, 17, 18])
+            c = rng.choice([15, 16, 17])
             slow_code = f"""long long slow_al4_{suf}(int r, int c) {{
     if (r == 0 || c == 0) return 1;
     return slow_al4_{suf}(r-1, c) + slow_al4_{suf}(r, c-1);
@@ -5978,12 +5859,31 @@ def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed:
             # Write files
             # slow.c / fast.c are compiled as standalone translation units
             # (separate from test.c) so the compiler cannot inline across the
-            # boundary. __attribute__((noinline)) is added as extra insurance.
+            # boundary. __attribute__((noinline)) is added as extra insurance
+            # unless the generator already includes it (to avoid misplacement
+            # when the code starts with #include or static helpers).
             _hdr = "#include <stdio.h>\n#include <stdlib.h>\n#include <math.h>\n#include <string.h>\n\n"
-            with open(os.path.join(var_dir, "slow.c"), "w") as f:
-                f.write(_hdr + "__attribute__((noinline))\n" + result["slow_code"])
-            with open(os.path.join(var_dir, "fast.c"), "w") as f:
-                f.write(_hdr + "__attribute__((noinline))\n" + result["fast_code"])
+            def _write_tu(path, code):
+                has_includes = "#include" in code
+                has_noinline = "__attribute__((noinline))" in code
+                if has_noinline:
+                    # noinline already placed correctly by the generator
+                    content = ("" if has_includes else _hdr) + code
+                elif has_includes:
+                    # Insert noinline AFTER the include block, not before it
+                    lines = code.split("\n")
+                    insert_at = 0
+                    for idx, ln in enumerate(lines):
+                        if ln.strip().startswith("#"):
+                            insert_at = idx + 1
+                    lines.insert(insert_at, "__attribute__((noinline))")
+                    content = "\n".join(lines)
+                else:
+                    content = _hdr + "__attribute__((noinline))\n" + code
+                with open(path, "w") as f:
+                    f.write(content)
+            _write_tu(os.path.join(var_dir, "slow.c"), result["slow_code"])
+            _write_tu(os.path.join(var_dir, "fast.c"), result["fast_code"])
             with open(os.path.join(var_dir, "test.c"), "w") as f:
                 f.write(result["test_code"])
             with open(os.path.join(var_dir, "metadata.json"), "w") as f:

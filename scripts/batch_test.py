@@ -5,7 +5,7 @@ with -fno-lto so the compiler cannot inline or perform cross-function
 optimizations across file boundaries. This ensures the measured inefficiency
 is genuine and not already optimized away by the compiler.
 """
-import os, sys, json, subprocess, tempfile, csv
+import os, sys, json, subprocess, tempfile, csv, re
 from collections import defaultdict
 
 DATASET_DIR = sys.argv[1] if len(sys.argv) > 1 else "dataset"
@@ -36,8 +36,9 @@ def extract_extern_decl(code):
             if in_block < 0:
                 in_block = 0
             continue
-        # Preprocessor or standalone attribute — reset and keep scanning
-        if stripped.startswith('#') or stripped.startswith('__attribute__'):
+        # Preprocessor, standalone attribute, or comment line — reset and keep scanning
+        if stripped.startswith('#') or stripped.startswith('__attribute__') or \
+                stripped.startswith('//') or stripped.startswith('/*'):
             sig_parts = []
             continue
         if not stripped:
@@ -61,6 +62,16 @@ def extract_extern_decl(code):
             before = stripped[:stripped.index('{')].strip()
             if before:
                 sig_parts.append(before)
+            # Skip static (file-local) helper functions — keep scanning for
+            # the first public (non-static) function definition.
+            candidate = ' '.join(sig_parts).strip()
+            if re.search(r'\bstatic\b', candidate):
+                sig_parts = []
+                # Track brace depth to skip this function body entirely
+                depth = stripped.count('{') - stripped.count('}')
+                if depth > 0:
+                    in_block = depth
+                continue
             break
         sig_parts.append(stripped)
 
@@ -131,7 +142,11 @@ for root, dirs, files in os.walk(DATASET_DIR):
                     continue
                 row[f"compiles_{tag}"] = True
 
-                r = subprocess.run([bin_path], capture_output=True, text=True, timeout=60)
+                try:
+                    r = subprocess.run([bin_path], capture_output=True, text=True, timeout=60)
+                except subprocess.TimeoutExpired:
+                    errors.append(f"{meta['variant_id']} run {opt}: timed out (>60s)")
+                    continue
                 if r.returncode != 0:
                     errors.append(f"{meta['variant_id']} run {opt}: timeout/error")
                     continue
