@@ -4,7 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_cf2_v011(int *matrix, int rows, int cols, int *row_sums) {
+void fast_cf2_v011(double *matrix, int rows, int cols, double *row_sums) {
     for (int i = 0; i < rows; i++) {
         row_sums[i] = 0;
         for (int j = 0; j < cols; j++) {

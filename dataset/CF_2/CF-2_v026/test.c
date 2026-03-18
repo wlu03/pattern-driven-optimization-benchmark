@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <time.h>
 
 // SLOW_CODE_HERE
@@ -8,27 +9,27 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 4000, cols = 1000;
-    double *mat = malloc(rows * cols * sizeof(double));
-    for (int k = 0; k < rows * cols; k++) mat[k] = (double)(k % 100) * 0.1;
-    double *s_slow = malloc(cols * sizeof(double));
-    double *s_fast = malloc(cols * sizeof(double));
+    int rows = 3000, cols = 3000;
+    double *mat_slow = malloc(rows * cols * sizeof(double));
+    double *mat_fast = malloc(rows * cols * sizeof(double));
+    for (int k = 0; k < rows * cols; k++) mat_slow[k] = (double)(k % 100) * 0.1;
+    memcpy(mat_fast, mat_slow, rows * cols * sizeof(double));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) slow_cf2_v026(mat, rows, cols, s_slow);
+    for (int r = 0; r < n_reps; r++) slow_cf2_v026(mat_slow, rows, cols);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) fast_cf2_v026(mat, rows, cols, s_fast);
+    for (int r = 0; r < n_reps; r++) fast_cf2_v026(mat_fast, rows, cols);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = 1;
-    for (int j = 0; j < cols; j++) {
-        if (fabs((double)(s_slow[j] - s_fast[j])) > 1e-4) { correct = 0; break; }
+    for (int k = 0; k < rows * cols; k++) {
+        if (fabs((double)(mat_slow[k] - mat_fast[k])) > 1e-4) { correct = 0; break; }
     }
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(mat); free(s_slow); free(s_fast);
+    free(mat_slow); free(mat_fast);
     return 0;
 }

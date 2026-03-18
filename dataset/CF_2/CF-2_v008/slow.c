@@ -3,14 +3,13 @@
 #include <math.h>
 #include <string.h>
 
-static int __attribute__((noinline)) cf2_check_v008(int i, int j, int rows, int cols) {
-    return (j >= 0 && j < cols && i * cols + j < rows * cols && i * cols + j >= 0);
-}
-void slow_cf2_v008(double *matrix, int rows, int cols) {
+__attribute__((noinline))
+int cf2_check_v008(int i, int j, int rows, int cols);
+void slow_cf2_v008(float *matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (cf2_check_v008(i, j, rows, cols)) {
-                matrix[i * cols + j] *= (double)3.14;
+                matrix[i * cols + j] *= (float)3.14;
             }
         }
     }

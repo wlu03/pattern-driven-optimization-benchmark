@@ -6,7 +6,7 @@
 __attribute__((noinline))
 int fast_is3_v010(float *arr, int n, float thresh) {
     for (int i = 0; i < n; i++) {
-        if (arr[i] > thresh) return 0;
+        if (arr[i] >= thresh) return 0;
     }
     return 1;
 }

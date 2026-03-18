@@ -10,20 +10,20 @@
 // FAST_CODE_HERE
 
 int main() {
-    double *arr = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) arr[i] = (double)(i % 100) * (double)0.0025;
-    arr[N / 20] = (double)1.5;  /* Violation at early position */
+    float *arr = malloc(N * sizeof(float));
+    for (int i = 0; i < N; i++) arr[i] = (float)(i % 100) * (float)0.025f;
+    arr[N / 20] = (float)6.0f;  /* Violation at early position */
 
     struct timespec t0, t1;
     volatile int r_slow = 0, r_fast = 0;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < N_REPS; r++) r_slow = slow_is3_v025(arr, N, (double)0.5);
+    for (int r = 0; r < N_REPS; r++) r_slow = slow_is3_v025(arr, N, (float)5.0f);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / N_REPS;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < N_REPS; r++) r_fast = fast_is3_v025(arr, N, (double)0.5);
+    for (int r = 0; r < N_REPS; r++) r_fast = fast_is3_v025(arr, N, (float)5.0f);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / N_REPS;
 

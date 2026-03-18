@@ -2079,7 +2079,9 @@ class CF2_Generator(PatternTemplate):
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(list(DTYPES.keys()))
-        layout = rng.choice(["row_sum", "col_sum", "scale", "transpose_sum"])
+        # col_sum and transpose_sum are memory-bandwidth-bound: cache miss latency
+        # dwarfs the function-call overhead, so removing the check yields <2x speedup.
+        layout = rng.choice(["row_sum", "scale"])
         n_checks = rng.choice([2, 3, 4])
         loop_style = rng.choice(["for", "while"])
         rows = rng.choice([1000, 2000, 3000, 4000])
@@ -2095,10 +2097,16 @@ class CF2_Generator(PatternTemplate):
         chosen_checks = rng.sample(checks_2d, n_checks)
         check_cond = " && ".join(chosen_checks)
 
-        if layout == "row_sum":
-            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
+        # Check function goes to helper.c (separate TU) so GCC-O3 cannot prove it
+        # always returns true from the loop bounds and eliminate the branch.
+        helper_code = f"""__attribute__((noinline, noclone))
+int cf2_check_{suf}(int i, int j, int rows, int cols) {{
     return ({check_cond});
-}}
+}}"""
+        check_decl = f"int cf2_check_{suf}(int i, int j, int rows, int cols);"
+
+        if layout == "row_sum":
+            slow_code = f"""{check_decl}
 void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *row_sums) {{
     for (int i = 0; i < rows; i++) {{
         row_sums[i] = 0;
@@ -2153,9 +2161,7 @@ int main() {{
 }}
 """
         elif layout == "col_sum":
-            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
-    return ({check_cond});
-}}
+            slow_code = f"""{check_decl}
 void slow_cf2_{suf}({dtype} *matrix, int rows, int cols, {dtype} *col_sums) {{
     for (int j = 0; j < cols; j++) {{
         col_sums[j] = 0;
@@ -2211,9 +2217,7 @@ int main() {{
 """
         elif layout == "scale":
             scalar_val = rng.choice(["2.0", "0.5", "3.14"])
-            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
-    return ({check_cond});
-}}
+            slow_code = f"""{check_decl}
 void slow_cf2_{suf}({dtype} *matrix, int rows, int cols) {{
     for (int i = 0; i < rows; i++) {{
         for (int j = 0; j < cols; j++) {{
@@ -2267,9 +2271,7 @@ int main() {{
 }}
 """
         else:  # transpose_sum
-            slow_code = f"""static int __attribute__((noinline)) cf2_check_{suf}(int i, int j, int rows, int cols) {{
-    return ({check_cond});
-}}
+            slow_code = f"""{check_decl}
 {dtype} slow_cf2_{suf}({dtype} *A, {dtype} *B, int rows, int cols) {{
     {dtype} total = 0;
     for (int i = 0; i < rows; i++) {{
@@ -2344,6 +2346,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -3932,7 +3935,7 @@ class IS3_Generator(PatternTemplate):
         dtype = rng.choice(["float", "double"])
         N = rng.choice([5000000, 10000000])
         threshold = rng.choice([0.5, 1.0, 5.0, 10.0])
-        violation_pos = rng.choice(["early", "early", "middle"])  # bias early for speedup
+        violation_pos = "early"  # middle gives only 2x at -O0 and GCC vectorizes it away at -O3
         cond_op = rng.choice([">", ">="])
         suf_t = DTYPES[dtype]['suffix']
         n_reps = 20

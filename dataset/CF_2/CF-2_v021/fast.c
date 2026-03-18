@@ -4,11 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_cf2_v021(double *matrix, int rows, int cols, double *row_sums) {
+void fast_cf2_v021(double *matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
-        row_sums[i] = 0;
         for (int j = 0; j < cols; j++) {
-            row_sums[i] += matrix[i * cols + j];
+            matrix[i * cols + j] *= (double)3.14;
         }
     }
 }

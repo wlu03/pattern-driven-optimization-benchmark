@@ -3,7 +3,7 @@
   "variant_id": "CF-2_v028",
   "category": "Control Flow",
   "pattern_name": "Noinline Bounds Check Elimination",
-  "variant_desc": "scale with noinline check, float, 3000x1000",
+  "variant_desc": "row_sum with noinline check, float, 2000x4000",
   "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,

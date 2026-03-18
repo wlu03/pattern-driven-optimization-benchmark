@@ -4,7 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_is3_v013(double *arr, int n, double thresh) {
+int fast_is3_v013(float *arr, int n, float thresh) {
     for (int i = 0; i < n; i++) {
         if (arr[i] > thresh) return 0;
     }

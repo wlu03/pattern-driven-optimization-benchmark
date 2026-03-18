@@ -9,11 +9,11 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 3000, cols = 4000;
-    double *mat_slow = malloc(rows * cols * sizeof(double));
-    double *mat_fast = malloc(rows * cols * sizeof(double));
-    for (int k = 0; k < rows * cols; k++) mat_slow[k] = (double)(k % 100) * 0.1;
-    memcpy(mat_fast, mat_slow, rows * cols * sizeof(double));
+    int rows = 2000, cols = 3000;
+    float *mat_slow = malloc(rows * cols * sizeof(float));
+    float *mat_fast = malloc(rows * cols * sizeof(float));
+    for (int k = 0; k < rows * cols; k++) mat_slow[k] = (float)(k % 100) * 0.1;
+    memcpy(mat_fast, mat_slow, rows * cols * sizeof(float));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

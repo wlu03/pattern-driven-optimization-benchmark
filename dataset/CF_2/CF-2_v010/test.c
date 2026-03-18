@@ -8,11 +8,11 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 4000, cols = 2000;
-    int *mat = malloc(rows * cols * sizeof(int));
-    for (int k = 0; k < rows * cols; k++) mat[k] = (int)(k % 100) * 0.1;
-    int *s_slow = malloc(rows * sizeof(int));
-    int *s_fast = malloc(rows * sizeof(int));
+    int rows = 1000, cols = 4000;
+    float *mat = malloc(rows * cols * sizeof(float));
+    for (int k = 0; k < rows * cols; k++) mat[k] = (float)(k % 100) * 0.1;
+    float *s_slow = malloc(rows * sizeof(float));
+    float *s_fast = malloc(rows * sizeof(float));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 5000000
+#define N 10000000
 #define N_REPS 20
 
 // SLOW_CODE_HERE

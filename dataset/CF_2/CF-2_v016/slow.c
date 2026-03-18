@@ -3,17 +3,14 @@
 #include <math.h>
 #include <string.h>
 
-static int __attribute__((noinline)) cf2_check_v016(int i, int j, int rows, int cols) {
-    return (i >= 0 && i < rows && j >= 0 && j < cols);
-}
-float slow_cf2_v016(float *A, float *B, int rows, int cols) {
-    float total = 0;
+__attribute__((noinline))
+int cf2_check_v016(int i, int j, int rows, int cols);
+void slow_cf2_v016(int *matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (cf2_check_v016(i, j, rows, cols)) {
-                total += A[i * cols + j] + B[j * rows + i];
+                matrix[i * cols + j] *= (int)0.5;
             }
         }
     }
-    return total;
 }

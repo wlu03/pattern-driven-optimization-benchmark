@@ -3,9 +3,8 @@
 #include <math.h>
 #include <string.h>
 
-static int __attribute__((noinline)) cf2_check_v027(int i, int j, int rows, int cols) {
-    return (i * cols + j >= 0 && i >= 0 && i < rows);
-}
+__attribute__((noinline))
+int cf2_check_v027(int i, int j, int rows, int cols);
 void slow_cf2_v027(int *matrix, int rows, int cols, int *row_sums) {
     for (int i = 0; i < rows; i++) {
         row_sums[i] = 0;
