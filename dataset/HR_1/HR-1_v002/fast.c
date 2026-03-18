@@ -7,7 +7,7 @@ __attribute__((noinline))
 void fast_hr1_v002(double *out, double *A, double *B, double *C, int n) {
     int i = 0;
     while (i < n) {
-        out[i] = ((A[i] - B[i]) - C[i]) + A[i];
+        out[i] = ((((A[i] * B[i]) - C[i]) + A[i]) * B[i]) * A[i];
         i++;
     }
 }

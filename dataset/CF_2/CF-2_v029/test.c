@@ -8,11 +8,11 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 2000, cols = 2000;
-    double *A = malloc(rows * cols * sizeof(double));
-    double *B = malloc(rows * cols * sizeof(double));
-    for (int k = 0; k < rows * cols; k++) { A[k] = (double)(k % 100) * 0.1; B[k] = (double)(k % 50) * 0.2; }
-    double s = 0, f = 0;
+    int rows = 2000, cols = 3000;
+    float *A = malloc(rows * cols * sizeof(float));
+    float *B = malloc(rows * cols * sizeof(float));
+    for (int k = 0; k < rows * cols; k++) { A[k] = (float)(k % 100) * 0.1; B[k] = (float)(k % 50) * 0.2; }
+    float s = 0, f = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

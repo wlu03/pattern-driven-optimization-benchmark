@@ -11,8 +11,8 @@ int main() {
     int n = 1000000;
     float *A = malloc(n * sizeof(float));
     float *B = malloc(n * sizeof(float));
-    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 99) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
-    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)(i + n) * 2246822519u; B[i] = (rng % 100 < 99) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
+    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 95) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
+    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)(i + n) * 2246822519u; B[i] = (rng % 100 < 95) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
     float r_slow = 0.0f, r_fast = 0.0f;
     struct timespec t0, t1;
     int n_reps = 3;

@@ -14,7 +14,7 @@ void fast_is4_v010(int *arr, int n) {
         int i = (int)((s >> 1) % (unsigned)(n - 1));
         if (arr[i] > arr[i + 1]) inv++;
     }
-    if (inv <= 8) {
+    if (inv <= 4) {
         for (int i = 1; i < n; i++) {
             int key = arr[i], j = i - 1;
             while (j >= 0 && arr[j] > key) { arr[j + 1] = arr[j]; j--; }

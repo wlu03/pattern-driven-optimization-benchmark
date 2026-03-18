@@ -12,9 +12,9 @@ int main() {
     float *in_arr = malloc(N * sizeof(float));
     float *out_slow = malloc(N * sizeof(float));
     float *out_fast = malloc(N * sizeof(float));
-    /* 90% of values within threshold, 10% outliers */
+    /* 95% of values within threshold, 5% outliers */
     for (int i = 0; i < N; i++) {
-        if (i % 100 < 90) in_arr[i] = (float)((i % 100) - 50) * (float)0.04f;
+        if (i % 100 < 95) in_arr[i] = (float)((i % 100) - 50) * (float)0.04f;
         else in_arr[i] = (float)(i % 50 + 10) * (float)2.0f;
     }
 

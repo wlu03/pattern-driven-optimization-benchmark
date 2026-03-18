@@ -9,6 +9,10 @@ void fast_cf1_v029(int *out, int *A, int *B, int *C, int n, int mode) {
         for (int i = 0; i < n; i++) out[i] = (A[i] - B[i]) - C[i];
     } else if (mode == 2) {
         for (int i = 0; i < n; i++) out[i] = (A[i] + B[i]) - C[i];
+    } else if (mode == 3) {
+        for (int i = 0; i < n; i++) out[i] = (A[i] * B[i]) + C[i];
+    } else if (mode == 4) {
+        for (int i = 0; i < n; i++) out[i] = (A[i] - B[i]) + C[i];
     } else {
         for (int i = 0; i < n; i++) out[i] = (A[i] * B[i]) + C[i];
     }

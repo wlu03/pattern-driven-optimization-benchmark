@@ -4,15 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_comp_v029(float *mat, int rows, int cols, int mode) {
+int compute_v029(int key);
+
+void fast_comp_v029(int *out, int *A, int n, int key, int mode) {
+    int factor = compute_v029(key);
     if (mode == 1) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] *= (float)2.0;
-    } else if (mode == 2) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] += (float)1.0;
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
     } else {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] -= (float)0.5;
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
     }
 }

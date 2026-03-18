@@ -6,6 +6,6 @@
 __attribute__((noinline))
 void slow_is5_v016(float *out, float *A, float *B, float *C, int n) {
     for (int i = 0; i < n; i++) {
-        out[i] = A[i] * B[i] + C[i] * 0.5f;
+        out[i] = A[i] * A[i] + B[i] * B[i] - C[i] * 0.5f;
     }
 }

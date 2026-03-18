@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 1000000
-#define WIN 64
+#define N 500000
+#define WIN 8
 
 // SLOW_CODE_HERE
 

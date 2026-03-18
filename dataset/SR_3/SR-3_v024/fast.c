@@ -6,11 +6,8 @@
 __attribute__((noinline))
 void fast_sr3_v024(int *data, int *result, int n) {
     int sum = 0;
-    int i = 0;
-    while (i < n) {
+    for (int i = 0; i < n; i++) {
         sum += data[i];
-        if (i >= 8) sum -= data[i - 8];
-        result[i] = sum;
-        i++;
+        result[i] = sum / (i + 1);
     }
 }

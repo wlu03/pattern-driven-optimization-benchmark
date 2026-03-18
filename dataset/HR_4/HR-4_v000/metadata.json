@@ -3,13 +3,13 @@
   "variant_id": "HR-4_v000",
   "category": "Human Readability Style",
   "pattern_name": "Overly Defensive Null/Error Checks",
-  "variant_desc": "4 redundant checks, op=sum, double",
-  "dtype": "double",
+  "variant_desc": "3 redundant checks, op=sum, float",
+  "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 12,
+  "lines_of_code": 11,
   "expected_speedup_range": "1.2x-2x",
   "composition": []
 }

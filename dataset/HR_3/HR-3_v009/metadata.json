@@ -3,13 +3,13 @@
   "variant_id": "HR-3_v009",
   "category": "Human Readability Style",
   "pattern_name": "Dead / Debug Code",
-  "variant_desc": "debug=all, float",
-  "dtype": "float",
+  "variant_desc": "debug=nan_check, double",
+  "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 2,
-  "lines_of_code": 11,
+  "lines_of_code": 9,
   "expected_speedup_range": "1.2x-3x",
   "composition": []
 }

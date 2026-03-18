@@ -5,7 +5,6 @@
 
 __attribute__((noinline))
 long long slow_al1_v022(int n) {
-    if (n == 0) return 0;
-    if (n <= 2) return 1;
-    return slow_al1_v022(n-1) + slow_al1_v022(n-2) + slow_al1_v022(n-3);
+    if (n <= 1) return n;
+    return slow_al1_v022(n-1) + slow_al1_v022(n-2);
 }

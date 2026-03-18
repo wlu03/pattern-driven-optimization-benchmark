@@ -4,7 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-long long slow_al4_v001(int n, int k) {
-    if (k == 0 || k == n) return 1;
-    return slow_al4_v001(n-1, k-1) + slow_al4_v001(n-1, k);
+long long slow_al4_v001(int r, int c) {
+    if (r == 0 || c == 0) return 1;
+    return slow_al4_v001(r-1, c) + slow_al4_v001(r, c-1);
 }

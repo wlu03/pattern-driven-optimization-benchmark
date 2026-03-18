@@ -4,13 +4,14 @@
 #include <string.h>
 
 static int __attribute__((noinline)) cf2_check_v022(int i, int j, int rows, int cols) {
-    return (i >= 0 && i < rows && j >= 0 && j < cols);
+    return (i * cols + j < rows * cols && j >= 0 && j < cols && i * cols + j >= 0 && i >= 0 && i < rows);
 }
-void slow_cf2_v022(int *matrix, int rows, int cols) {
+void slow_cf2_v022(int *matrix, int rows, int cols, int *row_sums) {
     for (int i = 0; i < rows; i++) {
+        row_sums[i] = 0;
         for (int j = 0; j < cols; j++) {
             if (cf2_check_v022(i, j, rows, cols)) {
-                matrix[i * cols + j] *= (int)0.5;
+                row_sums[i] += matrix[i * cols + j];
             }
         }
     }

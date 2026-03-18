@@ -2,18 +2,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 2000000
+#define N 500000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *data = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) data[i] = (double)(i % 100 + 1) * (double)0.1;
+    float *data = malloc(N * sizeof(float));
+    for (int i = 0; i < N; i++) data[i] = (float)(i % 100 + 1) * (float)0.1f;
 
     struct timespec t0, t1;
-    volatile double r_slow, r_fast;
+    volatile float r_slow, r_fast;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
     r_slow = slow_mi3_v022(data, N);

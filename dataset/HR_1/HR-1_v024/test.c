@@ -8,9 +8,9 @@
 // FAST_CODE_HERE
 
 int main() {
-    int n = 10000000;
-    int *A = malloc(10000000 * sizeof(int)); for (int k = 0; k < 10000000; k++) A[k] = (int)((k % 100) + 1) * 0.1;
-    int *B = malloc(10000000 * sizeof(int)); for (int k = 0; k < 10000000; k++) B[k] = (int)((k % 100) + 1) * 0.1;
+    int n = 20000000;
+    int *A = malloc(20000000 * sizeof(int)); for (int k = 0; k < 20000000; k++) A[k] = (int)((k % 100) + 1) * 0.1;
+    int *B = malloc(20000000 * sizeof(int)); for (int k = 0; k < 20000000; k++) B[k] = (int)((k % 100) + 1) * 0.1;
     int *out_s = malloc(n * sizeof(int));
     int *out_f = malloc(n * sizeof(int));
     struct timespec t0, t1;

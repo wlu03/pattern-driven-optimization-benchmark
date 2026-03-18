@@ -4,12 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-float slow_mi3_v004(float *data, int n) {
-    float total = 0.0f;
-    for (int i = 0; i < n - 7; i++) {
-        float *quad = malloc(8 * sizeof(float));
-        for (int j = 0; j < 8; j++) quad[j] = data[i+j];
-        float s = 0.0f; for (int j = 0; j < 8; j++) s += quad[j];
+double slow_mi3_v004(double *data, int n) {
+    double total = 0.0;
+    for (int i = 0; i < n - 3; i++) {
+        double *quad = malloc(4 * sizeof(double));
+        for (int j = 0; j < 4; j++) quad[j] = data[i+j];
+        double s = 0.0; for (int j = 0; j < 4; j++) s += quad[j];
         total += s;
         free(quad);
     }

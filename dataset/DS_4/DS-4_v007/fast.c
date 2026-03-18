@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v007(double *vy, int n) {
-    double total_vy = 0.0;
+double fast_ds4_v007(double *g, int n) {
+    double total_g = 1e308;
     for (int i = 0; i < n; i++) {
-        total_vy += vy[i];
+        if (g[i] < total_g) total_g = g[i];
     }
-    return total_vy;
+    return total_g;
 }

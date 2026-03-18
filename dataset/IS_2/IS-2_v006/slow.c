@@ -4,13 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_is2_v006(float *out, float *in, int n, float thresh) {
+void slow_is2_v006(double *out, double *in, int n, double thresh) {
     for (int i = 0; i < n; i++) {
-        float val = in[i];
-        float sign = (val >= (float)0) ? (float)1 : (float)-1;
-        float abs_val = (float)fabs((double)val);
+        double val = in[i];
+        double sign = (val >= (double)0) ? (double)1 : (double)-1;
+        double abs_val = (double)fabs((double)val);
         if (abs_val > thresh) {
-            out[i] = sign * (thresh + (float)sqrt((double)((float)1 + abs_val - thresh)));
+            out[i] = sign * (thresh + (double)exp((double)((double)1 + abs_val - thresh)));
         } else {
             out[i] = val;
         }

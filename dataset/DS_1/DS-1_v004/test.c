@@ -3,9 +3,9 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#define N_KEYS 500
+#define N_KEYS 2000
 #define N_QUERIES 1000
-#define HT_SIZE 32768
+#define HT_SIZE 16384
 
 extern void ds1_build_v004(int *hk, int *hv, int *ho, int hs, int *keys, int *values, int n);
 

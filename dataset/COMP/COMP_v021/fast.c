@@ -4,12 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-double config_val_v021(int key);
+float compute_v021(int key);
 
-double fast_comp_v021(double *arr, int n, int key) {
-    if (arr == 0 || n <= 0) return 0;
-    double factor = config_val_v021(key);
-    double sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+void fast_comp_v021(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v021(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+    }
 }

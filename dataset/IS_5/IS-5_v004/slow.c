@@ -4,10 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_is5_v004(float *out, float *A, float *B, int n) {
-    int i = 0;
-    while (i < n) {
-        out[i] = A[i] * A[i] - A[i] * 0.5f + B[i] * B[i] + B[i];
-        i++;
+void slow_is5_v004(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] += A[i] * 2.0 + B[i] * 0.5;
     }
 }

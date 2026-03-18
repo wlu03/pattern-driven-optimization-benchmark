@@ -12,14 +12,14 @@ int main() {
     volatile long long r_slow, r_fast;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    r_slow = slow_al4_v015(26, 13);
+    r_slow = slow_al4_v015(24);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < 100000; r++) r_fast = fast_al4_v015(26, 13);
+    for (int r = 0; r < 1000000; r++) r_fast = fast_al4_v015(24);
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 100000;
+    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 1000000;
 
     int correct = (r_slow == r_fast) ? 1 : 0;
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",

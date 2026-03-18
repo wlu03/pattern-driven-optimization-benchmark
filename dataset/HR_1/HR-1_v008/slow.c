@@ -1,12 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 __attribute__((noinline))
-void slow_hr1_v008(double *out, double *A, double *B, double *C, double *D, int n) {
+void slow_hr1_v008(float *out, float *A, float *B, float *C, float *D, int n) {
     int i = 0;
     while (i < n) {
-        double temp1 = (double)sqrt(A[i] * A[i] + B[i] * B[i]);
-        double temp2 = temp1 - C[i];
-        double temp3 = temp2 + A[i];
-        double result = temp3;
+        float temp1 = A[i] + B[i];
+        float temp2 = temp1 + A[i];
+        float result = temp2;
         out[i] = result;
         i++;
     }

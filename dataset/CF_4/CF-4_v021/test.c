@@ -2,24 +2,24 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 
 /* fn_ functions are defined in fast.c, shared via extern */
-extern float fn_relu_v021(float x);
-extern float fn_square_v021(float x);
-extern float fn_scale_v021(float x);
-extern float fn_negate_v021(float x);
+extern double fn_relu_v021(double x);
+extern double fn_square_v021(double x);
+extern double fn_scale_v021(double x);
+extern double fn_negate_v021(double x);
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *in_arr = malloc(N * sizeof(float));
-    float *out_slow = malloc(N * sizeof(float));
-    float *out_fast = malloc(N * sizeof(float));
-    for (int i = 0; i < N; i++) in_arr[i] = (float)(i % 200 - 100) * (float)0.1f;
-    float (*fn)(float) = fn_square_v021;
+    double *in_arr = malloc(N * sizeof(double));
+    double *out_slow = malloc(N * sizeof(double));
+    double *out_fast = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) in_arr[i] = (double)(i % 200 - 100) * (double)0.1;
+    double (*fn)(double) = fn_negate_v021;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

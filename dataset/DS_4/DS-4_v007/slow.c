@@ -5,18 +5,19 @@
 
 __attribute__((noinline))
 typedef struct {
-    double x;
-    double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
+    int r;
+    int g;
+    int b;
+    int a;
+    int x;
+    int y;
+    float depth;
 } AoS_v007;
 
 double slow_ds4_v007(AoS_v007 *arr, int n) {
-    double total_vy = 0.0;
+    double total_g = 1e308;
     for (int i = 0; i < n; i++) {
-        total_vy += (double)arr[i].vy;
+        if ((double)arr[i].g < total_g) total_g = (double)arr[i].g;
     }
-    return total_vy;
+    return total_g;
 }

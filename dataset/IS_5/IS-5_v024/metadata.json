@@ -3,7 +3,7 @@
   "variant_id": "IS-5_v024",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Runtime Alias Check (restrict fast path)",
-  "variant_desc": "FMA-style, 2 inputs, double, for-loop",
+  "variant_desc": "mixed multiply, 2 inputs, double, for-loop",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

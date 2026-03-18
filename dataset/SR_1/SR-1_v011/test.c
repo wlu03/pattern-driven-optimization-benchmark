@@ -2,23 +2,23 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 1000000
+#define N 500000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *arr_slow = malloc(N * sizeof(float));
-    float *arr_fast = malloc(N * sizeof(float));
-    float *expected = malloc(N * sizeof(float));
-    for (int i = 0; i < N; i++) arr_slow[i] = arr_fast[i] = expected[i] = (float)(i % 100 + 1) * 0.01f;
+    double *arr_slow = malloc(N * sizeof(double));
+    double *arr_fast = malloc(N * sizeof(double));
+    double *expected = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) arr_slow[i] = arr_fast[i] = expected[i] = (double)(i % 100 + 1) * 0.01;
 
-    float base = (float)2.0f;
+    double base = (double)1.5;
 
     /* compute expected inline — independent of slow/fast implementations */
-    float scale = 0.0;
-    for (int k = 1; k <= 47; k++) scale += (float)exp(-base * k * 0.1);
+    double scale = 0.0;
+    for (int k = 1; k <= 27; k++) scale += (double)log(k + 1.0) * (double)sin(base * k);
     for (int i = 0; i < N; i++) expected[i] *= scale;
 
     struct timespec t0, t1;
@@ -35,7 +35,7 @@ int main() {
     int correct = 1;
     for (int i = 0; i < N; i++) {
         double diff = fabs((double)(arr_slow[i] - expected[i])) / fmax(fabs((double)expected[i]), 1e-12);
-        if (diff > 1e-2) { correct = 0; break; }
+        if (diff > 1e-6) { correct = 0; break; }
     }
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));

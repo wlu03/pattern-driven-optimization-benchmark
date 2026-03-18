@@ -9,12 +9,12 @@
 
 int main() {
     int n = 5000000;
-    double *A = malloc(n * sizeof(double));
-    double *B = malloc(n * sizeof(double));
-    for (int i = 0; i < n; i++) { A[i] = (double)(i % 100) * 0.01; B[i] = (double)(i % 97 + 1) * 0.01; }
-    double k_val = (double)2.5;
+    int *A = malloc(n * sizeof(int));
+    int *B = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) { A[i] = (int)(i % 100) * 0.01; B[i] = (int)(i % 97 + 1) * 0.01; }
+    int k_val = (int)2.5;
     int mode = 2;
-    double r_slow = 0, r_fast = 0;
+    int r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

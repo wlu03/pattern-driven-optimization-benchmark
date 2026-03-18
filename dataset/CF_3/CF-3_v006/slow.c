@@ -3,10 +3,10 @@
 #include <math.h>
 #include <string.h>
 
-static float __attribute__((noinline)) cf3_guarded_v006(float x) {
-    return (x > (float)0) ? (x * x - x) : ((float)0);
+static double __attribute__((noinline)) cf3_guarded_v006(double x) {
+    return (x >= (double)0.1 && x <= (double)50.0) ? (x * x - x) : ((double)0);
 }
-void slow_cf3_v006(float *out, float *in, int n) {
+void slow_cf3_v006(double *out, double *in, int n) {
     for (int i = 0; i < n; i++)
         out[i] = cf3_guarded_v006(in[i]);
 }

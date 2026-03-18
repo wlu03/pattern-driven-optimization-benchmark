@@ -1,9 +1,9 @@
 #include <math.h>
 __attribute__((noinline))
-void fast_hr1_v028(double *out, double *A, double *B, int n) {
+void fast_hr1_v028(double *out, double *A, double *B, double *C, int n) {
     int i = 0;
     while (i < n) {
-        out[i] = (((double)sqrt(A[i] * A[i] + B[i] * B[i])) * A[i]) - A[i];
+        out[i] = (((((double)sqrt(A[i] * A[i] + B[i] * B[i])) + C[i]) * A[i]) - B[i]) - A[i];
         i++;
     }
 }

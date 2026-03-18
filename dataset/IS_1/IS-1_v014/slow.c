@@ -4,10 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_is1_v014(float *C, float *a, float *b, int m, int n) {
+void slow_is1_v014(float *y, float *A, float *x, int m, int n) {
     for (int i = 0; i < m; i++) {
+        y[i] = 0.0f;
         for (int j = 0; j < n; j++) {
-            C[i * n + j] += a[i] * b[j];
+            y[i] += A[i * n + j] * x[j];
         }
     }
 }

@@ -9,10 +9,10 @@
 
 int main() {
     int rows = 4000, cols = 4000;
-    double *mat = malloc(rows * cols * sizeof(double));
-    for (int k = 0; k < rows * cols; k++) mat[k] = (double)(k % 100) * 0.1;
-    double *s_slow = malloc(cols * sizeof(double));
-    double *s_fast = malloc(cols * sizeof(double));
+    float *mat = malloc(rows * cols * sizeof(float));
+    for (int k = 0; k < rows * cols; k++) mat[k] = (float)(k % 100) * 0.1;
+    float *s_slow = malloc(cols * sizeof(float));
+    float *s_fast = malloc(cols * sizeof(float));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

@@ -4,14 +4,15 @@
 #include <string.h>
 
 __attribute__((noinline))
-double slow_comp_v020(double *A, double *B, int rows, int cols, double k) {
-    double result = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                result += k * A[i*cols+j] * A[i*cols+j] + k * B[i*cols+j];
+void slow_comp_v020(float *mat, float *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        float sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
             }
         }
+        col_avgs[j] = sum / (float)rows;
     }
-    return result;
 }

@@ -1,20 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-__attribute__((noinline))
-double compute_v007(int key);
+#include <string.h>
 
-void slow_comp_v007(double *out, double *A, int n, int key, int mode) {
+__attribute__((noinline))
+double slow_comp_v007(double *X, double *Y, int n, double alpha, double beta) {
+    double result = 0;
     for (int i = 0; i < n; i++) {
-        double factor = compute_v007(key);
-        double t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        double t2 = t1 + (double)1.0;
-        double t3 = t2;
-        out[i] = t3;
+        double t1 = X[i] * X[i];
+        double t2 = alpha * t1;
+        double t3 = beta * Y[i];
+        double t4 = t2 + t3;
+        double t5 = t4 + alpha * beta;
+        double t6 = t5;
+        result += t6;
     }
-}
-double compute_v007(int key) {
-    double r = 0;
-    for (int i = 0; i < 50; i++) r += (double)sin((double)(key+i));
-    return r;
+    return result;
 }

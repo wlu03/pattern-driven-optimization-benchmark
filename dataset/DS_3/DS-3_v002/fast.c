@@ -6,6 +6,6 @@
 __attribute__((noinline))
 double fast_ds3_v002(const double *data) {
     double s = 0.0;
-    for (int i = 0; i < 64; i++) s += data[i];
-    return s / 64.0;
+    for (int i = 0; i < 256; i++) s += data[i];
+    return s / 256.0;
 }

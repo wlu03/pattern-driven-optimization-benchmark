@@ -11,11 +11,11 @@
 
 int main() {
     int *text = malloc(TN * sizeof(int));
-    int pattern[8] = {0, 1, 1, 2, 3, 2, 1, 0};
+    int pattern[8] = {4, 0, 2, 0, 3, 0, 4, 6};
     unsigned rs = 77u;
     for (int i = 0; i < TN; i++) {
         rs = rs * 1664525u + 1013904223u;
-        text[i] = (int)((rs >> 1) % 4u);
+        text[i] = (int)((rs >> 1) % 8u);
     }
 
     struct timespec t0, t1;

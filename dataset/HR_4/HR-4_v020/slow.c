@@ -10,7 +10,6 @@ double slow_hr4_v020(double *arr, int n) {
     for (int i = 1; i < n; i++) {
         if (arr == NULL) continue;          /* redundant */
         if (n <= 0) break;                  /* redundant */
-        if (i < 0 || i >= n) continue;      /* impossible */
         if (arr[i] > mx) mx = arr[i];
     }
     return mx;

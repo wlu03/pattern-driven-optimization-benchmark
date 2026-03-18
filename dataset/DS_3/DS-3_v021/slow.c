@@ -5,10 +5,10 @@
 
 __attribute__((noinline))
 double slow_ds3_v021(const double *data) {
-    double *copy = (double*)malloc(128 * sizeof(double));
-    for (int i = 0; i < 128; i++) copy[i] = data[i];
+    double *copy = (double*)malloc(512 * sizeof(double));
+    for (int i = 0; i < 512; i++) copy[i] = data[i];
     double s = 0.0;
-    for (int i = 0; i < 128; i++) s += copy[i];
+    for (int i = 0; i < 512; i++) s += copy[i];
     free(copy);
     return s;
 }

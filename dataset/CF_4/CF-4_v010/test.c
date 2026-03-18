@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 5000000
+#define N 10000000
 
 /* fn_ functions are defined in fast.c, shared via extern */
 extern double fn_relu_v010(double x);
@@ -19,7 +19,7 @@ int main() {
     double *out_slow = malloc(N * sizeof(double));
     double *out_fast = malloc(N * sizeof(double));
     for (int i = 0; i < N; i++) in_arr[i] = (double)(i % 200 - 100) * (double)0.1;
-    double (*fn)(double) = fn_relu_v010;
+    double (*fn)(double) = fn_scale_v010;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

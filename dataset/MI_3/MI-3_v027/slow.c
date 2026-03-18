@@ -4,13 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-float slow_mi3_v027(float *data, int n) {
-    float total = 0.0f;
+double slow_mi3_v027(double *data, int n) {
+    double total = 0.0;
     for (int i = 0; i < n - 7; i++) {
-        float *quad = malloc(8 * sizeof(float));
+        double *quad = malloc(8 * sizeof(double));
         for (int j = 0; j < 8; j++) quad[j] = data[i+j];
-        float s = 0.0f; for (int j = 0; j < 8; j++) s += quad[j];
-        total += s;
+        double s = 0.0; for (int j = 0; j < 8; j++) s += quad[j];
+        total += s * (double)0.125;
         free(quad);
     }
     return total;

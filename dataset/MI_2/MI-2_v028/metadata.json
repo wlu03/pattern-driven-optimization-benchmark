@@ -3,7 +3,7 @@
   "variant_id": "MI-2_v028",
   "category": "Memory & IO",
   "pattern_name": "Redundant Memory Zeroing",
-  "variant_desc": "op=add, int, n=20000000",
+  "variant_desc": "op=mul, int, n=20000000",
   "dtype": "int",
   "difficulty": "easy",
   "compiler_fixable": true,

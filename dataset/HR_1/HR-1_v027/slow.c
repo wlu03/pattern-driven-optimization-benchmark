@@ -4,13 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr1_v027(int *out, int *A, int *B, int *C, int n) {
-    int i = 0;
-    while (i < n) {
+void slow_hr1_v027(int *out, int *A, int *B, int n) {
+    for (int i = 0; i < n; i++) {
         int temp1 = A[i] - B[i];
-        int temp2 = temp1 + A[i];
-        int result = temp2;
+        int temp2 = temp1 - A[i];
+        int temp3 = temp2 + A[i];
+        int result = temp3;
         out[i] = result;
-        i++;
     }
 }

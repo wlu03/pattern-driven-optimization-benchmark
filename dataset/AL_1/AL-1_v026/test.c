@@ -8,16 +8,17 @@
 // FAST_CODE_HERE
 
 int main() {
-    int n = 40;
-    long long r_slow = 0, r_fast = 0;
+    int coins[] = {1, 2, 5};
+    int nc = 3, amount = 20;
+    int r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
-    int slow_reps = 1, fast_reps = 10000;
+    int slow_reps = 1, fast_reps = 1000;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < slow_reps; r++) r_slow = slow_al1_v026(n);
+    for (int r = 0; r < slow_reps; r++) r_slow = slow_al1_v026(coins, nc, amount);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / slow_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < fast_reps; r++) r_fast = fast_al1_v026(n);
+    for (int r = 0; r < fast_reps; r++) r_fast = fast_al1_v026(coins, nc, amount);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / fast_reps;
     int correct = (r_slow == r_fast);

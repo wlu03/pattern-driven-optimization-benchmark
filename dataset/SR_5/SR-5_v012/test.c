@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 500000
+#define N 1000000
 #define M 128
 
 // SLOW_CODE_HERE
@@ -29,8 +29,8 @@ int main() {
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     /* expected: compute norm inline, divide each element */
-    double ns = 0.0; for (int j = 0; j < M; j++) ns += w[j] * w[j];
-    double norm = (double)sqrt((double)ns);
+    double ns = 0.0; for (int j = 0; j < M; j++) ns += (double)fabs((double)w[j]);
+    double norm = ns;
     int correct = 1;
     for (int i = 0; i < N; i++) {
         double diff = fabs((double)(out_slow[i] - data[i] / norm)) / fmax(fabs((double)(data[i] / norm)), 1e-12);

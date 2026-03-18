@@ -3,7 +3,7 @@
   "variant_id": "HR-3_v026",
   "category": "Human Readability Style",
   "pattern_name": "Dead / Debug Code",
-  "variant_desc": "debug=counter, double",
+  "variant_desc": "debug=nan_check, double",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

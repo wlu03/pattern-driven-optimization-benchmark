@@ -4,8 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-float fast_mi3_v017(float *data, int n) {
-    float total = 0.0f;
+double fast_mi3_v017(double *data, int n) {
+    double total = 0.0;
     for (int i = 0; i < n - 15; i++) {
         total += data[i+0] + data[i+1] + data[i+2] + data[i+3] + data[i+4] + data[i+5] + data[i+6] + data[i+7] + data[i+8] + data[i+9] + data[i+10] + data[i+11] + data[i+12] + data[i+13] + data[i+14] + data[i+15];
     }

@@ -10,10 +10,8 @@ void slow_hr5_v010(double *out, double *A, double *B, int n) {
         double val = A[i] * B[i];
     if (pos < n) {
         if (val >= 0.0) {
-            if (i >= 0 && i < n) {
-                        out[pos] = val;
-                        pos++;
-            } 
+                    out[pos] = val;
+                    pos++;
         } 
     } 
     }

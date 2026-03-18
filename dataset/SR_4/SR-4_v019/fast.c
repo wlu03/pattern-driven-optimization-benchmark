@@ -6,10 +6,9 @@
 __attribute__((noinline))
 double expensive_fn_v019(int key);
 
-void fast_sr4_v019(double *arr, int n, int key0, int key1) {
-    double f0 = expensive_fn_v019(key0);
-    double f1 = expensive_fn_v019(key1);
+void fast_sr4_v019(double *arr, int n, int key) {
+    double f0 = expensive_fn_v019(key);
     for (int i = 0; i < n; i++) {
-        arr[i] += f0 * f1;
+        arr[i] *= f0;
     }
 }

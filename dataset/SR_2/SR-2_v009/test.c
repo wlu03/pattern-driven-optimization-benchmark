@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 2000000
+#define N 500000
 
 // SLOW_CODE_HERE
 
@@ -10,13 +10,13 @@
 
 int main() {
     int n = N;
-    float *X = malloc(2000000 * sizeof(float));
-    for (int k = 0; k < 2000000; k++) X[k] = (float)(k % 100 - 50) * 0.1f;
-    float *Y = malloc(2000000 * sizeof(float));
-    for (int k = 0; k < 2000000; k++) Y[k] = (float)(k % 100 - 50) * 0.1f;
-    float *Z = malloc(2000000 * sizeof(float));
-    for (int k = 0; k < 2000000; k++) Z[k] = (float)(k % 100 - 50) * 0.1f;
-    float alpha = (float)1.0f, beta = (float)0.5f;
+    float *X = malloc(500000 * sizeof(float));
+    for (int k = 0; k < 500000; k++) X[k] = (float)(k % 100 - 50) * 0.1f;
+    float *Y = malloc(500000 * sizeof(float));
+    for (int k = 0; k < 500000; k++) Y[k] = (float)(k % 100 - 50) * 0.1f;
+    float *Z = malloc(500000 * sizeof(float));
+    for (int k = 0; k < 500000; k++) Z[k] = (float)(k % 100 - 50) * 0.1f;
+    float alpha = (float)2.5f, beta = (float)1.5f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -31,7 +31,7 @@ int main() {
 
     /* compute expected inline — penalty inlined here, no dependency on slow/fast */
     float p = 0.0;
-    for (int k = 1; k <= 24; k++) p += (float)sin(alpha * k) * (float)exp(-beta * k * 0.1);
+    for (int k = 1; k <= 17; k++) p += (float)sin(alpha * k) * (float)exp(-beta * k * 0.05);
     float expected = 0.0;
     for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + alpha * Z[k] + p;
 

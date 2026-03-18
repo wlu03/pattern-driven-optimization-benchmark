@@ -5,11 +5,11 @@
 
 __attribute__((noinline))
 void fast_sr3_v018(float *data, float *result, int n) {
-    float sum = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum += data[i];
-        if (i >= 16) sum -= data[i - 16];
-        int count = (i < 16) ? i + 1 : 16;
-        result[i] = sum / count;
+    float sum_sq = 0.0f;
+    int i = 0;
+    while (i < n) {
+        sum_sq += data[i] * data[i];
+        result[i] = sqrt(sum_sq / (i + 1));
+        i++;
     }
 }

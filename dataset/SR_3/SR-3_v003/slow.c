@@ -7,9 +7,8 @@ __attribute__((noinline))
 void slow_sr3_v003(int *data, int *result, int n) {
     for (int i = 0; i < n; i++) {
         int sum = 0;
-        int start = (i >= 128) ? i - 128 + 1 : 0;
-        int count = i - start + 1;
+        int start = (i >= 8) ? i - 8 + 1 : 0;
         for (int j = start; j <= i; j++) sum += data[j];
-        result[i] = sum / count;
+        result[i] = sum;
     }
 }

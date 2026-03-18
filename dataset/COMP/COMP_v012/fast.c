@@ -4,13 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-float compute_v012(int key);
-
-void fast_comp_v012(float *out, float *A, int n, int key, int mode) {
-    float factor = compute_v012(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+void fast_comp_v012(float *out, float *A, float *B, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (float)2.0 + (float)1.0;
+        }
     }
 }

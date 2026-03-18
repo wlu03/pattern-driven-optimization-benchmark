@@ -3,13 +3,13 @@
   "variant_id": "HR-5_v026",
   "category": "Human Readability Style",
   "pattern_name": "Repeated String/Format Operations",
-  "variant_desc": "2 defensive checks, op=+, int",
-  "dtype": "int",
+  "variant_desc": "3 defensive checks, op=-, double",
+  "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 3,
-  "lines_of_code": 11,
+  "lines_of_code": 13,
   "expected_speedup_range": "1.2x-2x",
   "composition": []
 }

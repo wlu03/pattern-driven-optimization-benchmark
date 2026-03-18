@@ -4,9 +4,9 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr2_v011(double *X, double *Y, int n, double *sum_x, double *sumsq_x, double *sum_y, double *sumsq_y) {
-    { double s=0; for(int i=0;i<n;i++) s+=X[i]; *sum_x=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=X[i]*X[i]; *sumsq_x=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=Y[i]; *sum_y=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=Y[i]*Y[i]; *sumsq_y=s; }
+void slow_hr2_v011(float *X, float *Y, int n, float *mean_x, float *var_x, float *mean_y, float *var_y) {
+    { float s=0; for(int i=0;i<n;i++) s+=X[i]; *mean_x=s/n; }
+    { float s=0; for(int i=0;i<n;i++) s+=Y[i]; *mean_y=s/n; }
+    { float v=0,m=*mean_x; for(int i=0;i<n;i++) { float d=X[i]-m; v+=d*d; } *var_x=v/n; }
+    { float v=0,m=*mean_y; for(int i=0;i<n;i++) { float d=Y[i]-m; v+=d*d; } *var_y=v/n; }
 }

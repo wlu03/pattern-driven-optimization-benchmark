@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 500000
+#define N 2000000
 
 // SLOW_CODE_HERE
 
@@ -10,10 +10,10 @@
 
 int main() {
     int n = N;
-    double *X = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) X[k] = (double)(k % 100 - 50) * 0.1;
-    double *Y = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
+    double *X = malloc(2000000 * sizeof(double));
+    for (int k = 0; k < 2000000; k++) X[k] = (double)(k % 100 - 50) * 0.1;
+    double *Y = malloc(2000000 * sizeof(double));
+    for (int k = 0; k < 2000000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
     double alpha = (double)1.0, beta = (double)0.5;
 
     struct timespec t0, t1;
@@ -29,7 +29,7 @@ int main() {
 
     /* compute expected inline — penalty inlined here, no dependency on slow/fast */
     double p = 0.0;
-    for (int k = 1; k <= 16; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.05);
+    for (int k = 1; k <= 21; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.02);
     double expected = 0.0;
     for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + p;
 

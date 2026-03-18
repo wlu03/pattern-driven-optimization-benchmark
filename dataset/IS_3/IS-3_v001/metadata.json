@@ -3,7 +3,7 @@
   "variant_id": "IS-3_v001",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Early Termination Opportunities",
-  "variant_desc": "violation at early, thresh=0.5, >, float",
+  "variant_desc": "violation at early, thresh=10.0, >=, float",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

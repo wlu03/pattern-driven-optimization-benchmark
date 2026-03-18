@@ -9,11 +9,11 @@
 
 int main() {
     int rows = 1000, cols = 1000;
-    int *A = malloc(rows * cols * sizeof(int));
-    int *B = malloc(rows * cols * sizeof(int));
-    for (int k = 0; k < rows * cols; k++) { A[k] = (int)(k % 100 + 1) * 0.01; B[k] = (int)(k % 97 + 1) * 0.01; }
-    int k_val = (int)2.5;
-    int r_slow = 0, r_fast = 0;
+    double *A = malloc(rows * cols * sizeof(double));
+    double *B = malloc(rows * cols * sizeof(double));
+    for (int k = 0; k < rows * cols; k++) { A[k] = (double)(k % 100 + 1) * 0.01; B[k] = (double)(k % 97 + 1) * 0.01; }
+    double k_val = (double)2.5;
+    double r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

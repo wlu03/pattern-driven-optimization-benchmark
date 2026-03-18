@@ -4,10 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_hr1_v003(double *out, double *A, double *B, double *C, double *D, int n) {
-    int i = 0;
-    while (i < n) {
-        out[i] = ((A[i] * B[i]) + C[i]) - A[i];
-        i++;
+void fast_hr1_v003(float *out, float *A, float *B, float *C, float *D, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = ((((A[i] * B[i]) * C[i]) + D[i]) - A[i]) * A[i];
     }
 }

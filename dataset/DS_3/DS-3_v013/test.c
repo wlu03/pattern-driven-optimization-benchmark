@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #define N 500000
-#define W 64
+#define W 512
 
 // SLOW_CODE_HERE
 

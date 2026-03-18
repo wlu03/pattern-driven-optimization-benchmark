@@ -4,11 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_al1_v021(int n, int max_val) {
-    int *dp = calloc(n + 1, sizeof(int));
-    dp[0] = 1;
-    for (int v = 1; v <= max_val; v++)
-        for (int i = v; i <= n; i++)
-            dp[i] += dp[i - v];
-    int res = dp[n]; free(dp); return res;
+int fast_al1_v021(int *grid, int m, int n, int r_unused, int c_unused) {
+    int *dp = calloc(m * n, sizeof(int));
+    dp[0] = grid[0];
+    for (int j = 1; j < n; j++) dp[j] = dp[j-1] + grid[j];
+    for (int i = 1; i < m; i++) {
+        dp[i*n] = dp[(i-1)*n] + grid[i*n];
+        for (int j = 1; j < n; j++) {
+            int up = dp[(i-1)*n + j], left = dp[i*n + j - 1];
+            dp[i*n + j] = grid[i*n + j] + ((up < left) ? up : left);
+        }
+    }
+    int res = dp[m*n - 1]; free(dp); return res;
 }

@@ -5,25 +5,23 @@
 
 __attribute__((noinline))
 typedef struct {
-    double x;
-    double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
-    double mass;
+    float px;
+    float py;
+    float pz;
+    float nx;
+    float ny;
+    float nz;
+    float u;
 } AoS_v006;
 
 double slow_ds4_v006(AoS_v006 *arr, int n) {
-    double total_vx = 0.0;
-    double total_z = 0.0;
-    double total_mass = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_vx += (double)arr[i].vx;
-        total_z += (double)arr[i].z;
-        total_mass += (double)arr[i].mass;
-        i++;
+    double total_py = 0.0;
+    double total_nx = 0.0;
+    double total_pz = 0.0;
+    for (int i = 0; i < n; i++) {
+        total_py += (double)arr[i].py;
+        total_nx += (double)arr[i].nx;
+        total_pz += (double)arr[i].pz;
     }
-    return total_vx + total_z + total_mass;
+    return total_py + total_nx + total_pz;
 }

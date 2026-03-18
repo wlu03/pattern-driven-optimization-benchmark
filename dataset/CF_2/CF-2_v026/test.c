@@ -8,7 +8,7 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 4000, cols = 3000;
+    int rows = 4000, cols = 1000;
     double *mat = malloc(rows * cols * sizeof(double));
     for (int k = 0; k < rows * cols; k++) mat[k] = (double)(k % 100) * 0.1;
     double *s_slow = malloc(cols * sizeof(double));

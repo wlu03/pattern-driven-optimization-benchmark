@@ -9,12 +9,12 @@
 
 int main() {
     int n = 1000000;
-    float *A = malloc(n * sizeof(float));
-    float *B = malloc(n * sizeof(float));
-    float *out_slow = malloc(n * sizeof(float));
-    float *out_fast = malloc(n * sizeof(float));
-    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 99) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
-    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)(i + n) * 2246822519u; B[i] = (rng % 100 < 99) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
+    double *A = malloc(n * sizeof(double));
+    double *B = malloc(n * sizeof(double));
+    double *out_slow = malloc(n * sizeof(double));
+    double *out_fast = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 50) ? 0.0 : (double)(rng % 100 + 1) * 0.01; }
+    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)(i + n) * 2246822519u; B[i] = (rng % 100 < 50) ? 0.0 : (double)(rng % 100 + 1) * 0.01; }
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

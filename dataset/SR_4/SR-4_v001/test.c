@@ -4,17 +4,17 @@
 #include <math.h>
 #include <time.h>
 
-#define N 500000
+#define N 100000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *arr_slow = malloc(N * sizeof(double));
-    double *arr_fast = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) arr_slow[i] = (double)(i % 100) * 0.1;
-    memcpy(arr_fast, arr_slow, N * sizeof(double));
+    float *arr_slow = malloc(N * sizeof(float));
+    float *arr_fast = malloc(N * sizeof(float));
+    for (int i = 0; i < N; i++) arr_slow[i] = (float)(i % 100) * 0.1f;
+    memcpy(arr_fast, arr_slow, N * sizeof(float));
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

@@ -4,12 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_comp_v008(double *mat, int rows, int cols, int mode) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (mode == 1) mat[i * cols + j] *= (double)2.0;
-            else if (mode == 2) mat[i * cols + j] += (double)1.0;
-            else mat[i * cols + j] -= (double)0.5;
+typedef struct { int x,y,z,vx,vy,vz,mass,charge; } P_v008;
+int slow_comp_v008(P_v008 *p, int n) {
+    int total = 0;
+    for (int i = 0; i < n; i++) {
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
         }
     }
+    return total;
 }

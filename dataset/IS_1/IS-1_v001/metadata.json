@@ -3,7 +3,7 @@
   "variant_id": "IS-1_v001",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Sparse Data Redundancy",
-  "variant_desc": "Sparse SAXPY (80% zeros in x), skip zero entries, float",
+  "variant_desc": "Sparse dot product (80% zeros), skip zero pairs, float, while-loop",
   "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,

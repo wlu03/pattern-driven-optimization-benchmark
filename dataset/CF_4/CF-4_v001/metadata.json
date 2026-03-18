@@ -3,7 +3,7 @@
   "variant_id": "CF-4_v001",
   "category": "Control Flow Inefficiency",
   "pattern_name": "Function Pointer Dispatch in Hot Loop",
-  "variant_desc": "fn=relu, double, n=10000000",
+  "variant_desc": "fn=square, double, n=5000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

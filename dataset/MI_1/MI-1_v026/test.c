@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #define N 500000
-#define WIN 16
+#define WIN 8
 
 // SLOW_CODE_HERE
 

@@ -10,7 +10,7 @@ void slow_is2_v007(float *out, float *in, int n, float thresh) {
         float sign = (val >= (float)0) ? (float)1 : (float)-1;
         float abs_val = (float)fabs((double)val);
         if (abs_val > thresh) {
-            out[i] = sign * (thresh + (float)exp((double)((float)1 + abs_val - thresh)));
+            out[i] = sign * (thresh + (float)sqrt((double)((float)1 + abs_val - thresh)));
         } else {
             out[i] = val;
         }

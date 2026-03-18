@@ -8,6 +8,6 @@ void slow_hr3_v012(float *out, float *in, int n) {
     static volatile int debug_ctr_v012 = 0;
     for (int i = 0; i < n; i++) {
         debug_ctr_v012++;  /* volatile: prevents optimization */
-        out[i] = in[i] * in[i] + (float)0.5;
+        out[i] = in[i] * (float)3.14 - (float)1.0;
     }
 }

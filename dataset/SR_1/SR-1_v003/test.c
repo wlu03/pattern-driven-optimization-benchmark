@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 500000
+#define N 1000000
 
 // SLOW_CODE_HERE
 
@@ -18,7 +18,7 @@ int main() {
 
     /* compute expected inline — independent of slow/fast implementations */
     double scale = 0.0;
-    for (int k = 1; k <= 38; k++) scale += (double)log(base * k + 1.0) / k;
+    for (int k = 1; k <= 48; k++) scale += (double)log(base * k + 1.0) / k;
     for (int i = 0; i < N; i++) expected[i] *= scale;
 
     struct timespec t0, t1;

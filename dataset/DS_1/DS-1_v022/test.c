@@ -5,7 +5,7 @@
 #include <time.h>
 #define N_KEYS 500
 #define N_QUERIES 200
-#define HT_SIZE 65536
+#define HT_SIZE 32768
 
 extern void ds1_build_v022(int *hk, int *hv, int *ho, int hs, int *keys, int *values, int n);
 

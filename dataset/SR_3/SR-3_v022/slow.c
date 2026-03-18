@@ -4,10 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_sr3_v022(int *data, int *result, int n) {
+void slow_sr3_v022(double *data, double *result, int n) {
     for (int i = 0; i < n; i++) {
-        int mn = data[0];
-        for (int j = 1; j <= i; j++) if (data[j] < mn) mn = data[j];
-        result[i] = mn;
+        double sum = 0.0;
+        for (int j = 0; j <= i; j++) sum += data[j];
+        double mean = sum / (i + 1);
+        double var_sum = 0.0;
+        for (int j = 0; j <= i; j++) {
+            double diff = data[j] - mean;
+            var_sum += diff * diff;
+        }
+        result[i] = var_sum / (i + 1);
     }
 }

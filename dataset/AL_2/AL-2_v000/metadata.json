@@ -3,7 +3,7 @@
   "variant_id": "AL-2_v000",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Repeated Sort vs Sorted Insertion",
-  "variant_desc": "n_items=10000, qsort-per-insert vs binary-insert",
+  "variant_desc": "n_items=2000, qsort-per-insert vs binary-insert",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

@@ -10,29 +10,29 @@
 
 int main() {
     int n = N;
-    float *X = malloc(1000000 * sizeof(float));
-    for (int k = 0; k < 1000000; k++) X[k] = (float)(k % 100 - 50) * 0.1f;
-    float *Y = malloc(1000000 * sizeof(float));
-    for (int k = 0; k < 1000000; k++) Y[k] = (float)(k % 100 - 50) * 0.1f;
-    float *Z = malloc(1000000 * sizeof(float));
-    for (int k = 0; k < 1000000; k++) Z[k] = (float)(k % 100 - 50) * 0.1f;
-    float alpha = (float)2.5f, beta = (float)1.5f;
+    double *X = malloc(1000000 * sizeof(double));
+    for (int k = 0; k < 1000000; k++) X[k] = (double)(k % 100 - 50) * 0.1;
+    double *Y = malloc(1000000 * sizeof(double));
+    for (int k = 0; k < 1000000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
+    double *Z = malloc(1000000 * sizeof(double));
+    for (int k = 0; k < 1000000; k++) Z[k] = (double)(k % 100 - 50) * 0.1;
+    double alpha = (double)3.0, beta = (double)2.0;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    float r_slow = slow_sr2_v015(X, Y, Z, n, alpha, beta);
+    double r_slow = slow_sr2_v015(X, Y, Z, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    float r_fast = fast_sr2_v015(X, Y, Z, n, alpha, beta);
+    double r_fast = fast_sr2_v015(X, Y, Z, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     /* compute expected inline — penalty inlined here, no dependency on slow/fast */
-    float p = 0.0;
-    for (int k = 1; k <= 16; k++) p += (float)sin(alpha * k) * (float)exp(-beta * k * 0.1);
-    float expected = 0.0;
+    double p = 0.0;
+    for (int k = 1; k <= 12; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.05);
+    double expected = 0.0;
     for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + alpha * Z[k] + p;
 
     double rel = fabs((double)(r_slow - expected)) / fmax(fabs((double)expected), 1e-12);

@@ -9,12 +9,12 @@ static int cmp_is4_f_v008(const void *a, const void *b);
 void fast_is4_v008(int *arr, int n) {
     int inv = 0;
     unsigned s = 12345u;
-    for (int k = 0; k < 64; k++) {
+    for (int k = 0; k < 32; k++) {
         s = s * 1664525u + 1013904223u;
         int i = (int)((s >> 1) % (unsigned)(n - 1));
         if (arr[i] > arr[i + 1]) inv++;
     }
-    if (inv <= 2) {
+    if (inv <= 4) {
         for (int i = 1; i < n; i++) {
             int key = arr[i], j = i - 1;
             while (j >= 0 && arr[j] > key) { arr[j + 1] = arr[j]; j--; }

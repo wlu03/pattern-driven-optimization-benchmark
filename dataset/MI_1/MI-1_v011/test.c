@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 500000
+#define N 100000
 #define WIN 64
 
 // SLOW_CODE_HERE

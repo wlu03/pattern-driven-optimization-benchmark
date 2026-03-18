@@ -1,20 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-__attribute__((noinline))
-int config_val_v028(int key);
+#include <string.h>
 
-int slow_comp_v028(int *arr, int n, int key) {
-    int sum = 0;
+__attribute__((noinline))
+float slow_comp_v028(float *A, float *B, int n, float k, int mode) {
+    float total = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == 0) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        int factor = config_val_v028(key);
-        sum += arr[i] * factor;
+        float val;
+        if (mode == 1) val = A[i] + B[i] * k;
+        else if (mode == 2) val = A[i] - B[i] * k;
+        else val = A[i] * B[i] * k;
+        total += val;
     }
-    return sum;
-}
-int config_val_v028(int key) {
-    int r = 0;
-    for (int i = 0; i < 100; i++) r += (int)sin((double)(key+i));
-    return r;
+    return total;
 }

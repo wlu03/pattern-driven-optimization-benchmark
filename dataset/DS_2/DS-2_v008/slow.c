@@ -4,12 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_ds2_v008(float *results, float *input, int n, int chunk) {
+void slow_ds2_v008(double *results, double *input, int n, int chunk) {
     for (int i = 0; i < n; i += chunk) {
         int sz = (i + chunk <= n) ? chunk : (n - i);
-        float *temp = malloc(sz * sizeof(float));
-        for (int j = 0; j < sz; j++) temp[j] = (float)fabs((double)input[i + j]);
-        float sum = 0;
+        double *temp = malloc(sz * sizeof(double));
+        for (int j = 0; j < sz; j++) temp[j] = input[i + j] * input[i + j];
+        double sum = 0;
         for (int j = 0; j < sz; j++) sum += temp[j];
         results[i / chunk] = sum;
         free(temp);

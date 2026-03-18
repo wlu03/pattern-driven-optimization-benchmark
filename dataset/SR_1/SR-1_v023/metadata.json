@@ -3,13 +3,13 @@
   "variant_id": "SR-1_v023",
   "category": "Semantic Redundancy",
   "pattern_name": "Loop-Invariant Function Call (Transcendental Series)",
-  "variant_desc": "exp-decay(38 terms, decay=0.1), n=500000, double, while-loop",
+  "variant_desc": "sin-series(15 terms, freq=1.0), n=1000000, double, for-loop",
   "dtype": "double",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
   "lines_of_code": 8,
-  "expected_speedup_range": "19x-38x",
+  "expected_speedup_range": "7x-15x",
   "composition": []
 }

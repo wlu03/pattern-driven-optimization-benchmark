@@ -1,9 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 __attribute__((noinline))
-void fast_mi4_v020(double *matrix, int rows, int cols) {
+int fast_mi4_v020(int *matrix, int rows, int cols) {
+    int total = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            matrix[i * cols + j] = (double)sqrt((double)matrix[i * cols + j]);
+            total += matrix[i * cols + j];
         }
     }
+    return total;
 }

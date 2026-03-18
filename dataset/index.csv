@@ -1,31 +1,31 @@
 variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
-COMP_v000,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
-COMP_v001,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
-COMP_v002,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
-COMP_v003,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
-COMP_v004,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
-COMP_v005,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
-COMP_v006,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,10x-1000x
-COMP_v007,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
-COMP_v008,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,10x-1000x
-COMP_v009,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
-COMP_v010,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
-COMP_v011,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
-COMP_v012,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
-COMP_v013,COMP,Composed,Multiple Overlapping Patterns,"Loop-invariant computation + branch, double",double,hard,False,10x-1000x
-COMP_v014,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
-COMP_v015,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
-COMP_v016,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
-COMP_v017,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant + decomposition + bounds, int",int,hard,False,10x-1000x
-COMP_v018,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
-COMP_v019,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
-COMP_v020,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant + decomposition + bounds, double",double,hard,False,10x-1000x
-COMP_v021,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
-COMP_v022,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant + decomposition + bounds, float",float,hard,False,10x-1000x
-COMP_v023,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
-COMP_v024,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
-COMP_v025,COMP,Composed,Multiple Overlapping Patterns,"Loop-invariant computation + branch, double",double,hard,False,10x-1000x
-COMP_v026,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
-COMP_v027,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
-COMP_v028,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
-COMP_v029,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+SR-5_v000,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=64, n=2000000, double, while-loop",double,medium,False,2x-8x
+SR-5_v001,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=256, n=2000000, float, while-loop",float,hard,False,8x-32x
+SR-5_v002,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=256, n=1000000, float, for-loop",float,hard,False,8x-32x
+SR-5_v003,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=2000000, float, for-loop",float,hard,False,8x-32x
+SR-5_v004,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=1000000, double, while-loop",double,medium,False,2x-8x
+SR-5_v005,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=500000, double, while-loop",double,hard,False,8x-32x
+SR-5_v006,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=128, n=2000000, double, for-loop",double,medium,False,4x-16x
+SR-5_v007,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=128, n=500000, float, for-loop",float,medium,False,4x-16x
+SR-5_v008,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=1000000, float, while-loop",float,hard,False,8x-32x
+SR-5_v009,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=128, n=500000, double, while-loop",double,medium,False,4x-16x
+SR-5_v010,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=2000000, double, for-loop",double,hard,False,8x-32x
+SR-5_v011,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=2000000, float, for-loop",float,medium,False,2x-8x
+SR-5_v012,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=128, n=1000000, double, for-loop",double,medium,False,4x-16x
+SR-5_v013,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=512, n=2000000, float, while-loop",float,hard,False,16x-64x
+SR-5_v014,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=64, n=500000, double, for-loop",double,medium,False,2x-8x
+SR-5_v015,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=64, n=1000000, double, for-loop",double,medium,False,2x-8x
+SR-5_v016,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=1000000, float, for-loop",float,hard,False,8x-32x
+SR-5_v017,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=1000000, double, while-loop",double,medium,False,2x-8x
+SR-5_v018,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=2000000, double, while-loop",double,medium,False,2x-8x
+SR-5_v019,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=128, n=500000, float, for-loop",float,medium,False,4x-16x
+SR-5_v020,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=1000000, double, for-loop",double,hard,False,8x-32x
+SR-5_v021,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=1000000, double, while-loop",double,medium,False,2x-8x
+SR-5_v022,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=64, n=2000000, float, for-loop",float,medium,False,2x-8x
+SR-5_v023,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=512, n=500000, double, for-loop",double,hard,False,16x-64x
+SR-5_v024,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=128, n=500000, double, while-loop",double,medium,False,4x-16x
+SR-5_v025,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=2000000, double, while-loop",double,hard,False,8x-32x
+SR-5_v026,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=500000, float, while-loop",float,hard,False,8x-32x
+SR-5_v027,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=64, n=2000000, float, for-loop",float,medium,False,2x-8x
+SR-5_v028,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L2-norm, m=256, n=500000, float, for-loop",float,hard,False,8x-32x
+SR-5_v029,SR-5,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"L1-norm, m=256, n=2000000, double, for-loop",double,hard,False,8x-32x

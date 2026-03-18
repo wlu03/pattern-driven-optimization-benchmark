@@ -3,7 +3,7 @@
   "variant_id": "AL-4_v018",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Redundant Recomputation in Recursion",
-  "variant_desc": "binomial C(28,14): O(2^n) -> O(n*k)",
+  "variant_desc": "grid paths (18x17): exponential -> O(r*c) DP",
   "dtype": "long long",
   "difficulty": "hard",
   "compiler_fixable": false,

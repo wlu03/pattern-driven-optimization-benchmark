@@ -4,11 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_hr2_v019(float *X, float *Y, float *Z, int n, float *mean_x, float *var_x, float *mean_y, float *var_y, float *mean_z, float *var_z) {
-    float sX=0; float sY=0; float sZ=0;
-    for(int i=0;i<n;i++) { sX+=X[i]; sY+=Y[i]; sZ+=Z[i]; }
-    *mean_x=sX/n; *mean_y=sY/n; *mean_z=sZ/n;
-    float vX=0; float vY=0; float vZ=0; float mX=*mean_x; float mY=*mean_y; float mZ=*mean_z;
-    for(int i=0;i<n;i++) { { float d=X[i]-mX; vX+=d*d; } { float d=Y[i]-mY; vY+=d*d; } { float d=Z[i]-mZ; vZ+=d*d; } }
-    *var_x=vX/n; *var_y=vY/n; *var_z=vZ/n;
+void fast_hr2_v019(double *X, double *Y, double *Z, int n, double *sum_x, double *sumsq_x, double *sum_y, double *sumsq_y, double *sum_z, double *sumsq_z) {
+    double sX=0, sqX=0; double sY=0, sqY=0; double sZ=0, sqZ=0;
+    for(int i=0;i<n;i++) { sX+=X[i]; sqX+=X[i]*X[i]; sY+=Y[i]; sqY+=Y[i]*Y[i]; sZ+=Z[i]; sqZ+=Z[i]*Z[i]; }
+    *sum_x=sX; *sumsq_x=sqX; *sum_y=sY; *sumsq_y=sqY; *sum_z=sZ; *sumsq_z=sqZ;
 }

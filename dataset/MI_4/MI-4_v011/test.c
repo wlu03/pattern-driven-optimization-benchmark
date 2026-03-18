@@ -8,10 +8,10 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 2000, cols = 4000;
-    int *mat = malloc(rows * cols * sizeof(int));
-    for (int k = 0; k < rows * cols; k++) mat[k] = (int)(k % 100) * 0.01;
-    int s = 0, f = 0;
+    int rows = 3000, cols = 2000;
+    double *mat = malloc(rows * cols * sizeof(double));
+    for (int k = 0; k < rows * cols; k++) mat[k] = (double)(k % 100) * 0.01;
+    double s = 0, f = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

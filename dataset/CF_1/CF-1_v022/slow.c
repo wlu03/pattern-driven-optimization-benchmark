@@ -3,12 +3,11 @@
 #include <math.h>
 #include <string.h>
 
-static float __attribute__((noinline)) cf1_dispatch_v022(float a, float b, float c, int mode) {
-    if (mode == 1) return (a - b) - c;
-    if (mode == 2) return (a + b) + c;
-    if (mode == 3) return (a * b) - c;
-    return (a * b) - c;
+static double __attribute__((noinline)) cf1_dispatch_v022(double a, double b, int mode) {
+    if (mode == 1) return a * b;
+    if (mode == 2) return a - b;
+    return a + b;
 }
-void slow_cf1_v022(float *out, float *A, float *B, float *C, int n, int mode) {
-    for (int i = 0; i < n; i++) out[i] = cf1_dispatch_v022(A[i], B[i], C[i], mode);
+void slow_cf1_v022(double *out, double *A, double *B, int n, int mode) {
+    for (int i = 0; i < n; i++) out[i] = cf1_dispatch_v022(A[i], B[i], mode);
 }

@@ -4,11 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_al1_v013(int n, int max_val) {
-    int *dp = calloc(n + 1, sizeof(int));
-    dp[0] = 1;
-    for (int v = 1; v <= max_val; v++)
-        for (int i = v; i <= n; i++)
-            dp[i] += dp[i - v];
-    int res = dp[n]; free(dp); return res;
+long long fast_al1_v013(int r, int c) {
+    long long *dp = calloc(c+1, sizeof(long long));
+    for (int j = 0; j <= c; j++) dp[j] = 1;
+    for (int i = 1; i <= r; i++)
+        for (int j = 1; j <= c; j++)
+            dp[j] += dp[j-1];
+    long long res = dp[c]; free(dp); return res;
 }

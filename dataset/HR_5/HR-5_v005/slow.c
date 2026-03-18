@@ -4,12 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr5_v005(int *out, int *A, int *B, int n) {
+void slow_hr5_v005(double *out, double *A, double *B, int n) {
     int pos = 0;
     for (int i = 0; i < n; i++) {
-        int val = A[i] + B[i];
+        double val = A[i] + B[i];
     if (pos < n) {
-        if (val >= 0) {
+        if (val >= 0.0) {
                     out[pos] = val;
                     pos++;
         } 

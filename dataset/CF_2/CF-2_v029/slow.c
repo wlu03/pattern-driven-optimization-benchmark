@@ -4,10 +4,10 @@
 #include <string.h>
 
 static int __attribute__((noinline)) cf2_check_v029(int i, int j, int rows, int cols) {
-    return (i * cols + j >= 0 && j >= 0 && j < cols && i >= 0 && i < rows);
+    return (i * cols + j >= 0 && i * cols + j < rows * cols && i >= 0 && i < rows && j >= 0 && j < cols);
 }
-double slow_cf2_v029(double *A, double *B, int rows, int cols) {
-    double total = 0;
+float slow_cf2_v029(float *A, float *B, int rows, int cols) {
+    float total = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (cf2_check_v029(i, j, rows, cols)) {

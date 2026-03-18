@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 
 // SLOW_CODE_HERE
 
@@ -14,18 +14,18 @@ int main() {
     double *out_fast = malloc(N * sizeof(double));
     /* 99% of values within threshold, 1% outliers */
     for (int i = 0; i < N; i++) {
-        if (i % 100 < 99) in_arr[i] = (double)((i % 100) - 50) * (double)0.02;
-        else in_arr[i] = (double)(i % 50 + 10) * (double)1.0;
+        if (i % 100 < 99) in_arr[i] = (double)((i % 100) - 50) * (double)0.01;
+        else in_arr[i] = (double)(i % 50 + 10) * (double)0.5;
     }
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    slow_is2_v018(out_slow, in_arr, N, (double)1.0);
+    slow_is2_v018(out_slow, in_arr, N, (double)0.5);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    fast_is2_v018(out_fast, in_arr, N, (double)1.0);
+    fast_is2_v018(out_fast, in_arr, N, (double)0.5);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 

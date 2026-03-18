@@ -3,7 +3,7 @@
   "variant_id": "AL-3_v001",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Naive String Matching vs KMP",
-  "variant_desc": "tn=10000000, pn=6, alpha=8",
+  "variant_desc": "tn=10000000, pn=6, alpha=10",
   "dtype": "int",
   "difficulty": "medium",
   "compiler_fixable": false,

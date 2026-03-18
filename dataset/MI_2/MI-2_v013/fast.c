@@ -4,6 +4,6 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_mi2_v013(float *output, float *A, float *B, int n) {
+void fast_mi2_v013(double *output, double *A, double *B, int n) {
     for (int i = 0; i < n; i++) output[i] = A[i] * B[i];
 }

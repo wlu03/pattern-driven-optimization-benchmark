@@ -3,7 +3,7 @@
   "variant_id": "MI-3_v018",
   "category": "Memory & IO",
   "pattern_name": "Heap Alloc in Hot Loop",
-  "variant_desc": "chunk=4, op=avg, double, n=500000",
+  "variant_desc": "chunk=8, op=avg, double, n=2000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

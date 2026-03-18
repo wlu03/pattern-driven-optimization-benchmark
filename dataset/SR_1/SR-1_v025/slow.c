@@ -1,11 +1,7 @@
-__attribute__((noinline))
 #include <math.h>
-static float series_fn(float base) {
-    float r = 0.0;
-    for (int k = 1; k <= 34; k++) r += (float)log(k + 1.0) * (float)sin(base * k);
-    return r;
-}
-void slow_sr1_v025(float *arr, int n, float base) {
+__attribute__((noinline))
+double series_fn(double base);
+void slow_sr1_v025(double *arr, int n, double base) {
     int i = 0;
     while (i < n) {
         arr[i] *= series_fn(base);

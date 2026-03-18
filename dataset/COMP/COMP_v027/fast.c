@@ -4,12 +4,15 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_comp_v027(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
+void fast_comp_v027(double *mat, int rows, int cols, int mode) {
+    if (mode == 1) {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] *= (double)2.0;
+    } else if (mode == 2) {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] += (double)1.0;
+    } else {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] -= (double)0.5;
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= (float)rows;
 }

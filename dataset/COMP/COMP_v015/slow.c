@@ -1,20 +1,18 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-__attribute__((noinline))
-double compute_v015(int key);
+#include <string.h>
 
-void slow_comp_v015(double *out, double *A, int n, int key, int mode) {
-    for (int i = 0; i < n; i++) {
-        double factor = compute_v015(key);
-        double t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        double t2 = t1 + (double)1.0;
-        double t3 = t2;
-        out[i] = t3;
+__attribute__((noinline))
+void slow_comp_v015(int *mat, int *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        int sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
+        }
+        col_avgs[j] = sum / (int)rows;
     }
-}
-double compute_v015(int key) {
-    double r = 0;
-    for (int i = 0; i < 50; i++) r += (double)sin((double)(key+i));
-    return r;
 }

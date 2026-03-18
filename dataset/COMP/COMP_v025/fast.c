@@ -4,8 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_comp_v025(double *A, double *B, int n, double k, int mode) {
-    double sumA = 0, sumB = 0;
+int fast_comp_v025(int *A, int *B, int n, int k, int mode) {
+    int sumA = 0, sumB = 0;
     if (mode == 1) {
         for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
         return sumA + sumB * k;
@@ -13,7 +13,7 @@ double fast_comp_v025(double *A, double *B, int n, double k, int mode) {
         for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
         return sumA - sumB * k;
     } else {
-        double sumAB = 0;
+        int sumAB = 0;
         for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
         return sumAB * k;
     }

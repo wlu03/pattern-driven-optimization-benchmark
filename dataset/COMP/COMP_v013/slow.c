@@ -1,17 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <string.h>
-
 __attribute__((noinline))
-double slow_comp_v013(double *A, double *B, int n, double k, int mode) {
-    double total = 0;
+int config_val_v013(int key);
+
+int slow_comp_v013(int *arr, int n, int key) {
+    int sum = 0;
     for (int i = 0; i < n; i++) {
-        double val;
-        if (mode == 1) val = A[i] + B[i] * k;
-        else if (mode == 2) val = A[i] - B[i] * k;
-        else val = A[i] * B[i] * k;
-        total += val;
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        int factor = config_val_v013(key);
+        sum += arr[i] * factor;
     }
-    return total;
+    return sum;
+}
+int config_val_v013(int key) {
+    int r = 0;
+    for (int i = 0; i < 100; i++) r += (int)sin((double)(key+i));
+    return r;
 }

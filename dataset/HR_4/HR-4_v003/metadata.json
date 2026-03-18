@@ -3,7 +3,7 @@
   "variant_id": "HR-4_v003",
   "category": "Human Readability Style",
   "pattern_name": "Overly Defensive Null/Error Checks",
-  "variant_desc": "2 redundant checks, op=sum, float",
+  "variant_desc": "2 redundant checks, op=max, float",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

@@ -3,13 +3,13 @@
   "variant_id": "SR-4_v029",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "hash_chain function, 1 invariant calls, work=200, float, while-loop, additive apply",
-  "dtype": "float",
-  "difficulty": "easy",
+  "variant_desc": "polynomial function, 2 invariant calls, work=100, double, while-loop, additive apply",
+  "dtype": "double",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 14,
+  "lines_of_code": 16,
   "expected_speedup_range": "100x-1000x",
   "composition": []
 }

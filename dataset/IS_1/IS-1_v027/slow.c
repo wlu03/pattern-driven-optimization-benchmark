@@ -4,10 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-float slow_is1_v027(float *A, float *B, int n) {
-    float sum = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum += A[i] * B[i];
+void slow_is1_v027(float *C, float *A, float *B, int m, int k, int n) {
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            C[i * n + j] = 0.0f;
+            for (int p = 0; p < k; p++) {
+                C[i * n + j] += A[i * k + p] * B[p * n + j];
+            }
+        }
     }
-    return sum;
 }

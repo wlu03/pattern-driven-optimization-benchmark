@@ -4,9 +4,9 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr3_v018(float *out, float *in, int n) {
+void slow_hr3_v018(double *out, double *in, int n) {
     for (int i = 0; i < n; i++) {
-        if (in[i] != in[i]) { /* NaN check - dead for normal data */ }
-        out[i] = in[i] * (float)2.0 + (float)1.0;
+        if (out[i] < (double)-1e15 || out[i] > (double)1e15) { /* range check - dead */ }
+        out[i] = in[i] * (double)3.14 - (double)1.0;
     }
 }

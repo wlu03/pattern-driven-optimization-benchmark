@@ -19,7 +19,7 @@ int main() {
     float *out_slow = malloc(N * sizeof(float));
     float *out_fast = malloc(N * sizeof(float));
     for (int i = 0; i < N; i++) in_arr[i] = (float)(i % 200 - 100) * (float)0.1f;
-    float (*fn)(float) = fn_square_v008;
+    float (*fn)(float) = fn_scale_v008;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

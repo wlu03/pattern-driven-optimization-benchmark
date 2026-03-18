@@ -4,8 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-long long slow_al1_v015(int n) {
-    if (n == 0) return 1;
-    if (n == 1) return 0;
-    return (n - 1) * (slow_al1_v015(n - 1) + slow_al1_v015(n - 2));
+int slow_al1_v015(int *grid, int m, int n, int r, int c) {
+    if (r == 0 && c == 0) return grid[0];
+    if (r < 0 || c < 0) return 999999999;
+    int up = slow_al1_v015(grid, m, n, r-1, c);
+    int left = slow_al1_v015(grid, m, n, r, c-1);
+    int best = (up < left) ? up : left;
+    return grid[r * n + c] + best;
 }

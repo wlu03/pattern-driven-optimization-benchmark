@@ -11,7 +11,7 @@ int main() {
     int n = 30;
     long long r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
-    int slow_reps = 1, fast_reps = 10000;
+    int slow_reps = 1, fast_reps = 100000;
     clock_gettime(CLOCK_MONOTONIC, &t0);
     for (int r = 0; r < slow_reps; r++) r_slow = slow_al1_v000(n);
     clock_gettime(CLOCK_MONOTONIC, &t1);

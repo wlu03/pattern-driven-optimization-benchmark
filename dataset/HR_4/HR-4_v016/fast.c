@@ -4,9 +4,9 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_hr4_v016(double *arr, int n) {
-    if (arr == NULL || n <= 0) return 0.0;
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += (double)arr[i];
-    return (double)sum;
+float fast_hr4_v016(float *arr, int n) {
+    if (arr == NULL || n <= 0) return 0.0f;
+    float mx = arr[0];
+    for (int i = 1; i < n; i++) if (arr[i] > mx) mx = arr[i];
+    return mx;
 }

@@ -4,19 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-double expensive_fn_v013(int key);
+float expensive_fn_v013(int key);
 
-void slow_sr4_v013(double *arr, int n, int key) {
-    int i = 0;
-    while (i < n) {
-        double f0 = expensive_fn_v013(key);
-        arr[i] *= f0;
-        i++;
+void slow_sr4_v013(float *arr, int n, int key0, int key1, int key2) {
+    for (int i = 0; i < n; i++) {
+        float f0 = expensive_fn_v013(key0);
+        float f1 = expensive_fn_v013(key1);
+        float f2 = expensive_fn_v013(key2);
+        arr[i] *= f0 * f1 * f2;
     }
-}
-double expensive_fn_v013(int key) {
-    double r = 0.0;
-    for (int i = 1; i <= 100; i++)
-        r += log((double)(key + i));
-    return r;
 }

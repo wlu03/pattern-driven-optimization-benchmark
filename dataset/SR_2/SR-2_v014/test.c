@@ -10,27 +10,27 @@
 
 int main() {
     int n = N;
-    double *X = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) X[k] = (double)(k % 100 - 50) * 0.1;
-    double *Y = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
-    double alpha = (double)1.0, beta = (double)0.5;
+    float *X = malloc(500000 * sizeof(float));
+    for (int k = 0; k < 500000; k++) X[k] = (float)(k % 100 - 50) * 0.1f;
+    float *Y = malloc(500000 * sizeof(float));
+    for (int k = 0; k < 500000; k++) Y[k] = (float)(k % 100 - 50) * 0.1f;
+    float alpha = (float)1.0f, beta = (float)0.5f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_sr2_v014(X, Y, n, alpha, beta);
+    float r_slow = slow_sr2_v014(X, Y, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_sr2_v014(X, Y, n, alpha, beta);
+    float r_fast = fast_sr2_v014(X, Y, n, alpha, beta);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     /* compute expected inline — penalty inlined here, no dependency on slow/fast */
-    double p = 0.0;
-    for (int k = 1; k <= 12; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.02);
-    double expected = 0.0;
+    float p = 0.0;
+    for (int k = 1; k <= 13; k++) p += (float)sin(alpha * k) * (float)exp(-beta * k * 0.05);
+    float expected = 0.0;
     for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + p;
 
     double rel = fabs((double)(r_slow - expected)) / fmax(fabs((double)expected), 1e-12);

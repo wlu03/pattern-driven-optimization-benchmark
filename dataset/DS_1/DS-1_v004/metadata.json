@@ -3,7 +3,7 @@
   "variant_id": "DS-1_v004",
   "category": "Data Structure Choice",
   "pattern_name": "Linear Search vs Hash Lookup",
-  "variant_desc": "n_keys=500, n_queries=1000, ht_size=32768",
+  "variant_desc": "n_keys=2000, n_queries=1000, ht_size=16384",
   "dtype": "int",
   "difficulty": "medium",
   "compiler_fixable": false,

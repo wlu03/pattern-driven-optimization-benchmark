@@ -4,10 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_cf2_v013(int *matrix, int rows, int cols) {
+float fast_cf2_v013(float *A, float *B, int rows, int cols) {
+    float total = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            matrix[i * cols + j] *= (int)2.0;
+            total += A[i * cols + j] + B[j * rows + i];
         }
     }
+    return total;
 }

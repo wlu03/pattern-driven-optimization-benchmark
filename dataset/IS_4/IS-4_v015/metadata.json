@@ -3,7 +3,7 @@
   "variant_id": "IS-4_v015",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Adaptive Sort (Nearly-Sorted Detection)",
-  "variant_desc": "n=100000, 0.5% swaps, sample_k=32, thresh=2",
+  "variant_desc": "n=1000000, 2.0% swaps, sample_k=32, thresh=2",
   "dtype": "int",
   "difficulty": "medium",
   "compiler_fixable": false,

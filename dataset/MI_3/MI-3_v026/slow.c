@@ -6,11 +6,11 @@
 __attribute__((noinline))
 double slow_mi3_v026(double *data, int n) {
     double total = 0.0;
-    for (int i = 0; i < n - 15; i++) {
-        double *quad = malloc(16 * sizeof(double));
-        for (int j = 0; j < 16; j++) quad[j] = data[i+j];
-        double s = 0.0; for (int j = 0; j < 16; j++) s += quad[j];
-        total += s * (double)0.0625;
+    for (int i = 0; i < n - 7; i++) {
+        double *quad = malloc(8 * sizeof(double));
+        for (int j = 0; j < 8; j++) quad[j] = data[i+j];
+        double s = 0.0; for (int j = 0; j < 8; j++) s += quad[j];
+        total += s;
         free(quad);
     }
     return total;

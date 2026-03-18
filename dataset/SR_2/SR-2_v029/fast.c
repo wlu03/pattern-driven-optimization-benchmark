@@ -1,9 +1,5 @@
 #include <math.h>
-static float penalty(float a, float b) {
-    float r = 0.0;
-    for (int k = 1; k <= 23; k++) r += (float)sin(a * k) * (float)exp(-b * k * 0.05);
-    return r;
-}
+float penalty(float a, float b);
 __attribute__((noinline))
 float fast_sr2_v029(float *X, float *Y, float *Z, int n, float alpha, float beta) {
     float sumXsq = 0.0;

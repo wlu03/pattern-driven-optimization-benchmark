@@ -5,8 +5,9 @@
 
 __attribute__((noinline))
 void slow_hr3_v005(double *out, double *in, int n) {
+    static volatile int debug_ctr_v005 = 0;
     for (int i = 0; i < n; i++) {
-        if (in[i] != in[i]) { /* NaN check - dead for normal data */ }
-        out[i] = in[i] * in[i] + (double)0.5;
+        debug_ctr_v005++;  /* volatile: prevents optimization */
+        out[i] = in[i] * (double)2.0 + (double)1.0;
     }
 }

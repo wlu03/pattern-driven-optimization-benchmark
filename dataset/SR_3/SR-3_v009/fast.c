@@ -5,10 +5,10 @@
 
 __attribute__((noinline))
 void fast_sr3_v009(float *data, float *result, int n) {
-    float mx = data[0];
-    result[0] = mx;
-    for (int i = 1; i < n; i++) {
-        if (data[i] > mx) mx = data[i];
-        result[i] = mx;
+    result[0] = data[0];
+    int i = 1;
+    while (i < n) {
+        result[i] = 0.3f * data[i] + (1.0f - 0.3f) * result[i-1];
+        i++;
     }
 }

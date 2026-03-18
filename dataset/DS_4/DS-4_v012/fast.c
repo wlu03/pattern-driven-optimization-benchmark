@@ -4,14 +4,18 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v012(double *x, double *quality, double *channel, int n) {
-    double total_x = 0.0;
-    double total_quality = 0.0;
-    double total_channel = 0.0;
-    for (int i = 0; i < n; i++) {
-        total_x += x[i];
-        total_quality += quality[i];
-        total_channel += channel[i];
+double fast_ds4_v012(double *normal_x, double *depth, double *g, double *a, int n) {
+    double total_normal_x = 0.0;
+    double total_depth = 0.0;
+    double total_g = 0.0;
+    double total_a = 0.0;
+    int i = 0;
+    while (i < n) {
+        total_normal_x += normal_x[i];
+        total_depth += depth[i];
+        total_g += g[i];
+        total_a += a[i];
+        i++;
     }
-    return total_x + total_quality + total_channel;
+    return total_normal_x + total_depth + total_g + total_a;
 }

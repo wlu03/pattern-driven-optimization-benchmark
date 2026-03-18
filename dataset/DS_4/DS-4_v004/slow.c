@@ -11,16 +11,13 @@ typedef struct {
     int a;
     int x;
     int y;
+    float depth;
 } AoS_v004;
 
 double slow_ds4_v004(AoS_v004 *arr, int n) {
-    double total_r = 0.0;
-    double total_a = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_r += (double)arr[i].r;
-        total_a += (double)arr[i].a;
-        i++;
+    double total_y = 1e308;
+    for (int i = 0; i < n; i++) {
+        if ((double)arr[i].y < total_y) total_y = (double)arr[i].y;
     }
-    return total_r + total_a;
+    return total_y;
 }

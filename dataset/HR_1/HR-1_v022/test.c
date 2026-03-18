@@ -8,12 +8,12 @@
 // FAST_CODE_HERE
 
 int main() {
-    int n = 10000000;
-    int *A = malloc(10000000 * sizeof(int)); for (int k = 0; k < 10000000; k++) A[k] = (int)((k % 100) + 1) * 0.1;
-    int *B = malloc(10000000 * sizeof(int)); for (int k = 0; k < 10000000; k++) B[k] = (int)((k % 100) + 1) * 0.1;
-    int *C = malloc(10000000 * sizeof(int)); for (int k = 0; k < 10000000; k++) C[k] = (int)((k % 100) + 1) * 0.1;
-    int *out_s = malloc(n * sizeof(int));
-    int *out_f = malloc(n * sizeof(int));
+    int n = 20000000;
+    double *A = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) A[k] = (double)((k % 100) + 1) * 0.1;
+    double *B = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) B[k] = (double)((k % 100) + 1) * 0.1;
+    double *C = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) C[k] = (double)((k % 100) + 1) * 0.1;
+    double *out_s = malloc(n * sizeof(double));
+    double *out_f = malloc(n * sizeof(double));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -27,7 +27,7 @@ int main() {
     int correct = 1;
     for (int i = 0; i < n; i++) {
         /* relative tolerance: FMA contraction on fast path may shift by 1 ULP */
-        int denom = fmax(fabs(out_s[i]), (int)1.0);
+        double denom = fmax(fabs(out_s[i]), (double)1.0);
         if (fabs(out_s[i] - out_f[i]) / denom > 1e-3) { correct = 0; break; }
     }
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",

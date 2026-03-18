@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 
 /* fn_ functions are defined in fast.c, shared via extern */
 extern float fn_relu_v014(float x);

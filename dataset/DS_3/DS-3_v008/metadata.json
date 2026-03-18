@@ -3,7 +3,7 @@
   "variant_id": "DS-3_v008",
   "category": "Data Structure Choice",
   "pattern_name": "Unnecessary Copying",
-  "variant_desc": "width=128*8B=1024B, op=max, n=500000",
+  "variant_desc": "width=128*8B=1024B, op=max, n=1000000",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

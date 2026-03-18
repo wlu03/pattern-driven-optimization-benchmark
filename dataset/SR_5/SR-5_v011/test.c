@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 500000
-#define M 512
+#define N 2000000
+#define M 64
 
 // SLOW_CODE_HERE
 

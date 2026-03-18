@@ -3,8 +3,8 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#define N 100000
-#define N_SWAPS 2000
+#define N 500000
+#define N_SWAPS 10000
 
 // SLOW_CODE_HERE
 

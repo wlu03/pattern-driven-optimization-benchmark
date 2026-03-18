@@ -12,17 +12,16 @@ int main() {
     double *A = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) A[k] = (double)((k % 100) + 1) * 0.1;
     double *B = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) B[k] = (double)((k % 100) + 1) * 0.1;
     double *C = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) C[k] = (double)((k % 100) + 1) * 0.1;
-    double *D = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) D[k] = (double)((k % 100) + 1) * 0.1;
     double *out_s = malloc(n * sizeof(double));
     double *out_f = malloc(n * sizeof(double));
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) slow_hr1_v005(out_s, A, B, C, D, n);
+    for (int r = 0; r < n_reps; r++) slow_hr1_v005(out_s, A, B, C, n);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) fast_hr1_v005(out_f, A, B, C, D, n);
+    for (int r = 0; r < n_reps; r++) fast_hr1_v005(out_f, A, B, C, n);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = 1;
@@ -36,7 +35,6 @@ int main() {
     free(A);
     free(B);
     free(C);
-    free(D);
     free(out_s); free(out_f);
     return 0;
 }

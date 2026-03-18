@@ -4,15 +4,15 @@
 #include <string.h>
 
 __attribute__((noinline))
-double slow_hr4_v012(double *arr, int n) {
-    if (arr == NULL || n <= 0) return 0.0;
-    double mx = arr[0];
-    for (int i = 1; i < n; i++) {
+float slow_hr4_v012(float *arr, int n) {
+    if (arr == NULL || n <= 0) return 0.0f;
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
         if (arr == NULL) continue;          /* redundant */
         if (n <= 0) break;                  /* redundant */
         if (i < 0 || i >= n) continue;      /* impossible */
         if (arr[i] != arr[i]) continue;     /* NaN: dead for normal data */
-        if (arr[i] > mx) mx = arr[i];
+        sum += (double)arr[i];
     }
-    return mx;
+    return (float)sum;
 }

@@ -4,7 +4,7 @@
 #include <string.h>
 
 static int __attribute__((noinline)) cf2_check_v026(int i, int j, int rows, int cols) {
-    return (i * cols + j < rows * cols && i * cols + j >= 0 && i >= 0 && i < rows && j >= 0 && j < cols);
+    return (j >= 0 && j < cols && i * cols + j >= 0);
 }
 void slow_cf2_v026(double *matrix, int rows, int cols, double *col_sums) {
     for (int j = 0; j < cols; j++) {

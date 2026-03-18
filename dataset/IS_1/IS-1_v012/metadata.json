@@ -3,7 +3,7 @@
   "variant_id": "IS-1_v012",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Sparse Data Redundancy",
-  "variant_desc": "Sparse matrix-vector multiply (80% zeros), skip zero elements, double",
+  "variant_desc": "Sparse matrix-vector multiply (80% zeros), skip zero elements, double, while-loop",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

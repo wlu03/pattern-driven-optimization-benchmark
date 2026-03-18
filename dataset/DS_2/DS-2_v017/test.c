@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #define N 5000000
-#define CHUNK 512
+#define CHUNK 1024
 #define N_RESULTS ((N + CHUNK - 1) / CHUNK)
 
 // SLOW_CODE_HERE

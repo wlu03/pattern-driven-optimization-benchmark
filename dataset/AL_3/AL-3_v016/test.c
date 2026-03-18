@@ -11,7 +11,7 @@
 
 int main() {
     int *text = malloc(TN * sizeof(int));
-    int pattern[4] = {3, 3, 1, 2};
+    int pattern[4] = {0, 1, 1, 1};
     unsigned rs = 77u;
     for (int i = 0; i < TN; i++) {
         rs = rs * 1664525u + 1013904223u;

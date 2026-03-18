@@ -10,11 +10,11 @@
 // FAST_CODE_HERE
 
 int main() {
-    double *A = malloc(N * sizeof(double));
-    double *B = malloc(N * sizeof(double));
-    double *out_slow = malloc(N * sizeof(double));
-    double *out_fast = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) { A[i] = (double)(i%100+1); B[i] = (double)(i%50+1); }
+    float *A = malloc(N * sizeof(float));
+    float *B = malloc(N * sizeof(float));
+    float *out_slow = malloc(N * sizeof(float));
+    float *out_fast = malloc(N * sizeof(float));
+    for (int i = 0; i < N; i++) { A[i] = (float)(i%100+1); B[i] = (float)(i%50+1); }
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

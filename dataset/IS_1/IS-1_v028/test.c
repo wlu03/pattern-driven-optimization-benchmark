@@ -10,13 +10,13 @@
 
 int main() {
     int n = 1000000;
-    float *x = malloc(n * sizeof(float));
-    float *y_slow = malloc(n * sizeof(float));
-    float *y_fast = malloc(n * sizeof(float));
-    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; x[i] = (rng % 100 < 99) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
-    for (int i = 0; i < n; i++) y_slow[i] = (float)(i % 100) * 0.01f;
-    memcpy(y_fast, y_slow, n * sizeof(float));
-    float alpha = (float)2.5f;
+    double *x = malloc(n * sizeof(double));
+    double *y_slow = malloc(n * sizeof(double));
+    double *y_fast = malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; x[i] = (rng % 100 < 50) ? 0.0 : (double)(rng % 100 + 1) * 0.01; }
+    for (int i = 0; i < n; i++) y_slow[i] = (double)(i % 100) * 0.01;
+    memcpy(y_fast, y_slow, n * sizeof(double));
+    double alpha = (double)2.5;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

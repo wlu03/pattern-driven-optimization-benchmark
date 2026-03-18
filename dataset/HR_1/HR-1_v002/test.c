@@ -8,10 +8,10 @@
 // FAST_CODE_HERE
 
 int main() {
-    int n = 10000000;
-    double *A = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) A[k] = (double)((k % 100) + 1) * 0.1;
-    double *B = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) B[k] = (double)((k % 100) + 1) * 0.1;
-    double *C = malloc(10000000 * sizeof(double)); for (int k = 0; k < 10000000; k++) C[k] = (double)((k % 100) + 1) * 0.1;
+    int n = 20000000;
+    double *A = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) A[k] = (double)((k % 100) + 1) * 0.1;
+    double *B = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) B[k] = (double)((k % 100) + 1) * 0.1;
+    double *C = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) C[k] = (double)((k % 100) + 1) * 0.1;
     double *out_s = malloc(n * sizeof(double));
     double *out_f = malloc(n * sizeof(double));
     struct timespec t0, t1;

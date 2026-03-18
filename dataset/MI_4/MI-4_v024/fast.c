@@ -4,12 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-float fast_mi4_v024(float *matrix, int rows, int cols) {
-    float total = 0;
+void fast_mi4_v024(double *out, double *A, double *B, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            total += matrix[i * cols + j];
+            out[i * cols + j] = A[i * cols + j] + B[i * cols + j];
         }
     }
-    return total;
 }

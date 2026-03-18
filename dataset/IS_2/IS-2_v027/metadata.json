@@ -3,7 +3,7 @@
   "variant_id": "IS-2_v027",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Data Distribution Skew",
-  "variant_desc": "90% in-range, sqrt for outliers, thresh=2.0, double",
+  "variant_desc": "90% in-range, log for outliers, thresh=1.0, double",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

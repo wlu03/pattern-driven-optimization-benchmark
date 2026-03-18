@@ -4,10 +4,14 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_sr3_v006(double *data, double *result, int n) {
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) {
+void fast_sr3_v006(int *data, int *result, int n) {
+    int sum = 0;
+    int i = 0;
+    while (i < n) {
         sum += data[i];
-        result[i] = sum;
+        if (i >= 8) sum -= data[i - 8];
+        int count = (i < 8) ? i + 1 : 8;
+        result[i] = sum / count;
+        i++;
     }
 }

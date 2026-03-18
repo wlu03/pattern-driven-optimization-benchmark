@@ -1,13 +1,8 @@
 #include <math.h>
-/* sin*exp penalty — inner loop blocks compiler from hoisting as loop-invariant */
-static double penalty(double a, double b) {
-    double r = 0.0;
-    for (int k = 1; k <= 27; k++) r += (double)sin(a * k) * (double)exp(-b * k * 0.02);
-    return r;
-}
+float penalty(float a, float b);
 __attribute__((noinline))
-double slow_sr2_v013(double *X, double *Y, double *Z, int n, double alpha, double beta) {
-    double result = 0.0;
+float slow_sr2_v013(float *X, float *Y, float *Z, int n, float alpha, float beta) {
+    float result = 0.0;
     int i = 0;
     while (i < n) {
         result += alpha * X[i] * X[i] + beta * Y[i] + alpha * Z[i] + penalty(alpha, beta);

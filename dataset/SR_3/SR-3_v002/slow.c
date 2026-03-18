@@ -6,10 +6,8 @@
 __attribute__((noinline))
 void slow_sr3_v002(double *data, double *result, int n) {
     for (int i = 0; i < n; i++) {
-        double sum = 0.0;
-        int start = (i >= 64) ? i - 64 + 1 : 0;
-        int count = i - start + 1;
-        for (int j = start; j <= i; j++) sum += data[j];
-        result[i] = sum / count;
+        double sum_sq = 0.0;
+        for (int j = 0; j <= i; j++) sum_sq += data[j] * data[j];
+        result[i] = sqrt(sum_sq / (i + 1));
     }
 }

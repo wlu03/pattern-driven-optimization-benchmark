@@ -3,13 +3,13 @@
   "variant_id": "SR-4_v007",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "trig_combo function, 1 invariant calls, work=100, float, additive apply",
+  "variant_desc": "polynomial function, 4 invariant calls, work=1000, float, while-loop, additive apply",
   "dtype": "float",
-  "difficulty": "easy",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 14,
+  "lines_of_code": 20,
   "expected_speedup_range": "100x-1000x",
   "composition": []
 }

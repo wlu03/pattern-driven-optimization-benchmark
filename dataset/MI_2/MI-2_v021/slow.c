@@ -4,7 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_mi2_v021(float *output, float *A, float *B, int n) {
-    memset(output, 0, n * sizeof(float));
+void slow_mi2_v021(int *output, int *A, int *B, int n) {
+    memset(output, 0, n * sizeof(int));
     for (int i = 0; i < n; i++) output[i] = A[i] * B[i];
 }

@@ -4,11 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_hr2_v025(float *X, float *Y, int n, float *mean_x, float *var_x, float *mean_y, float *var_y) {
-    float sX=0; float sY=0;
-    for(int i=0;i<n;i++) { sX+=X[i]; sY+=Y[i]; }
-    *mean_x=sX/n; *mean_y=sY/n;
-    float vX=0; float vY=0; float mX=*mean_x; float mY=*mean_y;
-    for(int i=0;i<n;i++) { { float d=X[i]-mX; vX+=d*d; } { float d=Y[i]-mY; vY+=d*d; } }
-    *var_x=vX/n; *var_y=vY/n;
+void fast_hr2_v025(double *X, double *Y, double *Z, int n, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z) {
+    double mnX=X[0],mxX=X[0]; double mnY=Y[0],mxY=Y[0]; double mnZ=Z[0],mxZ=Z[0];
+    for(int i=1;i<n;i++) { if(X[i]<mnX) mnX=X[i]; if(X[i]>mxX) mxX=X[i]; if(Y[i]<mnY) mnY=Y[i]; if(Y[i]>mxY) mxY=Y[i]; if(Z[i]<mnZ) mnZ=Z[i]; if(Z[i]>mxZ) mxZ=Z[i]; }
+    *min_x=mnX; *max_x=mxX; *min_y=mnY; *max_y=mxY; *min_z=mnZ; *max_z=mxZ;
 }

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 2000000
+#define N 500000
 
 // SLOW_CODE_HERE
 
@@ -14,11 +14,11 @@ int main() {
     float *expected = malloc(N * sizeof(float));
     for (int i = 0; i < N; i++) arr_slow[i] = arr_fast[i] = expected[i] = (float)(i % 100 + 1) * 0.01f;
 
-    float base = (float)1.5f;
+    float base = (float)3.0f;
 
     /* compute expected inline — independent of slow/fast implementations */
     float scale = 0.0;
-    for (int k = 1; k <= 33; k++) scale += (float)log(base * k + 1.0) / k;
+    for (int k = 1; k <= 38; k++) scale += (float)log(base * k + 1.0) / k;
     for (int i = 0; i < N; i++) expected[i] *= scale;
 
     struct timespec t0, t1;

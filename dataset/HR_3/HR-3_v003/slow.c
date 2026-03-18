@@ -10,6 +10,6 @@ void slow_hr3_v003(double *out, double *in, int n) {
         debug_ctr_v003++;  /* volatile: prevents optimization */
         if (in[i] != in[i]) { /* NaN check - dead for normal data */ }
         if (out[i] < (double)-1e15 || out[i] > (double)1e15) { /* range check - dead */ }
-        out[i] = in[i] * in[i] + (double)0.5;
+        out[i] = in[i] * (double)2.0 + (double)1.0;
     }
 }

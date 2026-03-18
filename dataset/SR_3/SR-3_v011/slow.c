@@ -4,11 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_sr3_v011(float *data, float *result, int n) {
+void slow_sr3_v011(double *data, double *result, int n) {
     for (int i = 0; i < n; i++) {
-        float sum = 0.0f;
-        int start = (i >= 4) ? i - 4 + 1 : 0;
-        for (int j = start; j <= i; j++) sum += data[j];
-        result[i] = sum;
+        double sum_sq = 0.0;
+        for (int j = 0; j <= i; j++) sum_sq += data[j] * data[j];
+        result[i] = sqrt(sum_sq / (i + 1));
     }
 }

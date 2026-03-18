@@ -6,6 +6,6 @@
 __attribute__((noinline))
 void fast_hr3_v024(float *out, float *in, int n) {
     for (int i = 0; i < n; i++) {
-        out[i] = in[i] * in[i] + (float)0.5;
+        out[i] = in[i] * (float)3.14 - (float)1.0;
     }
 }

@@ -5,10 +5,10 @@
 
 __attribute__((noinline))
 void fast_sr3_v015(int *data, int *result, int n) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) {
-        sum += data[i];
-        if (i >= 32) sum -= data[i - 32];
-        result[i] = sum;
+    int mx = data[0];
+    result[0] = mx;
+    for (int i = 1; i < n; i++) {
+        if (data[i] > mx) mx = data[i];
+        result[i] = mx;
     }
 }

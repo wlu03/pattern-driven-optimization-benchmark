@@ -4,12 +4,9 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_is1_v023(float *C, float *a, float *b, int m, int n) {
-    for (int i = 0; i < m; i++) {
-        if (a[i] == 0.0f) continue;
-        for (int j = 0; j < n; j++) {
-            if (b[j] == 0.0f) continue;
-            C[i * n + j] += a[i] * b[j];
-        }
+void fast_is1_v023(float *out, float *A, float *B, int n) {
+    for (int i = 0; i < n; i++) {
+        if (B[i] == 0.0f) { out[i] = A[i]; continue; }
+        out[i] = A[i] - B[i];
     }
 }

@@ -4,6 +4,6 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_cf4_v009(float *out, float *in, int n, float (*fn)(float)) {
+void slow_cf4_v009(double *out, double *in, int n, double (*fn)(double)) {
     for (int i = 0; i < n; i++) out[i] = fn(in[i]);
 }

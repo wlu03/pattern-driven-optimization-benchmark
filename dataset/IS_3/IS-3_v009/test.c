@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 #define N_REPS 20
 
 // SLOW_CODE_HERE
@@ -12,7 +12,7 @@
 int main() {
     float *arr = malloc(N * sizeof(float));
     for (int i = 0; i < N; i++) arr[i] = (float)(i % 100) * (float)0.025f;
-    arr[N / 20] = (float)6.0f;  /* Violation at early position */
+    arr[N / 2] = (float)6.0f;  /* Violation at middle position */
 
     struct timespec t0, t1;
     volatile int r_slow = 0, r_fast = 0;

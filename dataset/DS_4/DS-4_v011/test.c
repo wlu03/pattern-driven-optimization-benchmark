@@ -4,14 +4,14 @@
 #include <time.h>
 
 typedef struct {
-    double x;
-    double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
-    double mass;
-    double charge;
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
+    int noise;
+    float co2;
 } AoS_v011;
 
 // SLOW_CODE_HERE
@@ -21,21 +21,12 @@ typedef struct {
 int main() {
     int n = 5000000;
     AoS_v011 *arr = malloc(n * sizeof(AoS_v011));
-    double *soa_vx = malloc(5000000 * sizeof(double));
-    double *soa_x = malloc(5000000 * sizeof(double));
-    double *soa_vy = malloc(5000000 * sizeof(double));
-    double *soa_y = malloc(5000000 * sizeof(double));
+    double *soa_co2 = malloc(5000000 * sizeof(double));
     for (int i = 0; i < 5000000; i++) {
         int iv = (i % 997) + 1;
         double dv = (double)iv * 0.001;
-        arr[i].vx = dv * 1;
-        arr[i].x = dv * 2;
-        arr[i].vy = dv * 3;
-        arr[i].y = dv * 4;
-        soa_vx[i] = (double)(dv * 1);
-        soa_x[i] = (double)(dv * 2);
-        soa_vy[i] = (double)(dv * 3);
-        soa_y[i] = (double)(dv * 4);
+        arr[i].co2 = dv * 1;
+        soa_co2[i] = (double)(dv * 1);
     }
     double r_slow = 0.0, r_fast = 0.0;
     struct timespec t0, t1;
@@ -45,16 +36,13 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v011(soa_vx, soa_x, soa_vy, soa_y, n);
+    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v011(soa_co2, n);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = fabs(r_slow - r_fast) < fmax(fabs(r_slow) * 1e-6, 1e-6);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(arr);
-    free(soa_vx);
-    free(soa_x);
-    free(soa_vy);
-    free(soa_y);
+    free(soa_co2);
     return 0;
 }

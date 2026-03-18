@@ -1,20 +1,12 @@
 #include <math.h>
-static double penalty(double a, double b) {
-    double r = 0.0;
-    for (int k = 1; k <= 29; k++) r += (double)sin(a * k) * (double)exp(-b * k * 0.05);
-    return r;
-}
+double penalty(double a, double b);
 __attribute__((noinline))
-double fast_sr2_v018(double *X, double *Y, double *Z, int n, double alpha, double beta) {
+double fast_sr2_v018(double *X, double *Y, int n, double alpha, double beta) {
     double sumXsq = 0.0;
     double sumY = 0.0;
-    double sumZ = 0.0;
-    int i = 0;
-    while (i < n) {
+    for (int i = 0; i < n; i++) {
         sumXsq += X[i] * X[i];
         sumY += Y[i];
-        sumZ += Z[i];
-        i++;
     }
-    return alpha * sumXsq + beta * sumY + alpha * sumZ + (double)n * penalty(alpha, beta);
+    return alpha * sumXsq + beta * sumY + (double)n * penalty(alpha, beta);
 }

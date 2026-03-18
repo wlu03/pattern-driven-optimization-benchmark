@@ -3,7 +3,7 @@
   "variant_id": "AL-4_v007",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Redundant Recomputation in Recursion",
-  "variant_desc": "grid paths (17x15): exponential -> O(r*c) DP",
+  "variant_desc": "grid paths (18x16): exponential -> O(r*c) DP",
   "dtype": "long long",
   "difficulty": "hard",
   "compiler_fixable": false,

@@ -3,7 +3,7 @@
   "variant_id": "DS-4_v006",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "particles struct (7 fields), accessing ['vx', 'z', 'mass'], sum reduction, while-loop",
+  "variant_desc": "vertices struct (7 fields), accessing ['py', 'nx', 'pz'], sum reduction",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

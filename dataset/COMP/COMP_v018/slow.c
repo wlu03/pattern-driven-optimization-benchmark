@@ -1,20 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-__attribute__((noinline))
-float config_val_v018(int key);
+#include <string.h>
 
-float slow_comp_v018(float *arr, int n, int key) {
-    float sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == 0) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        float factor = config_val_v018(key);
-        sum += arr[i] * factor;
+__attribute__((noinline))
+void slow_comp_v018(int *out, int *A, int *B, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {
+                int t1 = A[i*cols+j] + B[i*cols+j];
+                int t2 = t1 * (int)2.0;
+                int t3 = t2 + (int)1.0;
+                int result = t3;
+                out[i*cols+j] = result;
+            }
+        }
     }
-    return sum;
-}
-float config_val_v018(int key) {
-    float r = 0;
-    for (int i = 0; i < 100; i++) r += (float)sin((double)(key+i));
-    return r;
 }

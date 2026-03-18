@@ -10,6 +10,7 @@ double slow_hr4_v002(double *arr, int n) {
     for (int i = 0; i < n; i++) {
         if (arr == NULL) continue;          /* redundant */
         if (n <= 0) break;                  /* redundant */
+        if (i < 0 || i >= n) continue;      /* impossible */
         sum += (double)arr[i];
     }
     return (double)sum;

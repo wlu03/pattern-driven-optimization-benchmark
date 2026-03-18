@@ -5,9 +5,7 @@
 
 __attribute__((noinline))
 void slow_is5_v011(double *out, double *A, double *B, int n) {
-    int i = 0;
-    while (i < n) {
-        out[i] = A[i] * A[i] + B[i] * 2.0;
-        i++;
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * B[i] + A[i] - B[i] * 0.5;
     }
 }

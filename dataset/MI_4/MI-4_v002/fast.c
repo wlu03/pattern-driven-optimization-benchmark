@@ -4,12 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_mi4_v002(int *matrix, int rows, int cols) {
-    int total = 0;
+void fast_mi4_v002(double *matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            total += matrix[i * cols + j];
+            matrix[i * cols + j] *= (double)3.14;
         }
     }
-    return total;
 }

@@ -13,12 +13,12 @@ void fast_is5_v014(double *out, double *A, double *B, int n) {
         const double * __restrict__ rA = (const double * __restrict__)A;
         const double * __restrict__ rB = (const double * __restrict__)B;
         for (int i = 0; i < n; i++) {
-            ro[i] += rA[i] * 2.0 + rB[i] * 0.5;
+            ro[i] = rA[i] + rB[i];
         }
     } else {
         // Aliasing fallback (rare)
     for (int i = 0; i < n; i++) {
-        out[i] += A[i] * 2.0 + B[i] * 0.5;
+        out[i] = A[i] + B[i];
     }
     }
 }

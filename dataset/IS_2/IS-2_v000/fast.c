@@ -12,7 +12,7 @@ void fast_is2_v000(float *out, float *in, int n, float thresh) {
         } else {
             float sign = (val >= (float)0) ? (float)1 : (float)-1;
             float abs_val = (float)fabs((double)val);
-            out[i] = sign * (thresh + (float)sqrt((double)((float)1 + abs_val - thresh)));
+            out[i] = sign * (thresh + (float)log((double)((float)1 + abs_val - thresh)));
         }
     }
 }

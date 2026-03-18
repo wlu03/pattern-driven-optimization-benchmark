@@ -4,16 +4,18 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v002(double *ny, double *nx, double *px, int n) {
-    double total_ny = 0.0;
-    double total_nx = 0.0;
-    double total_px = 0.0;
+double fast_ds4_v002(double *depth, double *y, double *b, double *normal_x, int n) {
+    double total_depth = 0.0;
+    double total_y = 0.0;
+    double total_b = 0.0;
+    double total_normal_x = 0.0;
     int i = 0;
     while (i < n) {
-        total_ny += ny[i];
-        total_nx += nx[i];
-        total_px += px[i];
+        total_depth += depth[i];
+        total_y += y[i];
+        total_b += b[i];
+        total_normal_x += normal_x[i];
         i++;
     }
-    return total_ny + total_nx + total_px;
+    return total_depth + total_y + total_b + total_normal_x;
 }

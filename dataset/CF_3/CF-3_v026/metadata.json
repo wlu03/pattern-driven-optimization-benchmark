@@ -3,7 +3,7 @@
   "variant_id": "CF-3_v026",
   "category": "Control Flow Inefficiency",
   "pattern_name": "Vectorization-Hostile Redundant Conditional",
-  "variant_desc": "all-in-range [0.1,50.0], expr=1, double",
+  "variant_desc": "all-in-range [0.1,50.0], expr=2, double",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

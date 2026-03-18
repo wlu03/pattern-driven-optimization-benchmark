@@ -8,7 +8,7 @@
 // FAST_CODE_HERE
 
 int main() {
-    int n = 40;
+    int n = 30;
     long long r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
     int slow_reps = 1, fast_reps = 10000;

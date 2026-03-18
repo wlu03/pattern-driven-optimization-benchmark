@@ -13,8 +13,8 @@ int main() {
     float *B = malloc(k * n * sizeof(float));
     float *C_slow = calloc(m * n, sizeof(float));
     float *C_fast = calloc(m * n, sizeof(float));
-    for (int i = 0; i < m * k; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 80) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
-    for (int i = 0; i < k * n; i++) { unsigned rng = (unsigned)i * 2246822519u; B[i] = (rng % 100 < 80) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
+    for (int i = 0; i < m * k; i++) { unsigned rng = (unsigned)i * 6364136223846793005u; A[i] = (rng % 100 < 70) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
+    for (int i = 0; i < k * n; i++) { unsigned rng = (unsigned)i * 2246822519u; B[i] = (rng % 100 < 70) ? 0.0f : (float)(rng % 100 + 1) * 0.01f; }
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

@@ -19,7 +19,7 @@ int main() {
     double *out_slow = malloc(N * sizeof(double));
     double *out_fast = malloc(N * sizeof(double));
     for (int i = 0; i < N; i++) in_arr[i] = (double)(i % 200 - 100) * (double)0.1;
-    double (*fn)(double) = fn_scale_v029;
+    double (*fn)(double) = fn_relu_v029;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

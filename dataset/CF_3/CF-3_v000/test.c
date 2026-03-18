@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 
 // SLOW_CODE_HERE
 
@@ -12,7 +12,7 @@ int main() {
     float *in_arr = malloc(N * sizeof(float));
     float *out_slow = malloc(N * sizeof(float));
     float *out_fast = malloc(N * sizeof(float));
-    for (int i = 0; i < N; i++) in_arr[i] = (float)(i % 100 + 1) * (float)0.5f;
+    for (int i = 0; i < N; i++) in_arr[i] = (float)(i % 100 + 1) * (float)0.1f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

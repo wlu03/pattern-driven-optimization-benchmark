@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#define N 1000000
+#define N 500000
 #define N_SWAPS 5000
 
 // SLOW_CODE_HERE
@@ -15,7 +15,7 @@ int main() {
     int *arr_slow = malloc(N * sizeof(int));
     int *arr_fast = malloc(N * sizeof(int));
     for (int i = 0; i < N; i++) base[i] = i;
-    /* Introduce ~0.5% local swaps */
+    /* Introduce ~1.0% local swaps */
     unsigned rs = 99u;
     for (int s = 0; s < N_SWAPS; s++) {
         rs = rs * 1664525u + 1013904223u;

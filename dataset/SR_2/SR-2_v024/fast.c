@@ -1,13 +1,9 @@
 #include <math.h>
-static double penalty(double a, double b) {
-    double r = 0.0;
-    for (int k = 1; k <= 22; k++) r += (double)sin(a * k) * (double)exp(-b * k * 0.05);
-    return r;
-}
+float penalty(float a, float b);
 __attribute__((noinline))
-double fast_sr2_v024(double *X, double *Y, int n, double alpha, double beta) {
-    double sumXsq = 0.0;
-    double sumY = 0.0;
+float fast_sr2_v024(float *X, float *Y, int n, float alpha, float beta) {
+    float sumXsq = 0.0;
+    float sumY = 0.0;
     for (int i = 0; i < n; i++) {
         sumXsq += X[i] * X[i];
         sumY += Y[i];

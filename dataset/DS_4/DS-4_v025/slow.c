@@ -5,24 +5,19 @@
 
 __attribute__((noinline))
 typedef struct {
+    double time;
     double x;
     double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
+    float energy;
+    int channel;
+    int quality;
+    double amplitude;
 } AoS_v025;
 
 double slow_ds4_v025(AoS_v025 *arr, int n) {
-    double total_z = 0.0;
-    double total_vy = 0.0;
-    double total_vz = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_z += (double)arr[i].z;
-        total_vy += (double)arr[i].vy;
-        total_vz += (double)arr[i].vz;
-        i++;
+    double total_y = -1e308;
+    for (int i = 0; i < n; i++) {
+        if ((double)arr[i].y > total_y) total_y = (double)arr[i].y;
     }
-    return total_z + total_vy + total_vz;
+    return total_y;
 }

@@ -3,13 +3,13 @@
   "variant_id": "HR-1_v012",
   "category": "Human Readability Style",
   "pattern_name": "Redundant Temporary Variables",
-  "variant_desc": "4 temporaries, 3 arrays, int, for-loop",
-  "dtype": "int",
+  "variant_desc": "3 temporaries, 4 arrays, float, for-loop",
+  "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": true,
   "num_loops": 1,
-  "num_arrays": 4,
-  "lines_of_code": 10,
+  "num_arrays": 5,
+  "lines_of_code": 9,
   "expected_speedup_range": "1.1x-2x",
   "composition": []
 }

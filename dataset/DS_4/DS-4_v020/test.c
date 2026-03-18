@@ -4,14 +4,12 @@
 #include <time.h>
 
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
-    float v;
+    double time;
+    double x;
+    double y;
+    float energy;
+    int channel;
+    int quality;
 } AoS_v020;
 
 // SLOW_CODE_HERE
@@ -21,18 +19,12 @@ typedef struct {
 int main() {
     int n = 5000000;
     AoS_v020 *arr = malloc(n * sizeof(AoS_v020));
-    double *soa_u = malloc(5000000 * sizeof(double));
-    double *soa_nz = malloc(5000000 * sizeof(double));
-    double *soa_pz = malloc(5000000 * sizeof(double));
+    double *soa_x = malloc(5000000 * sizeof(double));
     for (int i = 0; i < 5000000; i++) {
         int iv = (i % 997) + 1;
         double dv = (double)iv * 0.001;
-        arr[i].u = dv * 1;
-        arr[i].nz = dv * 2;
-        arr[i].pz = dv * 3;
-        soa_u[i] = (double)(dv * 1);
-        soa_nz[i] = (double)(dv * 2);
-        soa_pz[i] = (double)(dv * 3);
+        arr[i].x = dv * 1;
+        soa_x[i] = (double)(dv * 1);
     }
     double r_slow = 0.0, r_fast = 0.0;
     struct timespec t0, t1;
@@ -42,15 +34,13 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v020(soa_u, soa_nz, soa_pz, n);
+    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v020(soa_x, n);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = fabs(r_slow - r_fast) < fmax(fabs(r_slow) * 1e-6, 1e-6);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(arr);
-    free(soa_u);
-    free(soa_nz);
-    free(soa_pz);
+    free(soa_x);
     return 0;
 }

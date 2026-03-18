@@ -3,7 +3,7 @@
   "variant_id": "AL-4_v028",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Redundant Recomputation in Recursion",
-  "variant_desc": "binomial C(24,12): O(2^n) -> O(n*k)",
+  "variant_desc": "fibonacci n=24: O(2^n) -> O(n)",
   "dtype": "long long",
   "difficulty": "hard",
   "compiler_fixable": false,

@@ -3,7 +3,7 @@
   "variant_id": "HR-5_v011",
   "category": "Human Readability Style",
   "pattern_name": "Repeated String/Format Operations",
-  "variant_desc": "3 defensive checks, op=-, int",
+  "variant_desc": "3 defensive checks, op=+, int",
   "dtype": "int",
   "difficulty": "easy",
   "compiler_fixable": false,

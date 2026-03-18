@@ -4,9 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr3_v020(double *out, double *in, int n) {
+void slow_hr3_v020(float *out, float *in, int n) {
+    static volatile int debug_ctr_v020 = 0;
     for (int i = 0; i < n; i++) {
-        if (in[i] != in[i]) { /* NaN check - dead for normal data */ }
-        out[i] = in[i] * (double)3.14 - (double)1.0;
+        debug_ctr_v020++;  /* volatile: prevents optimization */
+        out[i] = in[i] * in[i] + (float)0.5;
     }
 }

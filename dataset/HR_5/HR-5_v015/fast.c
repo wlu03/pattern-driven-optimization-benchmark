@@ -5,5 +5,5 @@
 
 __attribute__((noinline))
 void fast_hr5_v015(int *out, int *A, int *B, int n) {
-    for (int i = 0; i < n; i++) out[i] = A[i] - B[i];
+    for (int i = 0; i < n; i++) out[i] = A[i] * B[i];
 }

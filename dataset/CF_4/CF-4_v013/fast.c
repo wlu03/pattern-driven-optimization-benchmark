@@ -4,19 +4,19 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fn_relu_v013(double x);
-double fn_square_v013(double x);
-double fn_scale_v013(double x);
-double fn_negate_v013(double x);
+float fn_relu_v013(float x);
+float fn_square_v013(float x);
+float fn_scale_v013(float x);
+float fn_negate_v013(float x);
 
-void fast_cf4_v013(double *out, double *in, int n, double (*fn)(double)) {
-    if      (fn == fn_relu_v013)   { for (int i=0;i<n;i++) out[i]=in[i]>(double)0?in[i]:(double)0; }
+void fast_cf4_v013(float *out, float *in, int n, float (*fn)(float)) {
+    if      (fn == fn_relu_v013)   { for (int i=0;i<n;i++) out[i]=in[i]>(float)0?in[i]:(float)0; }
     else if (fn == fn_square_v013) { for (int i=0;i<n;i++) out[i]=in[i]*in[i]; }
-    else if (fn == fn_scale_v013)  { for (int i=0;i<n;i++) out[i]=in[i]*(double)1.5; }
+    else if (fn == fn_scale_v013)  { for (int i=0;i<n;i++) out[i]=in[i]*(float)1.5; }
     else if (fn == fn_negate_v013) { for (int i=0;i<n;i++) out[i]=-in[i]; }
     else                            { for (int i=0;i<n;i++) out[i]=fn(in[i]); }
 }
-double fn_relu_v013(double x)   { return x > (double)0 ? x : (double)0; }
-double fn_square_v013(double x) { return x * x; }
-double fn_scale_v013(double x)  { return x * (double)1.5; }
-double fn_negate_v013(double x) { return -x; }
+float fn_relu_v013(float x)   { return x > (float)0 ? x : (float)0; }
+float fn_square_v013(float x) { return x * x; }
+float fn_scale_v013(float x)  { return x * (float)1.5; }
+float fn_negate_v013(float x) { return -x; }

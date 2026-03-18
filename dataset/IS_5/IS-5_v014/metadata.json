@@ -3,7 +3,7 @@
   "variant_id": "IS-5_v014",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Runtime Alias Check (restrict fast path)",
-  "variant_desc": "in-place SAXPY, 2 inputs, double, for-loop",
+  "variant_desc": "linear add, 2 inputs, double, for-loop",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

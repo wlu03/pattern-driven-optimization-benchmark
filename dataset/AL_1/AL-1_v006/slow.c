@@ -4,7 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-long long slow_al1_v006(int r, int c) {
-    if (r == 0 || c == 0) return 1;
-    return slow_al1_v006(r-1, c) + slow_al1_v006(r, c-1);
+long long slow_al1_v006(int n) {
+    if (n <= 1) return 1;
+    long long res = 0;
+    for (int i = 0; i < n; i++)
+        res += slow_al1_v006(i) * slow_al1_v006(n - 1 - i);
+    return res;
 }

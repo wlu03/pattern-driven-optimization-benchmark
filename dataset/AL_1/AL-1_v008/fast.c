@@ -4,9 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-long long fast_al1_v008(int n) {
-    if (n <= 1) return n;
-    long long a = 0, b = 1;
-    for (int i = 2; i <= n; i++) { long long t = a+b; a = b; b = t; }
-    return b;
+long long fast_al1_v008(int r, int c) {
+    long long *dp = calloc(c+1, sizeof(long long));
+    for (int j = 0; j <= c; j++) dp[j] = 1;
+    for (int i = 1; i <= r; i++)
+        for (int j = 1; j <= c; j++)
+            dp[j] += dp[j-1];
+    long long res = dp[c]; free(dp); return res;
 }

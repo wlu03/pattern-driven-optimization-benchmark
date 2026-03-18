@@ -4,16 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v023(double *g, double *y, double *b, double *x, int n) {
-    double total_g = 1e308;
-    double total_y = 1e308;
-    double total_b = 1e308;
-    double total_x = 1e308;
+double fast_ds4_v023(double *category, double *id, double *score, double *value, int n) {
+    double total_category = 0.0;
+    double total_id = 0.0;
+    double total_score = 0.0;
+    double total_value = 0.0;
     for (int i = 0; i < n; i++) {
-        if (g[i] < total_g) total_g = g[i];
-        if (y[i] < total_y) total_y = y[i];
-        if (b[i] < total_b) total_b = b[i];
-        if (x[i] < total_x) total_x = x[i];
+        total_category += category[i];
+        total_id += id[i];
+        total_score += score[i];
+        total_value += value[i];
     }
-    return total_g + total_y + total_b + total_x;
+    return total_category + total_id + total_score + total_value;
 }

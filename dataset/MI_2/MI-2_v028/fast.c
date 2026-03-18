@@ -5,5 +5,5 @@
 
 __attribute__((noinline))
 void fast_mi2_v028(int *output, int *A, int *B, int n) {
-    for (int i = 0; i < n; i++) output[i] = A[i] + B[i];
+    for (int i = 0; i < n; i++) output[i] = A[i] * B[i];
 }

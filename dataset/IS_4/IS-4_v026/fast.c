@@ -9,7 +9,7 @@ static int cmp_is4_f_v026(const void *a, const void *b);
 void fast_is4_v026(int *arr, int n) {
     int inv = 0;
     unsigned s = 12345u;
-    for (int k = 0; k < 64; k++) {
+    for (int k = 0; k < 128; k++) {
         s = s * 1664525u + 1013904223u;
         int i = (int)((s >> 1) % (unsigned)(n - 1));
         if (arr[i] > arr[i + 1]) inv++;

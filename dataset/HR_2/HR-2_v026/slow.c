@@ -4,11 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr2_v026(float *X, float *Y, float *Z, int n, float *sum_x, float *sumsq_x, float *sum_y, float *sumsq_y, float *sum_z, float *sumsq_z) {
-    { float s=0; for(int i=0;i<n;i++) s+=X[i]; *sum_x=s; }
-    { float s=0; for(int i=0;i<n;i++) s+=X[i]*X[i]; *sumsq_x=s; }
-    { float s=0; for(int i=0;i<n;i++) s+=Y[i]; *sum_y=s; }
-    { float s=0; for(int i=0;i<n;i++) s+=Y[i]*Y[i]; *sumsq_y=s; }
-    { float s=0; for(int i=0;i<n;i++) s+=Z[i]; *sum_z=s; }
-    { float s=0; for(int i=0;i<n;i++) s+=Z[i]*Z[i]; *sumsq_z=s; }
+void slow_hr2_v026(double *X, double *Y, double *Z, int n, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z) {
+    { double mn=X[0],mx=X[0]; for(int i=1;i<n;i++) { if(X[i]<mn) mn=X[i]; if(X[i]>mx) mx=X[i]; } *min_x=mn; *max_x=mx; }
+    { double mn=Y[0],mx=Y[0]; for(int i=1;i<n;i++) { if(Y[i]<mn) mn=Y[i]; if(Y[i]>mx) mx=Y[i]; } *min_y=mn; *max_y=mx; }
+    { double mn=Z[0],mx=Z[0]; for(int i=1;i<n;i++) { if(Z[i]<mn) mn=Z[i]; if(Z[i]>mx) mx=Z[i]; } *min_z=mn; *max_z=mx; }
 }

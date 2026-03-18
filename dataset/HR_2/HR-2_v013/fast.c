@@ -4,8 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_hr2_v013(float *X, float *Y, float *Z, int n, float *sum_x, float *sumsq_x, float *sum_y, float *sumsq_y, float *sum_z, float *sumsq_z) {
-    float sX=0, sqX=0; float sY=0, sqY=0; float sZ=0, sqZ=0;
-    for(int i=0;i<n;i++) { sX+=X[i]; sqX+=X[i]*X[i]; sY+=Y[i]; sqY+=Y[i]*Y[i]; sZ+=Z[i]; sqZ+=Z[i]*Z[i]; }
-    *sum_x=sX; *sumsq_x=sqX; *sum_y=sY; *sumsq_y=sqY; *sum_z=sZ; *sumsq_z=sqZ;
+void fast_hr2_v013(double *X, double *Y, int n, double *mean_x, double *var_x, double *mean_y, double *var_y) {
+    double sX=0; double sY=0;
+    for(int i=0;i<n;i++) { sX+=X[i]; sY+=Y[i]; }
+    *mean_x=sX/n; *mean_y=sY/n;
+    double vX=0; double vY=0; double mX=*mean_x; double mY=*mean_y;
+    for(int i=0;i<n;i++) { { double d=X[i]-mX; vX+=d*d; } { double d=Y[i]-mY; vY+=d*d; } }
+    *var_x=vX/n; *var_y=vY/n;
 }

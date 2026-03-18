@@ -3,13 +3,13 @@
   "variant_id": "SR-2_v003",
   "category": "Semantic Redundancy",
   "pattern_name": "Loop-Invariant Term in Mixed Expression",
-  "variant_desc": "15-term sin*exp penalty, 3 arrays, n=1000000, double, for-loop",
-  "dtype": "double",
+  "variant_desc": "10-term sin*exp penalty, 2 arrays, n=1000000, float, for-loop",
+  "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 3,
-  "lines_of_code": 13,
-  "expected_speedup_range": "7x-15x",
+  "num_arrays": 2,
+  "lines_of_code": 12,
+  "expected_speedup_range": "5x-10x",
   "composition": []
 }

@@ -9,8 +9,10 @@ void slow_hr5_v008(int *out, int *A, int *B, int n) {
     for (int i = 0; i < n; i++) {
         int val = A[i] + B[i];
     if (pos < n) {
-                out[pos] = val;
-                pos++;
+        if (val >= 0) {
+                    out[pos] = val;
+                    pos++;
+        } 
     } 
     }
 }

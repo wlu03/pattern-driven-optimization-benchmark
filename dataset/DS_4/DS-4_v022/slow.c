@@ -5,26 +5,19 @@
 
 __attribute__((noinline))
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
-    float v;
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
+    int noise;
 } AoS_v022;
 
 double slow_ds4_v022(AoS_v022 *arr, int n) {
-    double total_u = 0.0;
-    double total_v = 0.0;
-    double total_px = 0.0;
-    double total_pz = 0.0;
+    double total_light = 1e308;
     for (int i = 0; i < n; i++) {
-        total_u += (double)arr[i].u;
-        total_v += (double)arr[i].v;
-        total_px += (double)arr[i].px;
-        total_pz += (double)arr[i].pz;
+        if ((double)arr[i].light < total_light) total_light = (double)arr[i].light;
     }
-    return total_u + total_v + total_px + total_pz;
+    return total_light;
 }

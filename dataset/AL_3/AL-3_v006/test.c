@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define TN 1000000
+#define TN 5000000
 #define PN 6
 
 // SLOW_CODE_HERE
@@ -11,11 +11,11 @@
 
 int main() {
     int *text = malloc(TN * sizeof(int));
-    int pattern[6] = {3, 6, 7, 0, 3, 1};
+    int pattern[6] = {1, 1, 3, 0, 2, 2};
     unsigned rs = 77u;
     for (int i = 0; i < TN; i++) {
         rs = rs * 1664525u + 1013904223u;
-        text[i] = (int)((rs >> 1) % 8u);
+        text[i] = (int)((rs >> 1) % 4u);
     }
 
     struct timespec t0, t1;

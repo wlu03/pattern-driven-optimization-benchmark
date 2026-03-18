@@ -16,7 +16,7 @@ int main() {
     for (int k = 0; k < 2000000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
     double *Z = malloc(2000000 * sizeof(double));
     for (int k = 0; k < 2000000; k++) Z[k] = (double)(k % 100 - 50) * 0.1;
-    double alpha = (double)2.5, beta = (double)1.5;
+    double alpha = (double)1.0, beta = (double)0.5;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -31,7 +31,7 @@ int main() {
 
     /* compute expected inline — penalty inlined here, no dependency on slow/fast */
     double p = 0.0;
-    for (int k = 1; k <= 10; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.02);
+    for (int k = 1; k <= 23; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.05);
     double expected = 0.0;
     for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + alpha * Z[k] + p;
 

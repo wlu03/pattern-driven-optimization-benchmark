@@ -1,7 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 __attribute__((noinline))
-void fast_hr1_v010(float *out, float *A, float *B, float *C, float *D, int n) {
-    for (int i = 0; i < n; i++) {
-        out[i] = ((float)sqrt(A[i] * A[i] + B[i] * B[i])) + A[i];
+void fast_hr1_v010(float *out, float *A, float *B, int n) {
+    int i = 0;
+    while (i < n) {
+        out[i] = (A[i] + B[i]) - A[i];
+        i++;
     }
 }

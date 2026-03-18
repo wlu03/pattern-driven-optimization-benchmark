@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_mi4_v014(float *matrix, int rows, int cols) {
+void slow_mi4_v014(double *out, double *A, double *B, int rows, int cols) {
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            matrix[i * cols + j] *= (float)0.5;
+            out[i * cols + j] = A[i * cols + j] + B[i * cols + j];
         }
     }
 }

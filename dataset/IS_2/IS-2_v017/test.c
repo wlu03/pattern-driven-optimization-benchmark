@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 5000000
+#define N 10000000
 
 // SLOW_CODE_HERE
 
@@ -12,9 +12,9 @@ int main() {
     double *in_arr = malloc(N * sizeof(double));
     double *out_slow = malloc(N * sizeof(double));
     double *out_fast = malloc(N * sizeof(double));
-    /* 99% of values within threshold, 1% outliers */
+    /* 90% of values within threshold, 10% outliers */
     for (int i = 0; i < N; i++) {
-        if (i % 100 < 99) in_arr[i] = (double)((i % 100) - 50) * (double)0.01;
+        if (i % 100 < 90) in_arr[i] = (double)((i % 100) - 50) * (double)0.01;
         else in_arr[i] = (double)(i % 50 + 10) * (double)0.5;
     }
 

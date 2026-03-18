@@ -5,7 +5,7 @@
 
 __attribute__((noinline))
 double fast_ds3_v007(const double *data) {
-    double mx = data[0];
-    for (int i = 1; i < 256; i++) if (data[i] > mx) mx = data[i];
-    return mx;
+    double s = 0.0;
+    for (int i = 0; i < 512; i++) s += data[i];
+    return s;
 }

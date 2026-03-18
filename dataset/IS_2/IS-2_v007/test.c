@@ -14,18 +14,18 @@ int main() {
     float *out_fast = malloc(N * sizeof(float));
     /* 99% of values within threshold, 1% outliers */
     for (int i = 0; i < N; i++) {
-        if (i % 100 < 99) in_arr[i] = (float)((i % 100) - 50) * (float)0.01f;
-        else in_arr[i] = (float)(i % 50 + 10) * (float)0.5f;
+        if (i % 100 < 99) in_arr[i] = (float)((i % 100) - 50) * (float)0.02f;
+        else in_arr[i] = (float)(i % 50 + 10) * (float)1.0f;
     }
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    slow_is2_v007(out_slow, in_arr, N, (float)0.5f);
+    slow_is2_v007(out_slow, in_arr, N, (float)1.0f);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    fast_is2_v007(out_fast, in_arr, N, (float)0.5f);
+    fast_is2_v007(out_fast, in_arr, N, (float)1.0f);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 

@@ -11,14 +11,12 @@ typedef struct {
     double vx;
     double vy;
     double vz;
-    double mass;
-    double charge;
 } AoS_v003;
 
 double slow_ds4_v003(AoS_v003 *arr, int n) {
-    double total_vz = -1e308;
+    double total_x = 0.0;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].vz > total_vz) total_vz = (double)arr[i].vz;
+        total_x += (double)arr[i].x;
     }
-    return total_vz;
+    return total_x;
 }
