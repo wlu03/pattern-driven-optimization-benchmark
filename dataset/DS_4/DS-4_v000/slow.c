@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
     int id;
     double timestamp;
@@ -10,13 +16,11 @@ typedef struct {
 } AoS_v000;
 
 double slow_ds4_v000(AoS_v000 *arr, int n) {
-    double total_flags = 1e308;
-    double total_value = 1e308;
     double total_weight = 1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].flags < total_flags) total_flags = (double)arr[i].flags;
-        if ((double)arr[i].value < total_value) total_value = (double)arr[i].value;
+    int i = 0;
+    while (i < n) {
         if ((double)arr[i].weight < total_weight) total_weight = (double)arr[i].weight;
+        i++;
     }
-    return total_flags + total_value + total_weight;
+    return total_weight;
 }

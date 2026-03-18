@@ -1,14 +1,15 @@
-void slow_comp_v005(double *mat, double *col_avgs, int rows, int cols) {
-    // Pattern 1 (MI-4): Column-major traversal
-    // Pattern 2 (SR-3): Recompute column sum from scratch for each row prefix
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_comp_v005(float *mat, int rows, int cols, int mode) {
     for (int j = 0; j < cols; j++) {
-        double sum = 0.0;
         for (int i = 0; i < rows; i++) {
-            sum = 0.0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];  // Column-major access
-            }
+            if (mode == 1) mat[i * cols + j] *= (float)2.0;
+            else if (mode == 2) mat[i * cols + j] += (float)1.0;
+            else mat[i * cols + j] -= (float)0.5;
         }
-        col_avgs[j] = sum / rows;
     }
 }

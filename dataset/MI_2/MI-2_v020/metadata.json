@@ -1,0 +1,15 @@
+{
+  "pattern_id": "MI-2",
+  "variant_id": "MI-2_v020",
+  "category": "Memory & IO",
+  "pattern_name": "Redundant Memory Zeroing",
+  "variant_desc": "op=add, int, n=10000000",
+  "dtype": "int",
+  "difficulty": "easy",
+  "compiler_fixable": true,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 5,
+  "expected_speedup_range": "1.3x-2x",
+  "composition": []
+}

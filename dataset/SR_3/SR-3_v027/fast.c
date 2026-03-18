@@ -1,6 +1,13 @@
-void fast_sr3_v027(float *data, float *result, int n) {
-    result[0] = data[0];
-    for (int i = 1; i < n; i++) {
-        result[i] = 0.1f * data[i] + (1.0f - 0.1f) * result[i-1];
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_sr3_v027(int *data, int *result, int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += data[i];
+        result[i] = sum;
     }
 }

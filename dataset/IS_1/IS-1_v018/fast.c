@@ -1,9 +1,14 @@
-void fast_is1_v018(float *C, float *a, float *b, int m, int n) {
-    for (int i = 0; i < m; i++) {
-        if (a[i] == 0.0f) continue;
-        for (int j = 0; j < n; j++) {
-            if (b[j] == 0.0f) continue;
-            C[i * n + j] += a[i] * b[j];
-        }
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+float fast_is1_v018(float *A, float *B, int n) {
+    float sum = 0.0f;
+    for (int i = 0; i < n; i++) {
+        if (A[i] == 0.0f || B[i] == 0.0f) continue;
+        sum += A[i] * B[i];
     }
+    return sum;
 }

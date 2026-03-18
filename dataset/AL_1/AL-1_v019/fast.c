@@ -1,10 +1,14 @@
-long long fast_al1_v019(int n) {
-    if (n == 0) return 1;
-    if (n == 1) return 0;
-    long long a = 1, b = 0;
-    for (int i = 2; i <= n; i++) {
-        long long t = (i - 1) * (a + b);
-        a = b; b = t;
-    }
-    return b;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+long long fast_al1_v019(int n, int k) {
+    long long *dp = calloc(k+1, sizeof(long long));
+    dp[0] = 1;
+    for (int i = 1; i <= n; i++)
+        for (int j = (i < k ? i : k); j > 0; j--)
+            dp[j] += dp[j-1];
+    long long res = dp[k]; free(dp); return res;
 }

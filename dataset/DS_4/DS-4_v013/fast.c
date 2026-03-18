@@ -1,11 +1,13 @@
-double fast_ds4_v013(double *b, double *g, double *normal_x, int n) {
-    double total_b = 0.0;
-    double total_g = 0.0;
-    double total_normal_x = 0.0;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v013(double *u, int n) {
+    double total_u = 0.0;
     for (int i = 0; i < n; i++) {
-        total_b += b[i];
-        total_g += g[i];
-        total_normal_x += normal_x[i];
+        total_u += u[i];
     }
-    return total_b + total_g + total_normal_x;
+    return total_u;
 }

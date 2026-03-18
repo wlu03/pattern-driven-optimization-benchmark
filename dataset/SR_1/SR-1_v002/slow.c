@@ -1,7 +1,11 @@
-float slow_sr_1_v002(float *A, float *B, float *C, float *D, float *E, float *F, int n, float k0, float k1, float k2) {
-    float total = 1;
-    for (int i = 0; i < n; i++) {
-        total *= (k0 - A[i]) * (k1 - B[i]) * (k2 - C[i]) * D[i] * E[i] * F[i];
-    }
-    return total;
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 28; k++) r += (double)sin(base * k * 1.0);
+    return r;
+}
+void slow_sr1_v002(double *arr, int n, double base) {
+    for (int i = 0; i < n; i++)
+        arr[i] *= series_fn(base);
 }

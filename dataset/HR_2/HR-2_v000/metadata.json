@@ -1,0 +1,15 @@
+{
+  "pattern_id": "HR-2",
+  "variant_id": "HR-2_v000",
+  "category": "Human Readability Style",
+  "pattern_name": "Copy-Paste Duplication",
+  "variant_desc": "min+max, 3 arrays, double",
+  "dtype": "double",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 3,
+  "lines_of_code": 19,
+  "expected_speedup_range": "1.5x-4x",
+  "composition": []
+}

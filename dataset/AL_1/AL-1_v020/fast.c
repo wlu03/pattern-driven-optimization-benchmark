@@ -1,8 +1,14 @@
-long long fast_al1_v020(int n) {
-    long long *dp = calloc(n+1, sizeof(long long));
-    dp[0] = dp[1] = 1;
-    for (int i = 2; i <= n; i++)
-        for (int j = 0; j < i; j++)
-            dp[i] += dp[j] * dp[i - 1 - j];
-    long long res = dp[n]; free(dp); return res;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+int fast_al1_v020(int n, int max_val) {
+    int *dp = calloc(n + 1, sizeof(int));
+    dp[0] = 1;
+    for (int v = 1; v <= max_val; v++)
+        for (int i = v; i <= n; i++)
+            dp[i] += dp[i - v];
+    int res = dp[n]; free(dp); return res;
 }

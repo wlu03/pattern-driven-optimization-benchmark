@@ -1,7 +1,14 @@
-float slow_sr_1_v020(float *A, float *B, float *C, int n, float k0, float k1) {
-    float total = 1;
-    for (int i = 0; i < n; i++) {
-        total *= (k0 * cos(A[i])) * (k1 * cos(B[i])) * cos(C[i]);
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 45; k++) r += (float)log(k + 1.0) * (float)sin(base * k);
+    return r;
+}
+void slow_sr1_v020(float *arr, int n, float base) {
+    int i = 0;
+    while (i < n) {
+        arr[i] *= series_fn(base);
+        i++;
     }
-    return total;
 }

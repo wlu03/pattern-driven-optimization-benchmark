@@ -1,12 +1,18 @@
-double slow_comp_v016(double *A, double *B, int n, double k, int mode) {
-    double total = 0.0;
-    for (int i = 0; i < n; i++) {
-        // Pattern CF-1: Branch on invariant `mode`
-        double val;
-        if (mode == 1) val = A[i] + B[i] * k;      // Pattern SR-1
-        else if (mode == 2) val = A[i] - B[i] * k;  // Pattern SR-1
-        else val = A[i] * B[i] * k;                  // Pattern SR-1
-        total += val;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_comp_v016(double *mat, double *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        double sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
+        }
+        col_avgs[j] = sum / (double)rows;
     }
-    return total;
 }

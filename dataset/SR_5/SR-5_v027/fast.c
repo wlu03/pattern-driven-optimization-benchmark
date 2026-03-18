@@ -1,0 +1,15 @@
+#include <math.h>
+static float compute_norm(float *w, int m) {
+    float s = 0.0;
+    for (int j = 0; j < m; j++) s += (float)fabs((double)w[j]);
+    return s;
+}
+__attribute__((noinline))
+void fast_sr5_v027(float *out, float *data, int n, float *w, int m) {
+    float inv = (float)1.0 / compute_norm(w, m);
+    int i = 0;
+    while (i < n) {
+        out[i] = data[i] * inv;
+        i++;
+    }
+}

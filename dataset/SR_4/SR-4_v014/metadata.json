@@ -3,7 +3,7 @@
   "variant_id": "SR-4_v014",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "exp_chain function, 1 invariant calls, work=200, double, additive apply",
+  "variant_desc": "hash_chain function, 1 invariant calls, work=30, double, additive apply",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

@@ -1,15 +1,15 @@
-double fast_sr_1_v025(double *A, double *B, double *C, double *D, int n, double k0) {
-    double sum_A = 0.0;
-    double sum_B = 0.0;
-    double sum_C = 0.0;
-    double sum_D = 0.0;
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 34; k++) r += (float)log(k + 1.0) * (float)sin(base * k);
+    return r;
+}
+void fast_sr1_v025(float *arr, int n, float base) {
+    float scale = series_fn(base);
     int i = 0;
     while (i < n) {
-        sum_A *= A[i];
-        sum_B *= B[i];
-        sum_C *= C[i];
-        sum_D *= D[i];
+        arr[i] *= scale;
         i++;
     }
-    return (k0 - sum_A) * sum_B * sum_C * sum_D;
 }

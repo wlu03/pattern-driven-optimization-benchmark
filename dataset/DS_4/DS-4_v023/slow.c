@@ -1,22 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
-    float co2;
+    int r;
+    int g;
+    int b;
+    int a;
+    int x;
+    int y;
 } AoS_v023;
 
 double slow_ds4_v023(AoS_v023 *arr, int n) {
-    double total_noise = 1e308;
-    double total_light = 1e308;
-    double total_wind_dir = 1e308;
+    double total_g = 1e308;
+    double total_y = 1e308;
+    double total_b = 1e308;
+    double total_x = 1e308;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].noise < total_noise) total_noise = (double)arr[i].noise;
-        if ((double)arr[i].light < total_light) total_light = (double)arr[i].light;
-        if ((double)arr[i].wind_dir < total_wind_dir) total_wind_dir = (double)arr[i].wind_dir;
+        if ((double)arr[i].g < total_g) total_g = (double)arr[i].g;
+        if ((double)arr[i].y < total_y) total_y = (double)arr[i].y;
+        if ((double)arr[i].b < total_b) total_b = (double)arr[i].b;
+        if ((double)arr[i].x < total_x) total_x = (double)arr[i].x;
     }
-    return total_noise + total_light + total_wind_dir;
+    return total_g + total_y + total_b + total_x;
 }

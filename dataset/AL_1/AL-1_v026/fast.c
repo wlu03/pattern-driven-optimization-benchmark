@@ -1,8 +1,16 @@
-int fast_al1_v026(int coins[], int nc, int amount) {
-    int *dp = calloc(amount+1, sizeof(int));
-    dp[0] = 1;
-    for (int a = 1; a <= amount; a++)
-        for (int i = 0; i < nc; i++)
-            if (coins[i] <= a) dp[a] += dp[a - coins[i]];
-    int res = dp[amount]; free(dp); return res;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+long long fast_al1_v026(int n) {
+    if (n == 0) return 1;
+    if (n == 1) return 0;
+    long long a = 1, b = 0;
+    for (int i = 2; i <= n; i++) {
+        long long t = (i - 1) * (a + b);
+        a = b; b = t;
+    }
+    return b;
 }

@@ -3,13 +3,13 @@
   "variant_id": "SR-4_v012",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "nested_sqrt function, 1 invariant calls, work=50, double, while-loop",
+  "variant_desc": "nested_sqrt function, 4 invariant calls, work=100, double, while-loop, additive apply",
   "dtype": "double",
-  "difficulty": "easy",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 14,
+  "lines_of_code": 20,
   "expected_speedup_range": "100x-1000x",
   "composition": []
 }

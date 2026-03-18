@@ -1,11 +1,15 @@
-void fast_comp_v018(double *mat, double *col_avgs, int rows, int cols) {
-    // Fix MI-4: Row-major access order
-    // Fix SR-3: Running accumulator instead of recomputation
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0.0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
-    }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= rows;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+float config_val_v018(int key);
+
+float fast_comp_v018(float *arr, int n, int key) {
+    if (arr == 0 || n <= 0) return 0;
+    float factor = config_val_v018(key);
+    float sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

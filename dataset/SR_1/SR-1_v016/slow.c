@@ -1,9 +1,11 @@
-float slow_sr_1_v016(float *A, float *B, float *C, float *D, float *E, float *F, int rows, int cols, float k0, float k1, float k2) {
-    float total = 0.0f;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        total += (k0 + sqrt(A[row * cols + col])) + (k1 + sqrt(B[row * cols + col])) + (k2 + sqrt(C[row * cols + col])) + sqrt(D[row * cols + col]) + sqrt(E[row * cols + col]) + sqrt(F[row * cols + col]);
-        }
-    }
-    return total;
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 17; k++) r += (float)sin(base * k * 0.5);
+    return r;
+}
+void slow_sr1_v016(float *arr, int n, float base) {
+    for (int i = 0; i < n; i++)
+        arr[i] *= series_fn(base);
 }

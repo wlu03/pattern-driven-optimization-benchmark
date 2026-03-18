@@ -1,16 +1,16 @@
-double fast_comp_v012(double *A, double *B, int n, double k, int mode) {
-    double sumA = 0.0, sumB = 0.0;
-    // Fix CF-1: Hoist branch
-    // Fix SR-1: Factor out invariant k
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+float compute_v012(int key);
+
+void fast_comp_v012(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v012(key);
     if (mode == 1) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA + sumB * k;
-    } else if (mode == 2) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA - sumB * k;
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
     } else {
-        double sumAB = 0.0;
-        for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
-        return sumAB * k;
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
     }
 }

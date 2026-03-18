@@ -1,7 +1,14 @@
-int slow_sr_1_v019(int *A, int *B, int *C, int *D, int n, int k0) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        total += (k0 + A[i]) + B[i] + C[i] + D[i];
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 33; k++) r += (float)log(base * k + 1.0) / k;
+    return r;
+}
+void slow_sr1_v019(float *arr, int n, float base) {
+    int i = 0;
+    while (i < n) {
+        arr[i] *= series_fn(base);
+        i++;
     }
-    return total;
 }

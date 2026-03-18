@@ -1,4 +1,10 @@
-long long slow_al1_v009(int n, int k) {
-    if (k == 0 || k == n) return 1;
-    return slow_al1_v009(n-1, k-1) + slow_al1_v009(n-1, k);
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+long long slow_al1_v009(int r, int c) {
+    if (r == 0 || c == 0) return 1;
+    return slow_al1_v009(r-1, c) + slow_al1_v009(r, c-1);
 }

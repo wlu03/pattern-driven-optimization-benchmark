@@ -1,0 +1,15 @@
+{
+  "pattern_id": "CF-1",
+  "variant_id": "CF-1_v003",
+  "category": "Control Flow",
+  "pattern_name": "Batch Type Dispatch Devirtualization",
+  "variant_desc": "2 modes, 2 arrays, int, noinline dispatch",
+  "dtype": "int",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 12,
+  "expected_speedup_range": "2x-5x",
+  "composition": []
+}

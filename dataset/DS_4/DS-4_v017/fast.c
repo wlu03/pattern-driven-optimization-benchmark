@@ -1,7 +1,13 @@
-double fast_ds4_v017(double *r, int n) {
-    double total_r = 1e308;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v017(double *vz, int n) {
+    double total_vz = 0.0;
     for (int i = 0; i < n; i++) {
-        if (r[i] < total_r) total_r = r[i];
+        total_vz += vz[i];
     }
-    return total_r;
+    return total_vz;
 }

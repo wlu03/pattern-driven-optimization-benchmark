@@ -1,13 +1,19 @@
-double fast_ds4_v002(double *value, double *category, double *flags, double *timestamp, int n) {
-    double total_value = 0.0;
-    double total_category = 0.0;
-    double total_flags = 0.0;
-    double total_timestamp = 0.0;
-    for (int i = 0; i < n; i++) {
-        total_value += value[i];
-        total_category += category[i];
-        total_flags += flags[i];
-        total_timestamp += timestamp[i];
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v002(double *ny, double *nx, double *px, int n) {
+    double total_ny = 0.0;
+    double total_nx = 0.0;
+    double total_px = 0.0;
+    int i = 0;
+    while (i < n) {
+        total_ny += ny[i];
+        total_nx += nx[i];
+        total_px += px[i];
+        i++;
     }
-    return total_value + total_category + total_flags + total_timestamp;
+    return total_ny + total_nx + total_px;
 }

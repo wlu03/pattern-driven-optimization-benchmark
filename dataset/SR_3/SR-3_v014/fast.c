@@ -1,6 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 void fast_sr3_v014(float *data, float *result, int n) {
-    result[0] = data[0];
-    for (int i = 1; i < n; i++) {
-        result[i] = 0.3f * data[i] + (1.0f - 0.3f) * result[i-1];
+    float mean = 0.0f;
+    float M2 = 0.0f;
+    for (int i = 0; i < n; i++) {
+        float delta = data[i] - mean;
+        mean += delta / (i + 1);
+        float delta2 = data[i] - mean;
+        M2 += delta * delta2;
+        result[i] = M2 / (i + 1);
     }
 }

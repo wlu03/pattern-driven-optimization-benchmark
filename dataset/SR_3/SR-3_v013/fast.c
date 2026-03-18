@@ -1,12 +1,13 @@
-void fast_sr3_v013(double *data, double *result, int n) {
-    double sum = 0.0;
-    double sum_sq = 0.0;
-    int i = 0;
-    while (i < n) {
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_sr3_v013(int *data, int *result, int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
         sum += data[i];
-        sum_sq += data[i] * data[i];
-        double mean = sum / (i + 1);
-        result[i] = sum_sq / (i + 1) - mean * mean;
-        i++;
+        result[i] = sum;
     }
 }

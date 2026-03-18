@@ -1,10 +1,14 @@
-void slow_is1_v026(double *C, double *A, double *B, int m, int k, int n) {
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_is1_v026(float *y, float *A, float *x, int m, int n) {
     for (int i = 0; i < m; i++) {
+        y[i] = 0.0f;
         for (int j = 0; j < n; j++) {
-            C[i * n + j] = 0.0;
-            for (int p = 0; p < k; p++) {
-                C[i * n + j] += A[i * k + p] * B[p * n + j];
-            }
+            y[i] += A[i * n + j] * x[j];
         }
     }
 }

@@ -1,7 +1,11 @@
-void slow_is1_v019(double *C, double *a, double *b, int m, int n) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            C[i * n + j] += a[i] * b[j];
-        }
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_is1_v019(float *y, float *x, float alpha, int n) {
+    for (int i = 0; i < n; i++) {
+        y[i] += alpha * x[i];
     }
 }

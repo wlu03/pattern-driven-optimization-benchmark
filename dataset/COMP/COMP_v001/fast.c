@@ -1,16 +1,15 @@
-double fast_comp_v001(double *A, double *B, int n, double k, int mode) {
-    double sumA = 0.0, sumB = 0.0;
-    // Fix CF-1: Hoist branch
-    // Fix SR-1: Factor out invariant k
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA + sumB * k;
-    } else if (mode == 2) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA - sumB * k;
-    } else {
-        double sumAB = 0.0;
-        for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
-        return sumAB * k;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_comp_v001(int *mat, int *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            col_avgs[j] += mat[i * cols + j];
+        }
     }
+    for (int j = 0; j < cols; j++) col_avgs[j] /= (int)rows;
 }

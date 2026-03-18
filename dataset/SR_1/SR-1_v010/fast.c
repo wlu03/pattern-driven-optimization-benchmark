@@ -1,9 +1,12 @@
-float fast_sr_1_v010(float *A, float *B, int n, float k0, float k1, float k2, float k3) {
-    float sum_A = 0.0f;
-    float sum_B = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum_A *= A[i];
-        sum_B *= B[i];
-    }
-    return (k0 * sum_A) * (k1 * sum_B);
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 42; k++) r += (double)sin(base * k * 2.0);
+    return r;
+}
+void fast_sr1_v010(double *arr, int n, double base) {
+    double scale = series_fn(base);
+    for (int i = 0; i < n; i++)
+        arr[i] *= scale;
 }

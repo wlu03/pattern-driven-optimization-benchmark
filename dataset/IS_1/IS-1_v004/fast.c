@@ -1,8 +1,15 @@
-double fast_is1_v004(double *A, double *B, int n) {
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) {
-        if (A[i] == 0.0 || B[i] == 0.0) continue;
-        sum += A[i] * B[i];
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_is1_v004(double *C, double *a, double *b, int m, int n) {
+    for (int i = 0; i < m; i++) {
+        if (a[i] == 0.0) continue;
+        for (int j = 0; j < n; j++) {
+            if (b[j] == 0.0) continue;
+            C[i * n + j] += a[i] * b[j];
+        }
     }
-    return sum;
 }

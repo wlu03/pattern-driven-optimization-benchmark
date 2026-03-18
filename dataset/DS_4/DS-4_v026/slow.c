@@ -1,19 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
-    double x;
-    double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
-    double mass;
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
 } AoS_v026;
 
 double slow_ds4_v026(AoS_v026 *arr, int n) {
-    double total_z = 1e308;
+    double total_temp = 0.0;
+    double total_humidity = 0.0;
+    double total_light = 0.0;
     int i = 0;
     while (i < n) {
-        if ((double)arr[i].z < total_z) total_z = (double)arr[i].z;
+        total_temp += (double)arr[i].temp;
+        total_humidity += (double)arr[i].humidity;
+        total_light += (double)arr[i].light;
         i++;
     }
-    return total_z;
+    return total_temp + total_humidity + total_light;
 }

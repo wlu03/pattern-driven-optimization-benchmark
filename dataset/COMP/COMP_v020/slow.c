@@ -1,19 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-double config_val_v020(int key) {
-    double r = 0.0;
-    for (int i = 0; i < 100; i++) r += sin((double)(key+i));
-    return r;
-}
-double slow_comp_v020(double *arr, int n, int key) {
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) {
-        // Pattern HR-4: Redundant checks
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        // Pattern SR-4: Invariant function call
-        double factor = config_val_v020(key);
-        sum += arr[i] * factor;
+#include <string.h>
+
+__attribute__((noinline))
+double slow_comp_v020(double *A, double *B, int rows, int cols, double k) {
+    double result = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {
+                result += k * A[i*cols+j] * A[i*cols+j] + k * B[i*cols+j];
+            }
+        }
     }
-    return sum;
+    return result;
 }

@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
     float px;
     float py;
@@ -11,14 +17,16 @@ typedef struct {
 
 double slow_ds4_v009(AoS_v009 *arr, int n) {
     double total_v = 0.0;
-    double total_py = 0.0;
-    double total_nz = 0.0;
+    double total_pz = 0.0;
+    double total_u = 0.0;
+    double total_ny = 0.0;
     int i = 0;
     while (i < n) {
         total_v += (double)arr[i].v;
-        total_py += (double)arr[i].py;
-        total_nz += (double)arr[i].nz;
+        total_pz += (double)arr[i].pz;
+        total_u += (double)arr[i].u;
+        total_ny += (double)arr[i].ny;
         i++;
     }
-    return total_v + total_py + total_nz;
+    return total_v + total_pz + total_u + total_ny;
 }

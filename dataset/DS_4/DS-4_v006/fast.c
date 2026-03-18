@@ -1,15 +1,19 @@
-double fast_ds4_v006(double *wind_speed, double *wind_dir, double *light, double *pressure, int n) {
-    double total_wind_speed = 0.0;
-    double total_wind_dir = 0.0;
-    double total_light = 0.0;
-    double total_pressure = 0.0;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v006(double *vx, double *z, double *mass, int n) {
+    double total_vx = 0.0;
+    double total_z = 0.0;
+    double total_mass = 0.0;
     int i = 0;
     while (i < n) {
-        total_wind_speed += wind_speed[i];
-        total_wind_dir += wind_dir[i];
-        total_light += light[i];
-        total_pressure += pressure[i];
+        total_vx += vx[i];
+        total_z += z[i];
+        total_mass += mass[i];
         i++;
     }
-    return total_wind_speed + total_wind_dir + total_light + total_pressure;
+    return total_vx + total_z + total_mass;
 }

@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v008",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Exponential moving average (alpha=0.3) recomputed from scratch, double, N=100000",
+  "variant_desc": "Cumulative RMS recomputed from scratch, double, N=10000",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

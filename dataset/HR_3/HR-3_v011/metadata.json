@@ -1,0 +1,15 @@
+{
+  "pattern_id": "HR-3",
+  "variant_id": "HR-3_v011",
+  "category": "Human Readability Style",
+  "pattern_name": "Dead / Debug Code",
+  "variant_desc": "debug=counter, float",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 9,
+  "expected_speedup_range": "1.2x-3x",
+  "composition": []
+}

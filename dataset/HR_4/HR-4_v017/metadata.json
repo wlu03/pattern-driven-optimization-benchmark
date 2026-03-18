@@ -1,0 +1,15 @@
+{
+  "pattern_id": "HR-4",
+  "variant_id": "HR-4_v017",
+  "category": "Human Readability Style",
+  "pattern_name": "Overly Defensive Null/Error Checks",
+  "variant_desc": "2 redundant checks, op=sum, double",
+  "dtype": "double",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 10,
+  "expected_speedup_range": "1.2x-2x",
+  "composition": []
+}

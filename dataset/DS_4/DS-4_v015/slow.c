@@ -1,19 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
-    int r;
-    int g;
-    int b;
-    int a;
-    int x;
-    int y;
-    float depth;
+    double time;
+    double x;
+    double y;
+    float energy;
+    int channel;
+    int quality;
+    double amplitude;
 } AoS_v015;
 
 double slow_ds4_v015(AoS_v015 *arr, int n) {
-    double total_y = 1e308;
+    double total_x = 1e308;
     int i = 0;
     while (i < n) {
-        if ((double)arr[i].y < total_y) total_y = (double)arr[i].y;
+        if ((double)arr[i].x < total_x) total_x = (double)arr[i].x;
         i++;
     }
-    return total_y;
+    return total_x;
 }

@@ -1,7 +1,11 @@
-double slow_is1_v001(double *A, double *B, int n) {
-    double sum = 0.0;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_is1_v001(float *y, float *x, float alpha, int n) {
     for (int i = 0; i < n; i++) {
-        sum += A[i] * B[i];
+        y[i] += alpha * x[i];
     }
-    return sum;
 }

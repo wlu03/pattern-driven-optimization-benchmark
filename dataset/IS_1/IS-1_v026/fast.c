@@ -1,13 +1,15 @@
-void fast_is1_v026(double *C, double *A, double *B, int m, int k, int n) {
-    for (int i = 0; i < m; i++)
-        for (int j = 0; j < n; j++) C[i * n + j] = 0.0;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_is1_v026(float *y, float *A, float *x, int m, int n) {
     for (int i = 0; i < m; i++) {
-        for (int p = 0; p < k; p++) {
-            if (A[i * k + p] == 0.0) continue;
-            for (int j = 0; j < n; j++) {
-                if (B[p * n + j] == 0.0) continue;
-                C[i * n + j] += A[i * k + p] * B[p * n + j];
-            }
+        y[i] = 0.0f;
+        for (int j = 0; j < n; j++) {
+            if (A[i * n + j] == 0.0f) continue;
+            y[i] += A[i * n + j] * x[j];
         }
     }
 }

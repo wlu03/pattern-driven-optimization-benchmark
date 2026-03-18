@@ -3,7 +3,7 @@
   "variant_id": "DS-4_v029",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "sensors struct (8 fields), accessing ['pressure', 'wind_dir', 'co2', 'noise'], max reduction",
+  "variant_desc": "records struct (8 fields), accessing ['id', 'rank', 'flags', 'category'], max reduction",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

@@ -1,9 +1,14 @@
-int slow_sr_1_v012(int *A, int *B, int *C, int *D, int rows, int cols, int k0) {
-    int total = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        total += (k0 - A[row * cols + col]) + B[row * cols + col] + C[row * cols + col] + D[row * cols + col];
-        }
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 27; k++) r += (double)sin(base * k * 0.5);
+    return r;
+}
+void slow_sr1_v012(double *arr, int n, double base) {
+    int i = 0;
+    while (i < n) {
+        arr[i] *= series_fn(base);
+        i++;
     }
-    return total;
 }

@@ -1,9 +1,11 @@
-float slow_sr_1_v011(float *A, float *B, float *C, float *D, float *E, int n, float k0, float k1, float k2) {
-    float total = 0.0f;
-    int i = 0;
-    while (i < n) {
-        total += (k0 + A[i]) + (k1 + B[i]) + (k2 + C[i]) + D[i] + E[i];
-        i++;
-    }
-    return total;
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 47; k++) r += (float)exp(-base * k * 0.1);
+    return r;
+}
+void slow_sr1_v011(float *arr, int n, float base) {
+    for (int i = 0; i < n; i++)
+        arr[i] *= series_fn(base);
 }

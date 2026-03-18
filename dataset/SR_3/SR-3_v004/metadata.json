@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v004",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Sliding window mean (window=32) recomputed from scratch, float, while-loop, N=50000",
+  "variant_desc": "Sliding window sum (window=32) recomputed from scratch, float, N=100000",
   "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,

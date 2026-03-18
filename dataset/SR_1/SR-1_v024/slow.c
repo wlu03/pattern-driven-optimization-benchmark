@@ -1,9 +1,11 @@
-int slow_sr_1_v024(int *A, int *B, int n, int k0, int k1) {
-    int total = 0;
-    int i = 0;
-    while (i < n) {
-        total += (k0 * A[i]) + (k1 * B[i]);
-        i++;
-    }
-    return total;
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 17; k++) r += (double)log(base * k + 1.0) / k;
+    return r;
+}
+void slow_sr1_v024(double *arr, int n, double base) {
+    for (int i = 0; i < n; i++)
+        arr[i] *= series_fn(base);
 }

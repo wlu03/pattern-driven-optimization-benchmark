@@ -1,9 +1,19 @@
-double fast_ds4_v014(double *id, double *flags, int n) {
-    double total_id = 0.0;
-    double total_flags = 0.0;
-    for (int i = 0; i < n; i++) {
-        total_id += id[i];
-        total_flags += flags[i];
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v014(double *quality, double *y, double *energy, int n) {
+    double total_quality = 1e308;
+    double total_y = 1e308;
+    double total_energy = 1e308;
+    int i = 0;
+    while (i < n) {
+        if (quality[i] < total_quality) total_quality = quality[i];
+        if (y[i] < total_y) total_y = y[i];
+        if (energy[i] < total_energy) total_energy = energy[i];
+        i++;
     }
-    return total_id + total_flags;
+    return total_quality + total_y + total_energy;
 }

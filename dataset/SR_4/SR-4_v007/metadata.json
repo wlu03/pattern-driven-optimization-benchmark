@@ -3,7 +3,7 @@
   "variant_id": "SR-4_v007",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "power_tower function, 1 invariant calls, work=50, float, additive apply",
+  "variant_desc": "trig_combo function, 1 invariant calls, work=100, float, additive apply",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

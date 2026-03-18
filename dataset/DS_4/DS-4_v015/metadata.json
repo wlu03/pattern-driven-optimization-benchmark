@@ -3,7 +3,7 @@
   "variant_id": "DS-4_v015",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "pixels struct (7 fields), accessing ['y'], min reduction, while-loop",
+  "variant_desc": "events struct (7 fields), accessing ['x'], min reduction, while-loop",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

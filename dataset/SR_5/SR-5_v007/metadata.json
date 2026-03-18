@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-5",
+  "variant_id": "SR-5_v007",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Repeated Division by Loop-Invariant Denominator",
+  "variant_desc": "L2-norm, m=256, n=1000000, double, while-loop",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 8,
+  "expected_speedup_range": "8x-32x",
+  "composition": []
+}

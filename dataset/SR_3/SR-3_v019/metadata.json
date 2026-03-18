@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v019",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Cumulative mean recomputed from scratch each iteration, float, N=100000",
+  "variant_desc": "Cumulative variance recomputed from scratch (O(n^2) -> O(n)), float, while-loop, N=10000",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

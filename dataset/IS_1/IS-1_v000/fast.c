@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 void fast_is1_v000(double *y, double *x, double alpha, int n) {
     if (alpha == 0.0) return;
     for (int i = 0; i < n; i++) {

@@ -1,8 +1,14 @@
-long long fast_al1_v029(int n, int k) {
-    long long *dp = calloc(k+1, sizeof(long long));
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+int fast_al1_v029(int coins[], int nc, int amount) {
+    int *dp = calloc(amount+1, sizeof(int));
     dp[0] = 1;
-    for (int i = 1; i <= n; i++)
-        for (int j = (i < k ? i : k); j > 0; j--)
-            dp[j] += dp[j-1];
-    long long res = dp[k]; free(dp); return res;
+    for (int a = 1; a <= amount; a++)
+        for (int i = 0; i < nc; i++)
+            if (coins[i] <= a) dp[a] += dp[a - coins[i]];
+    int res = dp[amount]; free(dp); return res;
 }

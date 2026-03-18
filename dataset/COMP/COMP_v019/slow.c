@@ -1,12 +1,18 @@
-typedef struct { double x,y,z,vx,vy,vz,mass,charge; } P_v019;
-double slow_comp_v019(P_v019 *p, int n) {
-    double total = 0.0;
-    for (int i = 0; i < n; i++) {
-        // Pattern CF-2: Redundant bounds check
-        if (i >= 0 && i < n) {
-            // Pattern DS-4: AoS access for single field
-            total += p[i].mass;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void slow_comp_v019(double *mat, double *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        double sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
         }
+        col_avgs[j] = sum / (double)rows;
     }
-    return total;
 }

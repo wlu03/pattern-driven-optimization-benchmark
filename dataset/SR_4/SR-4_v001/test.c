@@ -4,26 +4,26 @@
 #include <math.h>
 #include <time.h>
 
-#define N 100000
+#define N 500000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *arr_slow = malloc(N * sizeof(float));
-    float *arr_fast = malloc(N * sizeof(float));
-    for (int i = 0; i < N; i++) arr_slow[i] = (float)(i % 100) * 0.1f;
-    memcpy(arr_fast, arr_slow, N * sizeof(float));
+    double *arr_slow = malloc(N * sizeof(double));
+    double *arr_fast = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) arr_slow[i] = (double)(i % 100) * 0.1;
+    memcpy(arr_fast, arr_slow, N * sizeof(double));
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    slow_sr4_v001(arr_slow, N, 42, 49);
+    slow_sr4_v001(arr_slow, N, 42, 49, 56);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    fast_sr4_v001(arr_fast, N, 42, 49);
+    fast_sr4_v001(arr_fast, N, 42, 49, 56);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 

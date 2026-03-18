@@ -1,4 +1,11 @@
-long long slow_al1_v023(int n, int k) {
-    if (k == 0 || k == n) return 1;
-    return slow_al1_v023(n-1, k-1) + slow_al1_v023(n-1, k);
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+int slow_al1_v023(int n, int max_val) {
+    if (n == 0) return 1;
+    if (n < 0 || max_val == 0) return 0;
+    return slow_al1_v023(n - max_val, max_val) + slow_al1_v023(n, max_val - 1);
 }

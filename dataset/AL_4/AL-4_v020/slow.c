@@ -1,0 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+long long slow_al4_v020(int n, int k) {
+    if (k == 0 || k == n) return 1;
+    return slow_al4_v020(n-1, k-1) + slow_al4_v020(n-1, k);
+}

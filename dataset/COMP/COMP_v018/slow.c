@@ -1,14 +1,20 @@
-void slow_comp_v018(double *mat, double *col_avgs, int rows, int cols) {
-    // Pattern 1 (MI-4): Column-major traversal
-    // Pattern 2 (SR-3): Recompute column sum from scratch for each row prefix
-    for (int j = 0; j < cols; j++) {
-        double sum = 0.0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0.0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];  // Column-major access
-            }
-        }
-        col_avgs[j] = sum / rows;
+#include <math.h>
+__attribute__((noinline))
+float config_val_v018(int key);
+
+float slow_comp_v018(float *arr, int n, int key) {
+    float sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        float factor = config_val_v018(key);
+        sum += arr[i] * factor;
     }
+    return sum;
+}
+float config_val_v018(int key) {
+    float r = 0;
+    for (int i = 0; i < 100; i++) r += (float)sin((double)(key+i));
+    return r;
 }

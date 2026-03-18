@@ -1,12 +1,20 @@
-double slow_comp_v028(double *A, double *B, int n, double k, int mode) {
-    double total = 0.0;
+#include <math.h>
+__attribute__((noinline))
+int config_val_v028(int key);
+
+int slow_comp_v028(int *arr, int n, int key) {
+    int sum = 0;
     for (int i = 0; i < n; i++) {
-        // Pattern CF-1: Branch on invariant `mode`
-        double val;
-        if (mode == 1) val = A[i] + B[i] * k;      // Pattern SR-1
-        else if (mode == 2) val = A[i] - B[i] * k;  // Pattern SR-1
-        else val = A[i] * B[i] * k;                  // Pattern SR-1
-        total += val;
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        int factor = config_val_v028(key);
+        sum += arr[i] * factor;
     }
-    return total;
+    return sum;
+}
+int config_val_v028(int key) {
+    int r = 0;
+    for (int i = 0; i < 100; i++) r += (int)sin((double)(key+i));
+    return r;
 }

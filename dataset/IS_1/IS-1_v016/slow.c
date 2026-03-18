@@ -1,5 +1,13 @@
-void slow_is1_v016(double *y, double *x, double alpha, int n) {
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+float slow_is1_v016(float *A, float *B, int n) {
+    float sum = 0.0f;
     for (int i = 0; i < n; i++) {
-        y[i] += alpha * x[i];
+        sum += A[i] * B[i];
     }
+    return sum;
 }

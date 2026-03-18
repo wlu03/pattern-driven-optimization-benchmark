@@ -1,9 +1,17 @@
-double fast_comp_v020(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0.0;
-    // Fix SR-4: Hoist invariant call
-    double factor = config_val_v020(key);
-    // Fix HR-4: Remove redundant checks
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_comp_v020(double *A, double *B, int rows, int cols, double k) {
+    double sumAsq = 0, sumB = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int idx = i*cols+j;
+            sumAsq += A[idx] * A[idx];
+            sumB += B[idx];
+        }
+    }
+    return k * sumAsq + k * sumB;
 }

@@ -1,11 +1,15 @@
-float fast_sr_1_v020(float *A, float *B, float *C, int n, float k0, float k1) {
-    float sum_A = 0.0f;
-    float sum_B = 0.0f;
-    float sum_C = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum_A *= cos(A[i]);
-        sum_B *= cos(B[i]);
-        sum_C *= cos(C[i]);
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 45; k++) r += (float)log(k + 1.0) * (float)sin(base * k);
+    return r;
+}
+void fast_sr1_v020(float *arr, int n, float base) {
+    float scale = series_fn(base);
+    int i = 0;
+    while (i < n) {
+        arr[i] *= scale;
+        i++;
     }
-    return (k0 * sum_A) * (k1 * sum_B) * sum_C;
 }

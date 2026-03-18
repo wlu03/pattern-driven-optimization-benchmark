@@ -1,0 +1,15 @@
+{
+  "pattern_id": "AL-3",
+  "variant_id": "AL-3_v022",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Naive String Matching vs KMP",
+  "variant_desc": "tn=10000000, pn=6, alpha=10",
+  "dtype": "int",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 14,
+  "expected_speedup_range": "2x-20x",
+  "composition": []
+}

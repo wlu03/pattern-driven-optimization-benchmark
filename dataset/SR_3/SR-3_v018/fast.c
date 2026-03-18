@@ -1,6 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 void fast_sr3_v018(float *data, float *result, int n) {
-    result[0] = data[0];
-    for (int i = 1; i < n; i++) {
-        result[i] = 0.1f * data[i] + (1.0f - 0.1f) * result[i-1];
+    float sum = 0.0f;
+    for (int i = 0; i < n; i++) {
+        sum += data[i];
+        if (i >= 16) sum -= data[i - 16];
+        int count = (i < 16) ? i + 1 : 16;
+        result[i] = sum / count;
     }
 }

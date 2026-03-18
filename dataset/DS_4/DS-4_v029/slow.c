@@ -1,24 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
-    float co2;
+    int id;
+    double timestamp;
+    double value;
+    float weight;
+    int category;
+    int flags;
+    double score;
+    int rank;
 } AoS_v029;
 
 double slow_ds4_v029(AoS_v029 *arr, int n) {
-    double total_pressure = -1e308;
-    double total_wind_dir = -1e308;
-    double total_co2 = -1e308;
-    double total_noise = -1e308;
+    double total_id = -1e308;
+    double total_rank = -1e308;
+    double total_flags = -1e308;
+    double total_category = -1e308;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].pressure > total_pressure) total_pressure = (double)arr[i].pressure;
-        if ((double)arr[i].wind_dir > total_wind_dir) total_wind_dir = (double)arr[i].wind_dir;
-        if ((double)arr[i].co2 > total_co2) total_co2 = (double)arr[i].co2;
-        if ((double)arr[i].noise > total_noise) total_noise = (double)arr[i].noise;
+        if ((double)arr[i].id > total_id) total_id = (double)arr[i].id;
+        if ((double)arr[i].rank > total_rank) total_rank = (double)arr[i].rank;
+        if ((double)arr[i].flags > total_flags) total_flags = (double)arr[i].flags;
+        if ((double)arr[i].category > total_category) total_category = (double)arr[i].category;
     }
-    return total_pressure + total_wind_dir + total_co2 + total_noise;
+    return total_id + total_rank + total_flags + total_category;
 }

@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
 int fast_al1_v001(int coins[], int nc, int amount) {
     int *dp = calloc(amount+1, sizeof(int));
     dp[0] = 1;

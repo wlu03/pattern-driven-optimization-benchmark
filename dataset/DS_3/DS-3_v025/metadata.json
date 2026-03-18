@@ -1,0 +1,15 @@
+{
+  "pattern_id": "DS-3",
+  "variant_id": "DS-3_v025",
+  "category": "Data Structure Choice",
+  "pattern_name": "Unnecessary Copying",
+  "variant_desc": "width=256*8B=2048B, op=sum, n=500000",
+  "dtype": "double",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 8,
+  "expected_speedup_range": "2x-20x",
+  "composition": []
+}

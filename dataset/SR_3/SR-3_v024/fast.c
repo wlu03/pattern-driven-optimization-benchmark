@@ -1,8 +1,16 @@
-void fast_sr3_v024(float *data, float *result, int n) {
-    float mx = data[0];
-    result[0] = mx;
-    for (int i = 1; i < n; i++) {
-        if (data[i] > mx) mx = data[i];
-        result[i] = mx;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_sr3_v024(int *data, int *result, int n) {
+    int sum = 0;
+    int i = 0;
+    while (i < n) {
+        sum += data[i];
+        if (i >= 8) sum -= data[i - 8];
+        result[i] = sum;
+        i++;
     }
 }

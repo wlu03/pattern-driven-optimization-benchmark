@@ -1,0 +1,15 @@
+{
+  "pattern_id": "HR-1",
+  "variant_id": "HR-1_v010",
+  "category": "Human Readability Style",
+  "pattern_name": "Redundant Temporary Variables",
+  "variant_desc": "2 temporaries, 4 arrays, float, for-loop",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": true,
+  "num_loops": 1,
+  "num_arrays": 5,
+  "lines_of_code": 8,
+  "expected_speedup_range": "1.1x-2x",
+  "composition": []
+}

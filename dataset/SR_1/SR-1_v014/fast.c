@@ -1,19 +1,15 @@
-int fast_sr_1_v014(int *A, int *B, int *C, int *D, int *E, int *F, int rows, int cols, int k0, int k1, int k2) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
-    int sum_E = 0;
-    int sum_F = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        sum_A += A[row * cols + col];
-        sum_B += B[row * cols + col];
-        sum_C += C[row * cols + col];
-        sum_D += D[row * cols + col];
-        sum_E += E[row * cols + col];
-        sum_F += F[row * cols + col];
-        }
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 23; k++) r += (double)exp(-base * k * 0.05);
+    return r;
+}
+void fast_sr1_v014(double *arr, int n, double base) {
+    double scale = series_fn(base);
+    int i = 0;
+    while (i < n) {
+        arr[i] *= scale;
+        i++;
     }
-    return (k0 - sum_A) + (k1 - sum_B) + (k2 - sum_C) + sum_D + sum_E + sum_F;
 }

@@ -1,0 +1,15 @@
+{
+  "pattern_id": "MI-4",
+  "variant_id": "MI-4_v009",
+  "category": "Memory & IO",
+  "pattern_name": "Column vs Row Major Access",
+  "variant_desc": "add_arrays operation, float, 2000x2000 matrix",
+  "dtype": "float",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 8,
+  "expected_speedup_range": "2x-10x",
+  "composition": []
+}

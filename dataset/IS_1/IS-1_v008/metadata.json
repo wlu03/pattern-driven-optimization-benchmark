@@ -3,13 +3,13 @@
   "variant_id": "IS-1_v008",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Sparse Data Redundancy",
-  "variant_desc": "Sparse element-wise * (90% zeros), double",
+  "variant_desc": "Sparse matrix-matrix multiply (80% zeros), skip zero elements, double",
   "dtype": "double",
-  "difficulty": "easy",
+  "difficulty": "hard",
   "compiler_fixable": false,
-  "num_loops": 1,
+  "num_loops": 3,
   "num_arrays": 3,
   "lines_of_code": 10,
-  "expected_speedup_range": "10x",
+  "expected_speedup_range": "5x",
   "composition": []
 }

@@ -1,17 +1,15 @@
-int fast_sr_1_v006(int *A, int *B, int *C, int *D, int *E, int n, int k0) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
-    int sum_E = 0;
+__attribute__((noinline))
+#include <math.h>
+static double series_fn(double base) {
+    double r = 0.0;
+    for (int k = 1; k <= 37; k++) r += (double)log(base * k + 1.0) / k;
+    return r;
+}
+void fast_sr1_v006(double *arr, int n, double base) {
+    double scale = series_fn(base);
     int i = 0;
     while (i < n) {
-        sum_A += A[i];
-        sum_B += B[i];
-        sum_C += C[i];
-        sum_D += D[i];
-        sum_E += E[i];
+        arr[i] *= scale;
         i++;
     }
-    return (k0 * sum_A) + sum_B + sum_C + sum_D + sum_E;
 }

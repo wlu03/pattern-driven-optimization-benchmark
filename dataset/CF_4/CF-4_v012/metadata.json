@@ -1,0 +1,15 @@
+{
+  "pattern_id": "CF-4",
+  "variant_id": "CF-4_v012",
+  "category": "Control Flow Inefficiency",
+  "pattern_name": "Function Pointer Dispatch in Hot Loop",
+  "variant_desc": "fn=scale, double, n=10000000",
+  "dtype": "double",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 12,
+  "expected_speedup_range": "2x-8x",
+  "composition": []
+}

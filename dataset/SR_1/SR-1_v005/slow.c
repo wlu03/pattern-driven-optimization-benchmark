@@ -1,9 +1,14 @@
-float slow_sr_1_v005(float *A, float *B, float *C, float *D, int rows, int cols, float k0, float k1) {
-    float total = 1;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        total *= (k0 - A[row * cols + col]) * (k1 - B[row * cols + col]) * C[row * cols + col] * D[row * cols + col];
-        }
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 29; k++) r += (float)log(k + 1.0) * (float)sin(base * k);
+    return r;
+}
+void slow_sr1_v005(float *arr, int n, float base) {
+    int i = 0;
+    while (i < n) {
+        arr[i] *= series_fn(base);
+        i++;
     }
-    return total;
 }

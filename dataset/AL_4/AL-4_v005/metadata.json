@@ -1,0 +1,15 @@
+{
+  "pattern_id": "AL-4",
+  "variant_id": "AL-4_v005",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Redundant Recomputation in Recursion",
+  "variant_desc": "grid paths (18x17): exponential -> O(r*c) DP",
+  "dtype": "long long",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 0,
+  "lines_of_code": 8,
+  "expected_speedup_range": "1000x+",
+  "composition": []
+}

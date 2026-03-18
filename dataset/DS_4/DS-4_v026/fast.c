@@ -1,9 +1,19 @@
-double fast_ds4_v026(double *z, int n) {
-    double total_z = 1e308;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+double fast_ds4_v026(double *temp, double *humidity, double *light, int n) {
+    double total_temp = 0.0;
+    double total_humidity = 0.0;
+    double total_light = 0.0;
     int i = 0;
     while (i < n) {
-        if (z[i] < total_z) total_z = z[i];
+        total_temp += temp[i];
+        total_humidity += humidity[i];
+        total_light += light[i];
         i++;
     }
-    return total_z;
+    return total_temp + total_humidity + total_light;
 }

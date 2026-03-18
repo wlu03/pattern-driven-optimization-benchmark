@@ -1,0 +1,15 @@
+{
+  "pattern_id": "IS-4",
+  "variant_id": "IS-4_v024",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Adaptive Sort (Nearly-Sorted Detection)",
+  "variant_desc": "n=1000000, 1.0% swaps, sample_k=32, thresh=2",
+  "dtype": "int",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 15,
+  "expected_speedup_range": "2x-10x",
+  "composition": []
+}

@@ -3,7 +3,7 @@
   "variant_id": "DS-4_v018",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "vertices struct (8 fields), accessing ['px', 'pz', 'v', 'nx'], min reduction",
+  "variant_desc": "pixels struct (8 fields), accessing ['r', 'depth', 'normal_x', 'a'], max reduction",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

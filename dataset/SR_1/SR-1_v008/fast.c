@@ -1,9 +1,12 @@
-float fast_sr_1_v008(float *A, float *B, int n, float k0, float k1) {
-    float sum_A = 0.0f;
-    float sum_B = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum_A += A[i];
-        sum_B += B[i];
-    }
-    return (k0 - sum_A) + (k1 - sum_B);
+__attribute__((noinline))
+#include <math.h>
+static float series_fn(float base) {
+    float r = 0.0;
+    for (int k = 1; k <= 18; k++) r += (float)log(base * k + 1.0) / k;
+    return r;
+}
+void fast_sr1_v008(float *arr, int n, float base) {
+    float scale = series_fn(base);
+    for (int i = 0; i < n; i++)
+        arr[i] *= scale;
 }

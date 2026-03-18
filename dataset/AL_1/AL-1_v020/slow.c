@@ -1,7 +1,11 @@
-long long slow_al1_v020(int n) {
-    if (n <= 1) return 1;
-    long long res = 0;
-    for (int i = 0; i < n; i++)
-        res += slow_al1_v020(i) * slow_al1_v020(n - 1 - i);
-    return res;
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+int slow_al1_v020(int n, int max_val) {
+    if (n == 0) return 1;
+    if (n < 0 || max_val == 0) return 0;
+    return slow_al1_v020(n - max_val, max_val) + slow_al1_v020(n, max_val - 1);
 }

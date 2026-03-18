@@ -1,9 +1,13 @@
-void fast_is1_v013(double *y, double *A, double *x, int m, int n) {
-    for (int i = 0; i < m; i++) {
-        y[i] = 0.0;
-        for (int j = 0; j < n; j++) {
-            if (A[i * n + j] == 0.0) continue;
-            y[i] += A[i * n + j] * x[j];
-        }
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+__attribute__((noinline))
+void fast_is1_v013(float *y, float *x, float alpha, int n) {
+    if (alpha == 0.0f) return;
+    for (int i = 0; i < n; i++) {
+        if (x[i] == 0.0f) continue;
+        y[i] += alpha * x[i];
     }
 }

@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-2",
+  "variant_id": "SR-2_v017",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Loop-Invariant Term in Mixed Expression",
+  "variant_desc": "10-term sin*exp penalty, 3 arrays, n=2000000, double, for-loop",
+  "dtype": "double",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 13,
+  "expected_speedup_range": "5x-10x",
+  "composition": []
+}
