@@ -676,8 +676,85 @@ int main() {
 }"""
     ),
 
+    PatternEntry(
+        pattern_id="IS-5",
+        category="Input-Sensitive Inefficiency",
+        name="Runtime Alias Check for Restrict Fast-Path",
+        compiler_difficulty="Very High",
+        description="Compiler must emit conservative aliasing-safe code because it can't prove at "
+                    "compile time that out, A, B don't overlap. Check pointer ranges once at runtime; "
+                    "if non-overlapping (the common case), dispatch to a __restrict__-qualified kernel "
+                    "the compiler can freely vectorize.",
+        slow_code="""
+/* noinline forces compiler to compile conservatively: can't prove A, B, out don't overlap */
+__attribute__((noinline))
+void is5_slow(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+    }
+}""",
+        fast_code="""
+static void __attribute__((noinline))
+is5_restrict_kernel(double * __restrict__ out,
+                    const double * __restrict__ A,
+                    const double * __restrict__ B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+    }
+}
+
+void is5_fast(double *out, double *A, double *B, int n) {
+    int no_alias = (out + n <= A || A + n <= out) &&
+                   (out + n <= B || B + n <= out);
+    if (no_alias) {
+        is5_restrict_kernel(out, A, B, n);
+    } else {
+        for (int i = 0; i < n; i++) {
+            out[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+        }
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 5000000;
+    double *A        = malloc(n * sizeof(double));
+    double *B        = malloc(n * sizeof(double));
+    double *out      = malloc(n * sizeof(double));
+    double *expected = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        A[i] = 0.5 + 4.5 * ((double)rand() / RAND_MAX);
+        B[i] = 0.5 + 4.5 * ((double)rand() / RAND_MAX);
+        expected[i] = A[i] * A[i] + B[i] * 2.0 - A[i] * 0.5 + B[i] * B[i];
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, A, B, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(out[i] - expected[i]) / fmax(fabs(expected[i]), 1e-12) > 1e-9) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(A); free(B); free(out); free(expected);
+    return 0;
+}"""
+    ),
+
     # ── CATEGORY 3: Control-Flow ──
-    PatternEntry(pattern_id="CF-1", category="Control-Flow", name="Batch Dispatch Devirtualization",
+    PatternEntry(pattern_id="CF-1", category="Control-Flow", name="Data-Uniform Batch Dispatch",
         compiler_difficulty="High",
         description="Per-element dispatch through a noinline function prevents vectorization. "
                     "Detect the batch type from the first element and dispatch to an inline loop.",
@@ -786,7 +863,7 @@ int main() {
 }"""
     ),
 
-    PatternEntry(pattern_id="CF-3", category="Control-Flow", name="Runtime Guard Elimination",
+    PatternEntry(pattern_id="CF-3", category="Control-Flow", name="Vectorization-Hostile Conditional",
         compiler_difficulty="High",
         description="A noinline function wraps a computation with a runtime guard (always true "
                     "for this data). Verify the invariant once, then use an inline branch-free loop.",
@@ -836,7 +913,7 @@ int main() {
 }"""
     ),
 
-    PatternEntry(pattern_id="CF-4", category="Control-Flow", name="Function Pointer Devirtualization",
+    PatternEntry(pattern_id="CF-4", category="Control-Flow", name="Function Pointer Dispatch in Hot Loop",
         compiler_difficulty="High",
         description="Per-element indirect call through a function pointer (or noinline dispatch) "
                     "prevents vectorization. Identify the concrete function at runtime and "
@@ -891,9 +968,606 @@ int main() {
 }"""
     ),
 
-    # ── CATEGORY 4-7: Abbreviated (same structure) ──
-    # Full entries follow same pattern... DS-1 through MI-4
-    # (See the C files for complete implementations)
+    # ── CATEGORY 4: Human-Style Antipatterns ──
+    PatternEntry(
+        pattern_id="HR-1",
+        category="Human-Style Antipatterns",
+        name="Redundant Temporary Variables",
+        compiler_difficulty="Low",
+        description="Unnecessary intermediate variables (temp1 -> temp2 -> temp3 -> result -> out[i]) "
+                    "force extra memory writes and hinder register allocation. "
+                    "Inline the computation: out[i] = (A[i] + B[i]) * C[i] + 1.0.",
+        slow_code="""
+void hr1_slow(double *out, double *A, double *B, double *C, int n) {
+    for (int i = 0; i < n; i++) {
+        double temp1 = A[i] + B[i];
+        double temp2 = temp1 * C[i];
+        double temp3 = temp2 + 1.0;
+        double result = temp3;
+        out[i] = result;
+    }
+}""",
+        fast_code="""
+void hr1_fast(double *out, double *A, double *B, double *C, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = (A[i] + B[i]) * C[i] + 1.0;
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *A   = malloc(n * sizeof(double));
+    double *B   = malloc(n * sizeof(double));
+    double *C   = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        A[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+        B[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+        C[i] =   0.1 +  4.9 * ((double)rand() / RAND_MAX);
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, A, B, C, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double expected = (A[i] + B[i]) * C[i] + 1.0;
+        if (fabs(out[i] - expected) / fmax(fabs(expected), 1e-12) > 1e-9) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(A); free(B); free(C); free(out);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="HR-2",
+        category="Human-Style Antipatterns",
+        name="Copy-Paste Duplication",
+        compiler_difficulty="Medium",
+        description="Four separate passes over data (mean X, mean Y, var X, var Y) from "
+                    "copy-pasted code blocks. Merge into two passes: one for both means, "
+                    "one for both variances.",
+        slow_code="""
+void hr2_slow(double *X, double *Y, int n,
+              double *mean_x, double *mean_y,
+              double *var_x, double *var_y) {
+    double sum_x = 0.0;
+    for (int i = 0; i < n; i++) sum_x += X[i];
+    *mean_x = sum_x / n;
+
+    double sum_y = 0.0;
+    for (int i = 0; i < n; i++) sum_y += Y[i];
+    *mean_y = sum_y / n;
+
+    double var_sum_x = 0.0;
+    for (int i = 0; i < n; i++) {
+        double diff = X[i] - *mean_x;
+        var_sum_x += diff * diff;
+    }
+    *var_x = var_sum_x / n;
+
+    double var_sum_y = 0.0;
+    for (int i = 0; i < n; i++) {
+        double diff = Y[i] - *mean_y;
+        var_sum_y += diff * diff;
+    }
+    *var_y = var_sum_y / n;
+}""",
+        fast_code="""
+void hr2_fast(double *X, double *Y, int n,
+              double *mean_x, double *mean_y,
+              double *var_x, double *var_y) {
+    double sx = 0.0, sy = 0.0;
+    for (int i = 0; i < n; i++) {
+        sx += X[i];
+        sy += Y[i];
+    }
+    *mean_x = sx / n;
+    *mean_y = sy / n;
+
+    double vx = 0.0, vy = 0.0;
+    double mx = *mean_x, my = *mean_y;
+    for (int i = 0; i < n; i++) {
+        double dx = X[i] - mx;
+        double dy = Y[i] - my;
+        vx += dx * dx;
+        vy += dy * dy;
+    }
+    *var_x = vx / n;
+    *var_y = vy / n;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *X = malloc(n * sizeof(double));
+    double *Y = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        X[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+        Y[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+    }
+    double mx, my, vx, vy;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(X, Y, n, &mx, &my, &vx, &vy);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* compute expected independently */
+    double sx = 0.0, sy = 0.0;
+    for (int i = 0; i < n; i++) { sx += X[i]; sy += Y[i]; }
+    double emx = sx / n, emy = sy / n;
+    double evx = 0.0, evy = 0.0;
+    for (int i = 0; i < n; i++) {
+        double dx = X[i] - emx, dy = Y[i] - emy;
+        evx += dx * dx; evy += dy * dy;
+    }
+    evx /= n; evy /= n;
+
+    int correct = fabs(mx - emx) < 1e-9 && fabs(my - emy) < 1e-9
+               && fabs(vx - evx) / fmax(fabs(evx), 1e-12) < 1e-6
+               && fabs(vy - evy) / fmax(fabs(evy), 1e-12) < 1e-6;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", mx, ms, correct);
+    free(X); free(Y);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="HR-3",
+        category="Human-Style Antipatterns",
+        name="Dead / Debug Code",
+        compiler_difficulty="High",
+        description="volatile debug_counter++, NaN checks, and overflow checks inside a hot loop — "
+                    "volatile prevents the compiler from removing them. "
+                    "Strip all debug instrumentation from the production path.",
+        slow_code="""
+#include <stdio.h>
+static volatile int debug_counter = 0;
+
+void hr3_slow(double *out, double *in, int n) {
+    for (int i = 0; i < n; i++) {
+        debug_counter++;
+        if (in[i] != in[i]) {
+            fprintf(stderr, "Warning: NaN at index %d\\n", i);
+        }
+        out[i] = in[i] * 2.0 + 1.0;
+        if (out[i] < -1e15 || out[i] > 1e15) {
+            fprintf(stderr, "Warning: output overflow at %d\\n", i);
+        }
+    }
+}""",
+        fast_code="""
+void hr3_fast(double *out, double *in, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = in[i] * 2.0 + 1.0;
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *in  = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++)
+        in[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, in, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        double expected = in[i] * 2.0 + 1.0;
+        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(in); free(out);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="HR-4",
+        category="Human-Style Antipatterns",
+        name="Overly Defensive Checks",
+        compiler_difficulty="Medium",
+        description="arr == NULL, n <= 0, i < 0 || i >= n, and per-element NaN checks inside a loop "
+                    "that already guarantees they're false. Check once before the loop; "
+                    "remove all redundant per-iteration guards.",
+        slow_code="""
+double hr4_slow(double *arr, int n) {
+    if (arr == NULL) return 0.0;
+    if (n <= 0) return 0.0;
+
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
+        if (arr == NULL) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        double val = arr[i];
+        if (val != val) continue;
+        sum += val;
+    }
+    return sum;
+}""",
+        fast_code="""
+double hr4_fast(double *arr, int n) {
+    if (arr == NULL || n <= 0) return 0.0;
+
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *arr = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++)
+        arr[i] = ((double)rand() / RAND_MAX);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double result = optimized(arr, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    double expected = 0.0;
+    for (int i = 0; i < n; i++) expected += arr[i];
+    int correct = fabs(result - expected) / fmax(fabs(expected), 1e-12) < 1e-9;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, correct);
+    free(arr);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="HR-5",
+        category="Human-Style Antipatterns",
+        name="Append Anti-pattern",
+        compiler_difficulty="Low",
+        description="Capacity check (if (pos < n)) and sign guard (if (val >= 0)) inside a loop "
+                    "where both are always true. Direct indexed write: out[i] = A[i] + B[i].",
+        slow_code="""
+void hr5_slow(int *out, int *A, int *B, int n) {
+    int pos = 0;
+    for (int i = 0; i < n; i++) {
+        if (pos < n) {
+            int val = A[i] + B[i];
+            if (val >= 0) {
+                out[pos] = val;
+                pos = pos + 1;
+            }
+        }
+    }
+}""",
+        fast_code="""
+void hr5_fast(int *out, int *A, int *B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i] + B[i];
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    int *A   = malloc(n * sizeof(int));
+    int *B   = malloc(n * sizeof(int));
+    int *out = malloc(n * sizeof(int));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        A[i] = rand() % 1000;
+        B[i] = rand() % 1000;
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, A, B, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (out[i] != A[i] + B[i]) { correct = 0; break; }
+    }
+    printf("result=%d time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(A); free(B); free(out);
+    return 0;
+}"""
+    ),
+
+    # ── CATEGORY 5: Data Structure ──
+    PatternEntry(
+        pattern_id="DS-1",
+        category="Data Structure",
+        name="Linear Search vs Hash Lookup",
+        compiler_difficulty="Very High",
+        description="O(n) linear scan through 50 000-entry array for each of many queries. "
+                    "Pre-build an open-addressing hash table; each lookup is O(1).",
+        slow_code="""
+int ds1_slow_lookup(int *keys, int *values, int n, int target) {
+    for (int i = 0; i < n; i++) {
+        if (keys[i] == target) return values[i];
+    }
+    return -1;
+}""",
+        fast_code="""
+#define HT_SIZE 65536
+#define HT_MASK (HT_SIZE - 1)
+typedef struct { int key; int value; int occupied; } HTEntry;
+
+void ds1_build_ht(HTEntry *ht, int *keys, int *values, int n) {
+    memset(ht, 0, HT_SIZE * sizeof(HTEntry));
+    for (int i = 0; i < n; i++) {
+        int h = (unsigned int)keys[i] & HT_MASK;
+        while (ht[h].occupied) h = (h + 1) & HT_MASK;
+        ht[h].key = keys[i];
+        ht[h].value = values[i];
+        ht[h].occupied = 1;
+    }
+}
+
+int ds1_fast_lookup(HTEntry *ht, int target) {
+    int h = (unsigned int)target & HT_MASK;
+    while (ht[h].occupied) {
+        if (ht[h].key == target) return ht[h].value;
+        h = (h + 1) & HT_MASK;
+    }
+    return -1;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define HT_SIZE 65536
+#define HT_MASK (HT_SIZE - 1)
+typedef struct { int key; int value; int occupied; } HTEntry;
+
+static int ds1_slow_lookup(int *keys, int *values, int n, int target) {
+    for (int i = 0; i < n; i++) {
+        if (keys[i] == target) return values[i];
+    }
+    return -1;
+}
+
+// LLM_CODE_HERE
+
+int main() {
+    int n_keys = 50000;
+    int n_queries = 1000;
+    int *keys    = malloc(n_keys * sizeof(int));
+    int *values  = malloc(n_keys * sizeof(int));
+    int *queries = malloc(n_queries * sizeof(int));
+    srand(42);
+    for (int i = 0; i < n_keys; i++) {
+        keys[i]   = i * 7 + 13;
+        values[i] = i * 3;
+    }
+    for (int i = 0; i < n_queries; i++)
+        queries[i] = keys[rand() % n_keys];
+
+    /* build hash table for fast version */
+    HTEntry *ht = malloc(HT_SIZE * sizeof(HTEntry));
+    ds1_build_ht(ht, keys, values, n_keys);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    int sum_fast = 0;
+    for (int i = 0; i < n_queries; i++)
+        sum_fast += optimized(ht, queries[i]);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int sum_slow = 0;
+    for (int i = 0; i < n_queries; i++)
+        sum_slow += ds1_slow_lookup(keys, values, n_keys, queries[i]);
+
+    int correct = (sum_slow == sum_fast);
+    printf("result=%d time_ms=%.4f correct=%d\\n", sum_fast, ms, correct);
+    free(keys); free(values); free(queries); free(ht);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="DS-2",
+        category="Data Structure",
+        name="Repeated Allocation vs Pre-allocation",
+        compiler_difficulty="High",
+        description="malloc / free per chunk inside the processing loop. "
+                    "Allocate the temp buffer once before the loop; reuse it.",
+        slow_code="""
+#include <stdlib.h>
+void ds2_slow(double *results, double *input, int n, int chunk_size) {
+    for (int i = 0; i < n; i += chunk_size) {
+        int sz = (i + chunk_size <= n) ? chunk_size : (n - i);
+        double *temp = malloc(sz * sizeof(double));
+        for (int j = 0; j < sz; j++) temp[j] = input[i + j] * input[i + j];
+        double sum = 0.0;
+        for (int j = 0; j < sz; j++) sum += temp[j];
+        results[i / chunk_size] = sum;
+        free(temp);
+    }
+}""",
+        fast_code="""
+#include <stdlib.h>
+void ds2_fast(double *results, double *input, int n, int chunk_size) {
+    double *temp = malloc(chunk_size * sizeof(double));
+    for (int i = 0; i < n; i += chunk_size) {
+        int sz = (i + chunk_size <= n) ? chunk_size : (n - i);
+        for (int j = 0; j < sz; j++) temp[j] = input[i + j] * input[i + j];
+        double sum = 0.0;
+        for (int j = 0; j < sz; j++) sum += temp[j];
+        results[i / chunk_size] = sum;
+    }
+    free(temp);
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 5000000;
+    int chunk_size = 1024;
+    int n_results = n / chunk_size + 1;
+    double *input    = malloc(n * sizeof(double));
+    double *out      = malloc(n_results * sizeof(double));
+    double *expected = malloc(n_results * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++)
+        input[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+
+    /* compute expected */
+    for (int i = 0; i < n; i += chunk_size) {
+        int sz = (i + chunk_size <= n) ? chunk_size : (n - i);
+        double sum = 0.0;
+        for (int j = 0; j < sz; j++) sum += input[i+j] * input[i+j];
+        expected[i / chunk_size] = sum;
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    optimized(out, input, n, chunk_size);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = 1;
+    for (int i = 0; i < n_results; i++) {
+        if (fabs(out[i] - expected[i]) / fmax(fabs(expected[i]), 1e-12) > 1e-9) {
+            correct = 0; break;
+        }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(input); free(out); free(expected);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="DS-3",
+        category="Data Structure",
+        name="Unnecessary Copying (pass-by-value)",
+        compiler_difficulty="Medium",
+        description="512-byte BigStruct copied onto the stack for every call to the processing function. "
+                    "Pass by const * — only the pointer is copied.",
+        slow_code="""
+typedef struct {
+    double data[64];
+    int size;
+} BigStruct;
+
+double ds3_slow_process(BigStruct s) {
+    double sum = 0.0;
+    for (int i = 0; i < s.size; i++) sum += s.data[i];
+    return sum;
+}""",
+        fast_code="""
+typedef struct {
+    double data[64];
+    int size;
+} BigStruct;
+
+double ds3_fast_process(const BigStruct *s) {
+    double sum = 0.0;
+    for (int i = 0; i < s->size; i++) sum += s->data[i];
+    return sum;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+typedef struct {
+    double data[64];
+    int size;
+} BigStruct;
+
+static double ds3_slow_process(BigStruct s) {
+    double sum = 0.0;
+    for (int i = 0; i < s.size; i++) sum += s.data[i];
+    return sum;
+}
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 2000000;
+    BigStruct *arr = malloc(n * sizeof(BigStruct));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        arr[i].size = 64;
+        for (int j = 0; j < 64; j++) arr[i].data[j] = (double)(i + j);
+    }
+
+    double ref_result = 0.0;
+    for (int i = 0; i < n; i++) ref_result += ds3_slow_process(arr[i]);
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double fast_result = 0.0;
+    for (int i = 0; i < n; i++) fast_result += optimized(&arr[i]);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    int correct = fabs(ref_result - fast_result) / fmax(fabs(ref_result), 1e-12) < 1e-6;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", fast_result, ms, correct);
+    free(arr);
+    return 0;
+}"""
+    ),
 
     PatternEntry(pattern_id="DS-4", category="Data Structure", name="AoS vs SoA Cache Access",
         compiler_difficulty="Very High",
@@ -920,33 +1594,41 @@ double ds4_fast(double *mass, int n) {
 
 typedef struct { double x,y,z,vx,vy,vz,mass,charge; } Particle;
 
+static double ds4_slow_ref(Particle *p, int n) {
+    double total = 0.0;
+    for (int i = 0; i < n; i++) total += p[i].mass;
+    return total;
+}
+
 // LLM_CODE_HERE
 
 int main() {
     int n = 5000000;
     Particle *p = malloc(n * sizeof(Particle));
+    double *mass = malloc(n * sizeof(double));
     srand(42);
-    double expected = 0.0;
     for (int i = 0; i < n; i++) {
         p[i].x = p[i].y = p[i].z = p[i].vx = p[i].vy = p[i].vz = p[i].charge = 1.0;
         p[i].mass = (double)rand() / RAND_MAX;
-        expected += p[i].mass;
+        mass[i] = p[i].mass;
     }
+
+    double expected = ds4_slow_ref(p, n);
 
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
-    double result = optimized(p, n);
+    double result = optimized(mass, n);
     clock_gettime(CLOCK_MONOTONIC, &end);
     double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
 
     double err = fabs(result - expected) / fmax(fabs(expected), 1e-12);
     printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, err < 1e-6);
-    free(p);
+    free(p); free(mass);
     return 0;
 }"""
     ),
 
-    PatternEntry(pattern_id="AL-1", category="Algorithmic", name="Recursive vs DP Fibonacci",
+    PatternEntry(pattern_id="AL-1", category="Algorithmic", name="Brute Force vs Memoization/DP",
         compiler_difficulty="Very High",
         description="O(2^n) recursive Fibonacci vs O(n) iterative. "
                     "Compiler cannot transform recursion into DP.",
@@ -983,6 +1665,410 @@ int main() {
     double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
 
     printf("result=%lld time_ms=%.4f correct=%d\\n", result, ms, result == expected);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="AL-2",
+        category="Algorithmic",
+        name="Repeated Sort vs Sorted Insertion",
+        compiler_difficulty="Very High",
+        description="Re-qsort the entire array after every insertion — O(n^2 log n) total. "
+                    "Binary-search for the insertion point, memmove to make room — O(n^2) total "
+                    "but with much smaller constant.",
+        slow_code="""
+#include <stdlib.h>
+#include <string.h>
+static int cmp_double(const void *a, const void *b) {
+    double da = *(const double*)a, db = *(const double*)b;
+    return (da > db) - (da < db);
+}
+void al2_slow(double *arr, int *size, double *items, int n_items) {
+    *size = 0;
+    for (int i = 0; i < n_items; i++) {
+        arr[*size] = items[i];
+        (*size)++;
+        qsort(arr, *size, sizeof(double), cmp_double);
+    }
+}""",
+        fast_code="""
+#include <stdlib.h>
+#include <string.h>
+static int cmp_double(const void *a, const void *b) {
+    double da = *(const double*)a, db = *(const double*)b;
+    return (da > db) - (da < db);
+}
+static int binary_search_insert(double *arr, int size, double val) {
+    int lo = 0, hi = size;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        if (arr[mid] < val) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+void al2_fast(double *arr, int *size, double *items, int n_items) {
+    *size = 0;
+    for (int i = 0; i < n_items; i++) {
+        int pos = binary_search_insert(arr, *size, items[i]);
+        memmove(&arr[pos + 1], &arr[pos], (*size - pos) * sizeof(double));
+        arr[pos] = items[i];
+        (*size)++;
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+static int cmp_d(const void *a, const void *b) {
+    double da = *(const double*)a, db = *(const double*)b;
+    return (da > db) - (da < db);
+}
+
+// LLM_CODE_HERE
+
+int main() {
+    int n_items = 10000;
+    double *items    = malloc(n_items * sizeof(double));
+    double *arr      = malloc(n_items * sizeof(double));
+    double *expected = malloc(n_items * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n_items; i++)
+        items[i] = ((double)rand() / RAND_MAX) * 1000.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    int sz = 0;
+    optimized(arr, &sz, items, n_items);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* compute expected by sorting a copy */
+    memcpy(expected, items, n_items * sizeof(double));
+    qsort(expected, n_items, sizeof(double), cmp_d);
+
+    int correct = (sz == n_items);
+    for (int i = 0; i < n_items && correct; i++)
+        if (fabs(arr[i] - expected[i]) > 1e-12) correct = 0;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", arr[0], ms, correct);
+    free(items); free(arr); free(expected);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="AL-3",
+        category="Algorithmic",
+        name="Naive vs KMP Pattern Matching",
+        compiler_difficulty="High",
+        description="O(n*m) brute-force search for a pattern in a text. "
+                    "Knuth-Morris-Pratt: build failure function in O(m), then scan in O(n).",
+        slow_code="""
+int al3_slow(int *text, int tn, int *pattern, int pn) {
+    int count = 0;
+    for (int i = 0; i <= tn - pn; i++) {
+        int match = 1;
+        for (int j = 0; j < pn; j++) {
+            if (text[i + j] != pattern[j]) { match = 0; break; }
+        }
+        if (match) count++;
+    }
+    return count;
+}""",
+        fast_code="""
+#include <stdlib.h>
+static void build_failure(int *pattern, int pn, int *fail) {
+    fail[0] = 0;
+    int k = 0;
+    for (int i = 1; i < pn; i++) {
+        while (k > 0 && pattern[k] != pattern[i]) k = fail[k - 1];
+        if (pattern[k] == pattern[i]) k++;
+        fail[i] = k;
+    }
+}
+int al3_fast(int *text, int tn, int *pattern, int pn) {
+    int *fail = malloc(pn * sizeof(int));
+    build_failure(pattern, pn, fail);
+    int count = 0, k = 0;
+    for (int i = 0; i < tn; i++) {
+        while (k > 0 && pattern[k] != text[i]) k = fail[k - 1];
+        if (pattern[k] == text[i]) k++;
+        if (k == pn) { count++; k = fail[k - 1]; }
+    }
+    free(fail);
+    return count;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int tn = 10000000;
+    int pn = 8;
+    int *text    = malloc(tn * sizeof(int));
+    int pattern[8] = {3, 1, 4, 1, 5, 9, 2, 6};
+    srand(42);
+    for (int i = 0; i < tn; i++) text[i] = rand() % 10;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    int result = optimized(text, tn, pattern, pn);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* brute-force reference */
+    int expected = 0;
+    for (int i = 0; i <= tn - pn; i++) {
+        int match = 1;
+        for (int j = 0; j < pn; j++) if (text[i+j] != pattern[j]) { match = 0; break; }
+        if (match) expected++;
+    }
+    printf("result=%d time_ms=%.4f correct=%d\\n", result, ms, result == expected);
+    free(text);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="AL-4",
+        category="Algorithmic",
+        name="Recursive vs DP (Grid Paths)",
+        compiler_difficulty="Very High",
+        description="Exponential recursive path counting — recomputes overlapping sub-grids. "
+                    "O(r*c) DP table (O(c) space) — no redundant recomputation.",
+        slow_code="""
+long long al4_slow(int r, int c) {
+    if (r == 0 || c == 0) return 1;
+    return al4_slow(r - 1, c) + al4_slow(r, c - 1);
+}""",
+        fast_code="""
+#include <stdlib.h>
+long long al4_fast(int r, int c) {
+    long long *dp = calloc(c + 1, sizeof(long long));
+    for (int j = 0; j <= c; j++) dp[j] = 1;
+    for (int i = 1; i <= r; i++) {
+        for (int j = 1; j <= c; j++) dp[j] += dp[j - 1];
+    }
+    long long result = dp[c];
+    free(dp);
+    return result;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int r = 18, c = 18;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    long long result = 0;
+    for (int rep = 0; rep < 100000; rep++) result = optimized(r, c);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* expected: C(36,18) = 9075135300 */
+    long long expected = 9075135300LL;
+    printf("result=%lld time_ms=%.4f correct=%d\\n", result, ms, result == expected);
+    return 0;
+}"""
+    ),
+
+    # ── CATEGORY 7: Memory / IO ──
+    PatternEntry(
+        pattern_id="MI-1",
+        category="Memory/IO",
+        name="Allocation in Loop vs Sliding Window",
+        compiler_difficulty="High",
+        description="malloc / free for a window-sized buffer on every iteration of a moving-average loop. "
+                    "Sliding window: maintain a running sum, add the entering element and subtract "
+                    "the leaving one — no allocation needed.",
+        slow_code="""
+#include <stdlib.h>
+double mi1_slow(double *input, int n, int window) {
+    double total = 0.0;
+    for (int i = 0; i <= n - window; i++) {
+        double *buf = malloc(window * sizeof(double));
+        for (int j = 0; j < window; j++) buf[j] = input[i + j];
+        double sum = 0.0;
+        for (int j = 0; j < window; j++) sum += buf[j];
+        total += sum / window;
+        free(buf);
+    }
+    return total;
+}""",
+        fast_code="""
+double mi1_fast(double *input, int n, int window) {
+    double total = 0.0;
+    double sum = 0.0;
+    for (int j = 0; j < window; j++) sum += input[j];
+    total += sum / window;
+    for (int i = 1; i <= n - window; i++) {
+        sum += input[i + window - 1] - input[i - 1];
+        total += sum / window;
+    }
+    return total;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 500000;
+    int window = 32;
+    double *input = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++)
+        input[i] = ((double)rand() / RAND_MAX) * 100.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double result = optimized(input, n, window);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    /* compute expected with sliding window */
+    double expected = 0.0;
+    double sum = 0.0;
+    for (int j = 0; j < window; j++) sum += input[j];
+    expected += sum / window;
+    for (int i = 1; i <= n - window; i++) {
+        sum += input[i + window - 1] - input[i - 1];
+        expected += sum / window;
+    }
+    int correct = fabs(result - expected) / fmax(fabs(expected), 1e-12) < 1e-6;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, correct);
+    free(input);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="MI-2",
+        category="Memory/IO",
+        name="Redundant Memory Zeroing",
+        compiler_difficulty="Medium",
+        description="memset(output, 0, ...) followed immediately by a loop that overwrites every element. "
+                    "Remove the memset — the subsequent write makes it unnecessary.",
+        slow_code="""
+#include <string.h>
+void mi2_slow(double *output, double *A, double *B, int n) {
+    memset(output, 0, n * sizeof(double));
+    for (int i = 0; i < n; i++) {
+        output[i] = A[i] + B[i];
+    }
+}""",
+        fast_code="""
+void mi2_fast(double *output, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        output[i] = A[i] + B[i];
+    }
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 10000000;
+    double *A   = malloc(n * sizeof(double));
+    double *B   = malloc(n * sizeof(double));
+    double *out = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++) {
+        A[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+        B[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    for (int r = 0; r < 5; r++) optimized(out, A, B, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = ((end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6) / 5.0;
+
+    int correct = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(out[i] - (A[i] + B[i])) > 1e-12) { correct = 0; break; }
+    }
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
+    free(A); free(B); free(out);
+    return 0;
+}"""
+    ),
+
+    PatternEntry(
+        pattern_id="MI-3",
+        category="Memory/IO",
+        name="Heap Alloc in Hot Loop",
+        compiler_difficulty="High",
+        description="malloc(4 * sizeof(double)) for a tiny 4-element scratch buffer every iteration. "
+                    "Use direct arithmetic or a stack array — zero allocation overhead.",
+        slow_code="""
+#include <stdlib.h>
+double mi3_slow(double *data, int n) {
+    double total = 0.0;
+    for (int i = 0; i < n - 3; i++) {
+        double *quad = malloc(4 * sizeof(double));
+        quad[0] = data[i]; quad[1] = data[i+1];
+        quad[2] = data[i+2]; quad[3] = data[i+3];
+        total += (quad[0] + quad[1] + quad[2] + quad[3]) * 0.25;
+        free(quad);
+    }
+    return total;
+}""",
+        fast_code="""
+double mi3_fast(double *data, int n) {
+    double total = 0.0;
+    for (int i = 0; i < n - 3; i++) {
+        total += (data[i] + data[i+1] + data[i+2] + data[i+3]) * 0.25;
+    }
+    return total;
+}""",
+        test_harness="""
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// LLM_CODE_HERE
+
+int main() {
+    int n = 2000000;
+    double *data = malloc(n * sizeof(double));
+    srand(42);
+    for (int i = 0; i < n; i++)
+        data[i] = ((double)rand() / RAND_MAX) * 100.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double result = optimized(data, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
+
+    double expected = 0.0;
+    for (int i = 0; i < n - 3; i++)
+        expected += (data[i] + data[i+1] + data[i+2] + data[i+3]) * 0.25;
+    int correct = fabs(result - expected) / fmax(fabs(expected), 1e-12) < 1e-6;
+    printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, correct);
+    free(data);
     return 0;
 }"""
     ),
