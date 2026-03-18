@@ -2,7 +2,7 @@
 
 A benchmark for evaluating whether LLMs can optimize C code patterns that compilers **cannot** fix automatically. Each pattern is specifically selected because `-O3` leaves it unoptimized — the inefficiency is semantic, algorithmic, or data-structural, not syntactic.
 
-Includes 16 evaluated patterns across 7 categories, a variant generator to produce hundreds of dataset entries, and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
+Includes 31 patterns across 7 categories, a variant generator producing 960 dataset entries, and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
 
 ---
 
@@ -203,14 +203,19 @@ To add a new model, append an entry to `models.yaml` — no code changes require
 │   └── bench_harness.h               # Timing, verification, reporting utilities
 ├── patterns/
 │   ├── cat1_semantic_redundancy.c    # SR-1 to SR-5  (5 patterns)
-│   ├── cat2_input_sensitive.c        # IS-1 to IS-4  (4 patterns)
+│   ├── cat2_input_sensitive.c        # IS-1 to IS-5  (5 patterns)
 │   ├── cat3_control_flow.c           # CF-1 to CF-4  (4 patterns)
 │   ├── cat4_human_style.c            # HR-1 to HR-5  (5 patterns)
 │   ├── cat5_data_structure.c         # DS-1 to DS-4  (4 patterns)
 │   ├── cat6_algorithmic.c            # AL-1 to AL-4  (4 patterns)
 │   └── cat7_memory_io.c              # MI-1 to MI-4  (4 patterns)
 │
-├── evaluate_llm.py                   # LLM evaluation pipeline (correctness + performance)
+├── evaluate_llm.py                   # CLI entry point — arg parsing and main()
+├── patterns.py                       # PatternEntry dataclass and all 31 PATTERNS entries
+├── prompts.py                        # Prompt builders and HW_TARGET_DESCRIPTIONS
+├── compiler.py                       # compile_and_run, normalize/sanitize helpers
+├── evaluator.py                      # EvalResult dataclass and evaluate_pattern
+├── models.py                         # load_model_config, provider call functions
 ├── generate_variants.py              # Generates N slow/fast C pairs per pattern
 ├── prepare_finetune_data.py          # Converts dataset to JSONL for LoRA fine-tuning
 ├── lora_finetune_tutorial.ipynb      # Step-by-step LoRA fine-tuning guide
