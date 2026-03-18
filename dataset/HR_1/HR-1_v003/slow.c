@@ -4,14 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr1_v003(float *out, float *A, float *B, float *C, float *D, int n) {
-    for (int i = 0; i < n; i++) {
-        float temp1 = A[i] * B[i];
-        float temp2 = temp1 * C[i];
-        float temp3 = temp2 + D[i];
-        float temp4 = temp3 - A[i];
-        float temp5 = temp4 * A[i];
-        float result = temp5;
-        out[i] = result;
-    }
+void slow_hr1_v003(double *out, double *A, double *B, int n) {
+    double *tmp1 = (double *)malloc(n * sizeof(double));
+    double *tmp2 = (double *)malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) tmp1[i] = A[i] - B[i];
+    for (int i = 0; i < n; i++) tmp2[i] = tmp1[i] - A[i];
+    for (int i = 0; i < n; i++) out[i] = tmp2[i] * tmp2[i] - B[i];
+    free(tmp1);
+    free(tmp2);
 }

@@ -5,18 +5,28 @@
 
 __attribute__((noinline))
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
+    double id;
+    double timestamp;
+    double value;
+    double weight;
+    double category;
+    double flags;
+    double score;
+    double rank;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v029;
 
 double slow_ds4_v029(AoS_v029 *arr, int n) {
-    double total_pz = -1e308;
+    double total_id = 0.0;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].pz > total_pz) total_pz = (double)arr[i].pz;
+        total_id += (double)arr[i].id;
     }
-    return total_pz;
+    return total_id;
 }

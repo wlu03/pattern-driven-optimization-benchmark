@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v004(double *y, int n) {
-    double total_y = 1e308;
+double fast_ds4_v004(double *pad5, int n) {
+    double total_pad5 = 0.0;
     for (int i = 0; i < n; i++) {
-        if (y[i] < total_y) total_y = y[i];
+        total_pad5 += pad5[i];
     }
-    return total_y;
+    return total_pad5;
 }

@@ -4,15 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_is2_v026(double *out, double *in, int n, double thresh) {
+float is2_clamp_v026(float val, float thresh);
+void slow_is2_v026(float *out, float *in, int n, float thresh) {
     for (int i = 0; i < n; i++) {
-        double val = in[i];
-        double sign = (val >= (double)0) ? (double)1 : (double)-1;
-        double abs_val = (double)fabs((double)val);
-        if (abs_val > thresh) {
-            out[i] = sign * (thresh + (double)log((double)((double)1 + abs_val - thresh)));
-        } else {
-            out[i] = val;
-        }
+        float val = in[i];
+        float clamped = is2_clamp_v026(val, thresh);   /* always called */
+        out[i] = ((float)fabs((double)val) > thresh) ? clamped : val;
     }
 }

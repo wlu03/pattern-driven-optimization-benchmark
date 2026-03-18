@@ -5,9 +5,9 @@
 
 __attribute__((noinline))
 void fast_hr1_v018(double *out, double *A, double *B, int n) {
-    int i = 0;
-    while (i < n) {
-        out[i] = (((A[i] + B[i]) + A[i]) - B[i]) * A[i];
-        i++;
+    for (int i = 0; i < n; i++) {
+        double t = A[i] - B[i];
+        double u = t + A[i];
+        out[i] = u * u - B[i];
     }
 }

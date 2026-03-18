@@ -5,21 +5,28 @@
 
 __attribute__((noinline))
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
+    double px;
+    double py;
+    double pz;
+    double nx;
+    double ny;
+    double nz;
+    double u;
+    double v;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v018;
 
 double slow_ds4_v018(AoS_v018 *arr, int n) {
-    double total_pressure = -1e308;
-    double total_temp = -1e308;
+    double total_nz = 0.0;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].pressure > total_pressure) total_pressure = (double)arr[i].pressure;
-        if ((double)arr[i].temp > total_temp) total_temp = (double)arr[i].temp;
+        total_nz += (double)arr[i].nz;
     }
-    return total_pressure + total_temp;
+    return total_nz;
 }

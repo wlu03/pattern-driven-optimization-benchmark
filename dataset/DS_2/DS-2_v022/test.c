@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 1000000
-#define CHUNK 1024
+#define N 10000000
+#define CHUNK 16
 #define N_RESULTS ((N + CHUNK - 1) / CHUNK)
 
 // SLOW_CODE_HERE
@@ -11,10 +11,10 @@
 // FAST_CODE_HERE
 
 int main() {
-    double *input = malloc(N * sizeof(double));
-    double *res_slow = malloc(N_RESULTS * sizeof(double));
-    double *res_fast = malloc(N_RESULTS * sizeof(double));
-    for (int i = 0; i < N; i++) input[i] = (double)(i % 100 + 1) * (double)0.1;
+    float *input = malloc(N * sizeof(float));
+    float *res_slow = malloc(N_RESULTS * sizeof(float));
+    float *res_fast = malloc(N_RESULTS * sizeof(float));
+    for (int i = 0; i < N; i++) input[i] = (float)(i % 100 + 1) * (float)0.1f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

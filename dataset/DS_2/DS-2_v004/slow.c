@@ -8,7 +8,7 @@ void slow_ds2_v004(double *results, double *input, int n, int chunk) {
     for (int i = 0; i < n; i += chunk) {
         int sz = (i + chunk <= n) ? chunk : (n - i);
         double *temp = malloc(sz * sizeof(double));
-        for (int j = 0; j < sz; j++) temp[j] = input[i + j] * input[i + j];
+        for (int j = 0; j < sz; j++) temp[j] = input[i + j];
         double sum = 0;
         for (int j = 0; j < sz; j++) sum += temp[j];
         results[i / chunk] = sum;

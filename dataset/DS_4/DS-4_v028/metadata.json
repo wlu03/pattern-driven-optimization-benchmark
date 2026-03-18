@@ -3,13 +3,13 @@
   "variant_id": "DS-4_v028",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "particles struct (7 fields), accessing ['vz'], sum reduction",
+  "variant_desc": "pixels struct (16 fields), accessing ['depth', 'r'], sum reduction",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 1,
+  "num_arrays": 2,
   "lines_of_code": 12,
-  "expected_speedup_range": "7x-7x",
+  "expected_speedup_range": "8x-16x",
   "composition": []
 }

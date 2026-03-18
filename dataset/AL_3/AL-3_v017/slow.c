@@ -4,14 +4,15 @@
 #include <string.h>
 
 __attribute__((noinline))
-int slow_al3_v017(int *text, int tn, int *pattern, int pn) {
+int slow_al3_v017(unsigned char *text, int tn,
+                                unsigned char *pattern, int pn) {
     int count = 0;
     for (int i = 0; i <= tn - pn; i++) {
-        int match = 1;
-        for (int j = 0; j < pn; j++) {
-            if (text[i + j] != pattern[j]) { match = 0; break; }
+        int j;
+        for (j = 0; j < pn; j++) {
+            if (text[i + j] != pattern[j]) break;
         }
-        if (match) count++;
+        if (j == pn) count++;
     }
     return count;
 }

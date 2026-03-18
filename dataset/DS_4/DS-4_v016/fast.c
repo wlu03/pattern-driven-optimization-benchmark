@@ -4,12 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v016(double *temp, double *pressure, int n) {
-    double total_temp = 0.0;
-    double total_pressure = 0.0;
+double fast_ds4_v016(double *b, double *x, int n) {
+    double total_b = 1e308;
+    double total_x = 1e308;
     for (int i = 0; i < n; i++) {
-        total_temp += temp[i];
-        total_pressure += pressure[i];
+        if (b[i] < total_b) total_b = b[i];
+        if (x[i] < total_x) total_x = x[i];
     }
-    return total_temp + total_pressure;
+    return total_b + total_x;
 }

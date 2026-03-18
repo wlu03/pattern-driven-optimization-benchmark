@@ -3,13 +3,13 @@
   "variant_id": "IS-2_v025",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Data Distribution Skew",
-  "variant_desc": "99% in-range, log for outliers, thresh=1.0, double",
+  "variant_desc": "99% in-range, always-call exp in slow, thresh=1.0, double",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 2,
   "lines_of_code": 10,
-  "expected_speedup_range": "1.5x-5x",
+  "expected_speedup_range": "5x-20x",
   "composition": []
 }

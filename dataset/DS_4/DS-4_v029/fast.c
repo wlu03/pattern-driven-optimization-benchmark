@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v029(double *pz, int n) {
-    double total_pz = -1e308;
+double fast_ds4_v029(double *id, int n) {
+    double total_id = 0.0;
     for (int i = 0; i < n; i++) {
-        if (pz[i] > total_pz) total_pz = pz[i];
+        total_id += id[i];
     }
-    return total_pz;
+    return total_id;
 }

@@ -3,13 +3,13 @@
   "variant_id": "DS-4_v009",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "vertices struct (8 fields), accessing ['nz', 'v', 'px', 'ny'], max reduction",
+  "variant_desc": "events struct (16 fields), accessing ['pad6'], max reduction",
   "dtype": "double",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 4,
+  "num_arrays": 1,
   "lines_of_code": 12,
-  "expected_speedup_range": "2x-8x",
+  "expected_speedup_range": "16x-16x",
   "composition": []
 }

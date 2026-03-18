@@ -5,28 +5,28 @@
 
 __attribute__((noinline))
 typedef struct {
-    int r;
-    int g;
-    int b;
-    int a;
-    int x;
-    int y;
-    float depth;
-    float normal_x;
+    double id;
+    double timestamp;
+    double value;
+    double weight;
+    double category;
+    double flags;
+    double score;
+    double rank;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v002;
 
 double slow_ds4_v002(AoS_v002 *arr, int n) {
-    double total_depth = 0.0;
-    double total_y = 0.0;
-    double total_b = 0.0;
-    double total_normal_x = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_depth += (double)arr[i].depth;
-        total_y += (double)arr[i].y;
-        total_b += (double)arr[i].b;
-        total_normal_x += (double)arr[i].normal_x;
-        i++;
+    double total_id = 0.0;
+    for (int i = 0; i < n; i++) {
+        total_id += (double)arr[i].id;
     }
-    return total_depth + total_y + total_b + total_normal_x;
+    return total_id;
 }

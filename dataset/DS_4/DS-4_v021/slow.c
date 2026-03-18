@@ -5,28 +5,28 @@
 
 __attribute__((noinline))
 typedef struct {
-    int id;
-    double timestamp;
-    double value;
-    float weight;
-    int category;
-    int flags;
-    double score;
-    int rank;
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
+    double mass;
+    double charge;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v021;
 
 double slow_ds4_v021(AoS_v021 *arr, int n) {
-    double total_rank = 0.0;
-    double total_category = 0.0;
-    double total_weight = 0.0;
-    double total_id = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_rank += (double)arr[i].rank;
-        total_category += (double)arr[i].category;
-        total_weight += (double)arr[i].weight;
-        total_id += (double)arr[i].id;
-        i++;
+    double total_pad0 = 0.0;
+    for (int i = 0; i < n; i++) {
+        total_pad0 += (double)arr[i].pad0;
     }
-    return total_rank + total_category + total_weight + total_id;
+    return total_pad0;
 }

@@ -3,7 +3,7 @@
   "variant_id": "DS-2_v023",
   "category": "Data Structure Choice",
   "pattern_name": "Repeated Allocation vs Pre-allocation",
-  "variant_desc": "chunk=1024, op=abs, double, n=5000000",
+  "variant_desc": "chunk=16, op=square, double, n=10000000",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

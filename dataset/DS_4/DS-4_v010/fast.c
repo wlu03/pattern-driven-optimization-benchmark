@@ -4,14 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds4_v010(double *humidity, double *wind_dir, double *pressure, int n) {
-    double total_humidity = 0.0;
-    double total_wind_dir = 0.0;
-    double total_pressure = 0.0;
+double fast_ds4_v010(double *v, double *pad2, int n) {
+    double total_v = -1e308;
+    double total_pad2 = -1e308;
     for (int i = 0; i < n; i++) {
-        total_humidity += humidity[i];
-        total_wind_dir += wind_dir[i];
-        total_pressure += pressure[i];
+        if (v[i] > total_v) total_v = v[i];
+        if (pad2[i] > total_pad2) total_pad2 = pad2[i];
     }
-    return total_humidity + total_wind_dir + total_pressure;
+    return total_v + total_pad2;
 }

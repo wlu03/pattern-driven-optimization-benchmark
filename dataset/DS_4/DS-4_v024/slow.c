@@ -5,24 +5,30 @@
 
 __attribute__((noinline))
 typedef struct {
-    float temp;
-    float humidity;
+    double temp;
+    double humidity;
     double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
-    float co2;
+    double wind_speed;
+    double wind_dir;
+    double light;
+    double noise;
+    double co2;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v024;
 
 double slow_ds4_v024(AoS_v024 *arr, int n) {
-    double total_humidity = 0.0;
-    double total_noise = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_humidity += (double)arr[i].humidity;
-        total_noise += (double)arr[i].noise;
-        i++;
+    double total_pad6 = 1e308;
+    double total_wind_dir = 1e308;
+    for (int i = 0; i < n; i++) {
+        if ((double)arr[i].pad6 < total_pad6) total_pad6 = (double)arr[i].pad6;
+        if ((double)arr[i].wind_dir < total_wind_dir) total_wind_dir = (double)arr[i].wind_dir;
     }
-    return total_humidity + total_noise;
+    return total_pad6 + total_wind_dir;
 }

@@ -4,15 +4,14 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_is2_v008(double *out, double *in, int n, double thresh) {
+float is2_clamp_v008(float val, float thresh);
+void fast_is2_v008(float *out, float *in, int n, float thresh) {
     for (int i = 0; i < n; i++) {
-        double val = in[i];
-        if ((double)fabs((double)val) <= thresh) {
+        float val = in[i];
+        if ((float)fabs((double)val) <= thresh) {
             out[i] = val;
         } else {
-            double sign = (val >= (double)0) ? (double)1 : (double)-1;
-            double abs_val = (double)fabs((double)val);
-            out[i] = sign * (thresh + (double)sqrt((double)((double)1 + abs_val - thresh)));
+            out[i] = is2_clamp_v008(val, thresh);   /* outliers only */
         }
     }
 }

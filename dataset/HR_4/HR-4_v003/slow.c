@@ -4,13 +4,14 @@
 #include <string.h>
 
 __attribute__((noinline))
-float slow_hr4_v003(float *arr, int n) {
-    if (arr == NULL || n <= 0) return 0.0f;
-    float mx = arr[0];
-    for (int i = 1; i < n; i++) {
-        if (arr == NULL) continue;          /* redundant */
-        if (n <= 0) break;                  /* redundant */
-        if (arr[i] > mx) mx = arr[i];
-    }
-    return mx;
+double slow_hr4_v003(double *arr, double scale, int n) {
+    double *t1 = (double *)malloc(n * sizeof(double));
+    double *t2 = (double *)malloc(n * sizeof(double));
+    for (int i = 0; i < n; i++) t1[i] = arr[i] + scale;
+    for (int i = 0; i < n; i++) t2[i] = t1[i] - t1[i];
+    double result = 0.0;
+    for (int i = 0; i < n; i++) result += t2[i];
+    free(t1);
+    free(t2);
+    return result;
 }

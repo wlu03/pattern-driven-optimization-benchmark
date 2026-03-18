@@ -4,13 +4,22 @@
 #include <time.h>
 
 typedef struct {
-    int id;
-    double timestamp;
-    double value;
-    float weight;
-    int category;
-    int flags;
-    double score;
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
+    double mass;
+    double charge;
+    double pad0;
+    double pad1;
+    double pad2;
+    double pad3;
+    double pad4;
+    double pad5;
+    double pad6;
+    double pad7;
 } AoS_v023;
 
 // SLOW_CODE_HERE
@@ -20,21 +29,15 @@ typedef struct {
 int main() {
     int n = 5000000;
     AoS_v023 *arr = malloc(n * sizeof(AoS_v023));
-    double *soa_category = malloc(5000000 * sizeof(double));
-    double *soa_id = malloc(5000000 * sizeof(double));
-    double *soa_score = malloc(5000000 * sizeof(double));
-    double *soa_value = malloc(5000000 * sizeof(double));
+    double *soa_charge = malloc(5000000 * sizeof(double));
+    double *soa_pad6 = malloc(5000000 * sizeof(double));
     for (int i = 0; i < 5000000; i++) {
         int iv = (i % 997) + 1;
         double dv = (double)iv * 0.001;
-        arr[i].category = iv * 1;
-        arr[i].id = iv * 2;
-        arr[i].score = dv * 3;
-        arr[i].value = dv * 4;
-        soa_category[i] = (double)(iv * 1);
-        soa_id[i] = (double)(iv * 2);
-        soa_score[i] = (double)(dv * 3);
-        soa_value[i] = (double)(dv * 4);
+        arr[i].charge = dv * 1;
+        arr[i].pad6 = dv * 2;
+        soa_charge[i] = (double)(dv * 1);
+        soa_pad6[i] = (double)(dv * 2);
     }
     double r_slow = 0.0, r_fast = 0.0;
     struct timespec t0, t1;
@@ -44,16 +47,14 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v023(soa_category, soa_id, soa_score, soa_value, n);
+    for (int r = 0; r < n_reps; r++) r_fast = fast_ds4_v023(soa_charge, soa_pad6, n);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = fabs(r_slow - r_fast) < fmax(fabs(r_slow) * 1e-6, 1e-6);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(arr);
-    free(soa_category);
-    free(soa_id);
-    free(soa_score);
-    free(soa_value);
+    free(soa_charge);
+    free(soa_pad6);
     return 0;
 }
