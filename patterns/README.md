@@ -10,11 +10,11 @@ Computations whose redundancy is only visible through algebraic reasoning, not s
 
 | ID | Name | Compiler Difficulty | Inefficiency | Fix |
 |---|---|---|---|---|
-| SR-1 | Loop-Invariant Semantic Computation | High | `t += A[i] + B[i] * delta` — `delta` is loop-invariant but FP associativity rules prevent hoisting | Accumulate `sumA` and `sumB` separately; apply `* delta` once after the loop |
-| SR-2 | Recomputable Expression Decomposition | High | `alpha*X[i]*X[i] + beta*Y[i] + alpha*beta` recomputed per element — the constants can be factored out | Split into independent accumulators for `X²` and `Y`; scale at the end: `alpha*sumXsq + beta*sumY + n*alpha*beta` |
+| SR-1 | Loop-Invariant Function Call (Transcendental Series) | Very High | A log/sin/exp series function is called every iteration with loop-invariant `base` — the transcendental inner loop prevents the compiler from marking it pure/const and hoisting it | Hoist the call: `scale = series_fn(base)` once before the loop, then `arr[i] *= scale` |
+| SR-2 | Loop-Invariant Term in Mixed Expression | Very High | `alpha*X[i]*X[i] + beta*Y[i] + penalty(alpha,beta)` — `penalty` has a sin×exp inner loop with loop-invariant args; compiler cannot hoist it | Separate accumulators for data terms; call `penalty` once and multiply by `n`: `alpha*sumXsq + beta*sumY + n*penalty(alpha,beta)` |
 | SR-3 | Redundant Aggregation Recomputation | Very High | Running average recomputed from scratch each iteration — O(n²) total | Maintain a running sum: add each element once → O(n) |
 | SR-4 | Invariant Function Call in Loop | High | `expensive_config_lookup(config_key)` called every iteration with the same argument — compiler can't hoist across translation-unit boundaries | Hoist the call before the loop; reuse the cached result |
-| SR-5 | Algebraic Strength Reduction | Medium | `sqrt(dx²+dy²)` computed when only relative distance ordering is needed | Use squared distance `dx²+dy²` — eliminates `sqrt` entirely |
+| SR-5 | Repeated Division by Loop-Invariant Denominator | Very High | `out[i] = data[i] / compute_norm(w, m)` — without `restrict`, `out[]` could alias `w[]`, so the compiler cannot prove `compute_norm` is loop-invariant and must re-evaluate it every iteration | Hoist: `inv = 1.0 / compute_norm(w, m)` once before the loop, then `out[i] = data[i] * inv` |
 
 ---
 
