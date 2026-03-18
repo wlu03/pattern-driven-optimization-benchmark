@@ -4,13 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-typedef struct { int x,y,z,vx,vy,vz,mass,charge; } P_v008;
-int slow_comp_v008(P_v008 *p, int n) {
-    int total = 0;
+int config_val_v008(int key);
+
+int slow_comp_v008(int *arr, int n, int key) {
+    int sum = 0;
     for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
-        }
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        int factor = config_val_v008(key);
+        sum += arr[i] * factor;
     }
-    return total;
+    return sum;
 }

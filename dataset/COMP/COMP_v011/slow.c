@@ -4,14 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-double slow_comp_v011(double *A, double *B, int rows, int cols, double k) {
-    double result = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                result += k * A[i*cols+j] * A[i*cols+j] + k * B[i*cols+j];
-            }
-        }
+float config_val_v011(int key);
+
+float slow_comp_v011(float *arr, int n, int key) {
+    float sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        float factor = config_val_v011(key);
+        sum += arr[i] * factor;
     }
-    return result;
+    return sum;
 }

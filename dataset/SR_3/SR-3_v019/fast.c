@@ -4,9 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_sr3_v019(double *data, double *result, int n) {
-    result[0] = data[0];
+void fast_sr3_v019(float *data, float *result, int n) {
+    float mn = data[0];
+    result[0] = mn;
     for (int i = 1; i < n; i++) {
-        result[i] = 0.5 * data[i] + (1.0 - 0.5) * result[i-1];
+        if (data[i] < mn) mn = data[i];
+        result[i] = mn;
     }
 }

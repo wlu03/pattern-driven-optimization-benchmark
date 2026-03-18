@@ -9,10 +9,10 @@
 
 int main() {
     int n = 5000000;
-    double *arr = malloc(n * sizeof(double));
-    for (int i = 0; i < n; i++) arr[i] = (double)(i % 100 + 1) * 0.01;
+    int *arr = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) arr[i] = (int)(i % 100 + 1) * 0.01;
     int key = 42;
-    double r_slow = 0, r_fast = 0;
+    int r_slow = 0, r_fast = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr3_v007(float *out, float *in, int n) {
-    static volatile int debug_ctr_v007 = 0;
+void hr3_debug_v007(double val);
+void slow_hr3_v007(double *out, double *in, int n) {
     for (int i = 0; i < n; i++) {
-        debug_ctr_v007++;  /* volatile: prevents optimization */
-        out[i] = in[i] * (float)3.14 - (float)1.0;
+        out[i] = in[i] * (double)2.0 + (double)1.0;
+        hr3_debug_v007(out[i]);
     }
 }

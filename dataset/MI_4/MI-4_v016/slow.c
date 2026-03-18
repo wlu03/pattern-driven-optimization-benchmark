@@ -1,9 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 __attribute__((noinline))
-void slow_mi4_v016(int *matrix, int rows, int cols) {
+void slow_mi4_v016(double *dst, double *src, int rows, int cols) {
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            matrix[i * cols + j] = (int)fabs((double)matrix[i * cols + j]);
+            dst[i * cols + j] = src[i * cols + j];
         }
     }
 }

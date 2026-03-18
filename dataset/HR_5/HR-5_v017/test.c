@@ -9,21 +9,21 @@
 // FAST_CODE_HERE
 
 int main() {
-    int *A = malloc(N * sizeof(int)); for(int i=0;i<N;i++) A[i]=(int)(i%100+1);
-    int *B = malloc(N * sizeof(int)); for(int i=0;i<N;i++) B[i]=(int)(i%50+1);
+    int *A = malloc(N * sizeof(int)); for(int i=0;i<N;i++) A[i]=(i%100+1);
+    int *B = malloc(N * sizeof(int)); for(int i=0;i<N;i++) B[i]=(i%50+1);
     int *out_slow = calloc(N, sizeof(int));
     int *out_fast = calloc(N, sizeof(int));
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < 5; r++) slow_hr5_v017(out_slow, A, B, N);
+    for (int r = 0; r < 3; r++) slow_hr5_v017(out_slow, A, B, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 5;
+    double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 3;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < 5; r++) fast_hr5_v017(out_fast, A, B, N);
+    for (int r = 0; r < 3; r++) fast_hr5_v017(out_fast, A, B, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 5;
+    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / 3;
 
     int correct = 1;
     for (int i = 0; i < N; i++) if (out_slow[i] != out_fast[i]) { correct = 0; break; }

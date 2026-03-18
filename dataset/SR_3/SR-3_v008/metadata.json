@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v008",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Cumulative RMS recomputed from scratch, float, while-loop, N=30000",
+  "variant_desc": "Cumulative variance recomputed from scratch (O(n^2) -> O(n)), float, N=100000",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

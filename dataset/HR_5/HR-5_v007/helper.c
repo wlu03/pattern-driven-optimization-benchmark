@@ -1,0 +1,4 @@
+__attribute__((noinline, noclone))
+int hr5_check_v007(double val) {
+    return val >= (double)0.0;
+}

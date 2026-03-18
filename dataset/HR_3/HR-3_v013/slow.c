@@ -4,9 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_hr3_v013(double *out, double *in, int n) {
+void hr3_debug_v013(float val);
+void slow_hr3_v013(float *out, float *in, int n) {
     for (int i = 0; i < n; i++) {
-        if (in[i] != in[i]) { /* NaN check - dead for normal data */ }
-        out[i] = in[i] * in[i] + (double)0.5;
+        out[i] = in[i] * in[i] + (float)0.5;
+        hr3_debug_v013(out[i]);
     }
 }

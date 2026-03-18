@@ -8,28 +8,24 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 2000, cols = 2000, total = rows * cols;
-    float *A = malloc(total * sizeof(float));
-    float *B = malloc(total * sizeof(float));
-    float *s = malloc(total * sizeof(float));
-    float *f = malloc(total * sizeof(float));
-    for (int k = 0; k < total; k++) { A[k] = (float)(k % 100) * 0.1; B[k] = (float)(k % 50) * 0.2; }
+    int rows = 3000, cols = 3000;
+    float *mat = malloc(rows * cols * sizeof(float));
+    for (int k = 0; k < rows * cols; k++) mat[k] = (float)(k % 100) * 0.01;
+    float s = 0, f = 0;
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) slow_mi4_v027(s, A, B, rows, cols);
+    for (int r = 0; r < n_reps; r++) s = slow_mi4_v027(mat, rows, cols);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) fast_mi4_v027(f, A, B, rows, cols);
+    for (int r = 0; r < n_reps; r++) f = fast_mi4_v027(mat, rows, cols);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    int correct = 1;
-    for (int k = 0; k < total; k++) {
-        if (fabs((double)(s[k] - f[k])) > 1e-4) { correct = 0; break; }
-    }
+    /* relative tolerance: float summation order differs between row/col traversal */
+    int correct = fabs((double)(s - f)) / fmax(fabs((double)s), 1.0) < 5e-3;
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(A); free(B); free(s); free(f);
+    free(mat);
     return 0;
 }

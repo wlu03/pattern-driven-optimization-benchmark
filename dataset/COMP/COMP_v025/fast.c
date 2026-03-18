@@ -4,17 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_comp_v025(int *A, int *B, int n, int k, int mode) {
-    int sumA = 0, sumB = 0;
+float compute_v025(int key);
+
+void fast_comp_v025(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v025(key);
     if (mode == 1) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA + sumB * k;
-    } else if (mode == 2) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA - sumB * k;
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
     } else {
-        int sumAB = 0;
-        for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
-        return sumAB * k;
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
     }
 }

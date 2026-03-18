@@ -16,11 +16,11 @@ int main() {
     struct timespec t0, t1;
     int n_reps = 1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) slow_cf1_v012(out_s, A, B, n, 3);
+    for (int r = 0; r < n_reps; r++) slow_cf1_v012(out_s, A, B, n, 1);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) fast_cf1_v012(out_f, A, B, n, 3);
+    for (int r = 0; r < n_reps; r++) fast_cf1_v012(out_f, A, B, n, 1);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = 1;

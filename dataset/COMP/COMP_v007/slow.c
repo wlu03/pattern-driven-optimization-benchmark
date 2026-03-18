@@ -4,16 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-double slow_comp_v007(double *X, double *Y, int n, double alpha, double beta) {
-    double result = 0;
+int compute_v007(int key);
+
+void slow_comp_v007(int *out, int *A, int n, int key, int mode) {
     for (int i = 0; i < n; i++) {
-        double t1 = X[i] * X[i];
-        double t2 = alpha * t1;
-        double t3 = beta * Y[i];
-        double t4 = t2 + t3;
-        double t5 = t4 + alpha * beta;
-        double t6 = t5;
-        result += t6;
+        int factor = compute_v007(key);
+        int t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        int t2 = t1 + (int)1.0;
+        int t3 = t2;
+        out[i] = t3;
     }
-    return result;
 }

@@ -4,8 +4,9 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_ds3_v027(const double *data) {
-    double s = 0.0;
-    for (int i = 0; i < 128; i++) s += data[i];
-    return s / 128.0;
+void fast_ds3_v027(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        double t = A[i] + B[i];
+        out[i] = (t * 2.0 - B[i]) * A[i];
+    }
 }

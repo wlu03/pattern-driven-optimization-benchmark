@@ -4,10 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_is1_v026(float *y, float *x, float alpha, int n) {
-    if (alpha == 0.0f) return;
+float is1_kernel_v026(float a, float b);
+void fast_is1_v026(float *out, float *A, float *B, int n) {
     for (int i = 0; i < n; i++) {
-        if (x[i] == 0.0f) continue;
-        y[i] += alpha * x[i];
+        if (A[i] == (float)0.0f) { out[i] = 0.0f; }
+        else out[i] = is1_kernel_v026(A[i], B[i]);
     }
 }

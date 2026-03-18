@@ -4,11 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_comp_v007(double *X, double *Y, int n, double alpha, double beta) {
-    double sumXsq = 0, sumY = 0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+int compute_v007(int key);
+
+void fast_comp_v007(int *out, int *A, int n, int key, int mode) {
+    int factor = compute_v007(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
     }
-    return alpha * sumXsq + beta * sumY + (double)n * alpha * beta;
 }

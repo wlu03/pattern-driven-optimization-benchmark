@@ -2,33 +2,34 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 200000
-#define W 64
+#define N 5000000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *arr = (double*)malloc((long)N * W * sizeof(double));
-    for (long i = 0; i < (long)N * W; i++) arr[i] = (double)(i % 997 + 1) * 0.001;
+    double *A = (double *)malloc(N * sizeof(double));
+    double *B = (double *)malloc(N * sizeof(double));
+    double *out_slow = (double *)malloc(N * sizeof(double));
+    double *out_fast = (double *)malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) { A[i] = (double)(i % 997 + 1) * 0.001; B[i] = (double)(i % 499 + 1) * 0.002; }
 
     struct timespec t0, t1;
-    volatile double sum_slow = 0, sum_fast = 0;
-
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int i = 0; i < N; i++) sum_slow += slow_ds3_v017(arr + (long)i * W);
+    slow_ds3_v017(out_slow, A, B, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int i = 0; i < N; i++) sum_fast += fast_ds3_v017(arr + (long)i * W);
+    fast_ds3_v017(out_fast, A, B, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    int correct = (fabs(sum_slow - sum_fast) < 1e-4) ? 1 : 0;
+    int correct = 1;
+    for (int i = 0; i < N; i++) if (fabs(out_slow[i] - out_fast[i]) > 1e-9) { correct = 0; break; }
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(arr);
+    free(A); free(B); free(out_slow); free(out_fast);
     return 0;
 }

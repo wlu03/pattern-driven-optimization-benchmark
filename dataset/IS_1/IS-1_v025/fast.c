@@ -4,11 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-double fast_is1_v025(double *A, double *B, int n) {
-    double sum = 0.0;
+float is1_kernel_v025(float a, float b);
+void fast_is1_v025(float *out, float *A, float *B, int n) {
     for (int i = 0; i < n; i++) {
-        if (A[i] == 0.0 || B[i] == 0.0) continue;
-        sum += A[i] * B[i];
+        if (A[i] == (float)0.0f) { out[i] = 0.0f; }
+        else out[i] = is1_kernel_v025(A[i], B[i]);
     }
-    return sum;
 }

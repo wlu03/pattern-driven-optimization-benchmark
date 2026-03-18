@@ -4,12 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_is1_v005(double *C, double *a, double *b, int m, int n) {
-    for (int i = 0; i < m; i++) {
-        if (a[i] == 0.0) continue;
-        for (int j = 0; j < n; j++) {
-            if (b[j] == 0.0) continue;
-            C[i * n + j] += a[i] * b[j];
-        }
+double is1_kernel_v005(double a, double b);
+void fast_is1_v005(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        if (A[i] == (double)0.0) { out[i] = 0.0; }
+        else out[i] = is1_kernel_v005(A[i], B[i]);
     }
 }

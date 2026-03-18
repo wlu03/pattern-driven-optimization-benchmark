@@ -8,7 +8,7 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 1000, cols = 2000, total = rows * cols;
+    int rows = 3000, cols = 5000, total = rows * cols;
     int *A = malloc(total * sizeof(int));
     int *B = malloc(total * sizeof(int));
     int *s = malloc(total * sizeof(int));

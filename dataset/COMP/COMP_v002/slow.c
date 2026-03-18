@@ -4,15 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_comp_v002(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        float sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
+typedef struct { float x,y,z,vx,vy,vz,mass,charge; } P_v002;
+float slow_comp_v002(P_v002 *p, int n) {
+    float total = 0;
+    for (int i = 0; i < n; i++) {
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
         }
-        col_avgs[j] = sum / (float)rows;
     }
+    return total;
 }

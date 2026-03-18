@@ -1,9 +1,9 @@
 #include <math.h>
 __attribute__((noinline))
-void fast_mi4_v018(float *matrix, int rows, int cols) {
+void fast_mi4_v018(int *matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            matrix[i * cols + j] = (float)exp((double)matrix[i * cols + j]);
+            matrix[i * cols + j] = (int)sqrt((double)matrix[i * cols + j]);
         }
     }
 }

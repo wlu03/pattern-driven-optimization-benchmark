@@ -4,13 +4,15 @@
 #include <string.h>
 
 __attribute__((noinline))
-typedef struct { int x,y,z,vx,vy,vz,mass,charge; } P_v006;
-int slow_comp_v006(P_v006 *p, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
+void slow_comp_v006(double *mat, double *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        double sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
         }
+        col_avgs[j] = sum / (double)rows;
     }
-    return total;
 }

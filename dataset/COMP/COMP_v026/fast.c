@@ -4,8 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_comp_v026(int *mass, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) total += mass[i];
-    return total;
+int compute_v026(int key);
+
+void fast_comp_v026(int *out, int *A, int n, int key, int mode) {
+    int factor = compute_v026(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+    }
 }

@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v016",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Running minimum recomputed from scratch, double, N=10000",
+  "variant_desc": "Cumulative mean recomputed from scratch each iteration, double, while-loop, N=100000",
   "dtype": "double",
   "difficulty": "easy",
   "compiler_fixable": false,

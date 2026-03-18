@@ -3,7 +3,7 @@
   "variant_id": "MI-4_v019",
   "category": "Memory & IO",
   "pattern_name": "Column vs Row Major Access",
-  "variant_desc": "add_arrays operation, int, 1000x2000 matrix",
+  "variant_desc": "add_arrays operation, int, 3000x5000 matrix",
   "dtype": "int",
   "difficulty": "medium",
   "compiler_fixable": false,

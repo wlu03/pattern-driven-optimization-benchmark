@@ -4,14 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_sr3_v001(double *data, double *result, int n) {
-    double mean = 0.0;
-    double M2 = 0.0;
-    for (int i = 0; i < n; i++) {
-        double delta = data[i] - mean;
-        mean += delta / (i + 1);
-        double delta2 = data[i] - mean;
-        M2 += delta * delta2;
-        result[i] = M2 / (i + 1);
+void fast_sr3_v001(float *data, float *result, int n) {
+    result[0] = data[0];
+    int i = 1;
+    while (i < n) {
+        result[i] = 0.1f * data[i] + (1.0f - 0.1f) * result[i-1];
+        i++;
     }
 }

@@ -4,12 +4,13 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_comp_v016(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
+float compute_v016(int key);
+
+void fast_comp_v016(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v016(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= (float)rows;
 }

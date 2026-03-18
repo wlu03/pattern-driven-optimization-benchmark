@@ -4,8 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_is1_v021(float *out, float *A, float *B, int n) {
-    for (int i = 0; i < n; i++) {
-        out[i] = A[i] - B[i];
-    }
+double is1_kernel_v021(double a, double b);
+void slow_is1_v021(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) out[i] = is1_kernel_v021(A[i], B[i]);
 }

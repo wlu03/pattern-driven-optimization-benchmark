@@ -3,18 +3,18 @@
 #include <math.h>
 #include <time.h>
 
-#define N 100000
+#define N 30000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *data = malloc(N * sizeof(float));
-    float *res_slow = malloc(N * sizeof(float));
-    float *res_fast = malloc(N * sizeof(float));
+    int *data = malloc(N * sizeof(int));
+    int *res_slow = malloc(N * sizeof(int));
+    int *res_fast = malloc(N * sizeof(int));
     srand(42);
-    for (int i = 0; i < N; i++) data[i] = (float)(rand() % 1000) * 0.01f;
+    for (int i = 0; i < N; i++) data[i] = (int)(rand() % 1000) * 0.01;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

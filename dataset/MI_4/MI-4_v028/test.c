@@ -9,7 +9,7 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 4000, cols = 3000;
+    int rows = 5000, cols = 5000;
     int *mat_slow = malloc(rows * cols * sizeof(int));
     int *mat_fast = malloc(rows * cols * sizeof(int));
     for (int k = 0; k < rows * cols; k++) mat_slow[k] = (int)(k % 100) * 0.1;

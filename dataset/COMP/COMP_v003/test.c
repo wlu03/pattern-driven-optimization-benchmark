@@ -8,27 +8,28 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 1000, cols = 1000;
-    int *mat = malloc(rows * cols * sizeof(int));
-    int *avgs_slow = malloc(cols * sizeof(int));
-    int *avgs_fast = malloc(cols * sizeof(int));
-    for (int k = 0; k < rows * cols; k++) mat[k] = (int)(k % 100) * 0.01;
+    int n = 5000000;
+    int *A = malloc(n * sizeof(int));
+    int *out_slow = malloc(n * sizeof(int));
+    int *out_fast = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) A[i] = (int)(i % 100 + 1) * 0.01;
+    int key = 42, mode = 1;
     struct timespec t0, t1;
-    int n_reps = 1;
+    int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) slow_comp_v003(mat, avgs_slow, rows, cols);
+    for (int r = 0; r < n_reps; r++) slow_comp_v003(out_slow, A, n, key, mode);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) fast_comp_v003(mat, avgs_fast, rows, cols);
+    for (int r = 0; r < n_reps; r++) fast_comp_v003(out_fast, A, n, key, mode);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
     int correct = 1;
-    for (int j = 0; j < cols; j++) {
-        if (fabs((double)(avgs_slow[j] - avgs_fast[j])) > 1e-4) { correct = 0; break; }
+    for (int i = 0; i < n; i++) {
+        if (fabs((double)(out_slow[i] - out_fast[i])) > 1e-4) { correct = 0; break; }
     }
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(mat); free(avgs_slow); free(avgs_fast);
+    free(A); free(out_slow); free(out_fast);
     return 0;
 }

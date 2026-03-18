@@ -4,11 +4,11 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_sr3_v023(int *data, int *result, int n) {
-    int mn = data[0];
-    result[0] = mn;
-    for (int i = 1; i < n; i++) {
-        if (data[i] < mn) mn = data[i];
-        result[i] = mn;
+void fast_sr3_v023(double *data, double *result, int n) {
+    result[0] = data[0];
+    int i = 1;
+    while (i < n) {
+        result[i] = 0.3 * data[i] + (1.0 - 0.3) * result[i-1];
+        i++;
     }
 }

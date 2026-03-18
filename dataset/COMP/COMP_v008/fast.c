@@ -4,8 +4,12 @@
 #include <string.h>
 
 __attribute__((noinline))
-int fast_comp_v008(int *mass, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) total += mass[i];
-    return total;
+int config_val_v008(int key);
+
+int fast_comp_v008(int *arr, int n, int key) {
+    if (arr == 0 || n <= 0) return 0;
+    int factor = config_val_v008(key);
+    int sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

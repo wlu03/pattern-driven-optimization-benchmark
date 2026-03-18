@@ -4,10 +4,7 @@
 #include <string.h>
 
 __attribute__((noinline))
-float slow_is1_v029(float *A, float *B, int n) {
-    float sum = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum += A[i] * B[i];
-    }
-    return sum;
+float is1_kernel_v029(float a, float b);
+void slow_is1_v029(float *out, float *A, float *B, int n) {
+    for (int i = 0; i < n; i++) out[i] = is1_kernel_v029(A[i], B[i]);
 }

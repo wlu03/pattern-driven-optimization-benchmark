@@ -4,8 +4,8 @@
 #include <string.h>
 
 static float __attribute__((noinline)) cf1_dispatch_v012(float a, float b, int mode) {
-    if (mode == 1) return a - b;
-    if (mode == 2) return a * b;
+    if (mode == 1) return a * b;
+    if (mode == 2) return a - b;
     if (mode == 3) return a + b;
     return a + b;
 }

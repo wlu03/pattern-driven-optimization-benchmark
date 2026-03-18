@@ -8,12 +8,12 @@
 // FAST_CODE_HERE
 
 int main() {
-    int rows = 1000, cols = 5000, total = rows * cols;
-    int *A = malloc(total * sizeof(int));
-    int *B = malloc(total * sizeof(int));
-    int *s = malloc(total * sizeof(int));
-    int *f = malloc(total * sizeof(int));
-    for (int k = 0; k < total; k++) { A[k] = (int)(k % 100) * 0.1; B[k] = (int)(k % 50) * 0.2; }
+    int rows = 3000, cols = 5000, total = rows * cols;
+    double *A = malloc(total * sizeof(double));
+    double *B = malloc(total * sizeof(double));
+    double *s = malloc(total * sizeof(double));
+    double *f = malloc(total * sizeof(double));
+    for (int k = 0; k < total; k++) { A[k] = (double)(k % 100) * 0.1; B[k] = (double)(k % 50) * 0.2; }
     struct timespec t0, t1;
     int n_reps = 3;
     clock_gettime(CLOCK_MONOTONIC, &t0);

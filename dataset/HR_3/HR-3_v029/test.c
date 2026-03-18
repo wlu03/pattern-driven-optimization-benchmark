@@ -9,10 +9,10 @@
 // FAST_CODE_HERE
 
 int main() {
-    double *in_arr = malloc(N * sizeof(double));
-    double *out_slow = malloc(N * sizeof(double));
-    double *out_fast = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) in_arr[i] = (double)(i % 100 + 1) * (double)0.1;
+    float *in_arr = malloc(N * sizeof(float));
+    float *out_slow = malloc(N * sizeof(float));
+    float *out_fast = malloc(N * sizeof(float));
+    for (int i = 0; i < N; i++) in_arr[i] = (float)(i % 100 + 1) * (float)0.1f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

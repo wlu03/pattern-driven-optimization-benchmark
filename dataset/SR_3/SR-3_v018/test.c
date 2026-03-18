@@ -10,11 +10,11 @@
 // FAST_CODE_HERE
 
 int main() {
-    float *data = malloc(N * sizeof(float));
-    float *res_slow = malloc(N * sizeof(float));
-    float *res_fast = malloc(N * sizeof(float));
+    double *data = malloc(N * sizeof(double));
+    double *res_slow = malloc(N * sizeof(double));
+    double *res_fast = malloc(N * sizeof(double));
     srand(42);
-    for (int i = 0; i < N; i++) data[i] = (float)(rand() % 1000) * 0.01f;
+    for (int i = 0; i < N; i++) data[i] = (double)(rand() % 1000) * 0.01;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

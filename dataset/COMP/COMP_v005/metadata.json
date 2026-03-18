@@ -3,7 +3,7 @@
   "variant_id": "COMP_v005",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "Hoistable branch + column-major access, int",
+  "variant_desc": "Invariant function call + defensive checks, int",
   "dtype": "int",
   "difficulty": "hard",
   "compiler_fixable": false,
@@ -12,7 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "CF-1",
-    "MI-4"
+    "SR-4",
+    "HR-4"
   ]
 }

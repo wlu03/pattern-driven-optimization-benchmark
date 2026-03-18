@@ -4,12 +4,16 @@
 #include <string.h>
 
 __attribute__((noinline))
-void slow_comp_v027(double *mat, int rows, int cols, int mode) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (mode == 1) mat[i * cols + j] *= (double)2.0;
-            else if (mode == 2) mat[i * cols + j] += (double)1.0;
-            else mat[i * cols + j] -= (double)0.5;
-        }
+int config_val_v027(int key);
+
+int slow_comp_v027(int *arr, int n, int key) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr == 0) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        int factor = config_val_v027(key);
+        sum += arr[i] * factor;
     }
+    return sum;
 }

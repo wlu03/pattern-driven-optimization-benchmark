@@ -4,8 +4,8 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_hr3_v018(double *out, double *in, int n) {
+void fast_hr3_v018(float *out, float *in, int n) {
     for (int i = 0; i < n; i++) {
-        out[i] = in[i] * (double)3.14 - (double)1.0;
+        out[i] = in[i] * (float)3.14 - (float)1.0;
     }
 }

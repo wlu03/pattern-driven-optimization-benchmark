@@ -4,24 +4,10 @@
 #include <string.h>
 
 __attribute__((noinline))
-void fast_is5_v010(float *out, float *A, float *B, float *C, int n) {
-    int no_alias = (out + n <= A || A + n <= out) && (out + n <= B || B + n <= out) && (out + n <= C || C + n <= out);
-    if (no_alias) {
-        // Non-aliasing: cast to restrict-qualified locals
-        // so the compiler can emit unguarded SIMD
-        float * __restrict__ ro = out;
-        const float * __restrict__ rA = (const float * __restrict__)A;
-        const float * __restrict__ rB = (const float * __restrict__)B;
-        const float * __restrict__ rC = (const float * __restrict__)C;
-        for (int i = 0; i < n; i++) {
-            ro[i] = 0.5f * rA[i] + 0.3f * rB[i] + 0.2f * rC[i];
-        }
-    } else {
-        // Aliasing fallback (rare)
-    int i = 0;
-    while (i < n) {
-        out[i] = 0.5f * A[i] + 0.3f * B[i] + 0.2f * C[i];
-        i++;
-    }
+void fast_is5_v010(double *out, double *A, double *B, int n) {
+    for (int i = 0; i < n; i++) {
+        double t1 = A[i] - B[i];
+        double t2 = t1 * 2.0 * B[i];
+        out[i] = t2 * t2 - A[i];
     }
 }
