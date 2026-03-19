@@ -15,6 +15,7 @@ Run:
 import unsloth  # noqa: F401
 import argparse
 from datasets import load_dataset
+from transformers import EarlyStoppingCallback
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template
@@ -29,7 +30,8 @@ def main():
     parser.add_argument("--train",  default="train.jsonl")
     parser.add_argument("--val",    default=None)          # None = no eval
     parser.add_argument("--output", default="lora_adapter/")
-    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--early_stopping_patience", type=int, default=3)
     parser.add_argument("--batch",  type=int, default=2)
     parser.add_argument("--grad_accum", type=int, default=8)
     parser.add_argument("--lr",     type=float, default=2e-4)
@@ -74,11 +76,16 @@ def main():
                           remove_columns=dataset["train"].column_names)
 
     # ── Train ───────────────────────────────────────────────────────────────
+    callbacks = []
+    if "validation" in dataset:
+        callbacks.append(EarlyStoppingCallback(early_stopping_patience=args.early_stopping_patience))
+
     trainer = SFTTrainer(
         model              = model,
         processing_class   = tokenizer,
         train_dataset      = dataset["train"],
         eval_dataset       = dataset["validation"] if "validation" in dataset else None,
+        callbacks          = callbacks or None,
         args = SFTConfig(
             dataset_text_field          = "text",
             packing                     = True,
@@ -94,7 +101,10 @@ def main():
             logging_steps               = 10,
             eval_strategy               = "epoch" if "validation" in dataset else "no",
             save_strategy               = "epoch",
-            save_total_limit            = 2,
+            save_total_limit            = 3,
+            load_best_model_at_end      = True,
+            metric_for_best_model       = "eval_loss",
+            greater_is_better           = False,
             output_dir                  = args.output,
             report_to                   = "none",
         ),
