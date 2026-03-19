@@ -11,6 +11,8 @@ Run:
     python3 finetune_lora.py --train train.jsonl --val val.jsonl --output lora_adapter/
 """
 
+# unsloth must be imported before trl/transformers/peft
+import unsloth  # noqa: F401
 import argparse
 from datasets import load_dataset
 from trl import SFTTrainer, SFTConfig
@@ -25,7 +27,7 @@ LORA_RANK    = 16     # 8 = lighter, 32 = more capacity
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--train",  default="train.jsonl")
-    parser.add_argument("--val",    default="val.jsonl")
+    parser.add_argument("--val",    default=None)          # None = no eval
     parser.add_argument("--output", default="lora_adapter/")
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch",  type=int, default=2)
@@ -73,13 +75,14 @@ def main():
 
     # ── Train ───────────────────────────────────────────────────────────────
     trainer = SFTTrainer(
-        model          = model,
-        tokenizer      = tokenizer,
-        train_dataset  = dataset["train"],
-        eval_dataset   = dataset.get("validation"),
-        max_seq_length = MAX_SEQ_LEN,
+        model              = model,
+        processing_class   = tokenizer,
+        train_dataset      = dataset["train"],
+        eval_dataset       = dataset["validation"] if "validation" in dataset else None,
         args = SFTConfig(
             dataset_text_field          = "text",
+            packing                     = True,
+            max_seq_length              = MAX_SEQ_LEN,
             per_device_train_batch_size = args.batch,
             gradient_accumulation_steps = args.grad_accum,
             num_train_epochs            = args.epochs,
@@ -89,8 +92,9 @@ def main():
             fp16                        = False,
             bf16                        = True,
             logging_steps               = 10,
-            evaluation_strategy         = "epoch" if "validation" in dataset else "no",
+            eval_strategy               = "epoch" if "validation" in dataset else "no",
             save_strategy               = "epoch",
+            save_total_limit            = 2,
             output_dir                  = args.output,
             report_to                   = "none",
         ),
