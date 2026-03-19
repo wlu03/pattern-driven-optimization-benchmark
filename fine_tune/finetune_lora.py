@@ -73,13 +73,13 @@ def main():
 
     # ── Train ───────────────────────────────────────────────────────────────
     trainer = SFTTrainer(
-        model         = model,
-        tokenizer     = tokenizer,
-        train_dataset = dataset["train"],
-        eval_dataset  = dataset.get("validation"),
+        model          = model,
+        tokenizer      = tokenizer,
+        train_dataset  = dataset["train"],
+        eval_dataset   = dataset.get("validation"),
+        max_seq_length = MAX_SEQ_LEN,
         args = SFTConfig(
             dataset_text_field          = "text",
-            max_seq_length              = MAX_SEQ_LEN,
             per_device_train_batch_size = args.batch,
             gradient_accumulation_steps = args.grad_accum,
             num_train_epochs            = args.epochs,
