@@ -18,7 +18,7 @@ from datasets import load_dataset
 from transformers import EarlyStoppingCallback
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
-from unsloth.chat_templates import get_chat_template
+from unsloth.chat_templates import get_chat_template, train_on_responses_only
 
 BASE_MODEL   = "Qwen/Qwen2.5-Coder-7B-Instruct"
 MAX_SEQ_LEN  = 2048   # increase to 4096 if you have VRAM to spare
@@ -98,6 +98,9 @@ def main():
             lr_scheduler_type           = "cosine",
             fp16                        = False,
             bf16                        = True,
+            tf32                        = True,
+            max_grad_norm               = 0.3,
+            optim                       = "adamw_torch_fused",
             logging_steps               = 10,
             eval_strategy               = "epoch" if "validation" in dataset else "no",
             save_strategy               = "epoch",
@@ -108,6 +111,13 @@ def main():
             output_dir                  = args.output,
             report_to                   = "none",
         ),
+    )
+
+    # Only compute loss on assistant responses, not on the prompt
+    trainer = train_on_responses_only(
+        trainer,
+        instruction_part = "<|im_start|>user\n",
+        response_part    = "<|im_start|>assistant\n",
     )
 
     trainer.train()

@@ -63,18 +63,48 @@ python3 prepare_finetune_data.py --strategies generic pattern-aware taxonomy-gui
 
 `finetune_lora.py` defaults:
 
-| Parameter | Value |
-|---|---|
-| Base model | `Qwen/Qwen2.5-Coder-7B-Instruct` |
-| Quantization | 4-bit (QLoRA) |
-| LoRA rank | 16 |
-| Max sequence length | 2048 |
-| Epochs | 3 |
-| Learning rate | 2e-4 |
-| LR schedule | cosine |
-| Batch size | 2 × 8 grad accum = 16 effective |
+| Parameter | Value | Notes |
+|---|---|---|
+| Base model | `Qwen/Qwen2.5-Coder-7B-Instruct` | Instruct variant for chat template alignment |
+| Quantization | 4-bit NF4 (QLoRA) | ~4× less VRAM vs. full BF16 |
+| LoRA rank | 16 | Increase to 64 if underfitting |
+| LoRA alpha | 32 (2× rank) | Scales adapter update magnitude |
+| LoRA target modules | all attention + MLP projections | q/k/v/o + gate/up/down |
+| Max sequence length | 2048 | Increase to 4096 for longer examples |
+| Epochs | 10 (with early stopping) | Stops after 3 epochs without eval loss improvement |
+| Learning rate | 2e-4 | Cosine schedule with 5% warmup |
+| Batch size | 2 × 8 grad accum = 16 effective | |
+| Optimizer | `adamw_torch_fused` | Fastest AdamW for PyTorch 2.x |
+| Gradient clipping | 0.3 | Guards against LoRA adapter divergence |
+| Mixed precision | BF16 + TF32 | BF16 activations, TF32 tensor cores (A100) |
+| Packing | enabled | Concatenates short examples — eliminates padding waste |
+| Response-only loss | enabled | Loss masked to assistant outputs only |
 
 Requires a GPU with ~16GB VRAM (e.g. A100 40GB comfortably, RTX 3090 at the limit).
+
+## Best Practices (from research)
+
+### Data quality over quantity
+1,000 high-quality verified examples can match 50,000 mediocre ones (LIMA, 2023). For code, prefer execution-verified solutions with test cases over text-plausible ones. The synthetic data pipeline here uses real `slow.c`/`fast.c` pairs that are compiled and benchmarked, making them ideal training signal.
+
+### Why response-only loss matters
+By default, SFT computes loss over the entire sequence (system prompt + user message + assistant response). This wastes capacity on tokens the model will never generate at inference. Masking the loss to assistant outputs only produces measurably better instruction following.
+
+### Overfitting signals to watch
+- Training loss keeps dropping but eval loss plateaus or rises → stop early
+- Model outputs become repetitive or template-locked → reduce epochs or add `lora_dropout=0.05`
+- `max_grad_norm=0.3` fires frequently → learning rate too high, reduce by 2×
+
+### Going further: DPO on top of SFT
+After SFT, a DPO stage on ~2K preference pairs (correct optimization vs. near-miss) adds ~5% further improvement. Use `lr=5e-6` (10-100× lower than SFT) and `beta=0.1`.
+
+### Evaluation beyond loss
+Validation loss alone does not predict benchmark performance. After training, evaluate with:
+- **EvalPlus** (HumanEval+ / MBPP+) — extended test cases, harder to saturate
+- **LiveCodeBench** — contamination-free, rolling benchmark with post-cutoff problems
+- **BigCodeBench** — multi-library software engineering tasks
+
+Use `pass@1` (greedy) as the primary metric. Do not rely on HumanEval alone — top models now exceed 90% pass@1, making it nearly saturated.
 
 ## Evaluating the Fine-Tuned Model
 
