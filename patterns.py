@@ -12,7 +12,7 @@ class PatternEntry:
     compiler_difficulty: str  # "Low", "Medium", "High", "Very High"
     description: str         # What the inefficiency is
 
-# All 28 patterns
+# All 27 patterns
 PATTERNS = [
     # ── CATEGORY 1: Semantic Redundancy ──
     PatternEntry(
@@ -722,115 +722,6 @@ int main() {
     ),
 
     # ── CATEGORY 3: Control-Flow ──
-    PatternEntry(pattern_id="CF-1", category="Control-Flow", name="Data-Uniform Batch Dispatch",
-        compiler_difficulty="High",
-        description="Per-element dispatch through a noinline function prevents vectorization. "
-                    "Detect the batch type from the first element and dispatch to an inline loop.",
-        slow_code="""
-static double __attribute__((noinline)) cf1_fn0(double x) { return x * 2.0 + 1.0; }
-static double __attribute__((noinline)) cf1_fn1(double x) { return x * x + x; }
-void cf1_slow(double *out, double *in, int *tags, int n) {
-    for (int i = 0; i < n; i++)
-        out[i] = tags[i] == 0 ? cf1_fn0(in[i]) : cf1_fn1(in[i]);
-}""",
-        fast_code="""
-void cf1_fast(double *out, double *in, int *tags, int n) {
-    if (tags[0] == 0) { for (int i = 0; i < n; i++) out[i] = in[i] * 2.0 + 1.0; }
-    else              { for (int i = 0; i < n; i++) out[i] = in[i] * in[i] + in[i]; }
-}""",
-        test_harness="""
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-
-static double __attribute__((noinline)) cf1_fn0(double x) { return x * 2.0 + 1.0; }
-static double __attribute__((noinline)) cf1_fn1(double x) { return x * x + x; }
-
-// LLM_CODE_HERE
-
-int main() {
-    int n = 10000000;
-    double *in  = malloc(n * sizeof(double));
-    double *out = malloc(n * sizeof(double));
-    int    *tags = malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++) { in[i] = (double)(i % 200 + 1) * 0.05; tags[i] = 0; }
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    optimized(out, in, tags, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
-
-    int correct = 1;
-    for (int i = 0; i < n; i++) {
-        double expected = in[i] * 2.0 + 1.0;
-        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
-    }
-    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
-    free(in); free(out); free(tags);
-    return 0;
-}"""
-    ),
-
-    PatternEntry(pattern_id="CF-2", category="Control-Flow", name="Hot/Cold Path Separation",
-        compiler_difficulty="High",
-        description="A noinline hot-path function prevents vectorization of a loop where 99% of "
-                    "elements need complex computation and 1% need a cheap reset. "
-                    "Inline the hot computation so the compiler can emit SIMD.",
-        slow_code="""
-static double __attribute__((noinline)) cf2_hot(double x) {
-    return x * x + x * 0.5 + 1.0;
-}
-void cf2_slow(double *out, double *in, int *flags, int n) {
-    for (int i = 0; i < n; i++)
-        out[i] = flags[i] ? 0.0 : cf2_hot(in[i]);
-}""",
-        fast_code="""
-void cf2_fast(double *out, double *in, int *flags, int n) {
-    for (int i = 0; i < n; i++)
-        out[i] = flags[i] ? 0.0 : in[i] * in[i] + in[i] * 0.5 + 1.0;
-}""",
-        test_harness="""
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-
-static double __attribute__((noinline)) cf2_hot(double x) {
-    return x * x + x * 0.5 + 1.0;
-}
-
-// LLM_CODE_HERE
-
-int main() {
-    int n = 10000000;
-    double *in   = malloc(n * sizeof(double));
-    double *out  = malloc(n * sizeof(double));
-    int    *flags = calloc(n, sizeof(int));
-    srand(42);
-    for (int i = 0; i < n; i++) {
-        in[i] = (double)(i % 200 + 1) * 0.05;
-        if (rand() % 100 == 0) flags[i] = 1;
-    }
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    optimized(out, in, flags, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
-
-    int correct = 1;
-    for (int i = 0; i < n; i++) {
-        double expected = flags[i] ? 0.0 : in[i] * in[i] + in[i] * 0.5 + 1.0;
-        if (fabs(out[i] - expected) > 1e-9) { correct = 0; break; }
-    }
-    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
-    free(in); free(out); free(flags);
-    return 0;
-}"""
-    ),
-
     PatternEntry(pattern_id="CF-3", category="Control-Flow", name="Vectorization-Hostile Conditional",
         compiler_difficulty="High",
         description="A noinline function wraps a computation with a runtime guard (always true "
@@ -937,70 +828,6 @@ int main() {
     ),
 
     # ── CATEGORY 4: Human-Style Antipatterns ──
-    PatternEntry(
-        pattern_id="HR-1",
-        category="Human-Style Antipatterns",
-        name="Redundant Temporary Variables",
-        compiler_difficulty="Low",
-        description="Unnecessary intermediate variables (temp1 -> temp2 -> temp3 -> result -> out[i]) "
-                    "force extra memory writes and hinder register allocation. "
-                    "Inline the computation: out[i] = (A[i] + B[i]) * C[i] + 1.0.",
-        slow_code="""
-void hr1_slow(double *out, double *A, double *B, double *C, int n) {
-    for (int i = 0; i < n; i++) {
-        double temp1 = A[i] + B[i];
-        double temp2 = temp1 * C[i];
-        double temp3 = temp2 + 1.0;
-        double result = temp3;
-        out[i] = result;
-    }
-}""",
-        fast_code="""
-void hr1_fast(double *out, double *A, double *B, double *C, int n) {
-    for (int i = 0; i < n; i++) {
-        out[i] = (A[i] + B[i]) * C[i] + 1.0;
-    }
-}""",
-        test_harness="""
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-
-// LLM_CODE_HERE
-
-int main() {
-    int n = 10000000;
-    double *A   = malloc(n * sizeof(double));
-    double *B   = malloc(n * sizeof(double));
-    double *C   = malloc(n * sizeof(double));
-    double *out = malloc(n * sizeof(double));
-    srand(42);
-    for (int i = 0; i < n; i++) {
-        A[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
-        B[i] = -10.0 + 20.0 * ((double)rand() / RAND_MAX);
-        C[i] =   0.1 +  4.9 * ((double)rand() / RAND_MAX);
-    }
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    optimized(out, A, B, C, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
-
-    int correct = 1;
-    for (int i = 0; i < n; i++) {
-        double expected = (A[i] + B[i]) * C[i] + 1.0;
-        if (fabs(out[i] - expected) / fmax(fabs(expected), 1e-12) > 1e-9) {
-            correct = 0; break;
-        }
-    }
-    printf("result=%.10f time_ms=%.4f correct=%d\\n", out[0], ms, correct);
-    free(A); free(B); free(C); free(out);
-    return 0;
-}"""
-    ),
-
     PatternEntry(
         pattern_id="HR-2",
         category="Human-Style Antipatterns",
@@ -1226,66 +1053,6 @@ int main() {
     int correct = fabs(result - expected) / fmax(fabs(expected), 1e-12) < 1e-9;
     printf("result=%.10f time_ms=%.4f correct=%d\\n", result, ms, correct);
     free(arr);
-    return 0;
-}"""
-    ),
-
-    PatternEntry(
-        pattern_id="HR-5",
-        category="Human-Style Antipatterns",
-        name="Append Anti-pattern",
-        compiler_difficulty="Low",
-        description="Capacity check (if (pos < n)) and sign guard (if (val >= 0)) inside a loop "
-                    "where both are always true. Direct indexed write: out[i] = A[i] + B[i].",
-        slow_code="""
-void hr5_slow(int *out, int *A, int *B, int n) {
-    int pos = 0;
-    for (int i = 0; i < n; i++) {
-        if (pos < n) {
-            int val = A[i] + B[i];
-            if (val >= 0) {
-                out[pos] = val;
-                pos = pos + 1;
-            }
-        }
-    }
-}""",
-        fast_code="""
-void hr5_fast(int *out, int *A, int *B, int n) {
-    for (int i = 0; i < n; i++) {
-        out[i] = A[i] + B[i];
-    }
-}""",
-        test_harness="""
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-// LLM_CODE_HERE
-
-int main() {
-    int n = 10000000;
-    int *A   = malloc(n * sizeof(int));
-    int *B   = malloc(n * sizeof(int));
-    int *out = malloc(n * sizeof(int));
-    srand(42);
-    for (int i = 0; i < n; i++) {
-        A[i] = rand() % 1000;
-        B[i] = rand() % 1000;
-    }
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    optimized(out, A, B, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    double ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1e6;
-
-    int correct = 1;
-    for (int i = 0; i < n; i++) {
-        if (out[i] != A[i] + B[i]) { correct = 0; break; }
-    }
-    printf("result=%d time_ms=%.4f correct=%d\\n", out[0], ms, correct);
-    free(A); free(B); free(out);
     return 0;
 }"""
     ),

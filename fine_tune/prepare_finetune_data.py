@@ -139,6 +139,9 @@ def load_variant(variant_dir: Path) -> dict | None:
     with open(meta_path) as f:
         meta = json.load(f)
 
+    if meta.get("compiler_fixable", False):
+        return None
+
     return {"slow": slow_code, "fast": fast_code, "meta": meta,
             "variant_id": meta.get("variant_id", variant_dir.name)}
 

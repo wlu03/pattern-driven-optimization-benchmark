@@ -1,6 +1,8 @@
 # Patterns
 
-28 hand-written C inefficiency patterns across 7 categories. Each pattern has a `_slow` and `_fast` version. The slow version is correct but sub-optimal in a way that a compiler **cannot** fix — only semantic understanding (or an LLM) can.
+27 hand-written C inefficiency patterns across 7 categories. Each pattern has a `_slow` and `_fast` version. The slow version is correct but sub-optimal in a way that a compiler **cannot** fix — only semantic understanding (or an LLM) can.
+
+> **Note:** CF-1, CF-2, HR-1, and HR-5 were removed because `-O3` already fixes them automatically, making them invalid test cases for this benchmark.
 
 ---
 
@@ -38,8 +40,6 @@ Branches and dispatch patterns that are resolvable at runtime but not compile ti
 
 | ID | Name | Compiler Difficulty | Inefficiency | Fix |
 |---|---|---|---|---|
-| CF-1 | Data-Uniform Batch Dispatch | Medium | Per-element branch on `type_tags[i]` in a loop where all tags are identical at runtime — prevents vectorization | Scan once for uniformity; route to a tag-specific branch-free loop |
-| CF-2 | Hot/Cold Path Separation | Medium | Rare error-handling branch (`flags[i]`, ~1% set) interleaved with hot computation — kills vectorization of the common case | Two-pass: one clean vectorizable pass for all elements, then a sparse fixup pass for flagged indices |
 | CF-3 | Vectorization-Hostile Conditional | Medium | `if (in[i] > 0.0)` inside the loop is always true for the given data — the conditional blocks auto-vectorization | Verify the property once (`all_pos` scan), then use a branch-free loop the compiler can vectorize |
 | CF-4 | Function Pointer Dispatch in Hot Loop | Medium | Indirect call through `t->fn(in[i])` — one indirect branch per element, no inlining possible | Identify the concrete function pointer at runtime once, then dispatch to a direct inlined loop |
 
@@ -51,11 +51,9 @@ Inefficiencies introduced by common coding habits, defensive programming, and in
 
 | ID | Name | Compiler Difficulty | Inefficiency | Fix |
 |---|---|---|---|---|
-| HR-1 | Redundant Temporary Variables | Low | `temp1 → temp2 → temp3 → result → out[i]` — extra variables force memory writes and hinder register allocation | Inline: `out[i] = (A[i] + B[i]) * C[i] + 1.0` |
 | HR-2 | Copy-Paste Duplication | Medium | Four separate passes over data (mean X, mean Y, var X, var Y) from copy-pasted code blocks | Two passes: one for both means, one for both variances |
 | HR-3 | Dead / Debug Code | High | `volatile debug_counter++`, NaN checks, and overflow checks inside a hot loop — `volatile` prevents the compiler from removing them | Strip all debug instrumentation from the production path |
 | HR-4 | Overly Defensive Checks | Medium | `arr == NULL`, `n <= 0`, `i < 0 || i >= n`, and per-element NaN checks inside a loop that already guarantees they're false | Check once before the loop; remove all redundant per-iteration guards |
-| HR-5 | Append Anti-pattern | Low | Capacity check (`if (pos < n)`) and sign guard (`if (val >= 0)`) inside a loop where both are always true | Direct indexed write: `out[i] = A[i] + B[i]` |
 
 ---
 

@@ -2,7 +2,7 @@
 
 A benchmark for evaluating whether LLMs can optimize C code patterns that compilers **cannot** fix automatically. Each pattern is specifically selected because `-O3` leaves it unoptimized — the inefficiency is semantic, algorithmic, or data-structural, not syntactic.
 
-Includes 31 patterns across 7 categories, a variant generator producing 960 dataset entries, and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
+Includes 27 patterns across 7 categories, a variant generator producing ~810 dataset entries, and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
 
 ---
 
@@ -46,7 +46,7 @@ The patterns are organized by *why* the compiler fails to fix them:
 | SR-2 | **2.3x** | 1.29x | Factored loop-invariant `alpha*beta` out |
 | CF-3 | **1.7x** | 0.98x | Hoisted scalar multiply |
 | SR-1, SR-5 | 1.2–1.3x | ~1.0x | Modest restructuring |
-| CF-1/2/4 | ~1.0x | ~1.0x | Equal — compiler already handles these |
+| CF-4 | ~1.0x | ~1.0x | Correct but no measurable speedup |
 | IS-4 | **1.0x** | 0.10x | Correct but misses the 10x opportunity |
 | DS-4 | ~1.0x | ~1.0x | Correct AoS loop; never restructures to SoA |
 | IS-1, IS-3 | **0.6–0.8x** | — | Slower than the naive version |
@@ -204,14 +204,14 @@ To add a new model, append an entry to `models.yaml` — no code changes require
 ├── patterns/
 │   ├── cat1_semantic_redundancy.c    # SR-1 to SR-5  (5 patterns)
 │   ├── cat2_input_sensitive.c        # IS-1 to IS-5  (5 patterns)
-│   ├── cat3_control_flow.c           # CF-1 to CF-4  (4 patterns)
-│   ├── cat4_human_style.c            # HR-1 to HR-5  (5 patterns)
+│   ├── cat3_control_flow.c           # CF-3 to CF-4  (2 patterns; CF-1/2 removed — compiler-fixable)
+│   ├── cat4_human_style.c            # HR-2 to HR-4  (3 patterns; HR-1/5 removed — compiler-fixable)
 │   ├── cat5_data_structure.c         # DS-1 to DS-4  (4 patterns)
 │   ├── cat6_algorithmic.c            # AL-1 to AL-4  (4 patterns)
-│   └── cat7_memory_io.c              # MI-1 to MI-4  (4 patterns)
+│   └── cat7_memory_io.c              # MI-1 to MI-4  (4 patterns; 1 removed = 3 active)
 │
 ├── evaluate_llm.py                   # CLI entry point — arg parsing and main()
-├── patterns.py                       # PatternEntry dataclass and all 31 PATTERNS entries
+├── patterns.py                       # PatternEntry dataclass and all 27 PATTERNS entries
 ├── prompts.py                        # Prompt builders and HW_TARGET_DESCRIPTIONS
 ├── compiler.py                       # compile_and_run, normalize/sanitize helpers
 ├── evaluator.py                      # EvalResult dataclass and evaluate_pattern
