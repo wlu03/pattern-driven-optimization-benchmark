@@ -5,17 +5,17 @@
 #include <time.h>
 
 #define ROWS 2000
-#define COLS 2000
+#define COLS 4000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *s = malloc(ROWS * COLS * sizeof(float));
-    float *f = malloc(ROWS * COLS * sizeof(float));
-    for (int k = 0; k < ROWS * COLS; k++) s[k] = (float)((k % 100) + 1) * 0.01;
-    memcpy(f, s, ROWS * COLS * sizeof(float));
+    int *s = malloc(ROWS * COLS * sizeof(int));
+    int *f = malloc(ROWS * COLS * sizeof(int));
+    for (int k = 0; k < ROWS * COLS; k++) s[k] = (int)((k % 100) + 1) * 0.01;
+    memcpy(f, s, ROWS * COLS * sizeof(int));
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

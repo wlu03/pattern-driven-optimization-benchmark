@@ -4,18 +4,18 @@
 #include <string.h>
 #include <time.h>
 
-#define ROWS 2000
-#define COLS 5000
+#define ROWS 5000
+#define COLS 3000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *s = malloc(ROWS * COLS * sizeof(double));
-    double *f = malloc(ROWS * COLS * sizeof(double));
-    for (int k = 0; k < ROWS * COLS; k++) s[k] = (double)((k % 100) + 1) * 0.01;
-    memcpy(f, s, ROWS * COLS * sizeof(double));
+    int *s = malloc(ROWS * COLS * sizeof(int));
+    int *f = malloc(ROWS * COLS * sizeof(int));
+    for (int k = 0; k < ROWS * COLS; k++) s[k] = (int)((k % 100) + 1) * 0.01;
+    memcpy(f, s, ROWS * COLS * sizeof(int));
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

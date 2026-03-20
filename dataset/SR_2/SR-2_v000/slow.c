@@ -1,8 +1,11 @@
-float slow_sr2_v000(float *X, float *Y, float *Z, int n, float alpha, float beta, float gamma) {
-    float result = 0.0;
-    for (int i = 0; i < n; i++) {
-        result += gamma * Y[i] + beta * Y[i] * Y[i] * Y[i] + beta * X[i] + alpha * Y[i] * Y[i] * Y[i] + gamma;
-    
+double penalty_sr2_v000(double a, double b);
+
+double slow_sr2_v000(double *X, double *Y, int n, double alpha, double beta) {
+    double result = 0.0;
+    int i = 0;
+    while (i < n) {
+        result += alpha * X[i] + alpha * Y[i] + penalty_sr2_v000(alpha, beta);
+        i++;
     }
     return result;
 }

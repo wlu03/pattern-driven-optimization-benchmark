@@ -1,23 +1,28 @@
+#ifndef AOS_V011_DEFINED
+#define AOS_V011_DEFINED
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
+    double mass;
 } AoS_v011;
+#endif
 
 double slow_ds4_v011(AoS_v011 *arr, int n) {
-    double total_light = 1e308;
-    double total_humidity = 1e308;
-    double total_noise = 1e308;
-    double total_pressure = 1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].light < total_light) total_light = (double)arr[i].light;
-        if ((double)arr[i].humidity < total_humidity) total_humidity = (double)arr[i].humidity;
-        if ((double)arr[i].noise < total_noise) total_noise = (double)arr[i].noise;
-        if ((double)arr[i].pressure < total_pressure) total_pressure = (double)arr[i].pressure;
+    double total_y = -1e308;
+    double total_vz = -1e308;
+    double total_x = -1e308;
+    double total_vx = -1e308;
+    int i = 0;
+    while (i < n) {
+        if ((double)arr[i].y > total_y) total_y = (double)arr[i].y;
+        if ((double)arr[i].vz > total_vz) total_vz = (double)arr[i].vz;
+        if ((double)arr[i].x > total_x) total_x = (double)arr[i].x;
+        if ((double)arr[i].vx > total_vx) total_vx = (double)arr[i].vx;
+        i++;
     }
-    return total_light + total_humidity + total_noise + total_pressure;
+    return total_y + total_vz + total_x + total_vx;
 }

@@ -1,9 +1,7 @@
-double slow_mi4_v002(double *matrix, int rows, int cols) {
-    double total = 0;
+void slow_mi4_v002(int *dst, int *src, int rows, int cols) {
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            total += matrix[i * cols + j];
+            dst[i * cols + j] = src[i * cols + j];
         }
     }
-    return total;
 }

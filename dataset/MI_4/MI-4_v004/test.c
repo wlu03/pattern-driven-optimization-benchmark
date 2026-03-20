@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-#define ROWS 3000
-#define COLS 1000
+#define ROWS 1000
+#define COLS 4000
 
 // SLOW_CODE_HERE
 

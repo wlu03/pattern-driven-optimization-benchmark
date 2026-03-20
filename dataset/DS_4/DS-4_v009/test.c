@@ -3,7 +3,20 @@
 #include <math.h>
 #include <time.h>
 
-#define N 1000000
+#define N 2000000
+
+#ifndef AOS_V009_DEFINED
+#define AOS_V009_DEFINED
+typedef struct {
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
+    int noise;
+} AoS_v009;
+#endif
 
 // SLOW_CODE_HERE
 
@@ -18,16 +31,17 @@ int main() {
         arr[i].wind_speed = (float)(i % 100) * 0.01 + 0.5;
         arr[i].wind_dir = (float)(i % 100) * 0.01 + 0.5;
         arr[i].light = (int)(i % 100) * 0.01 + 0.5;
+        arr[i].noise = (int)(i % 100) * 0.01 + 0.5;
     }
 
-    double *soa_wind_dir = malloc(N * sizeof(double));
-    double *soa_temp = malloc(N * sizeof(double));
-    double *soa_wind_speed = malloc(N * sizeof(double));
+    double *soa_humidity = malloc(N * sizeof(double));
     double *soa_light = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_wind_dir[i] = (double)arr[i].wind_dir;
-    for (int i = 0; i < N; i++) soa_temp[i] = (double)arr[i].temp;
-    for (int i = 0; i < N; i++) soa_wind_speed[i] = (double)arr[i].wind_speed;
+    double *soa_noise = malloc(N * sizeof(double));
+    double *soa_wind_dir = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_humidity[i] = (double)arr[i].humidity;
     for (int i = 0; i < N; i++) soa_light[i] = (double)arr[i].light;
+    for (int i = 0; i < N; i++) soa_noise[i] = (double)arr[i].noise;
+    for (int i = 0; i < N; i++) soa_wind_dir[i] = (double)arr[i].wind_dir;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -36,7 +50,7 @@ int main() {
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v009(soa_wind_dir, soa_temp, soa_wind_speed, soa_light, N);
+    double r_fast = fast_ds4_v009(soa_humidity, soa_light, soa_noise, soa_wind_dir, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
@@ -47,9 +61,9 @@ int main() {
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_wind_dir);
-    free(soa_temp);
-    free(soa_wind_speed);
+    free(soa_humidity);
     free(soa_light);
+    free(soa_noise);
+    free(soa_wind_dir);
     return 0;
 }

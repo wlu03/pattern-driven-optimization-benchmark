@@ -1,7 +1,12 @@
-float fast_sr2_v010(float *X, float *Y, float *Z, float *W, int n, float alpha, float beta) {
-    float sumXsq = 0.0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
+float penalty_sr2_v010(float a, float b);
+
+float fast_sr2_v010(float *X, float *Y, int n, float alpha, float beta) {
+    float p = penalty_sr2_v010(alpha, beta);
+    float result = 0.0f;
+    int i = 0;
+    while (i < n) {
+        result += alpha * X[i] + alpha * Y[i];
+        i++;
     }
-    return beta * sumXsq + (float)n * beta;
+    return result + (float)n * p;
 }

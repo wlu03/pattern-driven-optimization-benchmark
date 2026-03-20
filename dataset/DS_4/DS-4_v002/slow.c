@@ -1,22 +1,21 @@
+#ifndef AOS_V002_DEFINED
+#define AOS_V002_DEFINED
 typedef struct {
-    double time;
-    double x;
-    double y;
-    float energy;
-    int channel;
-    int quality;
-    double amplitude;
-    float phase;
+    int r;
+    int g;
+    int b;
+    int a;
+    int x;
+    int y;
+    float depth;
+    float normal_x;
 } AoS_v002;
+#endif
 
 double slow_ds4_v002(AoS_v002 *arr, int n) {
-    double total_x = 0.0;
-    double total_time = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_x += (double)arr[i].x;
-        total_time += (double)arr[i].time;
-        i++;
+    double total_y = 1e308;
+    for (int i = 0; i < n; i++) {
+        if ((double)arr[i].y < total_y) total_y = (double)arr[i].y;
     }
-    return total_x + total_time;
+    return total_y;
 }

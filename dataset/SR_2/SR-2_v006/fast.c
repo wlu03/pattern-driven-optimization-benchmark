@@ -1,11 +1,10 @@
-double fast_sr2_v006(double *X, double *Y, double *Z, int n, double alpha) {
-    double sumXcb = 0.0;
-    double sumZcb = 0.0;
-    int i = 0;
-    while (i < n) {
-        sumXcb += X[i] * X[i] * X[i];
-        sumZcb += Z[i] * Z[i] * Z[i];
-        i++;
+double penalty_sr2_v006(double a, double b);
+
+double fast_sr2_v006(double *X, double *Y, int n, double alpha, double beta) {
+    double p = penalty_sr2_v006(alpha, beta);
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        result += alpha * X[i] + alpha * Y[i];
     }
-    return alpha * sumXcb + alpha * sumZcb;
+    return result + (double)n * p;
 }

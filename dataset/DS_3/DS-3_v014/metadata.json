@@ -3,7 +3,7 @@
   "variant_id": "DS-3_v014",
   "category": "Data Structure",
   "pattern_name": "Unnecessary Struct Copy (Pass-by-Value)",
-  "variant_desc": "dot_self, n_fields=32, n=1000000",
+  "variant_desc": "n_fields=64, n=2000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

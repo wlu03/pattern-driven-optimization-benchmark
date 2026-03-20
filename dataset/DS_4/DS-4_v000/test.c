@@ -3,7 +3,19 @@
 #include <math.h>
 #include <time.h>
 
-#define N 1000000
+#define N 2000000
+
+#ifndef AOS_V000_DEFINED
+#define AOS_V000_DEFINED
+typedef struct {
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
+} AoS_v000;
+#endif
 
 // SLOW_CODE_HERE
 
@@ -12,23 +24,16 @@
 int main() {
     AoS_v000 *arr = malloc(N * sizeof(AoS_v000));
     for (int i = 0; i < N; i++) {
-        arr[i].px = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].py = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].pz = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nx = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].ny = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nz = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].u = (float)(i % 100) * 0.01 + 0.5;
+        arr[i].x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].z = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vx = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vy = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vz = (double)(i % 100) * 0.01 + 0.5;
     }
 
-    double *soa_nz = malloc(N * sizeof(double));
-    double *soa_ny = malloc(N * sizeof(double));
-    double *soa_py = malloc(N * sizeof(double));
-    double *soa_pz = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_nz[i] = (double)arr[i].nz;
-    for (int i = 0; i < N; i++) soa_ny[i] = (double)arr[i].ny;
-    for (int i = 0; i < N; i++) soa_py[i] = (double)arr[i].py;
-    for (int i = 0; i < N; i++) soa_pz[i] = (double)arr[i].pz;
+    double *soa_vx = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_vx[i] = (double)arr[i].vx;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -37,7 +42,7 @@ int main() {
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v000(soa_nz, soa_ny, soa_py, soa_pz, N);
+    double r_fast = fast_ds4_v000(soa_vx, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
@@ -48,9 +53,6 @@ int main() {
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_nz);
-    free(soa_ny);
-    free(soa_py);
-    free(soa_pz);
+    free(soa_vx);
     return 0;
 }

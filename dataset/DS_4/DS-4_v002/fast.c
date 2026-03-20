@@ -1,11 +1,7 @@
-double fast_ds4_v002(double *x, double *time, int n) {
-    double total_x = 0.0;
-    double total_time = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_x += x[i];
-        total_time += time[i];
-        i++;
+double fast_ds4_v002(double *y, int n) {
+    double total_y = 1e308;
+    for (int i = 0; i < n; i++) {
+        if (y[i] < total_y) total_y = y[i];
     }
-    return total_x + total_time;
+    return total_y;
 }

@@ -3,7 +3,7 @@
   "variant_id": "DS-4_v011",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "sensors struct (7 fields), accessing ['light', 'humidity', 'noise', 'pressure'], min reduction",
+  "variant_desc": "particles struct (7 fields), accessing ['y', 'vz', 'x', 'vx'], max reduction, while-loop",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

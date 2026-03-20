@@ -13,13 +13,13 @@
 // FAST_CODE_HERE
 
 int main() {
-    double *A = malloc(M * K * sizeof(double));
-    double *B = malloc(K * NN * sizeof(double));
-    double *C_slow = calloc(M * NN, sizeof(double));
-    double *C_fast = calloc(M * NN, sizeof(double));
+    float *A = malloc(M * K * sizeof(float));
+    float *B = malloc(K * NN * sizeof(float));
+    float *C_slow = calloc(M * NN, sizeof(float));
+    float *C_fast = calloc(M * NN, sizeof(float));
     srand(42);
-    for (int i = 0; i < M * K; i++) A[i] = (rand() % 100 < 90) ? 0.0 : (double)(rand() % 10 + 1) * 0.1;
-    for (int i = 0; i < K * NN; i++) B[i] = (rand() % 100 < 90) ? 0.0 : (double)(rand() % 10 + 1) * 0.1;
+    for (int i = 0; i < M * K; i++) A[i] = (rand() % 1000 < 950) ? 0.0f : (float)(rand() % 10 + 1) * 0.1f;
+    for (int i = 0; i < K * NN; i++) B[i] = (rand() % 1000 < 950) ? 0.0f : (float)(rand() % 10 + 1) * 0.1f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

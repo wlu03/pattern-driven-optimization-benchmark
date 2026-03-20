@@ -1,16 +1,21 @@
 variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
-SR-2_v000,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"5-term expression decomposition, 3 arrays, 3 constants, float, for-loop",float,medium,False,1.5x-5x
-SR-2_v001,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"4-term expression decomposition, 3 arrays, 2 constants, float, while-loop",float,medium,False,1.5x-5x
-SR-2_v002,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"3-term expression decomposition, 3 arrays, 2 constants, double, for-loop",double,medium,False,1.5x-5x
-SR-2_v003,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"3-term expression decomposition, 3 arrays, 2 constants, float, while-loop",float,easy,False,1.5x-5x
-SR-2_v004,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"4-term expression decomposition, 2 arrays, 2 constants, double, while-loop",double,medium,False,1.5x-5x
-SR-2_v005,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"3-term expression decomposition, 2 arrays, 1 constants, double, for-loop",double,medium,False,1.5x-5x
-SR-2_v006,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"2-term expression decomposition, 3 arrays, 1 constants, double, while-loop",double,medium,False,1.5x-5x
-SR-2_v007,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"4-term expression decomposition, 2 arrays, 3 constants, float, for-loop",float,medium,False,1.5x-5x
-SR-2_v008,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"5-term expression decomposition, 2 arrays, 3 constants, float, for-loop",float,easy,False,1.5x-5x
-SR-2_v009,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"5-term expression decomposition, 4 arrays, 1 constants, float, while-loop",float,medium,False,1.5x-5x
-SR-2_v010,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"2-term expression decomposition, 4 arrays, 2 constants, float, for-loop",float,easy,False,1.5x-5x
-SR-2_v011,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"4-term expression decomposition, 2 arrays, 1 constants, float, while-loop",float,easy,False,1.5x-5x
-SR-2_v012,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"3-term expression decomposition, 4 arrays, 2 constants, double, while-loop",double,easy,False,1.5x-5x
-SR-2_v013,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"2-term expression decomposition, 3 arrays, 3 constants, float, while-loop",float,medium,False,1.5x-5x
-SR-2_v014,SR-2,Semantic Redundancy,Recomputable Expression Decomposition,"2-term expression decomposition, 4 arrays, 3 constants, float, for-loop",float,easy,False,1.5x-5x
+MI-4_v000,MI-4,Memory & IO,Column vs Row Major Access,"scale operation, float, 5000x1000 matrix",float,medium,False,2x-10x
+MI-4_v001,MI-4,Memory & IO,Column vs Row Major Access,"transform operation, double, 1000x3000 matrix",double,medium,False,2x-10x
+MI-4_v002,MI-4,Memory & IO,Column vs Row Major Access,"copy operation, int, 2000x5000 matrix",int,medium,False,2x-10x
+MI-4_v003,MI-4,Memory & IO,Column vs Row Major Access,"add_arrays operation, float, 4000x4000 matrix",float,medium,False,2x-10x
+MI-4_v004,MI-4,Memory & IO,Column vs Row Major Access,"scale operation, float, 1000x4000 matrix",float,medium,False,2x-10x
+MI-4_v005,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, float, 3000x3000 matrix",float,medium,False,2x-10x
+MI-4_v006,MI-4,Memory & IO,Column vs Row Major Access,"transform operation, int, 2000x4000 matrix",int,medium,False,2x-10x
+MI-4_v007,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, float, 2000x3000 matrix",float,medium,False,2x-10x
+MI-4_v008,MI-4,Memory & IO,Column vs Row Major Access,"scale operation, int, 5000x2000 matrix",int,medium,False,2x-10x
+MI-4_v009,MI-4,Memory & IO,Column vs Row Major Access,"copy operation, double, 1000x4000 matrix",double,medium,False,2x-10x
+MI-4_v010,MI-4,Memory & IO,Column vs Row Major Access,"transform operation, double, 3000x4000 matrix",double,medium,False,2x-10x
+MI-4_v011,MI-4,Memory & IO,Column vs Row Major Access,"scale operation, int, 2000x1000 matrix",int,medium,False,2x-10x
+MI-4_v012,MI-4,Memory & IO,Column vs Row Major Access,"transform operation, int, 5000x3000 matrix",int,medium,False,2x-10x
+MI-4_v013,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, double, 1000x5000 matrix",double,medium,False,2x-10x
+MI-4_v014,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, int, 4000x1000 matrix",int,medium,False,2x-10x
+MI-4_v015,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, float, 1000x2000 matrix",float,medium,False,2x-10x
+MI-4_v016,MI-4,Memory & IO,Column vs Row Major Access,"scale operation, float, 5000x1000 matrix",float,medium,False,2x-10x
+MI-4_v017,MI-4,Memory & IO,Column vs Row Major Access,"add_arrays operation, float, 1000x1000 matrix",float,medium,False,2x-10x
+MI-4_v018,MI-4,Memory & IO,Column vs Row Major Access,"transform operation, float, 5000x5000 matrix",float,medium,False,2x-10x
+MI-4_v019,MI-4,Memory & IO,Column vs Row Major Access,"reduce operation, float, 3000x1000 matrix",float,medium,False,2x-10x

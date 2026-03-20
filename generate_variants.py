@@ -750,9 +750,18 @@ class IS1_Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         dtype = rng.choice(["float", "double"])
-        layout = rng.choice(["matmul", "matvec", "elemwise", "outer_product",
-                              "dot_product", "saxpy"])
-        sparsity = rng.choice([0.5, 0.7, 0.8, 0.9, 0.95, 0.99])
+        # Only use layouts where zero-skip saves an inner loop's worth of
+        # work (quadratic or cubic).  Linear operations (elemwise, dot,
+        # saxpy) are too simple: the branch prevents SIMD vectorisation
+        # and costs more than the multiply it skips.
+        layout = rng.choice(["matmul", "matvec", "outer_product"])
+        # Sparsity must be high enough that zero-skip guards are beneficial.
+        if layout == "matmul":
+            sparsity = rng.choice([0.9, 0.95, 0.99])
+        elif layout == "outer_product":
+            sparsity = rng.choice([0.95, 0.99])
+        else:  # matvec
+            sparsity = 0.99
         loop_style = rng.choice(["for", "while", "for"])
         suf = f"v{variant_num:03d}"
         zero = DTYPES[dtype]['zero']
@@ -782,7 +791,7 @@ class IS1_Generator(PatternTemplate):
         }}
     }}
 }}"""
-            desc = f"Sparse matrix-matrix multiply ({sparsity*100:.0f}% zeros), skip zero elements"
+            desc = f"Sparse matrix-matrix multiply ({sparsity*100:.1f}% zeros), skip zero elements"
 
         elif layout == "matvec":
             slow_code = f"""void slow_is1_{suf}({dtype} *y, {dtype} *A, {dtype} *x, int m, int n) {{
@@ -802,7 +811,7 @@ class IS1_Generator(PatternTemplate):
         }}
     }}
 }}"""
-            desc = f"Sparse matrix-vector multiply ({sparsity*100:.0f}% zeros), skip zero elements"
+            desc = f"Sparse matrix-vector multiply ({sparsity*100:.1f}% zeros), skip zero elements"
 
         elif layout == "elemwise":
             op = rng.choice(["+", "*", "-"])
@@ -836,7 +845,7 @@ class IS1_Generator(PatternTemplate):
         out[i] = A[i] - B[i];
     }}
 }}"""
-            desc = f"Sparse element-wise {op} ({sparsity*100:.0f}% zeros)"
+            desc = f"Sparse element-wise {op} ({sparsity*100:.1f}% zeros)"
 
         elif layout == "dot_product":
             slow_code = f"""{dtype} slow_is1_{suf}({dtype} *A, {dtype} *B, int n) {{
@@ -854,7 +863,7 @@ class IS1_Generator(PatternTemplate):
     }}
     return sum;
 }}"""
-            desc = f"Sparse dot product ({sparsity*100:.0f}% zeros), skip zero pairs"
+            desc = f"Sparse dot product ({sparsity*100:.1f}% zeros), skip zero pairs"
 
         elif layout == "saxpy":
             slow_code = f"""void slow_is1_{suf}({dtype} *y, {dtype} *x, {dtype} alpha, int n) {{
@@ -869,7 +878,7 @@ class IS1_Generator(PatternTemplate):
         y[i] += alpha * x[i];
     }}
 }}"""
-            desc = f"Sparse SAXPY ({sparsity*100:.0f}% zeros in x), skip zero entries"
+            desc = f"Sparse SAXPY ({sparsity*100:.1f}% zeros in x), skip zero entries"
 
         else:  # outer_product
             slow_code = f"""void slow_is1_{suf}({dtype} *C, {dtype} *a, {dtype} *b, int m, int n) {{
@@ -888,7 +897,7 @@ class IS1_Generator(PatternTemplate):
         }}
     }}
 }}"""
-            desc = f"Sparse outer product ({sparsity*100:.0f}% zeros), skip zero rows/cols"
+            desc = f"Sparse outer product ({sparsity*100:.1f}% zeros), skip zero rows/cols"
 
         desc_parts = [desc, dtype]
         if loop_style == "while":
@@ -901,10 +910,10 @@ class IS1_Generator(PatternTemplate):
             pattern_name=self.name,
             variant_desc=", ".join(desc_parts),
             dtype=dtype,
-            difficulty="hard" if layout == "matmul" else ("medium" if sparsity < 0.9 else "easy"),
+            difficulty="hard" if layout == "matmul" else "medium",
             compiler_fixable=False,
-            num_loops=3 if layout == "matmul" else (2 if layout in ("matvec", "outer_product") else 1),
-            num_arrays=3 if layout in ("matmul", "matvec", "outer_product", "elemwise") else 2,
+            num_loops=3 if layout == "matmul" else 2,
+            num_arrays=3,
             lines_of_code=10,
             expected_speedup_range=f"{1/(1-sparsity):.0f}x",
             composition=[]
@@ -912,7 +921,7 @@ class IS1_Generator(PatternTemplate):
 
         # Build proper test harness based on layout
         if layout == "matmul":
-            dim = 300 if sparsity >= 0.9 else 200
+            dim = 300
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -933,8 +942,8 @@ int main() {{
     {dtype} *C_slow = calloc(M * NN, sizeof({dtype}));
     {dtype} *C_fast = calloc(M * NN, sizeof({dtype}));
     srand(42);
-    for (int i = 0; i < M * K; i++) A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
-    for (int i = 0; i < K * NN; i++) B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < M * K; i++) A[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < K * NN; i++) B[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -957,8 +966,8 @@ int main() {{
     return 0;
 }}"""
         elif layout == "matvec":
-            m_dim = 2000 if sparsity >= 0.9 else 1000
-            n_dim = 2000 if sparsity >= 0.9 else 1000
+            m_dim = 3000
+            n_dim = 3000
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -977,7 +986,7 @@ int main() {{
     {dtype} *y_slow = calloc(M, sizeof({dtype}));
     {dtype} *y_fast = calloc(M, sizeof({dtype}));
     srand(42);
-    for (int i = 0; i < M * NN; i++) A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < M * NN; i++) A[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
     for (int i = 0; i < NN; i++) x[i] = ({dtype})(rand() % 10 + 1) * 0.1{suffix};
 
     struct timespec t0, t1;
@@ -1001,7 +1010,7 @@ int main() {{
     return 0;
 }}"""
         elif layout == "elemwise":
-            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            n_elem = 10000000
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -1020,8 +1029,8 @@ int main() {{
     {dtype} *out_fast = malloc(N * sizeof({dtype}));
     srand(42);
     for (int i = 0; i < N; i++) {{
-        A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
-        B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        A[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        B[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
     }}
 
     struct timespec t0, t1;
@@ -1045,7 +1054,7 @@ int main() {{
     return 0;
 }}"""
         elif layout == "dot_product":
-            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            n_elem = 10000000
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -1062,8 +1071,8 @@ int main() {{
     {dtype} *B = malloc(N * sizeof({dtype}));
     srand(42);
     for (int i = 0; i < N; i++) {{
-        A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
-        B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        A[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        B[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
     }}
 
     struct timespec t0, t1;
@@ -1086,7 +1095,7 @@ int main() {{
     return 0;
 }}"""
         elif layout == "saxpy":
-            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            n_elem = 10000000
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1105,7 +1114,7 @@ int main() {{
     {dtype} *y_fast = malloc(N * sizeof({dtype}));
     srand(42);
     for (int i = 0; i < N; i++) {{
-        x[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        x[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
         y_slow[i] = ({dtype})(i % 50) * 0.01{suffix};
     }}
     memcpy(y_fast, y_slow, N * sizeof({dtype}));
@@ -1132,8 +1141,8 @@ int main() {{
     return 0;
 }}"""
         else:  # outer_product
-            m_dim = 2000 if sparsity >= 0.9 else 1000
-            n_dim = 2000 if sparsity >= 0.9 else 1000
+            m_dim = 3000
+            n_dim = 3000
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -1152,8 +1161,8 @@ int main() {{
     {dtype} *C_slow = calloc(M * NN, sizeof({dtype}));
     {dtype} *C_fast = calloc(M * NN, sizeof({dtype}));
     srand(42);
-    for (int i = 0; i < M; i++) a[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
-    for (int i = 0; i < NN; i++) b[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < M; i++) a[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < NN; i++) b[i] = (rand() % 1000 < {int(sparsity*1000)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -1242,7 +1251,8 @@ class DS4_Generator(PatternTemplate):
         # AoS struct definition
         struct_fields_str = "\n".join(f"    {t} {n};" for n, t in fields)
         struct_name = f"AoS_{suf}"
-        struct_def = f"typedef struct {{\n{struct_fields_str}\n}} {struct_name};"
+        guard_name = f"AOS_{suf.upper()}_DEFINED"
+        struct_def = f"#ifndef {guard_name}\n#define {guard_name}\ntypedef struct {{\n{struct_fields_str}\n}} {struct_name};\n#endif"
 
         # Determine accumulator logic based on reduction
         if reduction == "sum":
@@ -1348,6 +1358,8 @@ double slow_ds4_{suf}({struct_name} *arr, int n) {{
 #include <time.h>
 
 #define N {n_test}
+
+{struct_def}
 
 // SLOW_CODE_HERE
 
@@ -1841,120 +1853,95 @@ int main() {{
         }
 
 class SR2_Generator(PatternTemplate):
-    """SR-2: Recomputable Expression Decomposition.
-    Complex expression inside a loop can be algebraically decomposed
-    into independent accumulators multiplied by constants at the end."""
+    """SR-2: Loop-Invariant Penalty/Weight in Compound Expression.
+    An expensive noinline function with loop-invariant args is called every iteration
+    inside a compound expression. The fix hoists the call outside the loop."""
 
     def __init__(self):
         super().__init__("SR-2", "Semantic Redundancy",
-                         "Recomputable Expression Decomposition")
+                         "Loop-Invariant Penalty in Compound Expression")
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        n_arrays = rng.choice([2, 3, 4])
-        n_terms = rng.choice([2, 3, 4, 5])
-        n_consts = rng.choice([1, 2, 3])
+        n_arrays = rng.choice([2, 3])
+        N = rng.choice([5000000, 10000000])
         loop_style = rng.choice(["for", "while"])
-        N = rng.choice([5000000, 10000000, 20000000])
+        zero = DTYPES[dtype]['zero']
+        suffix = DTYPES[dtype]['suffix']
 
-        arr_names = ["X", "Y", "Z", "W"][:n_arrays]
-        const_names = ["alpha", "beta", "gamma"][:n_consts]
-
-        # Build terms: e.g. "alpha * X[i] * X[i]", "beta * Y[i]", "alpha * beta"
-        term_types = [
-            ("sq", lambda a, c: f"{c} * {a}[i] * {a}[i]"),
-            ("lin", lambda a, c: f"{c} * {a}[i]"),
-            ("cube", lambda a, c: f"{c} * {a}[i] * {a}[i] * {a}[i]"),
-            ("cross", lambda a, c: f"{c} * {a}[i]"),
-            ("const", lambda a, c: f"{c}"),
-        ]
-
-        terms = []
-        accum_fast_lines = []
-        final_parts = []
-        accum_decls = []
-
-        for t_idx in range(n_terms):
-            arr = rng.choice(arr_names)
-            cst = rng.choice(const_names)
-            kind = rng.choice(["sq", "lin", "cube", "const"])
-
-            if kind == "sq":
-                terms.append(f"{cst} * {arr}[i] * {arr}[i]")
-                acc_name = f"sum{arr}sq"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            elif kind == "lin":
-                terms.append(f"{cst} * {arr}[i]")
-                acc_name = f"sum{arr}"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            elif kind == "cube":
-                terms.append(f"{cst} * {arr}[i] * {arr}[i] * {arr}[i]")
-                acc_name = f"sum{arr}cb"
-                if acc_name not in [a[0] for a in accum_decls]:
-                    accum_decls.append((acc_name, f"{acc_name} += {arr}[i] * {arr}[i] * {arr}[i];"))
-                final_parts.append(f"{cst} * {acc_name}")
-            else:
-                terms.append(f"{cst}")
-                final_parts.append(f"({dtype})n * {cst}")
-
-        slow_expr = " + ".join(terms)
-        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
-        const_params = ", ".join(f"{dtype} {c}" for c in const_names)
-        all_params = f"{arr_params}, int n, {const_params}"
-
-        if loop_style == "for":
-            slow_loop = f"for (int i = 0; i < n; i++)"
-            fast_loop = f"for (int i = 0; i < n; i++)"
+        # Expensive function type
+        fn_type = rng.choice(["trig_sum", "polynomial", "log_chain", "sqrt_chain"])
+        if fn_type == "trig_sum":
+            fn_body = f"""    volatile {dtype} _a=({dtype})a, _b=({dtype})b;
+    {dtype} r = {zero};
+    for(int k=1;k<=30;k++) r+=({dtype})sin(_a*({dtype})k)+({dtype})cos(_b*({dtype})k);
+    return r/30.0{suffix};"""
+        elif fn_type == "polynomial":
+            fn_body = f"""    volatile {dtype} _a=({dtype})a, _b=({dtype})b;
+    {dtype} r = {zero};
+    for(int k=0;k<40;k++) {{ r = r*_a*0.1{suffix} + _b; r = r*_b*0.1{suffix} + _a; }}
+    return r;"""
+        elif fn_type == "log_chain":
+            fn_body = f"""    volatile {dtype} _a=({dtype})a, _b=({dtype})b;
+    {dtype} r = ({dtype})fabs(_a) + 1.0{suffix};
+    for(int k=0;k<20;k++) r = ({dtype})log(r + ({dtype})fabs(_b) + 1.0{suffix});
+    return r;"""
         else:
-            slow_loop = f"int i = 0;\n    while (i < n)"
-            fast_loop = f"int i = 0;\n    while (i < n)"
+            fn_body = f"""    volatile {dtype} _a=({dtype})a, _b=({dtype})b;
+    {dtype} r = ({dtype})fabs(_a) + ({dtype})fabs(_b) + 1.0{suffix};
+    for(int k=0;k<25;k++) r = ({dtype})sqrt(r) + 0.5{suffix};
+    return r;"""
 
-        # Deduplicate accumulators
-        seen_acc = {}
-        unique_accums = []
-        for name, line in accum_decls:
-            if name not in seen_acc:
-                seen_acc[name] = True
-                unique_accums.append((name, line))
+        helper_code = f"""#include <math.h>
+__attribute__((noinline))
+{dtype} penalty_sr2_{suf}({dtype} a, {dtype} b) {{
+{fn_body}
+}}
+"""
 
-        acc_init = "\n    ".join(f"{dtype} {name} = 0.0;" for name, _ in unique_accums)
-        acc_body = "\n        ".join(line for _, line in unique_accums)
-        if loop_style == "while":
-            acc_body += "\n        i++;"
-        final_expr = " + ".join(final_parts)
+        arr_names = ["X", "Y", "Z"][:n_arrays]
+        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
+        all_params = f"{arr_params}, int n, {dtype} alpha, {dtype} beta"
 
-        slow_code = f"""{dtype} slow_sr2_{suf}({all_params}) {{
-    {dtype} result = 0.0;
-    {slow_loop} {{
-        result += {slow_expr};
-    {"    i++;" if loop_style == "while" else ""}
+        # Build the per-element expression using arrays
+        data_terms = []
+        for arr in arr_names:
+            data_terms.append(f"alpha * {arr}[i]")
+        data_expr = " + ".join(data_terms)
+
+        loop_open = "for (int i = 0; i < n; i++)" if loop_style == "for" else "int i = 0;\n    while (i < n)"
+        loop_inc = "" if loop_style == "for" else "\n        i++;"
+
+        slow_code = f"""{dtype} penalty_sr2_{suf}({dtype} a, {dtype} b);
+
+{dtype} slow_sr2_{suf}({all_params}) {{
+    {dtype} result = {zero};
+    {loop_open} {{
+        result += {data_expr} + penalty_sr2_{suf}(alpha, beta);{loop_inc}
     }}
     return result;
 }}"""
 
-        fast_code = f"""{dtype} fast_sr2_{suf}({all_params}) {{
-    {acc_init}
-    {fast_loop} {{
-        {acc_body}
+        fast_code = f"""{dtype} penalty_sr2_{suf}({dtype} a, {dtype} b);
+
+{dtype} fast_sr2_{suf}({all_params}) {{
+    {dtype} p = penalty_sr2_{suf}(alpha, beta);
+    {dtype} result = {zero};
+    {loop_open} {{
+        result += {data_expr};{loop_inc}
     }}
-    return {final_expr};
+    return result + ({dtype})n * p;
 }}"""
 
-        # Test harness
-        const_vals = ", ".join("2.5" if i == 0 else "1.7" if i == 1 else "0.3" for i in range(n_consts))
         arr_args = ", ".join(arr_names)
-        arr_allocs_lines = "\n".join(
+        arr_allocs = "\n".join(
             f"    {dtype} *{a} = malloc(N * sizeof({dtype}));\n"
-            f"    for (int k = 0; k < N; k++) {a}[k] = ({dtype})(k % 100) * 0.01{DTYPES[dtype]['suffix']};"
+            f"    for (int k = 0; k < N; k++) {a}[k] = ({dtype})(k % 100) * 0.01{suffix};"
             for a in arr_names
         )
-        arr_frees_lines = "\n".join(f"    free({a});" for a in arr_names)
+        arr_frees = "\n".join(f"    free({a});" for a in arr_names)
 
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -1968,30 +1955,30 @@ class SR2_Generator(PatternTemplate):
 // FAST_CODE_HERE
 
 int main() {{
-{arr_allocs_lines}
+{arr_allocs}
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_slow = slow_sr2_{suf}({arr_args}, N, {const_vals});
+    {dtype} r_slow = slow_sr2_{suf}({arr_args}, N, 2.5{suffix}, 1.7{suffix});
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_fast = fast_sr2_{suf}({arr_args}, N, {const_vals});
+    {dtype} r_fast = fast_sr2_{suf}({arr_args}, N, 2.5{suffix}, 1.7{suffix});
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     double diff = fabs((double)(r_slow - r_fast));
     double mag = fmax(fabs((double)r_slow), 1e-12);
-    int correct = (diff / mag < 1e-4) || (diff < 1e-9);
+    int correct = (diff / mag < {"1e-2" if dtype == "float" else "1e-4"}) || (diff < 1e-6);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
-{arr_frees_lines}
+{arr_frees}
     return 0;
 }}"""
 
-        desc = f"{n_terms}-term expression decomposition, {n_arrays} arrays, {n_consts} constants, {dtype}, {loop_style}-loop"
+        desc = f"{n_arrays} arrays, penalty ({fn_type}), {dtype}, {loop_style}-loop"
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"SR-2_v{variant_num:03d}",
@@ -1999,12 +1986,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=desc,
             dtype=dtype,
-            difficulty=rng.choice(["easy", "medium"]),
+            difficulty="medium" if fn_type in ("trig_sum", "polynomial") else "easy",
             compiler_fixable=False,
             num_loops=1,
             num_arrays=n_arrays,
-            lines_of_code=6 + n_terms,
-            expected_speedup_range="1.5x-5x",
+            lines_of_code=8,
+            expected_speedup_range="10x-1000x",
             composition=[]
         )
 
@@ -2012,6 +1999,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -2664,7 +2652,8 @@ int main() {{
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     double diff = fabs((double)(r_slow - r_fast));
-    int correct = (diff < 1e-2);
+    double mag = fabs((double)r_slow) + fabs((double)r_fast);
+    int correct = (mag == 0) ? (diff == 0) : (diff / mag < 1e-2);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(mat);
@@ -2727,12 +2716,12 @@ int main() {{
 }}"""
 
         else:  # transform
-            fn = rng.choice(UNARY_MATH_FNS)
+            fn_name, _ = rng.choice(UNARY_MATH_FNS)
             slow_code = f"""#include <math.h>
 void slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
     for (int j = 0; j < cols; j++) {{
         for (int i = 0; i < rows; i++) {{
-            matrix[i * cols + j] = ({dtype}){fn}((double)matrix[i * cols + j]);
+            matrix[i * cols + j] = ({dtype}){fn_name}((double)matrix[i * cols + j]);
         }}
     }}
 }}"""
@@ -2740,7 +2729,7 @@ void slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
 void fast_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
     for (int i = 0; i < rows; i++) {{
         for (int j = 0; j < cols; j++) {{
-            matrix[i * cols + j] = ({dtype}){fn}((double)matrix[i * cols + j]);
+            matrix[i * cols + j] = ({dtype}){fn_name}((double)matrix[i * cols + j]);
         }}
     }}
 }}"""
@@ -3151,30 +3140,66 @@ class IS5_Generator(PatternTemplate):
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        n = rng.choice([2000000, 5000000, 10000000])
-        n_reps = 5
-        # vary the computation expression
+        sf = DTYPES[dtype]['suffix']
+        n = rng.choice([50000000, 60000000, 80000000])
+        n_reps = 3
+
+        # The slow kernel reads back from out[] after each write, creating a
+        # true read-after-write dependency that prevents vectorization even
+        # when the compiler might otherwise try.  The fast (restrict) kernel
+        # does the identical arithmetic but the __restrict__ qualifier tells
+        # the compiler A/B never alias out, enabling full SIMD.
         expr_type = rng.choice(["quadratic", "linear_combo", "fused"])
+
+        # Slow body: write out[i], then read it back to create a serial dependency.
+        # This forces the compiler to emit scalar code even at -O3.
         if expr_type == "quadratic":
-            body = f"out[i]=A[i]*A[i]+B[i]*2.0{DTYPES[dtype]['suffix']}-A[i]*0.5{DTYPES[dtype]['suffix']}+B[i]*B[i];"
+            slow_body = (
+                f"out[i] = A[i]*A[i] + B[i]*2.0{sf};\n"
+                f"            out[i] = out[i] - A[i]*0.5{sf} + B[i]*B[i] + out[i]*0.001{sf};"
+            )
+            fast_body = (
+                f"{dtype} t = A[i]*A[i] + B[i]*2.0{sf};\n"
+                f"            out[i] = t - A[i]*0.5{sf} + B[i]*B[i] + t*0.001{sf};"
+            )
         elif expr_type == "linear_combo":
-            body = f"out[i]=A[i]*1.5{DTYPES[dtype]['suffix']}+B[i]*2.5{DTYPES[dtype]['suffix']}-A[i]*B[i]*0.1{DTYPES[dtype]['suffix']};"
+            slow_body = (
+                f"out[i] = A[i]*1.5{sf} + B[i]*2.5{sf};\n"
+                f"            out[i] = out[i] - A[i]*B[i]*0.1{sf} + out[i]*0.001{sf};"
+            )
+            fast_body = (
+                f"{dtype} t = A[i]*1.5{sf} + B[i]*2.5{sf};\n"
+                f"            out[i] = t - A[i]*B[i]*0.1{sf} + t*0.001{sf};"
+            )
         else:
-            body = f"out[i]=A[i]*A[i]-B[i]*B[i]+A[i]*B[i]*0.5{DTYPES[dtype]['suffix']}+1.0{DTYPES[dtype]['suffix']};"
+            slow_body = (
+                f"out[i] = A[i]*A[i] - B[i]*B[i];\n"
+                f"            out[i] = out[i] + A[i]*B[i]*0.5{sf} + 1.0{sf} + out[i]*0.001{sf};"
+            )
+            fast_body = (
+                f"{dtype} t = A[i]*A[i] - B[i]*B[i];\n"
+                f"            out[i] = t + A[i]*B[i]*0.5{sf} + 1.0{sf} + t*0.001{sf};"
+            )
 
         # ── helper.c: TWO noinline kernels in separate TU ──
-        # 1) is5_noalias_kernel — WITHOUT restrict (conservative, no vectorize)
-        # 2) is5_restrict_kernel — WITH restrict (vectorizable)
+        # 1) is5_noalias_kernel — WITHOUT restrict, reads back from out[]
+        #    creating a store-load dependency the compiler cannot vectorize
+        # 2) is5_restrict_kernel — WITH restrict, uses local temp variable
+        #    so the compiler can vectorize freely
         helper_code = (
             f"__attribute__((noinline))\n"
             f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
-            f"    for (int i = 0; i < n; i++) {body}\n"
+            f"    for (int i = 0; i < n; i++) {{\n"
+            f"            {slow_body}\n"
+            f"    }}\n"
             f"}}\n\n"
             f"__attribute__((noinline))\n"
             f"void is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
             f"        const {dtype} * __restrict__ A,\n"
             f"        const {dtype} * __restrict__ B, int n) {{\n"
-            f"    for (int i = 0; i < n; i++) {body}\n"
+            f"    for (int i = 0; i < n; i++) {{\n"
+            f"            {fast_body}\n"
+            f"    }}\n"
             f"}}\n"
         )
 
@@ -3214,7 +3239,7 @@ class IS5_Generator(PatternTemplate):
 
 int main() {{
     {dtype} *A=malloc(N*sizeof({dtype})),*B=malloc(N*sizeof({dtype})),*os=malloc(N*sizeof({dtype})),*of=malloc(N*sizeof({dtype}));
-    for(int i=0;i<N;i++){{A[i]=({dtype})((i%100)+1)*0.1{DTYPES[dtype]['suffix']};B[i]=({dtype})((i%50)+1)*0.05{DTYPES[dtype]['suffix']};}}
+    for(int i=0;i<N;i++){{A[i]=({dtype})((i%100)+1)*0.1{sf};B[i]=({dtype})((i%50)+1)*0.05{sf};}}
     struct timespec t0,t1;
     clock_gettime(CLOCK_MONOTONIC,&t0);
     for(int r=0;r<REPS;r++) slow_is5_{suf}(os,A,B,N);
@@ -3234,10 +3259,10 @@ int main() {{
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"IS-5_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
-                    variant_desc=f"{expr_type} expr, {dtype}, n={n}",
+                    variant_desc=f"{expr_type} expr, {dtype}, n={n}, alias-dep slow",
                     dtype=dtype, difficulty="hard", compiler_fixable=False,
-                    num_loops=1, num_arrays=2, lines_of_code=8,
-                    expected_speedup_range="1.5x-4x", composition=[]))}
+                    num_loops=1, num_arrays=2, lines_of_code=10,
+                    expected_speedup_range="2x-6x", composition=[]))}
 
 
 # ── CF-3 ──────────────────────────────────────────────────────
@@ -3982,16 +4007,17 @@ int main() {{
 
 class DS3_Generator(PatternTemplate):
     """DS-3: Unnecessary Struct Copy (Pass-by-Value vs Pass-by-Pointer).
-    Slow: large struct (128+ bytes, 16 double fields) copied onto stack for
-    every call via noinline function in helper.c (separate TU).
-    Fast: pointer passed, no copy.
+    Slow: large struct (512+ bytes) copied onto stack for every call via
+    noinline function in helper.c (separate TU).
+    Fast: pointer passed to noinline function in helper.c, no copy.
 
     Compiler-resistance strategy:
-    - The slow processing function lives in helper.c with __attribute__((noinline)),
-      compiled as a separate TU so the compiler cannot convert pass-by-value to
-      pass-by-reference.
-    - The struct has 16 double fields (128 bytes) — ALL fields are accessed
-      inside the function body to force the entire struct copy to be real.
+    - BOTH slow and fast processing functions live in helper.c as noinline
+      in a separate TU.  This isolates the variable to purely pass-by-value
+      (copies 512-1024 bytes onto stack) vs pass-by-pointer (8-byte pointer).
+    - The struct has 64-128 double fields (512-1024 bytes) but the processing
+      function only accesses 3 fields (first, middle, last), so copy overhead
+      dominates over computation.
     - noinline prevents the compiler from inlining and eliminating the copy.
     """
 
@@ -4002,35 +4028,30 @@ class DS3_Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        n_fields = 32   # 32 doubles = 256 bytes — large enough to ensure copy overhead
-        n_structs = rng.choice([500000, 1000000, 2000000])
-        op_type = rng.choice(["sum", "dot_self", "weighted"])
+        n_fields = rng.choice([64, 96, 128])  # 512-1024 bytes per struct
+        n_structs = rng.choice([2000000, 4000000])
 
         # Generate field names
         fnames = [f"f{i}" for i in range(n_fields)]
         fields_decl = "".join(f"double {fn};" for fn in fnames)
 
-        # Build body that accesses ALL fields (forces full struct copy)
-        if op_type == "sum":
-            body_val = "double r=" + "+".join(f"s.{fn}" for fn in fnames) + ";return r;"
-            body_ptr = "double r=" + "+".join(f"s->{fn}" for fn in fnames) + ";return r;"
-        elif op_type == "dot_self":
-            body_val = "double r=" + "+".join(f"s.{fn}*s.{fn}" for fn in fnames) + ";return r;"
-            body_ptr = "double r=" + "+".join(f"s->{fn}*s->{fn}" for fn in fnames) + ";return r;"
-        else:  # weighted
-            terms_val = "+".join(f"s.{fnames[i]}*{(i+1)*0.1:.1f}" for i in range(n_fields))
-            terms_ptr = "+".join(f"s->{fnames[i]}*{(i+1)*0.1:.1f}" for i in range(n_fields))
-            body_val = f"double r={terms_val};return r;"
-            body_ptr = f"double r={terms_ptr};return r;"
+        # Only access 3 fields (first, middle, last) so copy overhead dominates
+        f_first, f_mid, f_last = fnames[0], fnames[n_fields//2], fnames[-1]
+        body_val = f"double r=s.{f_first}+s.{f_mid}+s.{f_last};return r;"
+        body_ptr = f"double r=s->{f_first}+s->{f_mid}+s->{f_last};return r;"
 
         struct_def = f"typedef struct{{{fields_decl}}} BS_{suf};"
 
-        # ── helper.c: noinline pass-by-value processing in separate TU ──
+        # ── helper.c: BOTH functions noinline in separate TU ──
         helper_code = (
             f"{struct_def}\n\n"
             f"__attribute__((noinline))\n"
             f"double ds3_process_{suf}(BS_{suf} s){{\n"
             f"    {body_val}\n"
+            f"}}\n\n"
+            f"__attribute__((noinline))\n"
+            f"double ds3_process_fast_{suf}(const BS_{suf} *s){{\n"
+            f"    {body_ptr}\n"
             f"}}\n"
         )
 
@@ -4047,10 +4068,8 @@ class DS3_Generator(PatternTemplate):
 
         # ── fast.c: pass-by-pointer, no copy ──
         fast_code = (
-            f"{struct_def}\n\n"
-            f"static inline double ds3_process_fast_{suf}(const BS_{suf} *s){{\n"
-            f"    {body_ptr}\n"
-            f"}}\n\n"
+            f"{struct_def}\n"
+            f"double ds3_process_fast_{suf}(const BS_{suf} *s);\n\n"
             f"double fast_ds3_{suf}(BS_{suf} *arr, int n){{\n"
             f"    double total=0.0;\n"
             f"    for(int i=0;i<n;i++) total+=ds3_process_fast_{suf}(&arr[i]);\n"
@@ -4094,7 +4113,7 @@ int main() {{
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"DS-3_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
-                    variant_desc=f"{op_type}, n_fields={n_fields}, n={n_structs}",
+                    variant_desc=f"n_fields={n_fields}, n={n_structs}",
                     dtype="double", difficulty="medium", compiler_fixable=False,
                     num_loops=1, num_arrays=1, lines_of_code=10,
                     expected_speedup_range="2x-8x", composition=[]))}

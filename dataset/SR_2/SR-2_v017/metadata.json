@@ -1,0 +1,15 @@
+{
+  "pattern_id": "SR-2",
+  "variant_id": "SR-2_v017",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Loop-Invariant Penalty in Compound Expression",
+  "variant_desc": "3 arrays, penalty (log_chain), float, for-loop",
+  "dtype": "float",
+  "difficulty": "easy",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 8,
+  "expected_speedup_range": "10x-1000x",
+  "composition": []
+}

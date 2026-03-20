@@ -1,7 +1,8 @@
-double slow_is1_v013(double *A, double *B, int n) {
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) {
-        sum += A[i] * B[i];
+void slow_is1_v013(double *y, double *A, double *x, int m, int n) {
+    for (int i = 0; i < m; i++) {
+        y[i] = 0.0;
+        for (int j = 0; j < n; j++) {
+            y[i] += A[i * n + j] * x[j];
+        }
     }
-    return sum;
 }

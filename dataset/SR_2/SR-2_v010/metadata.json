@@ -2,14 +2,14 @@
   "pattern_id": "SR-2",
   "variant_id": "SR-2_v010",
   "category": "Semantic Redundancy",
-  "pattern_name": "Recomputable Expression Decomposition",
-  "variant_desc": "2-term expression decomposition, 4 arrays, 2 constants, float, for-loop",
+  "pattern_name": "Loop-Invariant Penalty in Compound Expression",
+  "variant_desc": "2 arrays, penalty (log_chain), float, while-loop",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 4,
+  "num_arrays": 2,
   "lines_of_code": 8,
-  "expected_speedup_range": "1.5x-5x",
+  "expected_speedup_range": "10x-1000x",
   "composition": []
 }

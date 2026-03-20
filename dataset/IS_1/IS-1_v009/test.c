@@ -3,21 +3,21 @@
 #include <math.h>
 #include <time.h>
 
-#define M 1000
-#define NN 1000
+#define M 3000
+#define NN 3000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *A = malloc(M * NN * sizeof(double));
-    double *x = malloc(NN * sizeof(double));
-    double *y_slow = calloc(M, sizeof(double));
-    double *y_fast = calloc(M, sizeof(double));
+    float *A = malloc(M * NN * sizeof(float));
+    float *x = malloc(NN * sizeof(float));
+    float *y_slow = calloc(M, sizeof(float));
+    float *y_fast = calloc(M, sizeof(float));
     srand(42);
-    for (int i = 0; i < M * NN; i++) A[i] = (rand() % 100 < 50) ? 0.0 : (double)(rand() % 10 + 1) * 0.1;
-    for (int i = 0; i < NN; i++) x[i] = (double)(rand() % 10 + 1) * 0.1;
+    for (int i = 0; i < M * NN; i++) A[i] = (rand() % 1000 < 990) ? 0.0f : (float)(rand() % 10 + 1) * 0.1f;
+    for (int i = 0; i < NN; i++) x[i] = (float)(rand() % 10 + 1) * 0.1f;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);

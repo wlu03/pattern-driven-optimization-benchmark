@@ -5,6 +5,19 @@
 
 #define N 500000
 
+#ifndef AOS_V007_DEFINED
+#define AOS_V007_DEFINED
+typedef struct {
+    int r;
+    int g;
+    int b;
+    int a;
+    int x;
+    int y;
+    float depth;
+} AoS_v007;
+#endif
+
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
@@ -19,13 +32,16 @@ int main() {
         arr[i].x = (int)(i % 100) * 0.01 + 0.5;
         arr[i].y = (int)(i % 100) * 0.01 + 0.5;
         arr[i].depth = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].normal_x = (float)(i % 100) * 0.01 + 0.5;
     }
 
-    double *soa_depth = malloc(N * sizeof(double));
-    double *soa_normal_x = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_depth[i] = (double)arr[i].depth;
-    for (int i = 0; i < N; i++) soa_normal_x[i] = (double)arr[i].normal_x;
+    double *soa_a = malloc(N * sizeof(double));
+    double *soa_x = malloc(N * sizeof(double));
+    double *soa_y = malloc(N * sizeof(double));
+    double *soa_g = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_a[i] = (double)arr[i].a;
+    for (int i = 0; i < N; i++) soa_x[i] = (double)arr[i].x;
+    for (int i = 0; i < N; i++) soa_y[i] = (double)arr[i].y;
+    for (int i = 0; i < N; i++) soa_g[i] = (double)arr[i].g;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -34,7 +50,7 @@ int main() {
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v007(soa_depth, soa_normal_x, N);
+    double r_fast = fast_ds4_v007(soa_a, soa_x, soa_y, soa_g, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
@@ -45,7 +61,9 @@ int main() {
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_depth);
-    free(soa_normal_x);
+    free(soa_a);
+    free(soa_x);
+    free(soa_y);
+    free(soa_g);
     return 0;
 }

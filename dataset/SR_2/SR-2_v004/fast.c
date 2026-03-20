@@ -1,13 +1,10 @@
-double fast_sr2_v004(double *X, double *Y, int n, double alpha, double beta) {
-    double sumXcb = 0.0;
-    double sumYcb = 0.0;
-    double sumY = 0.0;
-    int i = 0;
-    while (i < n) {
-        sumXcb += X[i] * X[i] * X[i];
-        sumYcb += Y[i] * Y[i] * Y[i];
-        sumY += Y[i];
-        i++;
+float penalty_sr2_v004(float a, float b);
+
+float fast_sr2_v004(float *X, float *Y, int n, float alpha, float beta) {
+    float p = penalty_sr2_v004(alpha, beta);
+    float result = 0.0f;
+    for (int i = 0; i < n; i++) {
+        result += alpha * X[i] + alpha * Y[i];
     }
-    return beta * sumXcb + (double)n * alpha + alpha * sumYcb + alpha * sumY;
+    return result + (float)n * p;
 }

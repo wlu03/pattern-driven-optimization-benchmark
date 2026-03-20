@@ -3,7 +3,21 @@
 #include <math.h>
 #include <time.h>
 
-#define N 2000000
+#define N 1000000
+
+#ifndef AOS_V012_DEFINED
+#define AOS_V012_DEFINED
+typedef struct {
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
+    double mass;
+    double charge;
+} AoS_v012;
+#endif
 
 // SLOW_CODE_HERE
 
@@ -12,18 +26,22 @@
 int main() {
     AoS_v012 *arr = malloc(N * sizeof(AoS_v012));
     for (int i = 0; i < N; i++) {
-        arr[i].r = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].g = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].b = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].a = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].x = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].y = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].depth = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].normal_x = (float)(i % 100) * 0.01 + 0.5;
+        arr[i].x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].z = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vx = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vy = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].vz = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].mass = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].charge = (double)(i % 100) * 0.01 + 0.5;
     }
 
-    double *soa_g = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_g[i] = (double)arr[i].g;
+    double *soa_charge = malloc(N * sizeof(double));
+    double *soa_x = malloc(N * sizeof(double));
+    double *soa_mass = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_charge[i] = (double)arr[i].charge;
+    for (int i = 0; i < N; i++) soa_x[i] = (double)arr[i].x;
+    for (int i = 0; i < N; i++) soa_mass[i] = (double)arr[i].mass;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -32,7 +50,7 @@ int main() {
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v012(soa_g, N);
+    double r_fast = fast_ds4_v012(soa_charge, soa_x, soa_mass, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
@@ -43,6 +61,8 @@ int main() {
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_g);
+    free(soa_charge);
+    free(soa_x);
+    free(soa_mass);
     return 0;
 }

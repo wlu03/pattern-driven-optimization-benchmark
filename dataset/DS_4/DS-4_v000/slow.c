@@ -1,23 +1,19 @@
+#ifndef AOS_V000_DEFINED
+#define AOS_V000_DEFINED
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
 } AoS_v000;
+#endif
 
 double slow_ds4_v000(AoS_v000 *arr, int n) {
-    double total_nz = -1e308;
-    double total_ny = -1e308;
-    double total_py = -1e308;
-    double total_pz = -1e308;
+    double total_vx = 0.0;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].nz > total_nz) total_nz = (double)arr[i].nz;
-        if ((double)arr[i].ny > total_ny) total_ny = (double)arr[i].ny;
-        if ((double)arr[i].py > total_py) total_py = (double)arr[i].py;
-        if ((double)arr[i].pz > total_pz) total_pz = (double)arr[i].pz;
+        total_vx += (double)arr[i].vx;
     }
-    return total_nz + total_ny + total_py + total_pz;
+    return total_vx;
 }
