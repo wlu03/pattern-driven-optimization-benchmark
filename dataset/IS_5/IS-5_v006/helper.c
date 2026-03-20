@@ -1,11 +1,19 @@
 __attribute__((noinline))
-void is5_noalias_kernel_v006(double *out, double *A, double *B, int n) {
-    for (int i = 0; i < n; i++) out[i]=A[i]*A[i]-B[i]*B[i]+A[i]*B[i]*0.5+1.0;
+float is5_noalias_kernel_v006(float *out, float *A, float *B, int n) {
+    float prev = 0.0f;
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i]*A[i] + B[i]*2.0f - A[i]*0.5f + B[i]*B[i] + prev * (float)5e-10f;
+        prev = out[i];
+    }
+    return prev;
 }
 
 __attribute__((noinline))
-void is5_restrict_kernel_v006(double * __restrict__ out,
-        const double * __restrict__ A,
-        const double * __restrict__ B, int n) {
-    for (int i = 0; i < n; i++) out[i]=A[i]*A[i]-B[i]*B[i]+A[i]*B[i]*0.5+1.0;
+float is5_restrict_kernel_v006(float * __restrict__ out,
+        const float * __restrict__ A,
+        const float * __restrict__ B, int n) {
+    for (int i = 0; i < n; i++) {
+        out[i] = A[i]*A[i] + B[i]*2.0f - A[i]*0.5f + B[i]*B[i];
+    }
+    return out[n > 0 ? n-1 : 0];
 }

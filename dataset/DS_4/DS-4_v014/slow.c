@@ -4,18 +4,25 @@ typedef struct {
     double time;
     double x;
     double y;
-    float energy;
-    int channel;
-    int quality;
+    double z;
+    double energy;
+    double channel;
+    double quality;
+    double amplitude;
+    double phase;
+    double duration;
+    double rate;
+    double peak;
+    double baseline;
+    double snr;
+    double trigger;
+    double confidence;
+    double _pad[24];
 } AoS_v014;
 #endif
 
+double aos_accumulate_ds4_v014(AoS_v014 *arr, int n);
+
 double slow_ds4_v014(AoS_v014 *arr, int n) {
-    double total_energy = -1e308;
-    double total_y = -1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].energy > total_energy) total_energy = (double)arr[i].energy;
-        if ((double)arr[i].y > total_y) total_y = (double)arr[i].y;
-    }
-    return total_energy + total_y;
+    return aos_accumulate_ds4_v014(arr, n);
 }

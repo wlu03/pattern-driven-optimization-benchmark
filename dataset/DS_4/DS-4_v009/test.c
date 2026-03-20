@@ -8,13 +8,23 @@
 #ifndef AOS_V009_DEFINED
 #define AOS_V009_DEFINED
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
+    double time;
+    double x;
+    double y;
+    double z;
+    double energy;
+    double channel;
+    double quality;
+    double amplitude;
+    double phase;
+    double duration;
+    double rate;
+    double peak;
+    double baseline;
+    double snr;
+    double trigger;
+    double confidence;
+    double _pad[16];
 } AoS_v009;
 #endif
 
@@ -24,46 +34,54 @@ typedef struct {
 
 int main() {
     AoS_v009 *arr = malloc(N * sizeof(AoS_v009));
+    if (!arr) { fprintf(stderr, "malloc failed\n"); return 1; }
     for (int i = 0; i < N; i++) {
-        arr[i].temp = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].humidity = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].pressure = (double)(i % 100) * 0.01 + 0.5;
-        arr[i].wind_speed = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].wind_dir = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].light = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].noise = (int)(i % 100) * 0.01 + 0.5;
+        arr[i].time = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].z = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].energy = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].channel = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].quality = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].amplitude = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].phase = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].duration = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].rate = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].peak = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].baseline = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].snr = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].trigger = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].confidence = (double)(i % 100) * 0.01 + 0.5;
+        for (int p = 0; p < 16; p++) arr[i]._pad[p] = 0.0;
     }
 
-    double *soa_humidity = malloc(N * sizeof(double));
-    double *soa_light = malloc(N * sizeof(double));
-    double *soa_noise = malloc(N * sizeof(double));
-    double *soa_wind_dir = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_humidity[i] = (double)arr[i].humidity;
-    for (int i = 0; i < N; i++) soa_light[i] = (double)arr[i].light;
-    for (int i = 0; i < N; i++) soa_noise[i] = (double)arr[i].noise;
-    for (int i = 0; i < N; i++) soa_wind_dir[i] = (double)arr[i].wind_dir;
+    double *soa_channel = malloc(N * sizeof(double));
+    double *soa_baseline = malloc(N * sizeof(double));
+    double *soa_z = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_channel[i] = arr[i].channel;
+    for (int i = 0; i < N; i++) soa_baseline[i] = arr[i].baseline;
+    for (int i = 0; i < N; i++) soa_z[i] = arr[i].z;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_ds4_v009(arr, N);
+    volatile double r_slow = slow_ds4_v009(arr, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v009(soa_humidity, soa_light, soa_noise, soa_wind_dir, N);
+    volatile double r_fast = fast_ds4_v009(soa_channel, soa_baseline, soa_z, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    double diff = fabs(r_slow - r_fast);
-    double mag = fmax(fabs(r_slow), 1e-12);
+    double diff = fabs((double)r_slow - (double)r_fast);
+    double mag = fmax(fabs((double)r_slow), 1e-12);
     int correct = (diff / mag < 1e-6) || (diff < 1e-9);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_humidity);
-    free(soa_light);
-    free(soa_noise);
-    free(soa_wind_dir);
+    free(soa_channel);
+    free(soa_baseline);
+    free(soa_z);
     return 0;
 }

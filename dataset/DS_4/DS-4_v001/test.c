@@ -3,19 +3,28 @@
 #include <math.h>
 #include <time.h>
 
-#define N 500000
+#define N 2000000
 
 #ifndef AOS_V001_DEFINED
 #define AOS_V001_DEFINED
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
-    float v;
+    double time;
+    double x;
+    double y;
+    double z;
+    double energy;
+    double channel;
+    double quality;
+    double amplitude;
+    double phase;
+    double duration;
+    double rate;
+    double peak;
+    double baseline;
+    double snr;
+    double trigger;
+    double confidence;
+    double _pad[16];
 } AoS_v001;
 #endif
 
@@ -25,47 +34,54 @@ typedef struct {
 
 int main() {
     AoS_v001 *arr = malloc(N * sizeof(AoS_v001));
+    if (!arr) { fprintf(stderr, "malloc failed\n"); return 1; }
     for (int i = 0; i < N; i++) {
-        arr[i].px = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].py = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].pz = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nx = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].ny = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nz = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].u = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].v = (float)(i % 100) * 0.01 + 0.5;
+        arr[i].time = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].z = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].energy = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].channel = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].quality = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].amplitude = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].phase = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].duration = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].rate = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].peak = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].baseline = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].snr = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].trigger = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].confidence = (double)(i % 100) * 0.01 + 0.5;
+        for (int p = 0; p < 16; p++) arr[i]._pad[p] = 0.0;
     }
 
-    double *soa_ny = malloc(N * sizeof(double));
-    double *soa_nz = malloc(N * sizeof(double));
-    double *soa_u = malloc(N * sizeof(double));
-    double *soa_nx = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_ny[i] = (double)arr[i].ny;
-    for (int i = 0; i < N; i++) soa_nz[i] = (double)arr[i].nz;
-    for (int i = 0; i < N; i++) soa_u[i] = (double)arr[i].u;
-    for (int i = 0; i < N; i++) soa_nx[i] = (double)arr[i].nx;
+    double *soa_rate = malloc(N * sizeof(double));
+    double *soa_confidence = malloc(N * sizeof(double));
+    double *soa_amplitude = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_rate[i] = arr[i].rate;
+    for (int i = 0; i < N; i++) soa_confidence[i] = arr[i].confidence;
+    for (int i = 0; i < N; i++) soa_amplitude[i] = arr[i].amplitude;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_ds4_v001(arr, N);
+    volatile double r_slow = slow_ds4_v001(arr, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v001(soa_ny, soa_nz, soa_u, soa_nx, N);
+    volatile double r_fast = fast_ds4_v001(soa_rate, soa_confidence, soa_amplitude, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    double diff = fabs(r_slow - r_fast);
-    double mag = fmax(fabs(r_slow), 1e-12);
+    double diff = fabs((double)r_slow - (double)r_fast);
+    double mag = fmax(fabs((double)r_slow), 1e-12);
     int correct = (diff / mag < 1e-6) || (diff < 1e-9);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_ny);
-    free(soa_nz);
-    free(soa_u);
-    free(soa_nx);
+    free(soa_rate);
+    free(soa_confidence);
+    free(soa_amplitude);
     return 0;
 }

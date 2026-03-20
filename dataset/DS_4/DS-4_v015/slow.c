@@ -1,22 +1,28 @@
 #ifndef AOS_V015_DEFINED
 #define AOS_V015_DEFINED
 typedef struct {
-    int r;
-    int g;
-    int b;
-    int a;
-    int x;
-    int y;
-    float depth;
+    double temp;
+    double humidity;
+    double pressure;
+    double wind_speed;
+    double wind_dir;
+    double light;
+    double noise;
+    double co2;
+    double pm25;
+    double pm10;
+    double ozone;
+    double radiation;
+    double voltage;
+    double current;
+    double frequency;
+    double signal;
+    double _pad[16];
 } AoS_v015;
 #endif
 
+double aos_accumulate_ds4_v015(AoS_v015 *arr, int n);
+
 double slow_ds4_v015(AoS_v015 *arr, int n) {
-    double total_b = 0.0;
-    int i = 0;
-    while (i < n) {
-        total_b += (double)arr[i].b;
-        i++;
-    }
-    return total_b;
+    return aos_accumulate_ds4_v015(arr, n);
 }

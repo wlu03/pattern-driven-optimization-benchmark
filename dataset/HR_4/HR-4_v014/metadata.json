@@ -10,6 +10,6 @@
   "num_loops": 1,
   "num_arrays": 1,
   "lines_of_code": 8,
-  "expected_speedup_range": "1.5x-4x",
+  "expected_speedup_range": "2x-6x",
   "composition": []
 }

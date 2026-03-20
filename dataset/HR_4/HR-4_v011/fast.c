@@ -1,5 +1,5 @@
-double fast_hr4_v011(double *arr,int n){
-    double sum=0;
-    for(int i=0;i<n;i++) sum+=arr[i]*(double)2.0+(double)1.0;
+float fast_hr4_v011(float *arr,int n){
+    float sum=0;
+    for(int i=0;i<n;i++) sum+=arr[i];
     return sum;
 }

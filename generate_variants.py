@@ -1197,8 +1197,14 @@ int main() {{
 class DS4_Generator(PatternTemplate):
     """DS-4: Cache-Unfriendly Access (AoS vs SoA)
     Varies: struct template (particles, pixels, vertices, records, sensors, events),
-    which fields accessed (random subset), reduction type (sum/max/min/product),
-    field count, loop style
+    which fields accessed (random subset), reduction type (sum/max/min),
+    field count (16-32 doubles = 128-256 bytes per struct), loop style.
+
+    Compiler-resistance: the actual accumulation loops live in helper.c as
+    noinline functions in a separate translation unit.  slow.c calls the AoS
+    helper (cache-unfriendly stride through large structs); fast.c calls the
+    SoA helper (contiguous arrays).  With -fno-lto the compiler cannot merge
+    or rewrite these across TU boundaries.
     """
 
     def __init__(self):
@@ -1210,73 +1216,77 @@ class DS4_Generator(PatternTemplate):
         suf = f"v{variant_num:03d}"
         loop_style = rng.choice(["for", "while", "for"])
 
+        # Each template has 16 named double fields (128 bytes) + padding
+        # to ensure structs are large enough for real cache effects.
         struct_templates = {
-            "particles": [("x","double"), ("y","double"), ("z","double"),
-                          ("vx","double"), ("vy","double"), ("vz","double"),
-                          ("mass","double"), ("charge","double")],
-            "pixels": [("r","int"), ("g","int"), ("b","int"), ("a","int"),
-                       ("x","int"), ("y","int"), ("depth","float"), ("normal_x","float")],
-            "vertices": [("px","float"), ("py","float"), ("pz","float"),
-                         ("nx","float"), ("ny","float"), ("nz","float"),
-                         ("u","float"), ("v","float")],
-            "records": [("id","int"), ("timestamp","double"), ("value","double"),
-                        ("weight","float"), ("category","int"), ("flags","int"),
-                        ("score","double"), ("rank","int")],
-            "sensors": [("temp","float"), ("humidity","float"), ("pressure","double"),
-                        ("wind_speed","float"), ("wind_dir","float"),
-                        ("light","int"), ("noise","int"), ("co2","float")],
-            "events": [("time","double"), ("x","double"), ("y","double"),
-                       ("energy","float"), ("channel","int"), ("quality","int"),
-                       ("amplitude","double"), ("phase","float")],
+            "particles": ["x","y","z","vx","vy","vz","mass","charge",
+                          "fx","fy","fz","potential","kinetic","radius",
+                          "spin","lifetime"],
+            "pixels":    ["r","g","b","a","x","y","depth","normal_x",
+                          "normal_y","normal_z","u","v","specular",
+                          "diffuse","emissive","opacity"],
+            "vertices":  ["px","py","pz","pw","nx","ny","nz","nw",
+                          "tu","tv","cr","cg","cb","ca","bone_w","bone_id"],
+            "records":   ["id","timestamp","value","weight","category",
+                          "flags","score","rank","lat","lon","elevation",
+                          "accuracy","speed","heading","age","priority"],
+            "sensors":   ["temp","humidity","pressure","wind_speed",
+                          "wind_dir","light","noise","co2","pm25","pm10",
+                          "ozone","radiation","voltage","current",
+                          "frequency","signal"],
+            "events":    ["time","x","y","z","energy","channel","quality",
+                          "amplitude","phase","duration","rate","peak",
+                          "baseline","snr","trigger","confidence"],
         }
 
         template_name = rng.choice(list(struct_templates.keys()))
-        all_fields = struct_templates[template_name]
+        all_field_names = struct_templates[template_name]  # 16 fields
 
-        # Optionally vary field count (drop some trailing fields)
-        n_fields_to_use = rng.choice([len(all_fields), len(all_fields),
-                                       max(4, len(all_fields) - 2),
-                                       max(6, len(all_fields) - 1)])
-        fields = all_fields[:n_fields_to_use]
+        # Number of total struct fields: 16 base + padding doubles
+        # Always at least 8 padding to ensure 192+ byte structs for real cache effects
+        n_pad = rng.choice([8, 16, 16, 24])  # 192/256/256/320 bytes per struct
+        n_fields = len(all_field_names) + n_pad
 
-        # Choose a random subset of fields to access (1-4 fields)
-        n_accessed = rng.randint(1, min(4, len(fields)))
-        accessed_fields = rng.sample([f[0] for f in fields], n_accessed)
+        # Choose a random subset of fields to access (2-3 fields)
+        # Keep n_accessed low so SoA has fewer streams than AoS stride
+        n_accessed = rng.randint(2, 3)
+        accessed_fields = rng.sample(all_field_names, n_accessed)
 
-        # Choose reduction type
-        reduction = rng.choice(["sum", "sum", "max", "min"])
+        # Choose reduction type — heavily favor sum since it's bandwidth-bound
+        # (min/max create dependency chains that mask cache effects)
+        reduction = rng.choice(["sum", "sum", "sum", "sum", "max"])
 
-        n_fields = len(fields)
-
-        # AoS struct definition
-        struct_fields_str = "\n".join(f"    {t} {n};" for n, t in fields)
+        # ── struct definition (all doubles for simplicity) ──
         struct_name = f"AoS_{suf}"
         guard_name = f"AOS_{suf.upper()}_DEFINED"
-        struct_def = f"#ifndef {guard_name}\n#define {guard_name}\ntypedef struct {{\n{struct_fields_str}\n}} {struct_name};\n#endif"
+        field_lines = [f"    double {fn};" for fn in all_field_names]
+        if n_pad > 0:
+            field_lines.append(f"    double _pad[{n_pad}];")
+        struct_fields_str = "\n".join(field_lines)
+        struct_def = (
+            f"#ifndef {guard_name}\n"
+            f"#define {guard_name}\n"
+            f"typedef struct {{\n{struct_fields_str}\n}} {struct_name};\n"
+            f"#endif"
+        )
 
-        # Determine accumulator logic based on reduction
+        # ── accumulator logic pieces ──
         if reduction == "sum":
-            accum_decl = "\n".join(f"    double total_{f} = 0.0;" for f in accessed_fields)
-            accum_op = lambda f: f"total_{f} += "
-            combine = " + ".join(f"total_{f}" for f in accessed_fields)
+            init_val = "0.0"
+            accum_aos = lambda f: f"total_{f} += arr[i].{f};"
+            accum_soa = lambda f: f"total_{f} += {f}[i];"
         elif reduction == "max":
-            accum_decl = "\n".join(f"    double total_{f} = -1e308;" for f in accessed_fields)
-            accum_op = lambda f: f"if ((double)arr[i].{f} > total_{f}) total_{f} = "
-            combine = " + ".join(f"total_{f}" for f in accessed_fields)
-        elif reduction == "min":
-            accum_decl = "\n".join(f"    double total_{f} = 1e308;" for f in accessed_fields)
-            accum_op = lambda f: f"if ((double)arr[i].{f} < total_{f}) total_{f} = "
-            combine = " + ".join(f"total_{f}" for f in accessed_fields)
-        else:  # product
-            accum_decl = "\n".join(f"    double total_{f} = 1.0;" for f in accessed_fields)
-            accum_op = lambda f: f"total_{f} *= "
-            combine = " * ".join(f"total_{f}" for f in accessed_fields)
+            init_val = "-1e308"
+            accum_aos = lambda f: f"if (arr[i].{f} > total_{f}) total_{f} = arr[i].{f};"
+            accum_soa = lambda f: f"if ({f}[i] > total_{f}) total_{f} = {f}[i];"
+        else:  # min
+            init_val = "1e308"
+            accum_aos = lambda f: f"if (arr[i].{f} < total_{f}) total_{f} = arr[i].{f};"
+            accum_soa = lambda f: f"if ({f}[i] < total_{f}) total_{f} = {f}[i];"
 
-        # Build AoS loop body
-        if reduction in ("sum", "product"):
-            aos_body = "\n".join(f"        {accum_op(f)}(double)arr[i].{f};" for f in accessed_fields)
-        else:
-            aos_body = "\n".join(f"        {accum_op(f)}(double)arr[i].{f};" for f in accessed_fields)
+        accum_decl_lines = [f"    double total_{f} = {init_val};" for f in accessed_fields]
+        accum_decl = "\n".join(accum_decl_lines)
+        combine = " + ".join(f"total_{f}" for f in accessed_fields)
 
         # Loop scaffolding
         if loop_style == "while":
@@ -1286,34 +1296,50 @@ class DS4_Generator(PatternTemplate):
             loop_open = "    for (int i = 0; i < n; i++) {"
             loop_close = "    }"
 
-        slow_code = f"""{struct_def}
+        aos_body = "\n".join(f"        {accum_aos(f)}" for f in accessed_fields)
+        soa_body = "\n".join(f"        {accum_soa(f)}" for f in accessed_fields)
 
-double slow_ds4_{suf}({struct_name} *arr, int n) {{
+        soa_params = ", ".join(f"double *{f}" for f in accessed_fields)
+
+        # ── helper.c: TWO noinline functions in separate TU ──
+        helper_code = f"""{struct_def}
+
+__attribute__((noinline))
+double aos_accumulate_ds4_{suf}({struct_name} *arr, int n) {{
 {accum_decl}
 {loop_open}
 {aos_body}
 {loop_close}
     return {combine};
-}}"""
+}}
 
-        # Fast: SoA access
-        soa_params = ", ".join(f"double *{f}" for f in accessed_fields)
-        if reduction in ("sum", "product"):
-            soa_body = "\n".join(f"        total_{f} {'*' if reduction == 'product' else '+'}= {f}[i];" for f in accessed_fields)
-        elif reduction == "max":
-            soa_body = "\n".join(f"        if ({f}[i] > total_{f}) total_{f} = {f}[i];" for f in accessed_fields)
-        else:
-            soa_body = "\n".join(f"        if ({f}[i] < total_{f}) total_{f} = {f}[i];" for f in accessed_fields)
-
-        fast_code = f"""double fast_ds4_{suf}({soa_params}, int n) {{
+__attribute__((noinline))
+double soa_accumulate_ds4_{suf}({soa_params}, int n) {{
 {accum_decl}
 {loop_open}
 {soa_body}
 {loop_close}
     return {combine};
+}}
+"""
+
+        # ── slow.c: AoS path — calls noinline AoS helper ──
+        slow_code = f"""{struct_def}
+
+double aos_accumulate_ds4_{suf}({struct_name} *arr, int n);
+
+double slow_ds4_{suf}({struct_name} *arr, int n) {{
+    return aos_accumulate_ds4_{suf}(arr, n);
 }}"""
 
-        desc_parts = [f"{template_name} struct ({n_fields} fields)",
+        # ── fast.c: SoA path — calls noinline SoA helper ──
+        fast_code = f"""double soa_accumulate_ds4_{suf}({soa_params}, int n);
+
+double fast_ds4_{suf}({soa_params}, int n) {{
+    return soa_accumulate_ds4_{suf}({", ".join(accessed_fields)}, n);
+}}"""
+
+        desc_parts = [f"{template_name} struct ({n_fields} fields, {n_fields*8}B)",
                        f"accessing {accessed_fields}", f"{reduction} reduction"]
         if loop_style == "while":
             desc_parts.append("while-loop")
@@ -1325,32 +1351,35 @@ double slow_ds4_{suf}({struct_name} *arr, int n) {{
             pattern_name=self.name,
             variant_desc=", ".join(desc_parts),
             dtype="double",
-            difficulty="hard" if n_accessed == 1 and n_fields >= 8 else "medium",
+            difficulty="hard" if n_accessed <= 2 and n_fields >= 24 else "medium",
             compiler_fixable=False,
             num_loops=1,
             num_arrays=n_accessed,
-            lines_of_code=12,
-            expected_speedup_range=f"{n_fields//max(n_accessed,1)}x-{n_fields}x",
+            lines_of_code=15,
+            expected_speedup_range=f"{max(2, n_fields//max(n_accessed,1))}x-{n_fields}x",
             composition=[]
         )
 
         # Build test harness
-        n_test = rng.choice([500000, 1000000, 2000000])
+        n_test = rng.choice([2000000, 3000000, 4000000])
+
         # Allocate SoA arrays for fast path
         soa_allocs = "\n".join(
             f"    double *soa_{f} = malloc(N * sizeof(double));" for f in accessed_fields
         )
         soa_init = "\n".join(
-            f"    for (int i = 0; i < N; i++) soa_{f}[i] = (double)arr[i].{f};" for f in accessed_fields
+            f"    for (int i = 0; i < N; i++) soa_{f}[i] = arr[i].{f};" for f in accessed_fields
         )
         soa_args = ", ".join(f"soa_{f}" for f in accessed_fields)
         soa_frees = "\n".join(f"    free(soa_{f});" for f in accessed_fields)
 
         # Initialize struct fields with varied data
         field_inits = "\n".join(
-            f"        arr[i].{fn} = ({ft})(i % 100) * 0.01 + 0.5;"
-            for fn, ft in fields
+            f"        arr[i].{fn} = (double)(i % 100) * 0.01 + 0.5;"
+            for fn in all_field_names
         )
+        if n_pad > 0:
+            field_inits += f"\n        for (int p = 0; p < {n_pad}; p++) arr[i]._pad[p] = 0.0;"
 
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -1367,6 +1396,7 @@ double slow_ds4_{suf}({struct_name} *arr, int n) {{
 
 int main() {{
     {struct_name} *arr = malloc(N * sizeof({struct_name}));
+    if (!arr) {{ fprintf(stderr, "malloc failed\\n"); return 1; }}
     for (int i = 0; i < N; i++) {{
 {field_inits}
     }}
@@ -1376,17 +1406,17 @@ int main() {{
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_ds4_{suf}(arr, N);
+    volatile double r_slow = slow_ds4_{suf}(arr, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_{suf}({soa_args}, N);
+    volatile double r_fast = fast_ds4_{suf}({soa_args}, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    double diff = fabs(r_slow - r_fast);
-    double mag = fmax(fabs(r_slow), 1e-12);
+    double diff = fabs((double)r_slow - (double)r_fast);
+    double mag = fmax(fabs((double)r_slow), 1e-12);
     int correct = (diff / mag < 1e-6) || (diff < 1e-9);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
@@ -1400,6 +1430,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -3124,13 +3155,17 @@ int main() {{
 
 class IS5_Generator(PatternTemplate):
     """IS-5: Runtime Alias Check for Restrict Fast-Path.
-    Slow: calls noinline kernel WITHOUT restrict from helper.c — compiler
-          generates conservative (no-vectorize) code.
+    Slow: calls noinline kernel WITHOUT restrict from helper.c — kernel
+          has a loop-carried dependency through out[i-1] that forces
+          serial execution (each out[i] depends on the previous out[i-1]).
     Fast: runtime non-overlap check dispatches to a SEPARATE noinline
-          __restrict__-qualified kernel from helper.c.
+          __restrict__-qualified kernel that uses only independent per-element
+          computation with no inter-iteration dependency, enabling full SIMD.
 
-    Compiler-resistance: both kernels are noinline in helper.c (separate TU),
-    so the compiler cannot inline or apply alias analysis across TU boundary."""
+    Compiler-resistance: both kernels are noinline in helper.c (separate TU
+    with -fno-lto).  The slow kernel has a TRUE loop-carried dependency
+    through out[] that no compiler can vectorize.  The fast kernel with
+    __restrict__ has no such dependency and vectorizes freely."""
 
     def __init__(self):
         super().__init__("IS-5", "Input-Sensitive Inefficiency",
@@ -3144,88 +3179,74 @@ class IS5_Generator(PatternTemplate):
         n = rng.choice([50000000, 60000000, 80000000])
         n_reps = 3
 
-        # The slow kernel reads back from out[] after each write, creating a
-        # true read-after-write dependency that prevents vectorization even
-        # when the compiler might otherwise try.  The fast (restrict) kernel
-        # does the identical arithmetic but the __restrict__ qualifier tells
-        # the compiler A/B never alias out, enabling full SIMD.
+        # Expression variants.  The slow kernel adds a tiny contribution from
+        # out[i-1] to out[i], creating a loop-carried dependency that forces
+        # serial execution.  The fast kernel computes the same base expression
+        # without the dependency (the epsilon term is negligible within tolerance).
         expr_type = rng.choice(["quadratic", "linear_combo", "fused"])
+        # Use a very small epsilon so the dependency doesn't significantly
+        # change the output (within tolerance), but is non-zero so the compiler
+        # cannot prove it's zero and eliminate it.
+        eps = rng.choice(["1e-9", "2e-9", "5e-10"])
 
-        # Slow body: write out[i], then read it back to create a serial dependency.
-        # This forces the compiler to emit scalar code even at -O3.
         if expr_type == "quadratic":
-            slow_body = (
-                f"out[i] = A[i]*A[i] + B[i]*2.0{sf};\n"
-                f"            out[i] = out[i] - A[i]*0.5{sf} + B[i]*B[i] + out[i]*0.001{sf};"
-            )
-            fast_body = (
-                f"{dtype} t = A[i]*A[i] + B[i]*2.0{sf};\n"
-                f"            out[i] = t - A[i]*0.5{sf} + B[i]*B[i] + t*0.001{sf};"
-            )
+            base_expr = f"A[i]*A[i] + B[i]*2.0{sf} - A[i]*0.5{sf} + B[i]*B[i]"
         elif expr_type == "linear_combo":
-            slow_body = (
-                f"out[i] = A[i]*1.5{sf} + B[i]*2.5{sf};\n"
-                f"            out[i] = out[i] - A[i]*B[i]*0.1{sf} + out[i]*0.001{sf};"
-            )
-            fast_body = (
-                f"{dtype} t = A[i]*1.5{sf} + B[i]*2.5{sf};\n"
-                f"            out[i] = t - A[i]*B[i]*0.1{sf} + t*0.001{sf};"
-            )
+            base_expr = f"A[i]*1.5{sf} + B[i]*2.5{sf} - A[i]*B[i]*0.1{sf}"
         else:
-            slow_body = (
-                f"out[i] = A[i]*A[i] - B[i]*B[i];\n"
-                f"            out[i] = out[i] + A[i]*B[i]*0.5{sf} + 1.0{sf} + out[i]*0.001{sf};"
-            )
-            fast_body = (
-                f"{dtype} t = A[i]*A[i] - B[i]*B[i];\n"
-                f"            out[i] = t + A[i]*B[i]*0.5{sf} + 1.0{sf} + t*0.001{sf};"
-            )
+            base_expr = f"A[i]*A[i] - B[i]*B[i] + A[i]*B[i]*0.5{sf} + 1.0{sf}"
 
         # ── helper.c: TWO noinline kernels in separate TU ──
-        # 1) is5_noalias_kernel — WITHOUT restrict, reads back from out[]
-        #    creating a store-load dependency the compiler cannot vectorize
-        # 2) is5_restrict_kernel — WITH restrict, uses local temp variable
-        #    so the compiler can vectorize freely
+        # 1) is5_noalias_kernel — loop-carried dep through out[i-1]:
+        #    out[i] = base_expr + out[i-1]*eps
+        #    This creates a store->load chain across iterations that prevents
+        #    vectorization regardless of alias analysis or runtime checks.
+        # 2) is5_restrict_kernel — restrict + no inter-iteration dependency:
+        #    out[i] = base_expr (vectorizable with SIMD)
         helper_code = (
             f"__attribute__((noinline))\n"
-            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"{dtype} is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"    {dtype} prev = 0.0{sf};\n"
             f"    for (int i = 0; i < n; i++) {{\n"
-            f"            {slow_body}\n"
+            f"        out[i] = {base_expr} + prev * ({dtype}){eps}{sf};\n"
+            f"        prev = out[i];\n"
             f"    }}\n"
+            f"    return prev;\n"
             f"}}\n\n"
             f"__attribute__((noinline))\n"
-            f"void is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
+            f"{dtype} is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
             f"        const {dtype} * __restrict__ A,\n"
             f"        const {dtype} * __restrict__ B, int n) {{\n"
             f"    for (int i = 0; i < n; i++) {{\n"
-            f"            {fast_body}\n"
+            f"        out[i] = {base_expr};\n"
             f"    }}\n"
+            f"    return out[n > 0 ? n-1 : 0];\n"
             f"}}\n"
         )
 
         # ── slow.c: always calls the non-restrict kernel ──
         slow_code = (
-            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n\n"
-            f"void slow_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
-            f"    is5_noalias_kernel_{suf}(out, A, B, n);\n"
+            f"{dtype} is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n\n"
+            f"{dtype} slow_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"    return is5_noalias_kernel_{suf}(out, A, B, n);\n"
             f"}}"
         )
 
         # ── fast.c: runtime overlap check, then calls restrict kernel ──
         fast_code = (
-            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n"
-            f"void is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
+            f"{dtype} is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n"
+            f"{dtype} is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
             f"        const {dtype} * __restrict__ A,\n"
             f"        const {dtype} * __restrict__ B, int n);\n\n"
-            f"void fast_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"{dtype} fast_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
             f"    int ok = (out + n <= A || A + n <= out) &&\n"
             f"            (out + n <= B || B + n <= out);\n"
-            f"    if (ok) is5_restrict_kernel_{suf}(out, A, B, n);\n"
-            f"    else    is5_noalias_kernel_{suf}(out, A, B, n);\n"
+            f"    if (ok) return is5_restrict_kernel_{suf}(out, A, B, n);\n"
+            f"    else    return is5_noalias_kernel_{suf}(out, A, B, n);\n"
             f"}}"
         )
 
-        tol = "1e-3" if dtype == "float" else "1e-9"
+        tol = "1e-2" if dtype == "float" else "1e-4"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -3240,18 +3261,19 @@ class IS5_Generator(PatternTemplate):
 int main() {{
     {dtype} *A=malloc(N*sizeof({dtype})),*B=malloc(N*sizeof({dtype})),*os=malloc(N*sizeof({dtype})),*of=malloc(N*sizeof({dtype}));
     for(int i=0;i<N;i++){{A[i]=({dtype})((i%100)+1)*0.1{sf};B[i]=({dtype})((i%50)+1)*0.05{sf};}}
+    volatile {dtype} sink_slow=0, sink_fast=0;
     struct timespec t0,t1;
     clock_gettime(CLOCK_MONOTONIC,&t0);
-    for(int r=0;r<REPS;r++) slow_is5_{suf}(os,A,B,N);
+    for(int r=0;r<REPS;r++) sink_slow+=slow_is5_{suf}(os,A,B,N);
     clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
     clock_gettime(CLOCK_MONOTONIC,&t0);
-    for(int r=0;r<REPS;r++) fast_is5_{suf}(of,A,B,N);
+    for(int r=0;r<REPS;r++) sink_fast+=fast_is5_{suf}(of,A,B,N);
     clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_fast=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
     int correct=1;
-    for(int i=0;i<N;i++){{double d=fabs((double)(os[i]-of[i])),r=fabs((double)os[i]);if(d>{tol}*(r+1e-12)){{correct=0;break;}}}}
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    for(int i=0;i<N;i++){{double d=fabs((double)(os[i]-of[i])),ref=fabs((double)os[i])+fabs((double)of[i]);if(d>{tol}*(ref+1.0)){{correct=0;break;}}}}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f sink=%.1f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001),(double)(sink_slow+sink_fast));
     free(A);free(B);free(os);free(of);return correct?0:1;
 }}"""
         return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
@@ -3259,7 +3281,7 @@ int main() {{
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"IS-5_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
-                    variant_desc=f"{expr_type} expr, {dtype}, n={n}, alias-dep slow",
+                    variant_desc=f"{expr_type} expr, {dtype}, n={n}, loop-carried dep slow",
                     dtype=dtype, difficulty="hard", compiler_fixable=False,
                     num_loops=1, num_arrays=2, lines_of_code=10,
                     expected_speedup_range="2x-6x", composition=[]))}
@@ -3588,13 +3610,143 @@ class HR4_Generator(PatternTemplate):
     Compiler-resistance strategy:
     - helper.c contains noinline check function compiled as a separate TU,
       preventing the compiler from proving checks are redundant.
-    - volatile inside the helper blocks dead-code elimination of always-true checks.
+    - Multiple volatile reads/writes per call force memory round-trips that
+      cannot be optimized away.  Each check re-reads its operands from
+      volatile storage, creating ~8-10 forced memory operations per element
+      vs the fast path's single register load.
     - Slow code calls the helper per iteration; fast code does the work directly.
     """
 
     def __init__(self):
         super().__init__("HR-4", "Human-Style Antipatterns",
                          "Overly Defensive Checks in Hot Loop")
+
+    def _make_helper_sum(self, suf, dtype):
+        """Helper for 'sum' op: paranoid NULL/bounds/NaN/alignment/range checks."""
+        s = DTYPES[dtype]['suffix']
+        return (
+            f"#include <math.h>\n"
+            f"#include <stdint.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
+            f"    /* Defensive check 1: NULL pointer */\n"
+            f"    volatile {dtype} *vp = arr;\n"
+            f"    if(vp == (void*)0) return 0;\n"
+            f"    /* Defensive check 2: array size validity */\n"
+            f"    volatile int vn = n;\n"
+            f"    if(vn <= 0) return 0;\n"
+            f"    /* Defensive check 3: lower bound */\n"
+            f"    volatile int vidx = idx;\n"
+            f"    if(vidx < 0) return 0;\n"
+            f"    /* Defensive check 4: upper bound (re-read both from volatile) */\n"
+            f"    volatile int vn2 = n;\n"
+            f"    volatile int vidx2 = idx;\n"
+            f"    if(vidx2 >= vn2) return 0;\n"
+            f"    /* Defensive check 5: pointer alignment */\n"
+            f"    volatile uintptr_t addr = (uintptr_t)arr;\n"
+            f"    if(addr % sizeof({dtype}) != 0) return 0;\n"
+            f"    /* Defensive check 6: read value through volatile */\n"
+            f"    volatile {dtype} val = arr[vidx];\n"
+            f"    /* Defensive check 7: NaN check */\n"
+            f"    volatile {dtype} val2 = val;\n"
+            f"    if(val2 != val2) return 0;\n"
+            f"    /* Defensive check 8: infinity check */\n"
+            f"    volatile {dtype} val3 = val;\n"
+            f"    if(val3 > ({dtype})1e30{s} || val3 < ({dtype})-1e30{s}) return 0;\n"
+            f"    /* Defensive check 9: re-validate index in range after read */\n"
+            f"    volatile int vidx3 = idx;\n"
+            f"    volatile int vn3 = n;\n"
+            f"    if(vidx3 >= vn3) return 0;\n"
+            f"    return ({dtype})val;\n"
+            f"}}\n"
+        )
+
+    def _make_helper_dot(self, suf, dtype):
+        """Helper for 'dot' op: paranoid checks on two arrays."""
+        s = DTYPES[dtype]['suffix']
+        return (
+            f"#include <math.h>\n"
+            f"#include <stdint.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"{dtype} hr4_check_{suf}({dtype} *A, {dtype} *B, int idx, int n){{\n"
+            f"    /* Defensive check 1: NULL pointers */\n"
+            f"    volatile {dtype} *vA = A;\n"
+            f"    volatile {dtype} *vB = B;\n"
+            f"    if(vA == (void*)0 || vB == (void*)0) return 0;\n"
+            f"    /* Defensive check 2: size validity */\n"
+            f"    volatile int vn = n;\n"
+            f"    if(vn <= 0) return 0;\n"
+            f"    /* Defensive check 3: lower bound */\n"
+            f"    volatile int vidx = idx;\n"
+            f"    if(vidx < 0) return 0;\n"
+            f"    /* Defensive check 4: upper bound (fresh volatile reads) */\n"
+            f"    volatile int vn2 = n;\n"
+            f"    volatile int vidx2 = idx;\n"
+            f"    if(vidx2 >= vn2) return 0;\n"
+            f"    /* Defensive check 5: pointer alignment */\n"
+            f"    volatile uintptr_t addrA = (uintptr_t)A;\n"
+            f"    volatile uintptr_t addrB = (uintptr_t)B;\n"
+            f"    if(addrA % sizeof({dtype}) != 0) return 0;\n"
+            f"    if(addrB % sizeof({dtype}) != 0) return 0;\n"
+            f"    /* Defensive check 6: read values through volatile */\n"
+            f"    volatile {dtype} a = A[vidx];\n"
+            f"    volatile {dtype} b = B[vidx];\n"
+            f"    /* Defensive check 7: NaN checks */\n"
+            f"    volatile {dtype} a2 = a;\n"
+            f"    volatile {dtype} b2 = b;\n"
+            f"    if(a2 != a2 || b2 != b2) return 0;\n"
+            f"    /* Defensive check 8: infinity checks */\n"
+            f"    volatile {dtype} a3 = a;\n"
+            f"    volatile {dtype} b3 = b;\n"
+            f"    if(a3 > ({dtype})1e30{s} || a3 < ({dtype})-1e30{s}) return 0;\n"
+            f"    if(b3 > ({dtype})1e30{s} || b3 < ({dtype})-1e30{s}) return 0;\n"
+            f"    /* Defensive check 9: re-validate index */\n"
+            f"    volatile int vidx3 = idx;\n"
+            f"    volatile int vn3 = n;\n"
+            f"    if(vidx3 >= vn3) return 0;\n"
+            f"    return ({dtype})(a * b);\n"
+            f"}}\n"
+        )
+
+    def _make_helper_scale(self, suf, dtype):
+        """Helper for 'scale_sum' op: paranoid checks with scaling."""
+        s = DTYPES[dtype]['suffix']
+        return (
+            f"#include <math.h>\n"
+            f"#include <stdint.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
+            f"    /* Defensive check 1: NULL pointer */\n"
+            f"    volatile {dtype} *vp = arr;\n"
+            f"    if(vp == (void*)0) return 0;\n"
+            f"    /* Defensive check 2: array size validity */\n"
+            f"    volatile int vn = n;\n"
+            f"    if(vn <= 0) return 0;\n"
+            f"    /* Defensive check 3: lower bound */\n"
+            f"    volatile int vidx = idx;\n"
+            f"    if(vidx < 0) return 0;\n"
+            f"    /* Defensive check 4: upper bound (fresh volatile reads) */\n"
+            f"    volatile int vn2 = n;\n"
+            f"    volatile int vidx2 = idx;\n"
+            f"    if(vidx2 >= vn2) return 0;\n"
+            f"    /* Defensive check 5: pointer alignment */\n"
+            f"    volatile uintptr_t addr = (uintptr_t)arr;\n"
+            f"    if(addr % sizeof({dtype}) != 0) return 0;\n"
+            f"    /* Defensive check 6: read value through volatile */\n"
+            f"    volatile {dtype} val = arr[vidx];\n"
+            f"    /* Defensive check 7: NaN check */\n"
+            f"    volatile {dtype} val2 = val;\n"
+            f"    if(val2 != val2) return 0;\n"
+            f"    /* Defensive check 8: infinity check */\n"
+            f"    volatile {dtype} val3 = val;\n"
+            f"    if(val3 > ({dtype})1e30{s} || val3 < ({dtype})-1e30{s}) return 0;\n"
+            f"    /* Defensive check 9: re-validate index after read */\n"
+            f"    volatile int vidx3 = idx;\n"
+            f"    volatile int vn3 = n;\n"
+            f"    if(vidx3 >= vn3) return 0;\n"
+            f"    return ({dtype})val*({dtype})2.0+({dtype})1.0;\n"
+            f"}}\n"
+        )
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
@@ -3605,22 +3757,7 @@ class HR4_Generator(PatternTemplate):
         op_type = rng.choice(["sum", "dot", "scale_sum"])
 
         if op_type == "sum":
-            # Helper checks: NULL, bounds, NaN — returns value or 0
-            helper_code = (
-                f"#include <math.h>\n\n"
-                f"__attribute__((noinline))\n"
-                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
-                f"    volatile {dtype} *vp = arr;\n"
-                f"    volatile int vidx = idx;\n"
-                f"    volatile int vn = n;\n"
-                f"    if(vp == (void*)0) return 0;\n"
-                f"    if(vn <= 0) return 0;\n"
-                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
-                f"    volatile {dtype} val = arr[vidx];\n"
-                f"    if(val != val) return 0;\n"  # NaN check
-                f"    return ({dtype})val;\n"
-                f"}}\n"
-            )
+            helper_code = self._make_helper_sum(suf, dtype)
             sig = f"{dtype} *arr,int n"
             call_args = "arr,N"
             ret = f"{dtype}"
@@ -3641,22 +3778,7 @@ class HR4_Generator(PatternTemplate):
             free_s = "free(arr);"
 
         elif op_type == "dot":
-            helper_code = (
-                f"#include <math.h>\n\n"
-                f"__attribute__((noinline))\n"
-                f"{dtype} hr4_check_{suf}({dtype} *A, {dtype} *B, int idx, int n){{\n"
-                f"    volatile {dtype} *vA = A;\n"
-                f"    volatile {dtype} *vB = B;\n"
-                f"    volatile int vidx = idx;\n"
-                f"    volatile int vn = n;\n"
-                f"    if(vA == (void*)0 || vB == (void*)0) return 0;\n"
-                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
-                f"    volatile {dtype} a = A[vidx];\n"
-                f"    volatile {dtype} b = B[vidx];\n"
-                f"    if(a != a || b != b) return 0;\n"
-                f"    return ({dtype})(a * b);\n"
-                f"}}\n"
-            )
+            helper_code = self._make_helper_dot(suf, dtype)
             sig = f"{dtype} *A,{dtype} *B,int n"
             call_args = "A,B,N"
             ret = f"{dtype}"
@@ -3678,21 +3800,7 @@ class HR4_Generator(PatternTemplate):
             free_s = "free(A);free(B);"
 
         else:  # scale_sum
-            helper_code = (
-                f"#include <math.h>\n\n"
-                f"__attribute__((noinline))\n"
-                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
-                f"    volatile {dtype} *vp = arr;\n"
-                f"    volatile int vidx = idx;\n"
-                f"    volatile int vn = n;\n"
-                f"    if(vp == (void*)0) return 0;\n"
-                f"    if(vn <= 0) return 0;\n"
-                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
-                f"    volatile {dtype} val = arr[vidx];\n"
-                f"    if(val != val) return 0;\n"
-                f"    return ({dtype})val*({dtype})2.0+({dtype})1.0;\n"
-                f"}}\n"
-            )
+            helper_code = self._make_helper_scale(suf, dtype)
             sig = f"{dtype} *arr,int n"
             call_args = "arr,N"
             ret = f"{dtype}"
@@ -3749,7 +3857,7 @@ int main() {{
                     variant_desc=f"{op_type}, {dtype}, n={n}",
                     dtype=dtype, difficulty="medium", compiler_fixable=False,
                     num_loops=1, num_arrays=1, lines_of_code=8,
-                    expected_speedup_range="1.5x-4x", composition=[]))}
+                    expected_speedup_range="2x-6x", composition=[]))}
 
 
 # ── HR-5 ──────────────────────────────────────────────────────

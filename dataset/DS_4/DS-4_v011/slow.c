@@ -1,28 +1,28 @@
 #ifndef AOS_V011_DEFINED
 #define AOS_V011_DEFINED
 typedef struct {
+    double r;
+    double g;
+    double b;
+    double a;
     double x;
     double y;
-    double z;
-    double vx;
-    double vy;
-    double vz;
-    double mass;
+    double depth;
+    double normal_x;
+    double normal_y;
+    double normal_z;
+    double u;
+    double v;
+    double specular;
+    double diffuse;
+    double emissive;
+    double opacity;
+    double _pad[16];
 } AoS_v011;
 #endif
 
+double aos_accumulate_ds4_v011(AoS_v011 *arr, int n);
+
 double slow_ds4_v011(AoS_v011 *arr, int n) {
-    double total_y = -1e308;
-    double total_vz = -1e308;
-    double total_x = -1e308;
-    double total_vx = -1e308;
-    int i = 0;
-    while (i < n) {
-        if ((double)arr[i].y > total_y) total_y = (double)arr[i].y;
-        if ((double)arr[i].vz > total_vz) total_vz = (double)arr[i].vz;
-        if ((double)arr[i].x > total_x) total_x = (double)arr[i].x;
-        if ((double)arr[i].vx > total_vx) total_vx = (double)arr[i].vx;
-        i++;
-    }
-    return total_y + total_vz + total_x + total_vx;
+    return aos_accumulate_ds4_v011(arr, n);
 }

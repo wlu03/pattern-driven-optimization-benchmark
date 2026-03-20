@@ -1,27 +1,28 @@
 #ifndef AOS_V001_DEFINED
 #define AOS_V001_DEFINED
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
-    float v;
+    double time;
+    double x;
+    double y;
+    double z;
+    double energy;
+    double channel;
+    double quality;
+    double amplitude;
+    double phase;
+    double duration;
+    double rate;
+    double peak;
+    double baseline;
+    double snr;
+    double trigger;
+    double confidence;
+    double _pad[16];
 } AoS_v001;
 #endif
 
+double aos_accumulate_ds4_v001(AoS_v001 *arr, int n);
+
 double slow_ds4_v001(AoS_v001 *arr, int n) {
-    double total_ny = -1e308;
-    double total_nz = -1e308;
-    double total_u = -1e308;
-    double total_nx = -1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].ny > total_ny) total_ny = (double)arr[i].ny;
-        if ((double)arr[i].nz > total_nz) total_nz = (double)arr[i].nz;
-        if ((double)arr[i].u > total_u) total_u = (double)arr[i].u;
-        if ((double)arr[i].nx > total_nx) total_nx = (double)arr[i].nx;
-    }
-    return total_ny + total_nz + total_u + total_nx;
+    return aos_accumulate_ds4_v001(arr, n);
 }

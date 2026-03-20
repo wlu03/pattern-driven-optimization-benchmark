@@ -1,22 +1,28 @@
 #ifndef AOS_V006_DEFINED
 #define AOS_V006_DEFINED
 typedef struct {
-    double time;
+    double r;
+    double g;
+    double b;
+    double a;
     double x;
     double y;
-    float energy;
-    int channel;
-    int quality;
-    double amplitude;
+    double depth;
+    double normal_x;
+    double normal_y;
+    double normal_z;
+    double u;
+    double v;
+    double specular;
+    double diffuse;
+    double emissive;
+    double opacity;
+    double _pad[8];
 } AoS_v006;
 #endif
 
+double aos_accumulate_ds4_v006(AoS_v006 *arr, int n);
+
 double slow_ds4_v006(AoS_v006 *arr, int n) {
-    double total_x = 1e308;
-    double total_quality = 1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].x < total_x) total_x = (double)arr[i].x;
-        if ((double)arr[i].quality < total_quality) total_quality = (double)arr[i].quality;
-    }
-    return total_x + total_quality;
+    return aos_accumulate_ds4_v006(arr, n);
 }

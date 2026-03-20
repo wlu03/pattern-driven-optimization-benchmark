@@ -1,25 +1,28 @@
 #ifndef AOS_V012_DEFINED
 #define AOS_V012_DEFINED
 typedef struct {
+    double time;
     double x;
     double y;
     double z;
-    double vx;
-    double vy;
-    double vz;
-    double mass;
-    double charge;
+    double energy;
+    double channel;
+    double quality;
+    double amplitude;
+    double phase;
+    double duration;
+    double rate;
+    double peak;
+    double baseline;
+    double snr;
+    double trigger;
+    double confidence;
+    double _pad[8];
 } AoS_v012;
 #endif
 
+double aos_accumulate_ds4_v012(AoS_v012 *arr, int n);
+
 double slow_ds4_v012(AoS_v012 *arr, int n) {
-    double total_charge = -1e308;
-    double total_x = -1e308;
-    double total_mass = -1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].charge > total_charge) total_charge = (double)arr[i].charge;
-        if ((double)arr[i].x > total_x) total_x = (double)arr[i].x;
-        if ((double)arr[i].mass > total_mass) total_mass = (double)arr[i].mass;
-    }
-    return total_charge + total_x + total_mass;
+    return aos_accumulate_ds4_v012(arr, n);
 }

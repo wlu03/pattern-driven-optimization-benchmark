@@ -3,17 +3,28 @@
 #include <math.h>
 #include <time.h>
 
-#define N 1000000
+#define N 4000000
 
 #ifndef AOS_V018_DEFINED
 #define AOS_V018_DEFINED
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
+    double r;
+    double g;
+    double b;
+    double a;
+    double x;
+    double y;
+    double depth;
+    double normal_x;
+    double normal_y;
+    double normal_z;
+    double u;
+    double v;
+    double specular;
+    double diffuse;
+    double emissive;
+    double opacity;
+    double _pad[16];
 } AoS_v018;
 #endif
 
@@ -23,36 +34,51 @@ typedef struct {
 
 int main() {
     AoS_v018 *arr = malloc(N * sizeof(AoS_v018));
+    if (!arr) { fprintf(stderr, "malloc failed\n"); return 1; }
     for (int i = 0; i < N; i++) {
-        arr[i].px = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].py = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].pz = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nx = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].ny = (float)(i % 100) * 0.01 + 0.5;
-        arr[i].nz = (float)(i % 100) * 0.01 + 0.5;
+        arr[i].r = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].g = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].b = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].a = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].depth = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].normal_x = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].normal_y = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].normal_z = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].u = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].v = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].specular = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].diffuse = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].emissive = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].opacity = (double)(i % 100) * 0.01 + 0.5;
+        for (int p = 0; p < 16; p++) arr[i]._pad[p] = 0.0;
     }
 
-    double *soa_pz = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_pz[i] = (double)arr[i].pz;
+    double *soa_normal_y = malloc(N * sizeof(double));
+    double *soa_depth = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_normal_y[i] = arr[i].normal_y;
+    for (int i = 0; i < N; i++) soa_depth[i] = arr[i].depth;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_ds4_v018(arr, N);
+    volatile double r_slow = slow_ds4_v018(arr, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v018(soa_pz, N);
+    volatile double r_fast = fast_ds4_v018(soa_normal_y, soa_depth, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    double diff = fabs(r_slow - r_fast);
-    double mag = fmax(fabs(r_slow), 1e-12);
+    double diff = fabs((double)r_slow - (double)r_fast);
+    double mag = fmax(fabs((double)r_slow), 1e-12);
     int correct = (diff / mag < 1e-6) || (diff < 1e-9);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_pz);
+    free(soa_normal_y);
+    free(soa_depth);
     return 0;
 }

@@ -1,0 +1,15 @@
+{
+  "pattern_id": "HR-4",
+  "variant_id": "HR-4_v016",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Overly Defensive Checks in Hot Loop",
+  "variant_desc": "dot, double, n=5000000",
+  "dtype": "double",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 8,
+  "expected_speedup_range": "2x-6x",
+  "composition": []
+}

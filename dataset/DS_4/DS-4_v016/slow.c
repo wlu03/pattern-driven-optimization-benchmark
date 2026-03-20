@@ -1,22 +1,28 @@
 #ifndef AOS_V016_DEFINED
 #define AOS_V016_DEFINED
 typedef struct {
-    float px;
-    float py;
-    float pz;
-    float nx;
-    float ny;
-    float nz;
-    float u;
+    double id;
+    double timestamp;
+    double value;
+    double weight;
+    double category;
+    double flags;
+    double score;
+    double rank;
+    double lat;
+    double lon;
+    double elevation;
+    double accuracy;
+    double speed;
+    double heading;
+    double age;
+    double priority;
+    double _pad[8];
 } AoS_v016;
 #endif
 
+double aos_accumulate_ds4_v016(AoS_v016 *arr, int n);
+
 double slow_ds4_v016(AoS_v016 *arr, int n) {
-    double total_ny = -1e308;
-    double total_pz = -1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].ny > total_ny) total_ny = (double)arr[i].ny;
-        if ((double)arr[i].pz > total_pz) total_pz = (double)arr[i].pz;
-    }
-    return total_ny + total_pz;
+    return aos_accumulate_ds4_v016(arr, n);
 }

@@ -1,5 +1,5 @@
-void is5_noalias_kernel_v001(double *out, double *A, double *B, int n);
+float is5_noalias_kernel_v001(float *out, float *A, float *B, int n);
 
-void slow_is5_v001(double *out, double *A, double *B, int n) {
-    is5_noalias_kernel_v001(out, A, B, n);
+float slow_is5_v001(float *out, float *A, float *B, int n) {
+    return is5_noalias_kernel_v001(out, A, B, n);
 }

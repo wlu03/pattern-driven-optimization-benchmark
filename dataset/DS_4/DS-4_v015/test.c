@@ -8,13 +8,23 @@
 #ifndef AOS_V015_DEFINED
 #define AOS_V015_DEFINED
 typedef struct {
-    int r;
-    int g;
-    int b;
-    int a;
-    int x;
-    int y;
-    float depth;
+    double temp;
+    double humidity;
+    double pressure;
+    double wind_speed;
+    double wind_dir;
+    double light;
+    double noise;
+    double co2;
+    double pm25;
+    double pm10;
+    double ozone;
+    double radiation;
+    double voltage;
+    double current;
+    double frequency;
+    double signal;
+    double _pad[16];
 } AoS_v015;
 #endif
 
@@ -24,37 +34,54 @@ typedef struct {
 
 int main() {
     AoS_v015 *arr = malloc(N * sizeof(AoS_v015));
+    if (!arr) { fprintf(stderr, "malloc failed\n"); return 1; }
     for (int i = 0; i < N; i++) {
-        arr[i].r = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].g = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].b = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].a = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].x = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].y = (int)(i % 100) * 0.01 + 0.5;
-        arr[i].depth = (float)(i % 100) * 0.01 + 0.5;
+        arr[i].temp = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].humidity = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].pressure = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].wind_speed = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].wind_dir = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].light = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].noise = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].co2 = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].pm25 = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].pm10 = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].ozone = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].radiation = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].voltage = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].current = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].frequency = (double)(i % 100) * 0.01 + 0.5;
+        arr[i].signal = (double)(i % 100) * 0.01 + 0.5;
+        for (int p = 0; p < 16; p++) arr[i]._pad[p] = 0.0;
     }
 
-    double *soa_b = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) soa_b[i] = (double)arr[i].b;
+    double *soa_pm10 = malloc(N * sizeof(double));
+    double *soa_humidity = malloc(N * sizeof(double));
+    double *soa_signal = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) soa_pm10[i] = arr[i].pm10;
+    for (int i = 0; i < N; i++) soa_humidity[i] = arr[i].humidity;
+    for (int i = 0; i < N; i++) soa_signal[i] = arr[i].signal;
 
     struct timespec t0, t1;
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_ds4_v015(arr, N);
+    volatile double r_slow = slow_ds4_v015(arr, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_ds4_v015(soa_b, N);
+    volatile double r_fast = fast_ds4_v015(soa_pm10, soa_humidity, soa_signal, N);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    double diff = fabs(r_slow - r_fast);
-    double mag = fmax(fabs(r_slow), 1e-12);
+    double diff = fabs((double)r_slow - (double)r_fast);
+    double mag = fmax(fabs((double)r_slow), 1e-12);
     int correct = (diff / mag < 1e-6) || (diff < 1e-9);
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
     free(arr);
-    free(soa_b);
+    free(soa_pm10);
+    free(soa_humidity);
+    free(soa_signal);
     return 0;
 }
