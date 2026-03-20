@@ -1,9 +1,8 @@
-void fast_sr3_v005(double *data, double *result, int n) {
-    double sum = 0.0;
-    int i = 0;
-    while (i < n) {
-        sum += data[i];
-        result[i] = sum;
-        i++;
+void fast_sr3_v005(float *data, float *result, int n) {
+    float mn = data[0];
+    result[0] = mn;
+    for (int i = 1; i < n; i++) {
+        if (data[i] < mn) mn = data[i];
+        result[i] = mn;
     }
 }

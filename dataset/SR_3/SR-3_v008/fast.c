@@ -1,9 +1,8 @@
 void fast_sr3_v008(float *data, float *result, int n) {
-    float sum = 0.0f;
-    for (int i = 0; i < n; i++) {
-        sum += data[i];
-        if (i >= 128) sum -= data[i - 128];
-        int count = (i < 128) ? i + 1 : 128;
-        result[i] = sum / count;
+    result[0] = data[0];
+    int i = 1;
+    while (i < n) {
+        result[i] = 0.3f * data[i] + (1.0f - 0.3f) * result[i-1];
+        i++;
     }
 }

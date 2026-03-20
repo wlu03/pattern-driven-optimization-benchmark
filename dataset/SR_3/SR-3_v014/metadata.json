@@ -3,7 +3,7 @@
   "variant_id": "SR-3_v014",
   "category": "Semantic Redundancy",
   "pattern_name": "Redundant Aggregation Recomputation",
-  "variant_desc": "Cumulative RMS recomputed from scratch, float, while-loop, N=30000",
+  "variant_desc": "Cumulative sum (prefix sum) recomputed from scratch, float, N=20000",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,

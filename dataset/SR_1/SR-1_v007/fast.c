@@ -1,15 +1,9 @@
-int fast_sr_1_v007(int *A, int *B, int *C, int *D, int *E, int n, int k0, int k1) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
-    int sum_E = 0;
+float fast_sr_1_v007(float *A, float *B, int n, float k0) {
+    float sum_A = 0.0f;
+    float sum_B = 0.0f;
     for (int i = 0; i < n; i++) {
         sum_A += A[i];
         sum_B += B[i];
-        sum_C += C[i];
-        sum_D += D[i];
-        sum_E += E[i];
     }
-    return ((int)n * k0 + sum_A) + ((int)n * k1 + sum_B) + sum_C + sum_D + sum_E;
+    return ((float)n * k0 - sum_A) + sum_B;
 }

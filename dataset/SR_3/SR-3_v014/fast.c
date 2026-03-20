@@ -1,9 +1,7 @@
 void fast_sr3_v014(float *data, float *result, int n) {
-    float sum_sq = 0.0f;
-    int i = 0;
-    while (i < n) {
-        sum_sq += data[i] * data[i];
-        result[i] = sqrt(sum_sq / (i + 1));
-        i++;
+    float sum = 0.0f;
+    for (int i = 0; i < n; i++) {
+        sum += data[i];
+        result[i] = sum;
     }
 }

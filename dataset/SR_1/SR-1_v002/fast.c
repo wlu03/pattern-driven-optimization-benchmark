@@ -1,11 +1,13 @@
-float fast_sr_1_v002(float *A, float *B, float *C, int n, float k0) {
-    float sum_A = 0.0f;
-    float sum_B = 0.0f;
-    float sum_C = 0.0f;
+double fast_sr_1_v002(double *A, double *B, double *C, double *D, int n, double k0, double k1, double k2, double k3) {
+    double sum_A = 1;
+    double sum_B = 1;
+    double sum_C = 1;
+    double sum_D = 1;
     for (int i = 0; i < n; i++) {
-        sum_A += A[i];
-        sum_B += B[i];
-        sum_C += C[i];
+        sum_A *= (k0 - A[i]);
+        sum_B *= (k1 - B[i]);
+        sum_C *= (k2 - C[i]);
+        sum_D *= (k3 - D[i]);
     }
-    return (k0 * sum_A) + sum_B + sum_C;
+    return sum_A * sum_B * sum_C * sum_D;
 }

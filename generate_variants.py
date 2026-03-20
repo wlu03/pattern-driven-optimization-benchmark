@@ -218,27 +218,41 @@ class SR1_Generator(PatternTemplate):
     return {combine_expr};
 }}"""
 
-        # Test harness
-        n_val = "5000000"
+        # Test harness — product reduction overflows with large N;
+        # float accumulates rounding error faster than double
+        if red_name == "product":
+            n_val = "200"
+            n_rows, n_cols = "10", "20"
+        elif dtype == "float":
+            n_val = "500000"
+            n_rows, n_cols = "500", "1000"
+        else:
+            n_val = "5000000"
+            n_rows, n_cols = "2000", "2500"
         if use_2d:
             n_val_total = "ROWS * COLS"
-            size_def = "#define ROWS 2000\n#define COLS 2500"
+            size_def = f"#define ROWS {n_rows}\n#define COLS {n_cols}"
             size_args = "ROWS, COLS"
         else:
             n_val_total = "N"
             size_def = f"#define N {n_val}"
             size_args = "N"
 
-        # Use offset+1 for log variants to avoid log(0) = -inf
+        # Use offset+1 for log variants to avoid log(0) = -inf;
+        # Product reduction needs values near 1.0 to avoid overflow
         data_offset = "1.0" if (unary_fn == "log" and dtype != "int") else "0.0"
+        data_scale = "0.001" if red_name == "product" else "0.01"
         data_suffix = DTYPES[dtype]['suffix']
         arr_allocs = "\n".join(
             f"    {dtype} *{a} = malloc({n_val_total} * sizeof({dtype}));\n"
-            f"    for (int i = 0; i < {n_val_total}; i++) {a}[i] = ({dtype})(i % 100) * 0.01{data_suffix} + {data_offset}{data_suffix};"
+            f"    for (int i = 0; i < {n_val_total}; i++) {a}[i] = ({dtype})(i % 100) * {data_scale}{data_suffix} + {data_offset}{data_suffix};"
             for a in arr_names
         )
         arr_args = ", ".join(arr_names)
-        inv_args = ", ".join(f"2.{i}{DTYPES[dtype]['suffix']}" for i in range(n_invariants))
+        if dtype == "int":
+            inv_args = ", ".join(str(2 + i) for i in range(n_invariants))
+        else:
+            inv_args = ", ".join(f"2.{i}{DTYPES[dtype]['suffix']}" for i in range(n_invariants))
         arr_frees = "\n".join(f"    free({a});" for a in arr_names)
         needs_math = use_unary or dtype != "int"
 
@@ -330,7 +344,11 @@ class SR3_Generator(PatternTemplate):
                                 "cumulative_variance", "cumulative_rms",
                                 "sliding_sum", "exponential_moving_avg"])
         loop_style = rng.choice(["for", "while", "for"])
-        n_scale = rng.choice([10000, 30000, 50000, 100000])
+        # Cumulative variants are O(n²) in slow — cap at 30000 to avoid timeout
+        if agg_type.startswith("cumulative"):
+            n_scale = rng.choice([10000, 20000, 30000])
+        else:
+            n_scale = rng.choice([10000, 30000, 50000, 100000])
 
         # Force float/double for variance/rms/ema (they need FP division)
         if agg_type in ("cumulative_variance", "cumulative_rms", "exponential_moving_avg") and dtype == "int":
@@ -502,8 +520,9 @@ int main() {{
 
     int correct = 1;
     for (int i = 0; i < N; i++) {{
-        double err = fabs((double)(res_slow[i] - res_fast[i]));
-        if (err > 1e-4) {{ correct = 0; break; }}
+        double diff = fabs((double)(res_slow[i] - res_fast[i]));
+        double mag  = fmax(fabs((double)res_slow[i]), 1e-12);
+        if (diff > mag * {"1e-4" if dtype != "float" else "1e-3"} && diff > {"1e-6" if dtype != "float" else "1e-2"}) {{ correct = 0; break; }}
     }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
            ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));

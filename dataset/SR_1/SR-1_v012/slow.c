@@ -1,8 +1,8 @@
-float slow_sr_1_v012(float *A, float *B, float *C, float *D, float *E, int n, float k0) {
-    float total = 0.0f;
+int slow_sr_1_v012(int *A, int *B, int *C, int n, int k0, int k1, int k2, int k3) {
+    int total = 0;
     int i = 0;
     while (i < n) {
-        total += (k0 * sqrt(A[i])) + sqrt(B[i]) + sqrt(C[i]) + sqrt(D[i]) + sqrt(E[i]);
+        total += (k0 + A[i]) + (k1 + B[i]) + (k2 + C[i]);
         i++;
     }
     return total;

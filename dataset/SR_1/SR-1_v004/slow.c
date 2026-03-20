@@ -1,7 +1,9 @@
-double slow_sr_1_v004(double *A, double *B, int n, double k0, double k1, double k2, double k3) {
-    double total = 0.0;
-    for (int i = 0; i < n; i++) {
-        total += (k0 - log(A[i])) + (k1 - log(B[i]));
+float slow_sr_1_v004(float *A, float *B, int rows, int cols, float k0, float k1, float k2) {
+    float total = 0.0f;
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+        total += (k0 + A[row * cols + col]) + (k1 + B[row * cols + col]);
+        }
     }
     return total;
 }

@@ -1,9 +1,11 @@
-double fast_sr_1_v004(double *A, double *B, int n, double k0, double k1, double k2, double k3) {
-    double sum_A = 0.0;
-    double sum_B = 0.0;
-    for (int i = 0; i < n; i++) {
-        sum_A += log(A[i]);
-        sum_B += log(B[i]);
+float fast_sr_1_v004(float *A, float *B, int rows, int cols, float k0, float k1, float k2) {
+    float sum_A = 0.0f;
+    float sum_B = 0.0f;
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+        sum_A += A[row * cols + col];
+        sum_B += B[row * cols + col];
+        }
     }
-    return ((double)n * k0 - sum_A) + ((double)n * k1 - sum_B);
+    return ((float)rows * cols * k0 + sum_A) + ((float)rows * cols * k1 + sum_B);
 }

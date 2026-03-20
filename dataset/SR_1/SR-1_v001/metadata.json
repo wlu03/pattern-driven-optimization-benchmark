@@ -3,13 +3,13 @@
   "variant_id": "SR-1_v001",
   "category": "Semantic Redundancy",
   "pattern_name": "Loop-Invariant Semantic Computation",
-  "variant_desc": "2 arrays, 2 invariants, double, add op, while-loop",
-  "dtype": "double",
-  "difficulty": "medium",
+  "variant_desc": "6 arrays, 3 invariants, int, mul op, log() wrapping",
+  "dtype": "int",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 2,
-  "lines_of_code": 8,
+  "num_arrays": 6,
+  "lines_of_code": 12,
   "expected_speedup_range": "1.1x-2x",
   "composition": []
 }

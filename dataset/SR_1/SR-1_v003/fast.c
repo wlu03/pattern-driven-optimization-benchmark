@@ -1,15 +1,15 @@
-int fast_sr_1_v003(int *A, int *B, int *C, int *D, int rows, int cols, int k0, int k1) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        sum_A += A[row * cols + col];
-        sum_B += B[row * cols + col];
-        sum_C += C[row * cols + col];
-        sum_D += D[row * cols + col];
-        }
+float fast_sr_1_v003(float *A, float *B, float *C, float *D, float *E, int n, float k0, float k1) {
+    float sum_A = 1;
+    float sum_B = 1;
+    float sum_C = 1;
+    float sum_D = 1;
+    float sum_E = 1;
+    for (int i = 0; i < n; i++) {
+        sum_A *= (k0 * fabs(A[i]));
+        sum_B *= (k1 * fabs(B[i]));
+        sum_C *= fabs(C[i]);
+        sum_D *= fabs(D[i]);
+        sum_E *= fabs(E[i]);
     }
-    return ((int)rows * cols * k0 + sum_A) + ((int)rows * cols * k1 + sum_B) + sum_C + sum_D;
+    return sum_A * sum_B * sum_C * sum_D * sum_E;
 }

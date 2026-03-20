@@ -1,8 +1,7 @@
-void slow_sr3_v002(float *data, float *result, int n) {
+void slow_sr3_v002(int *data, int *result, int n) {
     for (int i = 0; i < n; i++) {
-        float ema = data[0];
-        for (int j = 1; j <= i; j++)
-            ema = 0.1f * data[j] + (1.0f - 0.1f) * ema;
-        result[i] = ema;
+        int sum = 0;
+        for (int j = 0; j <= i; j++) sum += data[j];
+        result[i] = sum / (i + 1);
     }
 }
