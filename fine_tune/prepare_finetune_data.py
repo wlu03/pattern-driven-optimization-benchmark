@@ -36,45 +36,57 @@ from pathlib import Path
 # Prompt builders — kept in sync with evaluate_llm.py
 # ---------------------------------------------------------------------------
 
-TAXONOMY = """
-Inefficient Code Pattern Taxonomy:
-1. Semantic Redundancy: Loop-invariant computation, recomputable expressions, redundant aggregation
-2. Input-Sensitive: Sparse data, distribution skew, early termination, sorted input
-3. Control-Flow: Hoistable branches, redundant bounds checks, collapsible loops, generic dispatch
-4. Human-Style: Redundant temps, copy-paste duplication, dead code, defensive checks
-5. Data Structure: Linear vs hash, repeated allocation, unnecessary copying, AoS vs SoA
-6. Algorithmic: Brute force vs DP, repeated sort, naive search, redundant recursion
-7. Memory/IO: Allocation in loops, redundant zeroing, heap in hot loop, cache-unfriendly access
-"""
+_PORTABILITY_NOTE = (
+    "Important: write portable standard C (C99/C11). "
+    "Do NOT use x86-specific intrinsics (SSE/AVX/AVX2) or any "
+    "#include <immintrin.h> / <xmmintrin.h> / <emmintrin.h>. "
+    "Use plain loops that the compiler can auto-vectorize."
+)
+
+TAXONOMY = """Performance Inefficiency Taxonomy:
+1. Semantic Redundancy  — hoist loop-invariant calls/expressions outside the loop; cache recomputed aggregates
+2. Input-Sensitive      — branch early for sparse data; exploit sorted input; skip known-zero regions
+3. Control-Flow         — hoist invariant branches; remove redundant bounds checks; collapse loop nests
+4. Human-Style          — inline redundant temporaries; fuse copy-paste loops; remove dead/defensive code
+5. Data Structure       — replace linear scan with hash lookup; avoid allocation in hot loops; convert AoS→SoA
+6. Algorithmic          — replace brute force with DP/memoization; replace naive search with KMP/binary search
+7. Memory/IO            — eliminate redundant zeroing; move heap allocation outside loops; fix cache-unfriendly traversal"""
 
 
 def prompt_generic(slow_code: str) -> str:
     return (
-        "Optimize the following C code for better performance.\n"
-        "Return ONLY the optimized C function. Do not change the function signature.\n"
-        "Rename the function to `optimized`.\n\n"
+        "Optimize the following C function for performance. "
+        "Identify and eliminate any inefficiencies such as redundant computation, "
+        "unnecessary memory accesses, or suboptimal algorithms.\n"
+        "Rename the function to `optimized`. "
+        "Return ONLY the optimized C function — no explanation, no comments about what changed.\n"
+        f"{_PORTABILITY_NOTE}\n\n"
         f"```c\n{slow_code}\n```"
     )
 
 
 def prompt_pattern_aware(slow_code: str, meta: dict) -> str:
     return (
-        "The following C code contains a performance inefficiency classified as:\n"
-        f"Category: {meta.get('category', '')}\n"
-        f"Pattern: {meta.get('pattern_name', '')}\n\n"
-        "Optimize this code to eliminate the inefficiency. "
-        "Rename the function to `optimized`.\n"
-        "Return ONLY the optimized C function.\n\n"
+        "The following C function contains a known performance inefficiency:\n\n"
+        f"Category:    {meta.get('category', '')}\n"
+        f"Pattern:     {meta.get('pattern_name', '')}\n"
+        f"Description: {meta.get('variant_desc', '')}\n\n"
+        "Apply the targeted fix for this pattern. "
+        "Rename the function to `optimized`. "
+        "Return ONLY the optimized C function — no explanation.\n"
+        f"{_PORTABILITY_NOTE}\n\n"
         f"```c\n{slow_code}\n```"
     )
 
 
 def prompt_taxonomy_guided(slow_code: str) -> str:
     return (
-        f"{TAXONOMY}\n"
-        "Analyze the following C code. First identify which inefficiency pattern(s) it contains,\n"
-        "then optimize accordingly. Rename the function to `optimized`.\n"
-        "Return ONLY the optimized C function.\n\n"
+        f"{TAXONOMY}\n\n"
+        "Identify which pattern(s) the following C function contains, "
+        "then apply the appropriate fix(es).\n"
+        "Rename the function to `optimized`. "
+        "Return ONLY the optimized C function — no explanation, no pattern labels.\n"
+        f"{_PORTABILITY_NOTE}\n\n"
         f"```c\n{slow_code}\n```"
     )
 

@@ -21,9 +21,8 @@ HW_TARGET_DESCRIPTIONS = {
 
 def make_prompt_generic(slow_code: str) -> str:
     """Strategy 1: Generic optimization request"""
-    return f"""Optimize the following C code for better performance.
-Return ONLY the optimized C function. Do not change the function signature.
-Rename the function to `optimized`.
+    return f"""Optimize the following C function for performance. Identify and eliminate any inefficiencies such as redundant computation, unnecessary memory accesses, or suboptimal algorithms.
+Rename the function to `optimized`. Return ONLY the optimized C function — no explanation, no comments about what changed.
 {_PORTABILITY_NOTE}
 
 ```c
@@ -33,13 +32,13 @@ Rename the function to `optimized`.
 
 def make_prompt_pattern_aware(slow_code: str, pattern: PatternEntry) -> str:
     """Strategy 2: Tell the LLM what pattern category this is"""
-    return f"""The following C code contains a performance inefficiency classified as:
-Category: {pattern.category}
-Pattern: {pattern.name}
+    return f"""The following C function contains a known performance inefficiency:
+
+Category:    {pattern.category}
+Pattern:     {pattern.name}
 Description: {pattern.description}
 
-Optimize this code to eliminate the inefficiency. Rename the function to `optimized`.
-Return ONLY the optimized C function.
+Apply the targeted fix for this pattern. Rename the function to `optimized`. Return ONLY the optimized C function — no explanation.
 {_PORTABILITY_NOTE}
 
 ```c
@@ -49,21 +48,18 @@ Return ONLY the optimized C function.
 
 def make_prompt_taxonomy_guided(slow_code: str) -> str:
     """Strategy 3: Provide the full taxonomy, let LLM diagnose + fix"""
-    taxonomy = """
-Inefficient Code Pattern Taxonomy:
-1. Semantic Redundancy: Loop-invariant computation, recomputable expressions, redundant aggregation
-2. Input-Sensitive: Sparse data, distribution skew, early termination, sorted input
-3. Control-Flow: Hoistable branches, redundant bounds checks, collapsible loops, generic dispatch
-4. Human-Style: Redundant temps, copy-paste duplication, dead code, defensive checks
-5. Data Structure: Linear vs hash, repeated allocation, unnecessary copying, AoS vs SoA
-6. Algorithmic: Brute force vs DP, repeated sort, naive search, redundant recursion
-7. Memory/IO: Allocation in loops, redundant zeroing, heap in hot loop, cache-unfriendly access
-"""
+    taxonomy = """Performance Inefficiency Taxonomy:
+1. Semantic Redundancy  — hoist loop-invariant calls/expressions outside the loop; cache recomputed aggregates
+2. Input-Sensitive      — branch early for sparse data; exploit sorted input; skip known-zero regions
+3. Control-Flow         — hoist invariant branches; remove redundant bounds checks; collapse loop nests
+4. Human-Style          — inline redundant temporaries; fuse copy-paste loops; remove dead/defensive code
+5. Data Structure       — replace linear scan with hash lookup; avoid allocation in hot loops; convert AoS→SoA
+6. Algorithmic          — replace brute force with DP/memoization; replace naive search with KMP/binary search
+7. Memory/IO            — eliminate redundant zeroing; move heap allocation outside loops; fix cache-unfriendly traversal"""
     return f"""{taxonomy}
 
-Analyze the following C code. First identify which inefficiency pattern(s) it contains,
-then optimize accordingly. Rename the function to `optimized`.
-Return ONLY the optimized C function — no explanation, no pattern ID, just the code.
+Identify which pattern(s) the following C function contains, then apply the appropriate fix(es).
+Rename the function to `optimized`. Return ONLY the optimized C function — no explanation, no pattern labels.
 {_PORTABILITY_NOTE}
 
 ```c
