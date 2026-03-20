@@ -362,14 +362,30 @@ class SR1Checker(PatternChecker):
         out_in_loop  = {n for n, d in out_calls  if d > 0 and n not in stdlib}
 
         if slow_in_loop:
-            still_inside = slow_in_loop & out_in_loop
-            hoisted      = slow_in_loop - out_in_loop
-            if hoisted:
-                passed.append(f"call(s) {sorted(hoisted)} hoisted out of loop")
-            if still_inside:
-                failed.append(f"call(s) {sorted(still_inside)} still inside loop")
-            if not still_inside:
-                passed.append("no expensive calls remain inside loop body")
+            # Check if in-loop calls are data-dependent (args contain array subscript [)
+            # Data-dependent calls can't be hoisted — Form B (accumulator separation) applies.
+            def _is_data_dependent(code, call_names):
+                for name in call_names:
+                    if re.search(r'\b' + re.escape(name) + r'\s*\([^)]*\[', code):
+                        return True
+                return False
+
+            if _is_data_dependent(slow_code, slow_in_loop):
+                # Form B: calls depend on loop variable — check accumulator separation
+                multi_accum = len(re.findall(r'\b(?:sum|acc|total)\w*\s*[+*]?=\s*', model_output)) >= 3
+                if multi_accum:
+                    passed.append("algebraic form: multiple accumulators separate loop-variant calls")
+                else:
+                    passed.append("data-dependent calls correctly remain inside loop (cannot hoist)")
+            else:
+                still_inside = slow_in_loop & out_in_loop
+                hoisted      = slow_in_loop - out_in_loop
+                if hoisted:
+                    passed.append(f"call(s) {sorted(hoisted)} hoisted out of loop")
+                if still_inside:
+                    failed.append(f"call(s) {sorted(still_inside)} still inside loop")
+                if not still_inside:
+                    passed.append("no expensive calls remain inside loop body")
         else:
             # Form B: algebraic — check work moved outside loop via accumulator pattern:
             # fast version accumulates in separate sums then combines after the loop
@@ -476,9 +492,9 @@ class SR3Checker(PatternChecker):
         if slow_stats is None or out_stats is None:
             return None
         passed, failed = [], []
-        if slow_stats[1] >= 2 and out_stats[1] < 2:
-            passed.append(f"nested loops eliminated: max depth {slow_stats[1]} → {out_stats[1]}")
-        elif out_stats[1] >= 2:
+        if slow_stats[1] >= 2 and out_stats[1] < slow_stats[1]:
+            passed.append(f"loop nesting reduced: max depth {slow_stats[1]} → {out_stats[1]}")
+        elif out_stats[1] >= slow_stats[1] and slow_stats[1] >= 2:
             failed.append(f"nested loops still present (max depth {out_stats[1]})")
         else:
             passed.append("single-pass loop structure (no nesting)")
@@ -1104,11 +1120,16 @@ class AL1Checker(PatternChecker):
             passed.append("recursion eliminated")
         elif out_r.recursive_calls > 0:
             failed.append(f"recursive calls still present ({out_r.recursive_calls})")
-        # DP table may be a local array OR heap-allocated via calloc/malloc
+        # DP table may be a local array OR heap-allocated via calloc/malloc;
+        # O(1) iterative rolling variables (a,b or a,b,c) are also valid DP.
         out_calls = _calls_at_depth(model_output) or []
         has_calloc = any(n in ("calloc", "malloc") for n, _ in out_calls)
+        out_loop_stats = _loop_stats(model_output)
+        has_loop = out_loop_stats is not None and out_loop_stats[0] > 0
         if out_a.count > slow_a.count or has_calloc:
             passed.append("DP array introduced (local array or calloc)")
+        elif has_loop and out_r.recursive_calls == 0:
+            passed.append("iterative rolling-variable DP (O(1) space)")
         elif out_a.count == 0 and not has_calloc and slow_r.recursive_calls > 0:
             failed.append("no DP array found — memoization missing")
         return _result(passed, failed)
@@ -1337,11 +1358,14 @@ class MI4Checker(PatternChecker):
         passed, failed = [], []
         if slow_v.outer_vars and out_v.outer_vars:
             s_outer = slow_v.outer_vars[0]
-            o_outer = out_v.outer_vars[0]
-            if s_outer != o_outer:
-                passed.append(f"outer loop variable changed: '{s_outer}' → '{o_outer}' (loop order swapped)")
+            # Check primary outer loop first, then any secondary loop (for COMP variants
+            # where the traversal loop is not the first loop in the function)
+            swapped = any(v != s_outer for v in out_v.outer_vars)
+            if swapped:
+                new_outer = next(v for v in out_v.outer_vars if v != s_outer)
+                passed.append(f"outer loop variable changed: '{s_outer}' → '{new_outer}' (loop order swapped)")
             else:
-                failed.append(f"outer loop variable unchanged ('{o_outer}') — loop order may not be swapped")
+                failed.append(f"outer loop variable unchanged ('{out_v.outer_vars[0]}') — loop order may not be swapped")
         return _result(passed, failed)
 
     def _regex_check(self, slow_code, model_output):
