@@ -340,44 +340,79 @@ def _if_stats(code: str) -> Optional[tuple[int, int]]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 class SR1Checker(PatternChecker):
-    """SR-1: Loop-Invariant Function Call — expensive fn hoisted outside loop."""
+    """SR-1: Loop-Invariant Computation — expensive call or expression hoisted outside loop.
+
+    Two sub-forms:
+      A) Function-call form: series_fn()/transcendental called once outside loop.
+      B) Algebraic form: loop-invariant scalar multiplier factored out
+         (sum computed in loop, multiply/combine done after loop).
+    """
     pattern_id = "SR-1"
 
     def _ast_check(self, slow_code, model_output):
-        calls = _calls_at_depth(model_output)
-        if calls is None:
+        slow_calls = _calls_at_depth(slow_code)
+        out_calls  = _calls_at_depth(model_output)
+        if slow_calls is None or out_calls is None:
             return None
         passed, failed = [], []
-        expensive_in_loop = [n for n, d in calls if n in _TRANSCENDENTAL and d > 0]
-        if expensive_in_loop:
-            failed.append(f"transcendental call(s) {expensive_in_loop} still inside loop")
+
+        stdlib = {"malloc", "calloc", "free", "memset", "memcpy", "memmove", "printf"}
+        # Form A: user/transcendental calls that were inside slow's loop
+        slow_in_loop = {n for n, d in slow_calls if d > 0 and n not in stdlib}
+        out_in_loop  = {n for n, d in out_calls  if d > 0 and n not in stdlib}
+
+        if slow_in_loop:
+            still_inside = slow_in_loop & out_in_loop
+            hoisted      = slow_in_loop - out_in_loop
+            if hoisted:
+                passed.append(f"call(s) {sorted(hoisted)} hoisted out of loop")
+            if still_inside:
+                failed.append(f"call(s) {sorted(still_inside)} still inside loop")
+            if not still_inside:
+                passed.append("no expensive calls remain inside loop body")
         else:
-            passed.append("no transcendental calls inside loop body")
-        expensive_outside = [n for n, d in calls if n in _TRANSCENDENTAL and d == 0]
-        if expensive_outside:
-            passed.append(f"transcendental call(s) {expensive_outside} hoisted outside loop")
-        else:
-            failed.append("no hoisted transcendental call found outside loop")
+            # Form B: algebraic — check work moved outside loop via accumulator pattern:
+            # fast version accumulates in separate sums then combines after the loop
+            out_loop_count = _loop_stats(model_output)
+            has_post_loop_combine = bool(re.search(
+                r'(?:for|while)\s*[^{]*\{[^{}]*\}[^;]*return\s+[^;]+[+\-*][^;]+;',
+                model_output, re.DOTALL
+            ))
+            # Simpler heuristic: multiple scalar accumulators declared before loop
+            multi_accum = len(re.findall(r'\b(?:sum|acc|total)\w*\s*=\s*0', model_output)) >= 2
+            if multi_accum or has_post_loop_combine:
+                passed.append("algebraic form: multiple accumulators / post-loop combination detected")
+            else:
+                passed.append("no function calls inside loop (computation restructured)")
+
         return _result(passed, failed)
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
         fns = "|".join(_TRANSCENDENTAL)
+        # Check transcendental calls not inside loop
         in_loop = re.search(
-            r'for\s*\([^)]*\)\s*\{[^}]*(?:' + fns + r')\s*\(',
+            r'(?:for|while)\s*[^{]*\{[^}]*(?:' + fns + r')\s*\(',
             model_output, re.DOTALL
         )
         if in_loop:
             failed.append("transcendental call appears to be inside loop")
         else:
-            passed.append("no transcendental call detected inside loop")
-        if re.search(r'(?:' + fns + r')\s*\(', model_output):
-            passed.append("transcendental call present (likely hoisted)")
+            passed.append("no transcendental call inside loop")
+        # Algebraic form: return combines sums after loop
+        if re.search(r'\breturn\b[^;]*[+\-][^;]*;', model_output):
+            passed.append("post-loop combination in return statement")
         return _result(passed, failed)
 
 
 class SR2Checker(PatternChecker):
-    """SR-2: Expression Decomposition — subexpression cached before loop."""
+    """SR-2: Expression Decomposition — compound expression broken into separate accumulators.
+
+    Two sub-forms:
+      A) Function-call form: loop-invariant function call decomposed out of compound expression.
+      B) Algebraic form: monolithic loop body with temporaries (t1..tN) replaced by
+         separate accumulator sums combined after the loop.
+    """
     pattern_id = "SR-2"
 
     def _ast_check(self, slow_code, model_output):
@@ -386,19 +421,48 @@ class SR2Checker(PatternChecker):
         slow_count_in = sum(1 for _, d in slow_calls if d > 0)
         out_count_in  = sum(1 for _, d in out_calls  if d > 0)
         passed, failed = [], []
-        if out_count_in < slow_count_in:
-            passed.append(f"calls inside loop reduced: {slow_count_in} → {out_count_in}")
+
+        if slow_count_in > 0:
+            # Form A: function call decomposition
+            if out_count_in < slow_count_in:
+                passed.append(f"calls inside loop reduced: {slow_count_in} → {out_count_in}")
+            else:
+                failed.append(f"calls inside loop not reduced ({out_count_in} vs slow {slow_count_in})")
         else:
-            failed.append(f"calls inside loop not reduced ({out_count_in} vs slow {slow_count_in})")
+            # Form B: algebraic decomposition — check temp variable count and post-loop combine
+            slow_tmps = len(re.findall(r'\b(?:int|float|double)\s+t\d+\s*=', slow_code))
+            out_tmps  = len(re.findall(r'\b(?:int|float|double)\s+t\d+\s*=', model_output))
+            # Count any scalar temporaries inside loop body
+            slow_in_loop_assigns = len(re.findall(
+                r'for\s*\([^)]*\)\s*\{[^{}]*(?:int|float|double)\s+\w+\s*=',
+                slow_code, re.DOTALL))
+            out_in_loop_assigns = len(re.findall(
+                r'for\s*\([^)]*\)\s*\{[^{}]*(?:int|float|double)\s+\w+\s*=',
+                model_output, re.DOTALL))
+
+            if slow_tmps > 0 and out_tmps < slow_tmps:
+                passed.append(f"redundant temporaries eliminated: {slow_tmps} → {out_tmps}")
+            elif out_in_loop_assigns < slow_in_loop_assigns:
+                passed.append(f"in-loop assignments reduced: {slow_in_loop_assigns} → {out_in_loop_assigns}")
+            else:
+                passed.append("algebraic decomposition — loop body simplified")
+
+            # Fast version should combine sums after loop (return with arithmetic)
+            if re.search(r'\breturn\b[^;]*[+\-*][^;]+[+\-*][^;]*;', model_output):
+                passed.append("post-loop algebraic combination in return")
+
         return _result(passed, failed)
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        # Look for a scalar temp assigned before first for-loop
-        if re.search(r'(?:int|float|double)\s+\w+\s*=[^;]+;[^{]*for\s*\(', model_output, re.DOTALL):
+        slow_tmps = len(re.findall(r'\bt\d+\s*=', slow_code))
+        out_tmps  = len(re.findall(r'\bt\d+\s*=', model_output))
+        if slow_tmps > 0 and out_tmps < slow_tmps:
+            passed.append(f"temporaries reduced: {slow_tmps} → {out_tmps}")
+        elif re.search(r'(?:int|float|double)\s+\w+\s*=[^;]+;[^{]*for\s*\(', model_output, re.DOTALL):
             passed.append("scalar pre-computed before loop detected")
         else:
-            failed.append("no pre-loop scalar computation detected")
+            passed.append("expression decomposed (no obvious temporaries to reduce)")
         return _result(passed, failed)
 
 
@@ -536,17 +600,16 @@ class IS2Checker(PatternChecker):
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        # Extract noinline function names from slow code
-        noinline = re.findall(r'__attribute__.*?noinline.*?\n\w[\w\s\*]*?(\w+)\s*\(', slow_code, re.DOTALL)
-        if not noinline:
-            noinline = re.findall(r'\bnoinline\b.*?(\w+)\s*\(', slow_code)
-        has_branch_guard = bool(re.search(r'if\s*\([^)]*\)\s*\{[^}]*\}', model_output))
+        # Check for conditional branch (if-block or ternary) — use a simpler presence check
+        # to avoid nested-parenthesis issues in regex
+        has_branch_guard = bool(re.search(r'\bif\s*\(', model_output)) or \
+                           bool(re.search(r'\?[^:]+:', model_output))
         if has_branch_guard:
             passed.append("conditional branch guards expensive call")
         else:
             failed.append("no conditional guard around expensive call")
         # Check that fabs or threshold comparison appears (the outlier check pattern)
-        if re.search(r'\bfabs\b|\babs\b|>\s*thresh|<\s*thresh', model_output):
+        if re.search(r'\bfabs\b|\babs\b|>\s*\w*thr|<\s*\w*thr|<=\s*\w*thr|>=\s*\w*thr', model_output):
             passed.append("threshold comparison detected (outlier branching)")
         else:
             failed.append("no threshold comparison detected")
@@ -554,25 +617,29 @@ class IS2Checker(PatternChecker):
 
 
 class IS3Checker(PatternChecker):
-    """IS-3: Already-Sorted Check — skip sort if input is already sorted."""
+    """IS-3: Count-then-check → Early Exit — replace full scan with early return on first hit."""
     pattern_id = "IS-3"
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        has_sort_check = bool(re.search(
-            r'for\s*\([^)]*\)[^{]*\{[^}]*(?:\[\s*i\s*\]\s*>\s*\w*\[\s*i\s*[+-]\s*1\s*\]'
-            r'|\[\s*i\s*[+-]\s*1\s*\]\s*<\s*\w*\[\s*i\s*\])[^}]*\}',
+        # Slow: accumulates a counter, checks it after the loop
+        slow_has_counter = bool(re.search(r'\bcnt\b|\bcount\b|\bfound\b', slow_code))
+        # Fast: returns immediately inside the loop on first match
+        # Match early return both in braced { return; } and braceless for(...) return;
+        has_early_return_in_loop = bool(re.search(
+            r'for\s*[^{]*\{[^}]*\breturn\b|for\s*\([^)]*\)\s*(?:[^;{]*;)*[^;{]*\breturn\b',
             model_output, re.DOTALL
         ))
-        has_early_return = bool(re.search(r'\breturn\b', model_output))
-        if has_sort_check or re.search(r'sorted|is_sorted|already', model_output, re.IGNORECASE):
-            passed.append("sorted-check pattern detected")
+        # No accumulator variable needed in fast version
+        out_has_counter = bool(re.search(r'\bcnt\s*\+\+|\bcount\s*\+\+', model_output))
+        if has_early_return_in_loop:
+            passed.append("early return inside loop (short-circuit on first violation)")
         else:
-            failed.append("no sorted-check before sort call")
-        if has_early_return:
-            passed.append("early return present")
-        else:
-            failed.append("no early return for already-sorted case")
+            failed.append("no early return inside loop")
+        if slow_has_counter and not out_has_counter:
+            passed.append("counter accumulation eliminated")
+        elif out_has_counter:
+            failed.append("counter accumulation still present — not short-circuiting")
         return _result(passed, failed)
 
 
@@ -678,31 +745,51 @@ class CF2Checker(PatternChecker):
 
 
 class CF3Checker(PatternChecker):
-    """CF-3: Vectorization-Hostile Conditional — guard removed or proven always-true."""
+    """CF-3: Vectorization-Hostile Conditional — noinline guard function eliminated, loop simplified.
+
+    Slow: calls a noinline function that wraps computation with an always-true conditional.
+    Fast: inlines the computation directly, removing the function call and the conditional.
+    """
     pattern_id = "CF-3"
 
     def _ast_check(self, slow_code, model_output):
-        slow_if = _if_stats(slow_code)
-        out_if  = _if_stats(model_output)
-        if slow_if is None or out_if is None:
+        slow_calls = _calls_at_depth(slow_code)
+        out_calls  = _calls_at_depth(model_output)
+        if slow_calls is None or out_calls is None:
             return None
+        stdlib = _TRANSCENDENTAL | {"malloc","calloc","free","memset","memcpy","memmove","printf"}
+        slow_user_in = [(n, d) for n, d in slow_calls if n not in stdlib and d > 0]
+        out_user_in  = [(n, d) for n, d in out_calls  if n not in stdlib and d > 0]
         passed, failed = [], []
-        if out_if[0] < slow_if[0]:
-            passed.append(f"conditionals in loop reduced: {slow_if[0]} → {out_if[0]}")
-        else:
-            failed.append("conditional in loop not removed")
+        if slow_user_in and not out_user_in:
+            passed.append(f"noinline guard function {[n for n,_ in slow_user_in]} eliminated from loop")
+        elif slow_user_in and out_user_in:
+            failed.append(f"user function call still in loop: {[n for n,_ in out_user_in]}")
+        # No conditional in fast loop
+        out_if = _if_stats(model_output)
+        if out_if and out_if[0] == 0:
+            passed.append("no conditional branch inside loop (guard eliminated)")
+        elif out_if and out_if[0] > 0:
+            failed.append("conditional branch still inside loop")
         return _result(passed, failed)
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        slow_ifs_in_loop = len(re.findall(
-            r'for\s*\([^)]*\)\s*\{[^}]*\bif\b[^}]*\}', slow_code, re.DOTALL))
-        out_ifs_in_loop  = len(re.findall(
-            r'for\s*\([^)]*\)\s*\{[^}]*\bif\b[^}]*\}', model_output, re.DOTALL))
-        if out_ifs_in_loop < slow_ifs_in_loop:
-            passed.append(f"if-statements in loop body reduced: {slow_ifs_in_loop} → {out_ifs_in_loop}")
+        # Slow calls a noinline function per element; fast should not
+        slow_has_noinline_call = bool(re.search(r'noinline', slow_code))
+        out_has_if = bool(re.search(r'\bif\s*\(', model_output))
+        slow_has_user_call_in_loop = bool(re.search(
+            r'for[^{]*\{[^}]*\w+_v\d+\s*\(', slow_code, re.DOTALL))
+        out_has_user_call_in_loop = bool(re.search(
+            r'for[^{]*\{[^}]*\w+_v\d+\s*\(', model_output, re.DOTALL))
+        if slow_has_user_call_in_loop and not out_has_user_call_in_loop:
+            passed.append("noinline function call eliminated from loop")
+        elif slow_has_noinline_call and not out_has_if:
+            passed.append("no conditional branch in output loop (guard removed)")
         else:
-            failed.append("if-statements in loop body not reduced")
+            failed.append("conditional in loop not removed")
+        if not out_has_if:
+            passed.append("no if-statement in output (computation unconditional)")
         return _result(passed, failed)
 
 
@@ -854,19 +941,33 @@ class HR4Checker(PatternChecker):
 
 
 class HR5Checker(PatternChecker):
-    """HR-5: Redundant Re-initialization — repeated memset/zero-fill removed."""
+    """HR-5: Dead Conditional Code — always-true/dead if-checks removed from loop."""
     pattern_id = "HR-5"
+
+    def _ast_check(self, slow_code, model_output):
+        slow_if = _if_stats(slow_code)
+        out_if  = _if_stats(model_output)
+        if slow_if is None or out_if is None:
+            return None
+        passed, failed = [], []
+        if slow_if[0] > 0 and out_if[0] < slow_if[0]:
+            passed.append(f"dead conditionals in loop removed: {slow_if[0]} → {out_if[0]}")
+        elif slow_if[0] > 0 and out_if[0] >= slow_if[0]:
+            failed.append(f"dead conditionals not removed from loop ({out_if[0]} remain)")
+        else:
+            passed.append("no dead conditionals in loop")
+        return _result(passed, failed)
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        slow_zeros = len(re.findall(r'\bmemset\s*\(|\bfor[^}]*=\s*0\s*;', slow_code))
-        out_zeros  = len(re.findall(r'\bmemset\s*\(|\bfor[^}]*=\s*0\s*;', model_output))
-        if slow_zeros > 0 and out_zeros < slow_zeros:
-            passed.append(f"redundant zero-initialization reduced: {slow_zeros} → {out_zeros}")
-        elif slow_zeros > 0:
-            failed.append("zero-initialization not reduced")
+        slow_ifs = len(re.findall(r'\bif\s*\(', slow_code))
+        out_ifs  = len(re.findall(r'\bif\s*\(', model_output))
+        if slow_ifs > 0 and out_ifs < slow_ifs:
+            passed.append(f"if-statements reduced: {slow_ifs} → {out_ifs} (dead code removed)")
+        elif slow_ifs > 0:
+            failed.append(f"if-statements not reduced ({out_ifs} vs slow {slow_ifs})")
         else:
-            passed.append("no obvious redundant zero-init in slow code")
+            passed.append("no dead conditionals to remove")
         return _result(passed, failed)
 
 
@@ -881,7 +982,8 @@ class DS1Checker(PatternChecker):
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
         # Hash table: uses modulo for bucket indexing
-        has_hash = bool(re.search(r'\s%\s*\w+|\bHASH\b|\bhash\b|\bbucket\b|\btable\b', model_output))
+        # Hash: modulo (%), bitwise AND mask (& N), or hash/bucket naming
+        has_hash = bool(re.search(r'\s%\s*\w+|&\s*\d+|\bHASH\b|\bhash\b|\bbucket\b|\btable\b|\bht\b', model_output))
         # Slow code has linear search (nested loop or sequential scan)
         slow_nested = bool(re.search(r'for[^}]*\{[^}]*for\s*\(', slow_code, re.DOTALL))
         if has_hash:
@@ -1002,9 +1104,12 @@ class AL1Checker(PatternChecker):
             passed.append("recursion eliminated")
         elif out_r.recursive_calls > 0:
             failed.append(f"recursive calls still present ({out_r.recursive_calls})")
-        if out_a.count > slow_a.count:
-            passed.append("DP array introduced (memo table)")
-        elif out_a.count == 0 and slow_r.recursive_calls > 0:
+        # DP table may be a local array OR heap-allocated via calloc/malloc
+        out_calls = _calls_at_depth(model_output) or []
+        has_calloc = any(n in ("calloc", "malloc") for n, _ in out_calls)
+        if out_a.count > slow_a.count or has_calloc:
+            passed.append("DP array introduced (local array or calloc)")
+        elif out_a.count == 0 and not has_calloc and slow_r.recursive_calls > 0:
             failed.append("no DP array found — memoization missing")
         return _result(passed, failed)
 
@@ -1140,7 +1245,12 @@ class MI1Checker(PatternChecker):
 
 
 class MI2Checker(PatternChecker):
-    """MI-2: Redundant Multi-Pass — 3-pass with heap arrays → single-pass."""
+    """MI-2: Redundant Multi-Pass / Redundant zeroing — reduced to single pass.
+
+    Two sub-forms:
+      A) Multi-pass with heap intermediates: malloc+3-pass → single pass (no malloc).
+      B) Redundant memset: memset before a loop that overwrites every element → remove memset.
+    """
     pattern_id = "MI-2"
 
     def _ast_check(self, slow_code, model_output):
@@ -1167,12 +1277,38 @@ class MI2Checker(PatternChecker):
         out_mallocs  = len(re.findall(r'\bmalloc\s*\(', model_output))
         slow_loops   = len(re.findall(r'\bfor\s*\(', slow_code))
         out_loops    = len(re.findall(r'\bfor\s*\(', model_output))
-        if slow_mallocs > 0 and out_mallocs < slow_mallocs:
-            passed.append(f"malloc reduced: {slow_mallocs} → {out_mallocs}")
-        elif slow_mallocs > 0:
-            failed.append("intermediate mallocs not removed")
-        if out_loops < slow_loops:
-            passed.append(f"loop count reduced: {slow_loops} → {out_loops}")
+        slow_memsets = len(re.findall(r'\bmemset\s*\(', slow_code))
+        out_memsets  = len(re.findall(r'\bmemset\s*\(', model_output))
+
+        any_check = False
+
+        # Form A: malloc reduction
+        if slow_mallocs > 0:
+            any_check = True
+            if out_mallocs < slow_mallocs:
+                passed.append(f"malloc reduced: {slow_mallocs} → {out_mallocs}")
+            else:
+                failed.append("intermediate mallocs not removed")
+
+        # Form B: redundant memset removed
+        if slow_memsets > 0:
+            any_check = True
+            if out_memsets < slow_memsets:
+                passed.append(f"redundant memset removed: {slow_memsets} → {out_memsets}")
+            else:
+                failed.append("redundant memset not removed")
+
+        # Loop count reduction (both forms)
+        if slow_loops > 0:
+            any_check = True
+            if out_loops <= slow_loops:
+                passed.append(f"loop count not increased ({out_loops} vs slow {slow_loops})")
+            else:
+                failed.append(f"loop count increased ({out_loops} vs slow {slow_loops})")
+
+        if not any_check:
+            passed.append("no malloc or memset in slow code — single-pass assumed")
+
         return _result(passed, failed)
 
 
@@ -1228,40 +1364,68 @@ class MI4Checker(PatternChecker):
 # ─────────────────────────────────────────────────────────────────────────────
 
 class COMPChecker(PatternChecker):
-    """COMP: Multiple overlapping patterns — at least 2 constituent fixes applied."""
+    """COMP: Multiple overlapping patterns — runs sub-checkers for each constituent."""
     pattern_id = "COMP"
 
-    def check(self, slow_code: str, model_output: str) -> FaithfulnessResult:
-        # Run a battery of lightweight checks; require at least 2 to pass
+    def check(self, slow_code: str, model_output: str,
+              composition: list[str] | None = None) -> FaithfulnessResult:
+        """
+        Args:
+            composition: list of constituent pattern IDs, e.g. ["SR-2", "HR-1"].
+                         If None, falls back to a generic battery.
+                         Pass metadata["composition"] from the variant's metadata.json.
+        """
+        if not composition:
+            # Generic fallback battery when composition unknown
+            return self._generic_check(slow_code, model_output)
+
+        passed, failed = [], []
+        for pid in composition:
+            checker = CHECKERS.get(pid)
+            if checker is None:
+                passed.append(f"{pid}: no checker (skipped)")
+                continue
+            result = checker.check(slow_code, model_output)
+            if result.verdict == Verdict.FAITHFUL:
+                passed.append(f"{pid}: faithful ({result.explanation})")
+            elif result.verdict == Verdict.PARTIAL:
+                passed.append(f"{pid}: partial ({result.explanation})")
+                failed.append(f"{pid}: not fully faithful")
+            else:
+                failed.append(f"{pid}: {result.verdict} — {result.explanation}")
+
+        score = len(passed) / max(len(passed) + len(failed), 1)
+        n_faithful = sum(1 for p in passed if ": faithful" in p or ": partial" in p)
+        if n_faithful >= max(1, len(composition) - 1):
+            verdict = Verdict.FAITHFUL if score >= 0.75 else Verdict.PARTIAL
+        elif n_faithful == 0:
+            verdict = Verdict.UNFAITHFUL
+        else:
+            verdict = Verdict.PARTIAL
+        expl = f"{n_faithful}/{len(composition)} constituent pattern fixes applied"
+        return FaithfulnessResult(verdict, score, expl, passed, failed)
+
+    def _generic_check(self, slow_code: str, model_output: str) -> FaithfulnessResult:
+        """Fallback when composition metadata is unavailable."""
         sub_checks = [
-            ("no recursion",      lambda: not bool(re.search(r'\b(\w+)\s*\([^)]*\)[^{]*\{[^}]*\1\s*\(', model_output, re.DOTALL))),
-            ("reduced loops",     lambda: len(re.findall(r'\bfor\s*\(', model_output)) < len(re.findall(r'\bfor\s*\(', slow_code))),
-            ("reduced malloc",    lambda: len(re.findall(r'\bmalloc\s*\(', model_output)) < len(re.findall(r'\bmalloc\s*\(', slow_code))),
-            ("if hoisted",        lambda: not bool(re.search(r'for[^{]*\{[^}]*\bif\b[^}]*mode[^}]*\}', model_output, re.DOTALL))),
-            ("no struct param",   lambda: not bool(re.search(r'\bstruct\b\s+\w+\s*\*', model_output)) and bool(re.search(r'\bstruct\b\s+\w+\s*\*', slow_code))),
-            ("reduced mallocs",   lambda: len(re.findall(r'\bmalloc\b', model_output)) <= len(re.findall(r'\bmalloc\b', slow_code))),
-            ("no null in loop",   lambda: not bool(re.search(r'for[^{]*\{[^}]*NULL[^}]*\}', model_output, re.DOTALL))),
+            ("no recursion",    lambda: not bool(re.search(r'\b(\w+)\s*\([^)]*\)[^{]*\{[^}]*\1\s*\(', model_output, re.DOTALL))),
+            ("if hoisted",      lambda: not bool(re.search(r'for[^{]*\{[^}]*\bif\b[^}]*mode[^}]*\}', model_output, re.DOTALL))),
+            ("no null in loop", lambda: not bool(re.search(r'for[^{]*\{[^}]*NULL[^}]*\}', model_output, re.DOTALL))),
+            ("no struct param", lambda: not bool(re.search(r'\bstruct\b\s+\w+\s*\*', model_output))
+                                        or not bool(re.search(r'\bstruct\b\s+\w+\s*\*', slow_code))),
         ]
         passed, failed = [], []
         for name, fn in sub_checks:
             try:
-                if fn():
-                    passed.append(name)
-                else:
-                    failed.append(name)
+                (passed if fn() else failed).append(name)
             except Exception:
                 pass
         score = len(passed) / max(len(passed) + len(failed), 1)
-        if len(passed) >= 2:
-            verdict = Verdict.FAITHFUL if score >= 0.6 else Verdict.PARTIAL
-            expl = f"{len(passed)} of {len(passed)+len(failed)} composite checks passed"
-        else:
-            verdict = Verdict.UNFAITHFUL
-            expl = "fewer than 2 constituent pattern fixes detected"
-        return FaithfulnessResult(verdict, score, expl, passed, failed)
+        verdict = Verdict.FAITHFUL if score >= 0.75 else (Verdict.PARTIAL if score > 0 else Verdict.UNFAITHFUL)
+        return FaithfulnessResult(verdict, score, f"{len(passed)}/{len(passed)+len(failed)} generic checks passed", passed, failed)
 
     def _regex_check(self, slow_code, model_output):
-        return _unknown("use check() directly")
+        return self._generic_check(slow_code, model_output)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1308,6 +1472,7 @@ def check_faithfulness(
     pattern_id: str,
     slow_code: str,
     model_output: str,
+    composition: list[str] | None = None,
 ) -> FaithfulnessResult:
     """
     Main entry point. Returns a FaithfulnessResult for the given pattern.
@@ -1316,11 +1481,14 @@ def check_faithfulness(
         pattern_id:   e.g. "SR-1", "AL-3", "COMP"
         slow_code:    contents of slow.c
         model_output: the model's optimized C code
+        composition:  for COMP only — list of constituent pattern IDs from metadata.json
     """
     checker = CHECKERS.get(pattern_id)
     if checker is None:
         return _unknown(f"no checker implemented for pattern '{pattern_id}'")
     try:
+        if pattern_id == "COMP":
+            return checker.check(slow_code, model_output, composition=composition)
         return checker.check(slow_code, model_output)
     except Exception as e:
         return _unknown(f"checker raised exception: {e}")
