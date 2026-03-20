@@ -39,6 +39,12 @@ DTYPES = {
     "double": {"fmt": "%lf",   "zero": "0.0",  "cast": "(double)", "suffix": ""},
 }
 
+# Minimum struct field count for AoS benchmarks.
+# 32 float fields = 128 bytes/element; 32 double fields = 256 bytes/element.
+# This ensures the AoS stride penalty is reliably measurable even on Apple Silicon
+# (high memory bandwidth + hardware prefetch can mask narrow structs at -O3).
+SAFE_AOS_FIELD_COUNT = 32
+
 BINARY_OPS = [
     ("+", "add"), ("-", "sub"), ("*", "mul"),
 ]
@@ -3654,6 +3660,61 @@ int main() {{
                     expected_speedup_range="5x-50x", composition=[]))}
 
 
+def _make_noinline_helper(name: str, suf: str, dtype: str,
+                          n_iters: int = 20, includes: str = "") -> str:
+    """Factory for noinline+volatile computation helpers used in COMP slow paths.
+
+    Both attributes are required together:
+      - __attribute__((noinline)): forces a real function call per iteration,
+        preventing the compiler from inlining the body and vectorizing the loop.
+      - volatile local: blocks Apple Clang's ipa-pure-const analysis from marking
+        the function as 'const', which would allow LICM to hoist the call out of
+        the slow loop and eliminate the intended overhead at -O3.
+
+    Usage: call _make_noinline_helper("scale_fn", suf, dtype) and emit
+    `scale_fn_{suf}(x)` inside the slow loop with a loop-invariant argument.
+    """
+    inc = f"{includes}\n" if includes else ""
+    return (f"{inc}static __attribute__((noinline)) {dtype} {name}_{suf}({dtype} x){{\n"
+            f"    volatile double _v=(double)x; /* block ipa-pure-const inference */\n"
+            f"    {dtype} r=0;\n"
+            f"    for(int k=1;k<={n_iters};k++) r+=({dtype})sin(_v*k+1.0);\n"
+            f"    return r;\n}}")
+
+
+def _validate_combo_slow(slow_code: str, combo: str) -> None:
+    """Assert structural invariants for COMP slow_code to prevent compiler-fixability.
+
+    Raises ValueError if a combo that relies on N noinline calls is missing
+    safeguards that prevent the compiler from closing the speedup gap at -O3:
+      1. noinline helper must exist (otherwise the compiler may inline and vectorize)
+      2. noinline helper must contain a volatile local (otherwise Apple Clang's
+         ipa-pure-const marks it as 'const' and LICM hoists it out of the loop)
+
+    Exempt combos rely on algorithmic or memory-layout differences that the
+    compiler cannot eliminate regardless of function attributes:
+      - sr3_mi4: O(n^2) vs O(n) — compiler cannot change algorithmic complexity
+      - hr1_cf2_mi4: column-major access order — memory bandwidth dominant
+      - ds4_cf2: SAFE_AOS_FIELD_COUNT-field AoS stride — memory bandwidth dominant
+      - hr2_is1: falls through to sr4_cf1_hr1 implementation (noinline+volatile)
+    """
+    EXEMPT_COMBOS = {"sr3_mi4", "hr1_cf2_mi4", "ds4_cf2", "hr2_is1"}
+    if combo in EXEMPT_COMBOS:
+        return
+    has_noinline = "__attribute__((noinline))" in slow_code
+    has_volatile = "volatile" in slow_code
+    if not has_noinline:
+        raise ValueError(
+            f"COMP combo '{combo}': slow_code missing noinline boundary — "
+            f"LICM can hoist loop-invariant calls and close the speedup gap"
+        )
+    if not has_volatile:
+        raise ValueError(
+            f"COMP combo '{combo}': noinline helper missing volatile local — "
+            f"Apple Clang ipa-pure-const marks it as const, enabling LICM hoisting"
+        )
+
+
 class ComposedGenerator(PatternTemplate):
     """Generate programs with 2-3 overlapping patterns."""
 
@@ -3738,11 +3799,7 @@ int main() {{
             # Slow: N noinline calls + per-element branch → no vectorization, massive overhead
             # Fast: hoist scale_fn once + hoist mode check before loop → SIMD-vectorizable
             n = 1000000
-            helper = (f"static __attribute__((noinline)) {dtype} scale_fn_{suf}({dtype} base){{\n"
-                      f"    volatile double _b=(double)base; /* block pure/const inference */\n"
-                      f"    {dtype} r = 0;\n"
-                      f"    for(int k=1;k<=20;k++) r+=({dtype})sin(_b*k+1.0);\n"
-                      f"    return r;\n}}")
+            helper = _make_noinline_helper("scale_fn", suf, dtype, n_iters=20)
             slow_code = f"""{helper}
 {dtype} slow_comp_{suf}({dtype} *A, int n, {dtype} base, int mode) {{
     {dtype} total = 0;
@@ -3791,9 +3848,10 @@ int main() {{
         elif combo == "sr4_hr4":
             n = 1000000
             helper = (f"#include <math.h>\n#include <stdlib.h>\n"
-                      f"static {dtype} config_val_{suf}(int key){{\n"
+                      f"static __attribute__((noinline)) {dtype} config_val_{suf}(int key){{\n"
+                      f"    volatile int _k=key; /* block ipa-pure-const inference */\n"
                       f"    {dtype} r=0;\n"
-                      f"    for(int i=0;i<100;i++) r+=({dtype})sin((double)(key+i));\n"
+                      f"    for(int i=0;i<100;i++) r+=({dtype})sin((double)(_k+i));\n"
                       f"    return r;\n}}")
             slow_code = f"""{helper}
 {dtype} slow_comp_{suf}({dtype} *arr, int n, int key) {{
@@ -3849,10 +3907,12 @@ int main() {{
             # 16-field struct forces 2x more data per cache line than 8-field, making the
             # AoS memory bandwidth penalty reliably measurable even on Apple Silicon.
             n = 2000000
-            # 32 fields: x,y,z,vx,vy,vz,mass,charge + 24 padding fields
-            # Wide struct forces AoS to read 32x more data per useful value vs SoA,
-            # ensuring memory bandwidth bottleneck is reliably measurable on all dtypes.
-            pad = ','.join(f'p{i}' for i in range(24))
+            # SAFE_AOS_FIELD_COUNT fields: 8 base (x,y,z,vx,vy,vz,mass,charge) + padding.
+            # Wide struct forces AoS to read SAFE_AOS_FIELD_COUNT× more data per useful
+            # value vs SoA, ensuring memory bandwidth bottleneck is reliably measurable
+            # on all dtypes (including on Apple Silicon with high memory bandwidth).
+            _n_pad = SAFE_AOS_FIELD_COUNT - 8  # 8 base fields already named
+            pad = ','.join(f'p{i}' for i in range(_n_pad))
             struct_def = f"typedef struct {{ {dtype} x,y,z,vx,vy,vz,mass,charge,{pad}; }} P_{suf};"
             slow_code = f"""{struct_def}
 {dtype} slow_comp_{suf}(P_{suf} *p, int n) {{
@@ -3960,13 +4020,23 @@ int main() {{
             desc = f"Noinline penalty + temp decomposition, {dtype}"
 
         elif combo == "cf1_mi4":
+            # CF-1: mode is uniform across the batch — the noinline dispatch per element
+            #        prevents vectorization and adds per-call overhead at any -O level.
+            #        The fast version identifies mode once and routes to an inlined tight loop.
+            # MI-4: slow iterates column-major (j outer, i inner) — cache-unfriendly.
+            #        Fast iterates row-major (i outer, j inner) — sequential, vectorizable.
+            # Double bottleneck: N noinline calls + column-major stride access in slow.
             rows, cols = 3000, 3000
-            slow_code = f"""void slow_comp_{suf}({dtype} *mat, int rows, int cols, int mode) {{
+            helper = (f"static __attribute__((noinline)) {dtype} apply_{suf}({dtype} x, int mode){{\n"
+                      f"    volatile int _m=mode; /* block ipa-pure-const inference */\n"
+                      f"    if (_m==1) return x*({dtype})2.0;\n"
+                      f"    else if (_m==2) return x+({dtype})1.0;\n"
+                      f"    else return x-({dtype})0.5;\n}}")
+            slow_code = f"""{helper}
+void slow_comp_{suf}({dtype} *mat, int rows, int cols, int mode) {{
     for (int j = 0; j < cols; j++) {{
         for (int i = 0; i < rows; i++) {{
-            if (mode == 1) mat[i * cols + j] *= ({dtype})2.0;
-            else if (mode == 2) mat[i * cols + j] += ({dtype})1.0;
-            else mat[i * cols + j] -= ({dtype})0.5;
+            mat[i * cols + j] = apply_{suf}(mat[i * cols + j], mode);
         }}
     }}
 }}"""
@@ -4136,12 +4206,8 @@ int main() {{
 
         else:  # sr4_cf1_hr1
             n = 5000000
-            helper = (f"#include <math.h>\n"
-                      f"static __attribute__((noinline)) {dtype} compute_{suf}(int key){{\n"
-                      f"    volatile double _k=(double)key; /* block pure/const inference */\n"
-                      f"    {dtype} r=0;\n"
-                      f"    for(int i=0;i<50;i++) r+=({dtype})sin(_k+(double)i);\n"
-                      f"    return r;\n}}")
+            helper = _make_noinline_helper("compute", suf, dtype,
+                                           n_iters=50, includes="#include <math.h>")
             slow_code = f"""{helper}
 void slow_comp_{suf}({dtype} *out, {dtype} *A, int n, int key, int mode) {{
     for (int i = 0; i < n; i++) {{
@@ -4189,6 +4255,9 @@ int main() {{
 }}"""
             patterns = ["SR-4", "CF-1", "HR-1"]
             desc = f"Triple: invariant call + branch + temps, {dtype}"
+
+        # Structural validation: catch noinline-without-volatile early
+        _validate_combo_slow(slow_code, combo)
 
         metadata = VariantMetadata(
             pattern_id="COMP",
