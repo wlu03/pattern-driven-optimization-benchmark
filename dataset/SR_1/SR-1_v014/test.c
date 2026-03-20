@@ -20,12 +20,12 @@ int main() {
     struct timespec t0, t1;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_slow = slow_sr_1_v014(A, B, C, N, 2);
+    int r_slow = slow_sr_1_v014(A, B, C, N, 2, 3);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_fast = fast_sr_1_v014(A, B, C, N, 2);
+    int r_fast = fast_sr_1_v014(A, B, C, N, 2, 3);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 

@@ -20,18 +20,16 @@ int main() {
     for (int i = 0; i < N; i++) D[i] = (int)(i % 100) * 0.01 + 0.0;
     int *E = malloc(N * sizeof(int));
     for (int i = 0; i < N; i++) E[i] = (int)(i % 100) * 0.01 + 0.0;
-    int *F = malloc(N * sizeof(int));
-    for (int i = 0; i < N; i++) F[i] = (int)(i % 100) * 0.01 + 0.0;
 
     struct timespec t0, t1;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_slow = slow_sr_1_v001(A, B, C, D, E, F, N, 2, 3, 4);
+    int r_slow = slow_sr_1_v001(A, B, C, D, E, N, 2, 3, 4);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_fast = fast_sr_1_v001(A, B, C, D, E, F, N, 2, 3, 4);
+    int r_fast = fast_sr_1_v001(A, B, C, D, E, N, 2, 3, 4);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
@@ -45,6 +43,5 @@ int main() {
     free(C);
     free(D);
     free(E);
-    free(F);
     return 0;
 }

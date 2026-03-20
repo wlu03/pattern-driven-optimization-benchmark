@@ -3,31 +3,36 @@
 #include <math.h>
 #include <time.h>
 
-#define N 200
+#define ROWS 10
+#define COLS 20
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    double *A = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) A[i] = (double)(i % 100) * 0.001 + 0.0;
-    double *B = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) B[i] = (double)(i % 100) * 0.001 + 0.0;
-    double *C = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) C[i] = (double)(i % 100) * 0.001 + 0.0;
-    double *D = malloc(N * sizeof(double));
-    for (int i = 0; i < N; i++) D[i] = (double)(i % 100) * 0.001 + 0.0;
+    double *A = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) A[i] = (double)(i % 100) * 0.001 + 1.0;
+    double *B = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) B[i] = (double)(i % 100) * 0.001 + 1.0;
+    double *C = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) C[i] = (double)(i % 100) * 0.001 + 1.0;
+    double *D = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) D[i] = (double)(i % 100) * 0.001 + 1.0;
+    double *E = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) E[i] = (double)(i % 100) * 0.001 + 1.0;
+    double *F = malloc(ROWS * COLS * sizeof(double));
+    for (int i = 0; i < ROWS * COLS; i++) F[i] = (double)(i % 100) * 0.001 + 1.0;
 
     struct timespec t0, t1;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_sr_1_v002(A, B, C, D, N, 2.0, 2.1, 2.2, 2.3);
+    double r_slow = slow_sr_1_v002(A, B, C, D, E, F, ROWS, COLS, 2.0, 2.1, 2.2, 2.3);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_sr_1_v002(A, B, C, D, N, 2.0, 2.1, 2.2, 2.3);
+    double r_fast = fast_sr_1_v002(A, B, C, D, E, F, ROWS, COLS, 2.0, 2.1, 2.2, 2.3);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
@@ -40,5 +45,7 @@ int main() {
     free(B);
     free(C);
     free(D);
+    free(E);
+    free(F);
     return 0;
 }

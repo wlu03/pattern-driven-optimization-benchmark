@@ -1,11 +1,15 @@
-double fast_sr_1_v005(double *A, double *B, int rows, int cols, double k0, double k1, double k2, double k3) {
-    double sum_A = 1;
-    double sum_B = 1;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        sum_A *= (k0 + A[row * cols + col]);
-        sum_B *= (k1 + B[row * cols + col]);
-        }
+int fast_sr_1_v005(int *A, int *B, int *C, int *D, int *E, int n, int k0, int k1, int k2, int k3) {
+    int sum_A = 0;
+    int sum_B = 0;
+    int sum_C = 0;
+    int sum_D = 0;
+    int sum_E = 0;
+    for (int i = 0; i < n; i++) {
+        sum_A += A[i];
+        sum_B += B[i];
+        sum_C += C[i];
+        sum_D += D[i];
+        sum_E += E[i];
     }
-    return sum_A * sum_B;
+    return (k0 * sum_A) + (k1 * sum_B) + (k2 * sum_C) + (k3 * sum_D) + sum_E;
 }

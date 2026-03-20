@@ -1,4 +1,4 @@
-int fast_sr_1_v014(int *A, int *B, int *C, int n, int k0) {
+int fast_sr_1_v014(int *A, int *B, int *C, int n, int k0, int k1) {
     int sum_A = 0;
     int sum_B = 0;
     int sum_C = 0;
@@ -7,5 +7,5 @@ int fast_sr_1_v014(int *A, int *B, int *C, int n, int k0) {
         sum_B += B[i];
         sum_C += C[i];
     }
-    return ((int)n * k0 + sum_A) + sum_B + sum_C;
+    return ((int)n * k0 - sum_A) + ((int)n * k1 - sum_B) + sum_C;
 }

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <math.h>
 #include <time.h>
 
 #define N 5000000
@@ -10,22 +10,20 @@
 // FAST_CODE_HERE
 
 int main() {
-    int *A = malloc(N * sizeof(int));
-    for (int i = 0; i < N; i++) A[i] = (int)(i % 100) * 0.01 + 0.0;
-    int *B = malloc(N * sizeof(int));
-    for (int i = 0; i < N; i++) B[i] = (int)(i % 100) * 0.01 + 0.0;
-    int *C = malloc(N * sizeof(int));
-    for (int i = 0; i < N; i++) C[i] = (int)(i % 100) * 0.01 + 0.0;
+    double *A = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) A[i] = (double)(i % 100) * 0.01 + 0.0;
+    double *B = malloc(N * sizeof(double));
+    for (int i = 0; i < N; i++) B[i] = (double)(i % 100) * 0.01 + 0.0;
 
     struct timespec t0, t1;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_slow = slow_sr_1_v012(A, B, C, N, 2, 3, 4, 5);
+    double r_slow = slow_sr_1_v012(A, B, N, 2.0);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    int r_fast = fast_sr_1_v012(A, B, C, N, 2, 3, 4, 5);
+    double r_fast = fast_sr_1_v012(A, B, N, 2.0);
     clock_gettime(CLOCK_MONOTONIC, &t1);
     double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
 
@@ -36,6 +34,5 @@ int main() {
 
     free(A);
     free(B);
-    free(C);
     return 0;
 }

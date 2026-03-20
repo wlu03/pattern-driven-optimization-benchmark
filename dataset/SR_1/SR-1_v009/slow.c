@@ -1,9 +1,7 @@
-float slow_sr_1_v009(float *A, float *B, float *C, float *D, float *E, int n, float k0, float k1) {
-    float total = 0.0f;
-    int i = 0;
-    while (i < n) {
-        total += (k0 - A[i]) + (k1 - B[i]) + C[i] + D[i] + E[i];
-        i++;
+double slow_sr_1_v009(double *A, double *B, double *C, double *D, int n, double k0) {
+    double total = 0.0;
+    for (int i = 0; i < n; i++) {
+        total += (k0 + cos(A[i])) + cos(B[i]) + cos(C[i]) + cos(D[i]);
     }
     return total;
 }

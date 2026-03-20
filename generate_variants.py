@@ -244,10 +244,17 @@ class SR1_Generator(PatternTemplate):
             size_def = f"#define N {n_val}"
             size_args = "N"
 
-        # Use offset+1 for log variants to avoid log(0) = -inf;
-        # Product reduction needs values near 1.0 to avoid overflow
-        data_offset = "1.0" if (unary_fn == "log" and dtype != "int") else "0.0"
-        data_scale = "0.001" if red_name == "product" else "0.01"
+        # Product reduction needs values near 1.0 (not 0!) to avoid inf*0=NaN;
+        # log variants need offset to avoid log(0)=-inf
+        if red_name == "product":
+            data_offset = "1.0"   # values ∈ [1.0, 1.099] — products stay bounded
+            data_scale = "0.001"
+        elif unary_fn == "log" and dtype != "int":
+            data_offset = "1.0"
+            data_scale = "0.01"
+        else:
+            data_offset = "0.0"
+            data_scale = "0.01"
         data_suffix = DTYPES[dtype]['suffix']
         arr_allocs = "\n".join(
             f"    {dtype} *{a} = malloc({n_val_total} * sizeof({dtype}));\n"
@@ -260,11 +267,9 @@ class SR1_Generator(PatternTemplate):
         else:
             inv_args = ", ".join(f"2.{i}{DTYPES[dtype]['suffix']}" for i in range(n_invariants))
         arr_frees = "\n".join(f"    free({a});" for a in arr_names)
-        needs_math = use_unary or dtype != "int"
-
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
-{"#include <math.h>" if needs_math else ""}
+#include <math.h>
 #include <time.h>
 
 {size_def}

@@ -1,13 +1,9 @@
-int fast_sr_1_v012(int *A, int *B, int *C, int n, int k0, int k1, int k2, int k3) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int i = 0;
-    while (i < n) {
+double fast_sr_1_v012(double *A, double *B, int n, double k0) {
+    double sum_A = 0.0;
+    double sum_B = 0.0;
+    for (int i = 0; i < n; i++) {
         sum_A += A[i];
         sum_B += B[i];
-        sum_C += C[i];
-        i++;
     }
-    return ((int)n * k0 + sum_A) + ((int)n * k1 + sum_B) + ((int)n * k2 + sum_C);
+    return ((double)n * k0 - sum_A) + sum_B;
 }
