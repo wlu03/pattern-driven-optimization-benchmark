@@ -1,15 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int config_val_v004(int key);
-
-int fast_comp_v004(int *arr, int n, int key) {
-    if (arr == 0 || n <= 0) return 0;
-    int factor = config_val_v004(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+static __attribute__((noinline)) int scale_fn_v004(int base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    int r = 0;
+    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
+    return r;
+}
+int fast_comp_v004(int *A, int n, int base, int mode) {
+    int s = scale_fn_v004(base);
+    int w = (mode == 0) ? s : s * (int)2.0;
+    int total = 0;
+    for (int i = 0; i < n; i++) total += A[i] * w;
+    return total;
 }

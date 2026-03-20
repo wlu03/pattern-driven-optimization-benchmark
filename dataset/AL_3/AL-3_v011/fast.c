@@ -1,30 +1,21 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+static void build_fail_v011(int *pat,int pn,int *fail){
+    fail[0]=0; int k=0;
+    for(int i=1;i<pn;i++){
+        while(k>0&&pat[k]!=pat[i]) k=fail[k-1];
+        if(pat[k]==pat[i]) k++;
+        fail[i]=k;
+    }
+}
 
-__attribute__((noinline))
-static void build_fail_v011(unsigned char *pat, int pn, int *fail);
-
-int fast_al3_v011(unsigned char *text, int tn,
-                   unsigned char *pattern, int pn) {
-    int *fail = malloc(pn * sizeof(int));
-    build_fail_v011(pattern, pn, fail);
-    int count = 0, k = 0;
-    for (int i = 0; i < tn; i++) {
-        while (k > 0 && pattern[k] != text[i]) k = fail[k - 1];
-        if (pattern[k] == text[i]) k++;
-        if (k == pn) { count++; k = fail[k - 1]; }
+int fast_al3_v011(int *text,int tn,int *pat,int pn){
+    int *fail=(int*)malloc(pn*sizeof(int));
+    build_fail_v011(pat,pn,fail);
+    int count=0,k=0;
+    for(int i=0;i<tn;i++){
+        while(k>0&&pat[k]!=text[i]) k=fail[k-1];
+        if(pat[k]==text[i]) k++;
+        if(k==pn){count++;k=fail[k-1];}
     }
     free(fail);
     return count;
-}
-static void build_fail_v011(unsigned char *pat, int pn, int *fail) {
-    fail[0] = 0;
-    int k = 0;
-    for (int i = 1; i < pn; i++) {
-        while (k > 0 && pat[k] != pat[i]) k = fail[k - 1];
-        if (pat[k] == pat[i]) k++;
-        fail[i] = k;
-    }
 }

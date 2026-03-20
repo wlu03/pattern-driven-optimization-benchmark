@@ -1,6 +1,15 @@
-double fast_comp_v034(double *mass, int n) {
-    // Fix DS-4: SoA layout, Fix CF-2: Remove redundant check
-    double total = 0.0;
-    for (int i = 0; i < n; i++) total += mass[i];
-    return total;
+#include <math.h>
+static __attribute__((noinline)) float compute_v034(int key){
+    volatile double _k=(double)key; /* block pure/const inference */
+    float r=0;
+    for(int i=0;i<50;i++) r+=(float)sin(_k+(double)i);
+    return r;
+}
+void fast_comp_v034(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v034(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+    }
 }

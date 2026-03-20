@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void fast_mi2_v007(double *out, double *A, double *B, int n) {
-    for (int i = 0; i < n; i++) {
-        double t = A[i] + A[i] + B[i];
-        out[i] = t * t + B[i];
-    }
+void fast_mi2_v007(float *out,float *A,float *B,int n){
+    for(int i=0;i<n;i++) out[i]=A[i]*(float)2.0f+B[i]*(float)0.5f;
 }

@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+typedef struct{double data[128];int size;} BS_v012;
 
-__attribute__((noinline))
-void fast_ds3_v012(double *out, double *A, double *B, int n) {
-    for (int i = 0; i < n; i++) {
-        double t = A[i] - B[i];
-        out[i] = (t * 3.0 + B[i]) * A[i];
-    }
-}
+double fast_ds3_v012(const BS_v012 *s){double mx=s->data[0];for(int i=1;i<s->size;i++) if(s->data[i]>mx) mx=s->data[i];return mx;}

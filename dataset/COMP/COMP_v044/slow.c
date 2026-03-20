@@ -1,14 +1,10 @@
-void slow_comp_v044(double *mat, double *col_avgs, int rows, int cols) {
-    // Pattern 1 (MI-4): Column-major traversal
-    // Pattern 2 (SR-3): Recompute column sum from scratch for each row prefix
-    for (int j = 0; j < cols; j++) {
-        double sum = 0.0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0.0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];  // Column-major access
-            }
+typedef struct { double x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v044;
+double slow_comp_v044(P_v044 *p, int n) {
+    double total = 0;
+    for (int i = 0; i < n; i++) {
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
         }
-        col_avgs[j] = sum / rows;
     }
+    return total;
 }

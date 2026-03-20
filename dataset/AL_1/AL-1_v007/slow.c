@@ -1,14 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int slow_al1_v007(int coins[], int nc, int amount) {
-    if (amount == 0) return 1;
-    if (amount < 0) return 0;
-    int ways = 0;
-    for (int i = 0; i < nc; i++)
-        ways += slow_al1_v007(coins, nc, amount - coins[i]);
-    return ways;
+int slow_al1_v007(int *grid, int m, int n, int r, int c) {
+    if (r == 0 && c == 0) return grid[0];
+    if (r < 0 || c < 0) return 999999999;
+    int up = slow_al1_v007(grid, m, n, r-1, c);
+    int left = slow_al1_v007(grid, m, n, r, c-1);
+    int best = (up < left) ? up : left;
+    return grid[r * n + c] + best;
 }

@@ -2,31 +2,24 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#define N 2000000
+typedef struct { int x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v011;
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    int n = 5000000;
-    float *arr = malloc(n * sizeof(float));
-    for (int i = 0; i < n; i++) arr[i] = (float)(i % 100 + 1) * 0.01f;
-    int key = 42;
-    float r_slow = 0, r_fast = 0;
-    struct timespec t0, t1;
-    int n_reps = 3;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_slow = slow_comp_v011(arr, n, key);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_comp_v011(arr, n, key);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    double rel = fabs((double)(r_slow - r_fast)) / fmax(fabs((double)r_slow), 1.0);
-    int correct = rel < 1e-4;
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
-           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(arr);
-    return 0;
+    P_v011 *aos=(P_v011*)malloc(N*sizeof(P_v011));
+    int *mass=malloc(N*sizeof(int));
+    for(int i=0;i<N;i++){aos[i].mass=(int)(i%100)*0.1;mass[i]=aos[i].mass;}
+    struct timespec t0,t1;
+    clock_gettime(CLOCK_MONOTONIC,&t0); int rs=slow_comp_v011(aos,N); clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
+    clock_gettime(CLOCK_MONOTONIC,&t0); int rf=fast_comp_v011(mass,N); clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
+    double diff=fabs((double)(rs-rf)),ref=fabs((double)rs)+1e-12;
+    int correct=diff<1e-6*ref;
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    free(aos);free(mass);return correct?0:1;
 }

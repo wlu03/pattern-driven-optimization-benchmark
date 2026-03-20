@@ -1,12 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void slow_hr2_v000(double *X, double *Y, int n, double *sum_x, double *sumsq_x, double *sum_y, double *sumsq_y) {
-    { double s=0; for(int i=0;i<n;i++) s+=X[i]; *sum_x=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=X[i]*X[i]; *sumsq_x=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=Y[i]; *sum_y=s; }
-    { double s=0; for(int i=0;i<n;i++) s+=Y[i]*Y[i]; *sumsq_y=s; }
+void slow_hr2_v000(float *X,float *Y,int n,
+    float *mx,float *my,float *vx,float *vy){
+    float sx=0;
+    for(int i=0;i<n;i++) sx+=X[i];
+    *mx=sx/n;
+    float sy=0;
+    for(int i=0;i<n;i++) sy+=Y[i];
+    *my=sy/n;
+    float vs=0;
+    for(int i=0;i<n;i++){float d=X[i]-*mx;vs+=d*d;}
+    *vx=vs/n;
+    float vy2=0;
+    for(int i=0;i<n;i++){float d=Y[i]-*my;vy2+=d*d;}
+    *vy=vy2/n;
 }

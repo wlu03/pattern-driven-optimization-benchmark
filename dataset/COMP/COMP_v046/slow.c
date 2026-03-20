@@ -1,12 +1,15 @@
-double slow_comp_v046(double *A, double *B, int n, double k, int mode) {
-    double total = 0.0;
+static __attribute__((noinline)) int scale_fn_v046(int base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    int r = 0;
+    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
+    return r;
+}
+int slow_comp_v046(int *A, int n, int base, int mode) {
+    int total = 0;
     for (int i = 0; i < n; i++) {
-        // Pattern CF-1: Branch on invariant `mode`
-        double val;
-        if (mode == 1) val = A[i] + B[i] * k;      // Pattern SR-1
-        else if (mode == 2) val = A[i] - B[i] * k;  // Pattern SR-1
-        else val = A[i] * B[i] * k;                  // Pattern SR-1
-        total += val;
+        int s = scale_fn_v046(base);
+        if (mode == 0) total += A[i] * s;
+        else           total += A[i] * s * (int)2.0;
     }
     return total;
 }

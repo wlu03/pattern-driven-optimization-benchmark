@@ -1,8 +1,19 @@
-#include <math.h>
-__attribute__((noinline))
-float series_fn(float base);
-void fast_sr1_v000(float *arr, int n, float base) {
-    float scale = series_fn(base);
-    for (int i = 0; i < n; i++)
-        arr[i] *= scale;
+double fast_sr_1_v000(double *A, double *B, double *C, double *D, double *E, double *F, int n, double k0) {
+    double sum_A = 0.0;
+    double sum_B = 0.0;
+    double sum_C = 0.0;
+    double sum_D = 0.0;
+    double sum_E = 0.0;
+    double sum_F = 0.0;
+    int i = 0;
+    while (i < n) {
+        sum_A += A[i];
+        sum_B += B[i];
+        sum_C += C[i];
+        sum_D += D[i];
+        sum_E += E[i];
+        sum_F += F[i];
+        i++;
+    }
+    return (k0 * sum_A) + sum_B + sum_C + sum_D + sum_E + sum_F;
 }

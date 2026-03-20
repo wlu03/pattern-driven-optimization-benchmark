@@ -1,19 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double config_val_v028(int key);
-
-double slow_comp_v028(double *arr, int n, int key) {
-    double sum = 0;
+static __attribute__((noinline)) int compute_v028(int key){
+    volatile double _k=(double)key; /* block pure/const inference */
+    int r=0;
+    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
+    return r;
+}
+void slow_comp_v028(int *out, int *A, int n, int key, int mode) {
     for (int i = 0; i < n; i++) {
-        if (arr == 0) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        double factor = config_val_v028(key);
-        sum += arr[i] * factor;
+        int factor = compute_v028(key);
+        int t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        int t2 = t1 + (int)1.0;
+        int t3 = t2;
+        out[i] = t3;
     }
-    return sum;
 }

@@ -3,7 +3,7 @@
   "variant_id": "COMP_v044",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "Redundant aggregation + column-major access",
+  "variant_desc": "Wide AoS stride access + redundant bounds, double",
   "dtype": "double",
   "difficulty": "hard",
   "compiler_fixable": false,
@@ -12,7 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "SR-3",
-    "MI-4"
+    "DS-4",
+    "CF-2"
   ]
 }

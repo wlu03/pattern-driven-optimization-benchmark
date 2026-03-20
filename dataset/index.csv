@@ -1,31 +1,151 @@
 variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
-IS-5_v000,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=*/*",double,medium,False,2x-4x
-IS-5_v001,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",double,medium,False,2x-4x
-IS-5_v002,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",double,medium,False,2x-4x
-IS-5_v003,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",double,medium,False,2x-4x
-IS-5_v004,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v005,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",double,medium,False,2x-4x
-IS-5_v006,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v007,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v008,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v009,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v010,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/*",double,medium,False,2x-4x
-IS-5_v011,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=+/*",double,medium,False,2x-4x
-IS-5_v012,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v013,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/*",double,medium,False,2x-4x
-IS-5_v014,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v015,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v016,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/*",double,medium,False,2x-4x
-IS-5_v017,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",double,medium,False,2x-4x
-IS-5_v018,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",double,medium,False,2x-4x
-IS-5_v019,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",double,medium,False,2x-4x
-IS-5_v020,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v021,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/*",double,medium,False,2x-4x
-IS-5_v022,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v023,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/*",double,medium,False,2x-4x
-IS-5_v024,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v025,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/*",double,medium,False,2x-4x
-IS-5_v026,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/+",double,medium,False,2x-4x
-IS-5_v027,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",double,medium,False,2x-4x
-IS-5_v028,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",double,medium,False,2x-4x
-IS-5_v029,IS-5,Input-Sensitive Inefficiency,Unnecessary Intermediate Normalization Buffers,"3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",double,medium,False,2x-4x
+COMP_v000,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v001,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,10x-1000x
+COMP_v002,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v003,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,10x-1000x
+COMP_v004,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v005,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v006,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,10x-1000x
+COMP_v007,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,10x-1000x
+COMP_v008,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v009,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v010,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,10x-1000x
+COMP_v011,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,10x-1000x
+COMP_v012,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
+COMP_v013,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v014,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v015,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v016,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,10x-1000x
+COMP_v017,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v018,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v019,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v020,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v021,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v022,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v023,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v024,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
+COMP_v025,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v026,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
+COMP_v027,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
+COMP_v028,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v029,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v030,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v031,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v032,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v033,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v034,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v035,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, float",float,hard,False,10x-1000x
+COMP_v036,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v037,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v038,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v039,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v040,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
+COMP_v041,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,10x-1000x
+COMP_v042,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
+COMP_v043,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
+COMP_v044,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,10x-1000x
+COMP_v045,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v046,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v047,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v048,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v049,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,10x-1000x
+COMP_v050,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v051,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v052,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v053,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,10x-1000x
+COMP_v054,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v055,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v056,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,10x-1000x
+COMP_v057,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v058,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,10x-1000x
+COMP_v059,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,10x-1000x
+COMP_v060,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v061,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v062,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v063,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,10x-1000x
+COMP_v064,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v065,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,10x-1000x
+COMP_v066,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v067,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v068,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v069,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v070,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v071,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,10x-1000x
+COMP_v072,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v073,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v074,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,10x-1000x
+COMP_v075,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v076,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
+COMP_v077,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v078,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v079,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x
+COMP_v080,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v081,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
+COMP_v082,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v083,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v084,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
+COMP_v085,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x
+COMP_v086,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
+COMP_v087,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,10x-1000x
+COMP_v088,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v089,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
+COMP_v090,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,10x-1000x
+COMP_v091,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v092,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v093,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x
+COMP_v094,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x
+COMP_v095,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,10x-1000x
+COMP_v096,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v097,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v098,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,10x-1000x
+COMP_v099,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v100,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,10x-1000x
+COMP_v101,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v102,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v103,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v104,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v105,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v106,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v107,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,10x-1000x
+COMP_v108,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v109,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v110,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x
+COMP_v111,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v112,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,10x-1000x
+COMP_v113,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,10x-1000x
+COMP_v114,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v115,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v116,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,10x-1000x
+COMP_v117,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,10x-1000x
+COMP_v118,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v119,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v120,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v121,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,10x-1000x
+COMP_v122,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v123,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v124,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v125,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,10x-1000x
+COMP_v126,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v127,COMP,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,10x-1000x
+COMP_v128,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,10x-1000x
+COMP_v129,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v130,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,10x-1000x
+COMP_v131,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,10x-1000x
+COMP_v132,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v133,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,10x-1000x
+COMP_v134,COMP,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,10x-1000x
+COMP_v135,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v136,COMP,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,10x-1000x
+COMP_v137,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v138,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v139,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,10x-1000x
+COMP_v140,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,10x-1000x
+COMP_v141,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v142,COMP,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,10x-1000x
+COMP_v143,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v144,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,10x-1000x
+COMP_v145,COMP,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,10x-1000x
+COMP_v146,COMP,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,10x-1000x
+COMP_v147,COMP,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,10x-1000x
+COMP_v148,COMP,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,10x-1000x
+COMP_v149,COMP,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,10x-1000x

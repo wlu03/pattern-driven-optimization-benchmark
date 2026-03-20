@@ -1,17 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void fast_sr3_v014(int *data, int *result, int n) {
-    int sum = 0;
+void fast_sr3_v014(float *data, float *result, int n) {
+    float sum_sq = 0.0f;
     int i = 0;
     while (i < n) {
-        sum += data[i];
-        if (i >= 16) sum -= data[i - 16];
-        int count = (i < 16) ? i + 1 : 16;
-        result[i] = sum / count;
+        sum_sq += data[i] * data[i];
+        result[i] = sqrt(sum_sq / (i + 1));
         i++;
     }
 }

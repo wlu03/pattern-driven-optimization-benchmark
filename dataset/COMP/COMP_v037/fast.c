@@ -1,16 +1,18 @@
-double fast_comp_v037(double *A, double *B, int n, double k, int mode) {
-    double sumA = 0.0, sumB = 0.0;
-    // Fix CF-1: Hoist branch
-    // Fix SR-1: Factor out invariant k
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA + sumB * k;
-    } else if (mode == 2) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA - sumB * k;
-    } else {
-        double sumAB = 0.0;
-        for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
-        return sumAB * k;
+static __attribute__((noinline)) int log_scale_v037(int base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    int r = 0;
+    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
+    return r;
+}
+int fast_comp_v037(int *A, int *B, int rows, int cols, int base) {
+    int scale = log_scale_v037(base);
+    int sumAsq = 0, sumB = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int idx = i*cols+j;
+            sumAsq += A[idx] * A[idx];
+            sumB += B[idx];
+        }
     }
+    return scale * sumAsq + scale * sumB;
 }

@@ -1,13 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double is1_kernel_v013(double a, double b);
-void fast_is1_v013(double *out, double *A, double *B, int n) {
+void fast_is1_v013(float *y, float *x, float alpha, int n) {
+    if (alpha == 0.0f) return;
     for (int i = 0; i < n; i++) {
-        if (A[i] == (double)0.0) { out[i] = 0.0; }
-        else out[i] = is1_kernel_v013(A[i], B[i]);
+        if (x[i] == 0.0f) continue;
+        y[i] += alpha * x[i];
     }
 }

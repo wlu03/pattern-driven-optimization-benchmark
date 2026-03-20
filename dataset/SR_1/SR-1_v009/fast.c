@@ -1,11 +1,9 @@
-#include <math.h>
-__attribute__((noinline))
-double series_fn(double base);
-void fast_sr1_v009(double *arr, int n, double base) {
-    double scale = series_fn(base);
-    int i = 0;
-    while (i < n) {
-        arr[i] *= scale;
-        i++;
+int fast_sr_1_v009(int *A, int *B, int n, int k0) {
+    int sum_A = 0;
+    int sum_B = 0;
+    for (int i = 0; i < n; i++) {
+        sum_A += A[i];
+        sum_B += B[i];
     }
+    return ((int)n * k0 + sum_A) + sum_B;
 }

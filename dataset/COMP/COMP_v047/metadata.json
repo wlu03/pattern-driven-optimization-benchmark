@@ -3,8 +3,8 @@
   "variant_id": "COMP_v047",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "AoS access + redundant bounds checking",
-  "dtype": "double",
+  "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+  "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 2,
@@ -12,7 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "DS-4",
-    "CF-2"
+    "SR-1",
+    "CF-1"
   ]
 }

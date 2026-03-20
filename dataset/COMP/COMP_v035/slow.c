@@ -1,19 +1,10 @@
-#include <math.h>
-double config_val_v035(int key) {
-    double r = 0.0;
-    for (int i = 0; i < 100; i++) r += sin((double)(key+i));
-    return r;
-}
-double slow_comp_v035(double *arr, int n, int key) {
-    double sum = 0.0;
+typedef struct { float x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v035;
+float slow_comp_v035(P_v035 *p, int n) {
+    float total = 0;
     for (int i = 0; i < n; i++) {
-        // Pattern HR-4: Redundant checks
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        // Pattern SR-4: Invariant function call
-        double factor = config_val_v035(key);
-        sum += arr[i] * factor;
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
+        }
     }
-    return sum;
+    return total;
 }

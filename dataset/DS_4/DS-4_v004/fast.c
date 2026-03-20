@@ -1,13 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double fast_ds4_v004(double *pad5, int n) {
-    double total_pad5 = 0.0;
+double fast_ds4_v004(double *light, int n) {
+    double total_light = 1e308;
     for (int i = 0; i < n; i++) {
-        total_pad5 += pad5[i];
+        if (light[i] < total_light) total_light = light[i];
     }
-    return total_pad5;
+    return total_light;
 }

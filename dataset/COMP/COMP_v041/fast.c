@@ -1,6 +1,15 @@
-double fast_comp_v041(double *mass, int n) {
-    // Fix DS-4: SoA layout, Fix CF-2: Remove redundant check
-    double total = 0.0;
-    for (int i = 0; i < n; i++) total += mass[i];
-    return total;
+static __attribute__((noinline)) double penalty_v041(double a, double b){
+    volatile double _a=a,_b=b; /* block pure/const inference */
+    double r = 0.0;
+    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
+    return r;
+}
+float fast_comp_v041(float *X, float *Y, int n, float alpha, float beta) {
+    float pen = (float)penalty_v041((double)alpha, (double)beta);
+    float sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {
+        sumXsq += X[i] * X[i];
+        sumY += Y[i];
+    }
+    return alpha * sumXsq + beta * sumY + (float)n * pen;
 }

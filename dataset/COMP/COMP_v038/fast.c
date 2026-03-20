@@ -1,11 +1,15 @@
-void fast_comp_v038(double *mat, double *col_avgs, int rows, int cols) {
-    // Fix MI-4: Row-major access order
-    // Fix SR-3: Running accumulator instead of recomputation
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0.0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
+#include <math.h>
+static __attribute__((noinline)) double compute_v038(int key){
+    volatile double _k=(double)key; /* block pure/const inference */
+    double r=0;
+    for(int i=0;i<50;i++) r+=(double)sin(_k+(double)i);
+    return r;
+}
+void fast_comp_v038(double *out, double *A, int n, int key, int mode) {
+    double factor = compute_v038(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (double)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (double)1.0;
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= rows;
 }

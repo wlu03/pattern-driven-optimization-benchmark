@@ -1,0 +1,15 @@
+static __attribute__((noinline)) double penalty_v139(double a, double b){
+    volatile double _a=a,_b=b; /* block pure/const inference */
+    double r = 0.0;
+    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
+    return r;
+}
+float fast_comp_v139(float *X, float *Y, int n, float alpha, float beta) {
+    float pen = (float)penalty_v139((double)alpha, (double)beta);
+    float sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {
+        sumXsq += X[i] * X[i];
+        sumY += Y[i];
+    }
+    return alpha * sumXsq + beta * sumY + (float)n * pen;
+}

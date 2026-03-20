@@ -1,7 +1,10 @@
 #include <math.h>
-double compute_norm(double *w, int m);
-__attribute__((noinline))
-void slow_sr5_v014(double *out, double *data, int n, double *w, int m) {
-    for (int i = 0; i < n; i++)
-        out[i] = data[i] / compute_norm(w, m);
+static float norm_v014(float *w,int m){
+    float s=0;
+    for(int j=0;j<m;j++) s+=(float)fabs((double)w[j]);
+    return s;
+}
+
+void slow_sr5_v014(float *out,float *data,int n,float *w,int m){
+    for(int i=0;i<n;i++) out[i]=data[i]/norm_v014(w,m);
 }

@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+static double __attribute__((noinline)) cf4_fn0_v012(double x){return x>0.0?x:0.0;}
+static double __attribute__((noinline)) cf4_fn1_v012(double x){return x*x;}
+static double __attribute__((noinline)) cf4_fn2_v012(double x){return x*1.5;}
 
-__attribute__((noinline))
-void slow_cf4_v012(double *out, double *in, int n, double (*fn)(double)) {
-    for (int i = 0; i < n; i++) out[i] = fn(in[i]);
+void slow_cf4_v012(double *out,double *in,int n,int tag){
+    for(int i=0;i<n;i++){
+        if(tag==0) out[i]=cf4_fn0_v012(in[i]);
+        else if(tag==1) out[i]=cf4_fn1_v012(in[i]);
+        else out[i]=cf4_fn2_v012(in[i]);
+    }
 }

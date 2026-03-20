@@ -1,10 +1,9 @@
-#include <math.h>
-float penalty(float a, float b);
-__attribute__((noinline))
-float slow_sr2_v012(float *X, float *Y, int n, float alpha, float beta) {
-    float result = 0.0;
-    for (int i = 0; i < n; i++) {
-        result += alpha * X[i] * X[i] + beta * Y[i] + penalty(alpha, beta);
+double slow_sr2_v012(double *X, double *Y, int n, double alpha, double beta, double gamma) {
+    double result = 0.0;
+    int i = 0;
+    while (i < n) {
+        result += gamma * Y[i] + beta * X[i] + beta + alpha * X[i] * X[i] * X[i] + alpha;
+        i++;
     }
     return result;
 }

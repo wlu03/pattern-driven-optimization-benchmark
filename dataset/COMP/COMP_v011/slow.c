@@ -1,19 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-float config_val_v011(int key);
-
-float slow_comp_v011(float *arr, int n, int key) {
-    float sum = 0;
+typedef struct { int x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v011;
+int slow_comp_v011(P_v011 *p, int n) {
+    int total = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == 0) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        float factor = config_val_v011(key);
-        sum += arr[i] * factor;
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
+        }
     }
-    return sum;
+    return total;
 }

@@ -3,13 +3,13 @@
   "variant_id": "DS-4_v002",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "records struct (16 fields), accessing ['id'], sum reduction",
+  "variant_desc": "sensors struct (8 fields), accessing ['temp', 'humidity', 'light'], sum reduction",
   "dtype": "double",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 1,
+  "num_arrays": 3,
   "lines_of_code": 12,
-  "expected_speedup_range": "16x-16x",
+  "expected_speedup_range": "2x-8x",
   "composition": []
 }

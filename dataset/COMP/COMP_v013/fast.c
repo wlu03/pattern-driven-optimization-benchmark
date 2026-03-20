@@ -1,15 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void fast_comp_v013(double *mat, double *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
+static __attribute__((noinline)) int log_scale_v013(int base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    int r = 0;
+    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
+    return r;
+}
+int fast_comp_v013(int *A, int *B, int rows, int cols, int base) {
+    int scale = log_scale_v013(base);
+    int sumAsq = 0, sumB = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
+            int idx = i*cols+j;
+            sumAsq += A[idx] * A[idx];
+            sumB += B[idx];
         }
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= (double)rows;
+    return scale * sumAsq + scale * sumB;
 }

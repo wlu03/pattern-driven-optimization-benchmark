@@ -1,13 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double is1_kernel_v008(double a, double b);
-void fast_is1_v008(double *out, double *A, double *B, int n) {
+double fast_is1_v008(double *A, double *B, int n) {
+    double sum = 0.0;
     for (int i = 0; i < n; i++) {
-        if (A[i] == (double)0.0) { out[i] = 0.0; }
-        else out[i] = is1_kernel_v008(A[i], B[i]);
+        if (A[i] == 0.0 || B[i] == 0.0) continue;
+        sum += A[i] * B[i];
     }
+    return sum;
 }

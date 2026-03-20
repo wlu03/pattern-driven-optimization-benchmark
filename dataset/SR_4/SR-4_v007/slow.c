@@ -1,19 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+static double expensive_fn_v007(int key) {
+    double r = 0.0;
+    for (int i = 0; i < 100; i++)
+        r += sin((double)(key + i)) * cos((double)(key - i));
+    return r;
+}
 
-__attribute__((noinline))
-float expensive_fn_v007(int key);
-
-void slow_sr4_v007(float *arr, int n, int key0, int key1, int key2, int key3) {
+void slow_sr4_v007(double *arr, int n, int key) {
     int i = 0;
     while (i < n) {
-        float f0 = expensive_fn_v007(key0);
-        float f1 = expensive_fn_v007(key1);
-        float f2 = expensive_fn_v007(key2);
-        float f3 = expensive_fn_v007(key3);
-        arr[i] += f0 * f1 * f2 * f3;
+        double f0 = expensive_fn_v007(key);
+        arr[i] *= f0;
         i++;
     }
 }

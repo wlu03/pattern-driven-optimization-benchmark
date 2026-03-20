@@ -1,15 +1,15 @@
 {
   "pattern_id": "HR-4",
   "variant_id": "HR-4_v003",
-  "category": "Human Readability Style",
-  "pattern_name": "Redundant Materialization Pass",
-  "variant_desc": "3-pass staging: scale(+), sq(- t1[i]), reduce, N=10000000",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Overly Defensive Checks in Hot Loop",
+  "variant_desc": "dot, double, n=10000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,
-  "num_loops": 3,
-  "num_arrays": 3,
+  "num_loops": 1,
+  "num_arrays": 1,
   "lines_of_code": 8,
-  "expected_speedup_range": "3x-5x",
+  "expected_speedup_range": "1.5x-4x",
   "composition": []
 }

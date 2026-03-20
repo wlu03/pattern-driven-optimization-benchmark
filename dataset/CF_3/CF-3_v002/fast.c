@@ -1,10 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void fast_cf3_v002(float *out, float *in, int n) {
-    // Caller guarantees all-positive: guard is unnecessary, use inline loop.
-    for (int i = 0; i < n; i++) out[i] = in[i] * (float)1.5 + in[i] * in[i];
+void fast_cf3_v002(double *out,double *in,int n){
+    for(int i=0;i<n;i++) out[i]=in[i]*in[i]+in[i]*0.5;
 }

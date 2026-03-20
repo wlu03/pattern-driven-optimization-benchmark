@@ -1,16 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-typedef struct { int x,y,z,vx,vy,vz,mass,charge; } P_v009;
-int slow_comp_v009(P_v009 *p, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
+void slow_comp_v009(float *mat, int rows, int cols, int mode) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            if (mode == 1) mat[i * cols + j] *= (float)2.0;
+            else if (mode == 2) mat[i * cols + j] += (float)1.0;
+            else mat[i * cols + j] -= (float)0.5;
         }
     }
-    return total;
 }

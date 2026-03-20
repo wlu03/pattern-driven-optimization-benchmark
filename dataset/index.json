@@ -1,461 +1,2773 @@
 {
-  "total_variants": 30,
+  "total_variants": 150,
   "patterns": [
-    "IS-5"
+    "COMP"
   ],
   "categories": [
-    "Input-Sensitive Inefficiency"
+    "Composed"
   ],
   "variants": [
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v000",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=*/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v000",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v001",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v001",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v002",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v002",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v003",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v003",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v004",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v004",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v005",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/+",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v005",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v006",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v006",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v007",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v007",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v008",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v008",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v009",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v009",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v010",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/*",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v010",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v011",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=+/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v011",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v012",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v012",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v013",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v013",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v014",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=-/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v014",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v015",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v015",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v016",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v016",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v017",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v017",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v018",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v018",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v019",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v019",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v020",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v020",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v021",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=20000000, ops=+/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v021",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v022",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v022",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v023",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=-/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v023",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v024",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v024",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v025",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=*/*",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v025",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
       "dtype": "double",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v026",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=-/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v026",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v027",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/*",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v027",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, float",
+      "dtype": "float",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v028",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=5000000, ops=+/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v028",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
     },
     {
-      "pattern_id": "IS-5",
-      "variant_id": "IS-5_v029",
-      "category": "Input-Sensitive Inefficiency",
-      "pattern_name": "Unnecessary Intermediate Normalization Buffers",
-      "variant_desc": "3-pass staging (tmp1+tmp2) vs fused, N=10000000, ops=*/+",
-      "dtype": "double",
-      "difficulty": "medium",
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v029",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
       "compiler_fixable": false,
-      "num_loops": 3,
+      "num_loops": 2,
       "num_arrays": 2,
-      "lines_of_code": 7,
-      "expected_speedup_range": "2x-4x",
-      "composition": []
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v030",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v031",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v032",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v033",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v034",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v035",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v036",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v037",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v038",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v039",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v040",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v041",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v042",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v043",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v044",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v045",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v046",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v047",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v048",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v049",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v050",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v051",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v052",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v053",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v054",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v055",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v056",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v057",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v058",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v059",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v060",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v061",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v062",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v063",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v064",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v065",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v066",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v067",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v068",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v069",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v070",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v071",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v072",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v073",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v074",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v075",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v076",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v077",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v078",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v079",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v080",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v081",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v082",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v083",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v084",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v085",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v086",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v087",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v088",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v089",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v090",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v091",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v092",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v093",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v094",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v095",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v096",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v097",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v098",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v099",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v100",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v101",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v102",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v103",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v104",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v105",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v106",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v107",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v108",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v109",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v110",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v111",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v112",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v113",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v114",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v115",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v116",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v117",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v118",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v119",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v120",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v121",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v122",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v123",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v124",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v125",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v126",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v127",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Hoistable branch + column-major access, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "CF-1",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v128",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v129",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v130",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v131",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v132",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v133",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v134",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Wide AoS stride access + redundant bounds, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "DS-4",
+        "CF-2"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v135",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v136",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline loop-invariant scale + hoistable branch, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "CF-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v137",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v138",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v139",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, float",
+      "dtype": "float",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v140",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v141",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v142",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Invariant function call + defensive checks, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "HR-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v143",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v144",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v145",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: temps + bounds + cache, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "HR-1",
+        "CF-2",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v146",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Redundant aggregation + column-major, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-3",
+        "MI-4"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v147",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Triple: invariant call + branch + temps, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-4",
+        "CF-1",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v148",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline penalty + temp decomposition, int",
+      "dtype": "int",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-2",
+        "HR-1"
+      ]
+    },
+    {
+      "pattern_id": "COMP",
+      "variant_id": "COMP_v149",
+      "category": "Composed",
+      "pattern_name": "Multiple Overlapping Patterns",
+      "variant_desc": "Noinline log-scale + bounds check + temps, double",
+      "dtype": "double",
+      "difficulty": "hard",
+      "compiler_fixable": false,
+      "num_loops": 2,
+      "num_arrays": 2,
+      "lines_of_code": 15,
+      "expected_speedup_range": "10x-1000x",
+      "composition": [
+        "SR-1",
+        "SR-2",
+        "CF-2"
+      ]
     }
   ]
 }

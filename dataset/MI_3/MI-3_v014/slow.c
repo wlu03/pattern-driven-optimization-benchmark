@@ -1,17 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double slow_mi3_v014(double *data, int n) {
-    double total = 0.0;
-    for (int i = 0; i < n - 15; i++) {
-        double *quad = malloc(16 * sizeof(double));
-        for (int j = 0; j < 16; j++) quad[j] = data[i+j];
-        double s = 0.0; for (int j = 0; j < 16; j++) s += quad[j];
-        total += s * (double)0.0625;
-        free(quad);
+double slow_mi3_v014(double *data,int n){
+    double total=0.0;
+    for(int i=0;i<n-7;i++){
+        double *buf=(double*)malloc(8*sizeof(double));
+        buf[0]=data[i+0]; buf[1]=data[i+1]; buf[2]=data[i+2]; buf[3]=data[i+3]; buf[4]=data[i+4]; buf[5]=data[i+5]; buf[6]=data[i+6]; buf[7]=data[i+7];
+        double sum=0.0; for(int j=0;j<8;j++) sum+=buf[j];
+        total+=sum*0.125;
+        free(buf);
     }
     return total;
 }

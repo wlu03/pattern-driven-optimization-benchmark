@@ -1,13 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void hr3_debug_v008(float val);
-void slow_hr3_v008(float *out, float *in, int n) {
-    for (int i = 0; i < n; i++) {
-        out[i] = in[i] * in[i] + (float)0.5;
-        hr3_debug_v008(out[i]);
+void slow_hr3_v008(float *out,float *in,int n){
+    static volatile int debug_ctr_v008=0;
+    for(int i=0;i<n;i++){
+        debug_ctr_v008++;
+        if(in[i]!=in[i]){;}
+        out[i]=in[i]*in[i]*(float)3.0+(float)2.5;
+        if(out[i]<-1e15||out[i]>1e15){;}
     }
 }

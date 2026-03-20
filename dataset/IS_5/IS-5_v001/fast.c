@@ -1,13 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+static void __attribute__((noinline))
+is5_kernel_v001(float * __restrict__ out,const float * __restrict__ A,const float * __restrict__ B,int n){
+    for(int i=0;i<n;i++) out[i]=A[i]*1.5f+B[i]*2.5f-A[i]*B[i]*0.1f;
+}
 
-__attribute__((noinline))
-void fast_is5_v001(double *out, double *A, double *B, int n) {
-    for (int i = 0; i < n; i++) {
-        double t1 = A[i] * B[i];
-        double t2 = t1 * 0.5 + B[i];
-        out[i] = t2 * t2 * A[i];
-    }
+void fast_is5_v001(float *out,float *A,float *B,int n){
+    int ok=(out+n<=A||A+n<=out)&&(out+n<=B||B+n<=out);
+    if(ok) is5_kernel_v001(out,A,B,n);
+    else for(int i=0;i<n;i++) out[i]=A[i]*1.5f+B[i]*2.5f-A[i]*B[i]*0.1f;
 }

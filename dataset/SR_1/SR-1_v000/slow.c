@@ -1,7 +1,9 @@
-#include <math.h>
-__attribute__((noinline))
-float series_fn(float base);
-void slow_sr1_v000(float *arr, int n, float base) {
-    for (int i = 0; i < n; i++)
-        arr[i] *= series_fn(base);
+double slow_sr_1_v000(double *A, double *B, double *C, double *D, double *E, double *F, int n, double k0) {
+    double total = 0.0;
+    int i = 0;
+    while (i < n) {
+        total += (k0 * A[i]) + B[i] + C[i] + D[i] + E[i] + F[i];
+        i++;
+    }
+    return total;
 }

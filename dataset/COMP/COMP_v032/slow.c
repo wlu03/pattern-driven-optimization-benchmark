@@ -1,12 +1,13 @@
-typedef struct { double x,y,z,vx,vy,vz,mass,charge; } P_v032;
-double slow_comp_v032(P_v032 *p, int n) {
-    double total = 0.0;
-    for (int i = 0; i < n; i++) {
-        // Pattern CF-2: Redundant bounds check
-        if (i >= 0 && i < n) {
-            // Pattern DS-4: AoS access for single field
-            total += p[i].mass;
+void slow_comp_v032(float *out, float *A, float *B, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {
+                float t1 = A[i*cols+j] + B[i*cols+j];
+                float t2 = t1 * (float)2.0;
+                float t3 = t2 + (float)1.0;
+                float result = t3;
+                out[i*cols+j] = result;
+            }
         }
     }
-    return total;
 }

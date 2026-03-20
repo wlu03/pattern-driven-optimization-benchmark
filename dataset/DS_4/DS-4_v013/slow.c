@@ -1,34 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
 typedef struct {
-    double time;
-    double x;
-    double y;
-    double energy;
-    double channel;
-    double quality;
-    double amplitude;
-    double phase;
-    double pad0;
-    double pad1;
-    double pad2;
-    double pad3;
-    double pad4;
-    double pad5;
-    double pad6;
-    double pad7;
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
+    int noise;
+    float co2;
 } AoS_v013;
 
 double slow_ds4_v013(AoS_v013 *arr, int n) {
-    double total_pad6 = 0.0;
-    double total_pad5 = 0.0;
+    double total_pressure = -1e308;
+    double total_co2 = -1e308;
+    double total_wind_speed = -1e308;
     for (int i = 0; i < n; i++) {
-        total_pad6 += (double)arr[i].pad6;
-        total_pad5 += (double)arr[i].pad5;
+        if ((double)arr[i].pressure > total_pressure) total_pressure = (double)arr[i].pressure;
+        if ((double)arr[i].co2 > total_co2) total_co2 = (double)arr[i].co2;
+        if ((double)arr[i].wind_speed > total_wind_speed) total_wind_speed = (double)arr[i].wind_speed;
     }
-    return total_pad6 + total_pad5;
+    return total_pressure + total_co2 + total_wind_speed;
 }

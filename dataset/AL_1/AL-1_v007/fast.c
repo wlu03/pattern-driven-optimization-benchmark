@@ -1,14 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int fast_al1_v007(int coins[], int nc, int amount) {
-    int *dp = calloc(amount+1, sizeof(int));
-    dp[0] = 1;
-    for (int a = 1; a <= amount; a++)
-        for (int i = 0; i < nc; i++)
-            if (coins[i] <= a) dp[a] += dp[a - coins[i]];
-    int res = dp[amount]; free(dp); return res;
+int fast_al1_v007(int *grid, int m, int n, int r_unused, int c_unused) {
+    int *dp = calloc(m * n, sizeof(int));
+    dp[0] = grid[0];
+    for (int j = 1; j < n; j++) dp[j] = dp[j-1] + grid[j];
+    for (int i = 1; i < m; i++) {
+        dp[i*n] = dp[(i-1)*n] + grid[i*n];
+        for (int j = 1; j < n; j++) {
+            int up = dp[(i-1)*n + j], left = dp[i*n + j - 1];
+            dp[i*n + j] = grid[i*n + j] + ((up < left) ? up : left);
+        }
+    }
+    int res = dp[m*n - 1]; free(dp); return res;
 }

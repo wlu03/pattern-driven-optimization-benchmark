@@ -1,15 +1,15 @@
 {
   "pattern_id": "CF-3",
   "variant_id": "CF-3_v007",
-  "category": "Control Flow Inefficiency",
+  "category": "Control Flow",
   "pattern_name": "Vectorization-Hostile Redundant Conditional",
-  "variant_desc": "all-positive, expr=3, float",
+  "variant_desc": "quadratic op, float, n=2000000",
   "dtype": "float",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 2,
-  "lines_of_code": 10,
-  "expected_speedup_range": "1.5x-4x",
+  "num_arrays": 1,
+  "lines_of_code": 8,
+  "expected_speedup_range": "2x-8x",
   "composition": []
 }

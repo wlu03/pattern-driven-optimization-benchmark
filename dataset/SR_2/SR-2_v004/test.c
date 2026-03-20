@@ -1,43 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
-#define N 500000
-
-// SLOW_CODE_HERE
-
-// FAST_CODE_HERE
-
+double slow_sr2_v004(double *X, double *Y, double *Z, int n, double alpha, double beta, double gamma);
+double fast_sr2_v004(double *X, double *Y, double *Z, int n, double alpha, double beta, double gamma);
 int main() {
-    int n = N;
-    double *X = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) X[k] = (double)(k % 100 - 50) * 0.1;
-    double *Y = malloc(500000 * sizeof(double));
-    for (int k = 0; k < 500000; k++) Y[k] = (double)(k % 100 - 50) * 0.1;
-    double alpha = (double)3.0, beta = (double)2.0;
-
-    struct timespec t0, t1;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_slow = slow_sr2_v004(X, Y, n, alpha, beta);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
-
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    double r_fast = fast_sr2_v004(X, Y, n, alpha, beta);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
-
-    /* compute expected inline — penalty inlined here, no dependency on slow/fast */
-    double p = 0.0;
-    for (int k = 1; k <= 21; k++) p += (double)sin(alpha * k) * (double)exp(-beta * k * 0.05);
-    double expected = 0.0;
-    for (int k = 0; k < N; k++) expected += alpha * X[k] * X[k] + beta * Y[k] + p;
-
-    double rel = fabs((double)(r_slow - expected)) / fmax(fabs((double)expected), 1e-12);
-    int correct = rel < 1e-2;
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
-           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    int n = 20000000;
+    double *X = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) X[k] = (double)(k % 100) * 0.01f;
+    double *Y = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) Y[k] = (double)(k % 100) * 0.01f;
+    double *Z = malloc(20000000 * sizeof(double)); for (int k = 0; k < 20000000; k++) Z[k] = (double)(k % 100) * 0.01f;
+    double r_slow = slow_sr2_v004(X, Y, Z, n, 2.5, 1.7, 0.3);
+    double r_fast = fast_sr2_v004(X, Y, Z, n, 2.5, 1.7, 0.3);
+    double diff = fabs((double)(r_slow - r_fast));
+    double rel = (fabs((double)r_slow) > 1e-15) ? diff / fabs((double)r_slow) : diff;
+    printf("slow=%g fast=%g rel_err=%g %s\n", (double)r_slow, (double)r_fast, rel, rel < 1e-4 ? "PASS" : "FAIL");
     free(X);
     free(Y);
-    return 0;
+    free(Z);
+    return rel < 1e-4 ? 0 : 1;
 }

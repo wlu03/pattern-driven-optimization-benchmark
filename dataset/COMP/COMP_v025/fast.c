@@ -1,16 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-float compute_v025(int key);
-
-void fast_comp_v025(float *out, float *A, int n, int key, int mode) {
-    float factor = compute_v025(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+void fast_comp_v025(double *mat, double *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            col_avgs[j] += mat[i * cols + j];
+        }
     }
+    for (int j = 0; j < cols; j++) col_avgs[j] /= (double)rows;
 }

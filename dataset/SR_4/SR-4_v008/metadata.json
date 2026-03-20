@@ -3,7 +3,7 @@
   "variant_id": "SR-4_v008",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "polynomial function, 2 invariant calls, work=200, float, additive apply",
+  "variant_desc": "log_sum function, 2 invariant calls, work=500, float, additive apply",
   "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,

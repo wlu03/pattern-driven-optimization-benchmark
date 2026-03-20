@@ -717,11 +717,29 @@ class CF1Checker(PatternChecker):
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
+        # Count if-statements inside loops in slow vs fast (crude regex estimate)
+        def _in_loop_ifs(code):
+            count = 0
+            in_loop = False
+            for line in code.splitlines():
+                s = line.strip()
+                if re.match(r'for\s*\(|while\s*\(', s):
+                    in_loop = True
+                if in_loop and re.match(r'if\s*\(', s):
+                    count += 1
+            return count
+        slow_ifs = _in_loop_ifs(slow_code)
+        fast_ifs  = _in_loop_ifs(model_output)
         # Fast version should have if BEFORE loop, then separate loops per branch
         if re.search(r'if\s*\([^)]*mode[^)]*\)[^{]*\{[^}]*for\s*\(', model_output, re.DOTALL):
             passed.append("dispatch conditional precedes loop (hoisted)")
         elif re.search(r'if\s*\(.*\)\s*\{', model_output) and re.search(r'for\s*\(', model_output):
             passed.append("if-statement and loop both present (likely restructured)")
+        elif fast_ifs < slow_ifs:
+            passed.append(f"in-loop conditionals reduced: {slow_ifs} → {fast_ifs}")
+        elif re.search(r'\?[^:]+:', model_output) and fast_ifs == 0 and re.search(r'for\s*\(', model_output):
+            # Ternary dispatch hoisted before loop — equivalent to if hoisting
+            passed.append("ternary dispatch hoisted outside loop body")
         else:
             failed.append("no hoisted dispatch conditional detected")
         return _result(passed, failed)

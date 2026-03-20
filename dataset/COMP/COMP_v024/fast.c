@@ -1,16 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-float compute_v024(int key);
-
-void fast_comp_v024(float *out, float *A, int n, int key, int mode) {
-    float factor = compute_v024(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
-    }
+#include <stdlib.h>
+static float config_val_v024(int key){
+    float r=0;
+    for(int i=0;i<100;i++) r+=(float)sin((double)(key+i));
+    return r;
+}
+float fast_comp_v024(float *arr, int n, int key) {
+    if (arr == NULL || n <= 0) return 0;
+    float factor = config_val_v024(key);
+    float sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

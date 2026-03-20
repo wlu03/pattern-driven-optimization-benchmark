@@ -1,19 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int config_val_v008(int key);
-
-int slow_comp_v008(int *arr, int n, int key) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == 0) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        int factor = config_val_v008(key);
-        sum += arr[i] * factor;
+void slow_comp_v008(float *mat, int rows, int cols, int mode) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            if (mode == 1) mat[i * cols + j] *= (float)2.0;
+            else if (mode == 2) mat[i * cols + j] += (float)1.0;
+            else mat[i * cols + j] -= (float)0.5;
+        }
     }
-    return sum;
 }

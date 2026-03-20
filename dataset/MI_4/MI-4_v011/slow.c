@@ -1,15 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double slow_mi4_v011(double *matrix, int rows, int cols) {
-    double total = 0;
+void slow_mi4_v011(float *matrix, int rows, int cols) {
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            total += matrix[i * cols + j];
+            matrix[i * cols + j] *= (float)1.001;
         }
     }
-    return total;
 }

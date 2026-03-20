@@ -3,13 +3,13 @@
   "variant_id": "MI-1_v012",
   "category": "Memory & IO",
   "pattern_name": "Allocation in Loop vs Sliding Window",
-  "variant_desc": "window=8, n=500000, double",
+  "variant_desc": "n=500000, window=16",
   "dtype": "double",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "compiler_fixable": false,
-  "num_loops": 2,
+  "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 12,
+  "lines_of_code": 10,
   "expected_speedup_range": "5x-50x",
   "composition": []
 }

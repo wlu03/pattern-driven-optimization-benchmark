@@ -1,13 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double fast_ds4_v002(double *id, int n) {
-    double total_id = 0.0;
+double fast_ds4_v002(double *temp, double *humidity, double *light, int n) {
+    double total_temp = 0.0;
+    double total_humidity = 0.0;
+    double total_light = 0.0;
     for (int i = 0; i < n; i++) {
-        total_id += id[i];
+        total_temp += temp[i];
+        total_humidity += humidity[i];
+        total_light += light[i];
     }
-    return total_id;
+    return total_temp + total_humidity + total_light;
 }

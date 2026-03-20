@@ -1,9 +1,5 @@
-double fast_comp_v035(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0.0;
-    // Fix SR-4: Hoist invariant call
-    double factor = config_val_v035(key);
-    // Fix HR-4: Remove redundant checks
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+float fast_comp_v035(float *mass, int n) {
+    float total = 0;
+    for (int i = 0; i < n; i++) total += mass[i];
+    return total;
 }

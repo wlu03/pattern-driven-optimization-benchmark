@@ -1,16 +1,13 @@
-double fast_comp_v046(double *A, double *B, int n, double k, int mode) {
-    double sumA = 0.0, sumB = 0.0;
-    // Fix CF-1: Hoist branch
-    // Fix SR-1: Factor out invariant k
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA + sumB * k;
-    } else if (mode == 2) {
-        for (int i = 0; i < n; i++) { sumA += A[i]; sumB += B[i]; }
-        return sumA - sumB * k;
-    } else {
-        double sumAB = 0.0;
-        for (int i = 0; i < n; i++) sumAB += A[i] * B[i];
-        return sumAB * k;
-    }
+static __attribute__((noinline)) int scale_fn_v046(int base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    int r = 0;
+    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
+    return r;
+}
+int fast_comp_v046(int *A, int n, int base, int mode) {
+    int s = scale_fn_v046(base);
+    int w = (mode == 0) ? s : s * (int)2.0;
+    int total = 0;
+    for (int i = 0; i < n; i++) total += A[i] * w;
+    return total;
 }

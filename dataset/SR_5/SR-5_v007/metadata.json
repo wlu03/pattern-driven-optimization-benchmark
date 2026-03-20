@@ -3,13 +3,13 @@
   "variant_id": "SR-5_v007",
   "category": "Semantic Redundancy",
   "pattern_name": "Repeated Division by Loop-Invariant Denominator",
-  "variant_desc": "L2-norm, m=128, n=500000, float, for-loop",
+  "variant_desc": "l1 norm, float, n=1000000, m=128",
   "dtype": "float",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 2,
-  "lines_of_code": 8,
-  "expected_speedup_range": "4x-16x",
+  "lines_of_code": 10,
+  "expected_speedup_range": "10x-100x",
   "composition": []
 }

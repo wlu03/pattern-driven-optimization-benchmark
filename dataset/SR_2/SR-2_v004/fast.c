@@ -1,12 +1,13 @@
-#include <math.h>
-double penalty(double a, double b);
-__attribute__((noinline))
-double fast_sr2_v004(double *X, double *Y, int n, double alpha, double beta) {
-    double sumXsq = 0.0;
-    double sumY = 0.0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+double fast_sr2_v004(double *X, double *Y, double *Z, int n, double alpha, double beta, double gamma) {
+    double sumXcb = 0.0;
+    double sumZcb = 0.0;
+    double sumZ = 0.0;
+    int i = 0;
+    while (i < n) {
+        sumXcb += X[i] * X[i] * X[i];
+        sumZcb += Z[i] * Z[i] * Z[i];
+        sumZ += Z[i];
+        i++;
     }
-    return alpha * sumXsq + beta * sumY + (double)n * penalty(alpha, beta);
+    return alpha * sumXcb + gamma * sumXcb + beta * sumZcb + beta * sumZ;
 }

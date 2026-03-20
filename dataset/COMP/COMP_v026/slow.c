@@ -1,19 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int compute_v026(int key);
-
-void slow_comp_v026(int *out, int *A, int n, int key, int mode) {
-    for (int i = 0; i < n; i++) {
-        int factor = compute_v026(key);
-        int t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        int t2 = t1 + (int)1.0;
-        int t3 = t2;
-        out[i] = t3;
+void slow_comp_v026(int *mat, int *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        int sum = 0;
+        for (int i = 0; i < rows; i++) {
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
+        }
+        col_avgs[j] = sum / (int)rows;
     }
 }

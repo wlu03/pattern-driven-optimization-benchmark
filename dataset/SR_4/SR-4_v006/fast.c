@@ -1,18 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+static double expensive_fn_v006(int key) {
+    double r = 1.0;
+    for (int i = 0; i < 50; i++) {
+        r = exp(-fabs(r * 0.01)) + (double)(key % (i+1));
+    }
+    return r;
+}
 
-__attribute__((noinline))
-double expensive_fn_v006(int key);
-
-void fast_sr4_v006(double *arr, int n, int key0, int key1, int key2) {
+void fast_sr4_v006(double *arr, int n, int key0, int key1) {
     double f0 = expensive_fn_v006(key0);
     double f1 = expensive_fn_v006(key1);
-    double f2 = expensive_fn_v006(key2);
-    int i = 0;
-    while (i < n) {
-        arr[i] += f0 * f1 * f2;
-        i++;
+    for (int i = 0; i < n; i++) {
+        arr[i] *= f0 * f1;
     }
 }

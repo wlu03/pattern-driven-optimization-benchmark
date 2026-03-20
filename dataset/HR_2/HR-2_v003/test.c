@@ -2,33 +2,29 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
+#define REPS 3
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *X = malloc(N * sizeof(float)); for(int i=0;i<N;i++) X[i]=(float)(i%100+1)*0.1f;
-    float *Y = malloc(N * sizeof(float)); for(int i=0;i<N;i++) Y[i]=(float)(i%100+1)*0.1f;
-    float *Z = malloc(N * sizeof(float)); for(int i=0;i<N;i++) Z[i]=(float)(i%100+1)*0.1f;
-    float mn_s_x=0, mx_s_x=0; float mn_s_y=0, mx_s_y=0; float mn_s_z=0, mx_s_z=0;
-    float mn_f_x=0, mx_f_x=0; float mn_f_y=0, mx_f_y=0; float mn_f_z=0, mx_f_z=0;
-
-    struct timespec t0, t1;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    slow_hr2_v003(X, Y, Z, N, &mn_s_x, &mx_s_x, &mn_s_y, &mx_s_y, &mn_s_z, &mx_s_z);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
-
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    fast_hr2_v003(X, Y, Z, N, &mn_f_x, &mx_f_x, &mn_f_y, &mx_f_y, &mn_f_z, &mx_f_z);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
-
-    int correct = (fabs((double)(mn_s_x-mn_f_x))<1e-9 && fabs((double)(mx_s_x-mx_f_x))<1e-9 && fabs((double)(mn_s_y-mn_f_y))<1e-9 && fabs((double)(mx_s_y-mx_f_y))<1e-9 && fabs((double)(mn_s_z-mn_f_z))<1e-9 && fabs((double)(mx_s_z-mx_f_z))<1e-9) ? 1 : 0;
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
-           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(X); free(Y); free(Z);
-    return 0;
+    float *X=malloc(N*sizeof(float)),*Y=malloc(N*sizeof(float));
+    for(int i=0;i<N;i++){X[i]=(float)((i%200)-100)*0.05f;Y[i]=(float)((i%150)-75)*0.03f;}
+    float mxs,mys,vxs,vys,mxf,myf,vxf,vyf;
+    struct timespec t0,t1;
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    for(int r=0;r<REPS;r++) slow_hr2_v003(X,Y,N,&mxs,&mys,&vxs,&vys);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_slow=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    for(int r=0;r<REPS;r++) fast_hr2_v003(X,Y,N,&mxf,&myf,&vxf,&vyf);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_fast=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
+    double ref=fabs((double)mxs)+1e-12;
+    int correct=fabs((double)(mxs-mxf))<1e-3*ref&&fabs((double)(mys-myf))<1e-3*(fabs((double)mys)+1e-12)
+        &&fabs((double)(vxs-vxf))<1e-3*(fabs((double)vxs)+1e-12)&&fabs((double)(vys-vyf))<1e-3*(fabs((double)vys)+1e-12);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    free(X);free(Y);return correct?0:1;
 }

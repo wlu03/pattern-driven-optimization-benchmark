@@ -1,15 +1,15 @@
 {
   "pattern_id": "HR-3",
   "variant_id": "HR-3_v013",
-  "category": "Human Readability Style",
-  "pattern_name": "Dead / Debug Code",
-  "variant_desc": "noinline debug sink per element, float, expr=1",
-  "dtype": "float",
-  "difficulty": "medium",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Dead / Debug Code in Hot Loop",
+  "variant_desc": "quadratic, double, n=10000000",
+  "dtype": "double",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
-  "num_arrays": 2,
-  "lines_of_code": 6,
-  "expected_speedup_range": "2x-5x",
+  "num_arrays": 1,
+  "lines_of_code": 10,
+  "expected_speedup_range": "1.5x-4x",
   "composition": []
 }

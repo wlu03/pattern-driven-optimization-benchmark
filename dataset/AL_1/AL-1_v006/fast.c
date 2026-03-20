@@ -1,9 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
 long long fast_al1_v006(int n) {
     long long *dp = calloc(n+1, sizeof(long long));
     dp[0] = dp[1] = 1;

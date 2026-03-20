@@ -3,31 +3,28 @@
 #include <math.h>
 #include <time.h>
 #define N 10000000
+#define REPS 3
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    float *X = malloc(N * sizeof(float)); for(int i=0;i<N;i++) X[i]=(float)(i%100+1)*0.1f;
-    float *Y = malloc(N * sizeof(float)); for(int i=0;i<N;i++) Y[i]=(float)(i%100+1)*0.1f;
-    float ms_x=0, vs_x=0; float ms_y=0, vs_y=0;
-    float mf_x=0, vf_x=0; float mf_y=0, vf_y=0;
-
-    struct timespec t0, t1;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    slow_hr2_v007(X, Y, N, &ms_x, &vs_x, &ms_y, &vs_y);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
-
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    fast_hr2_v007(X, Y, N, &mf_x, &vf_x, &mf_y, &vf_y);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
-
-    int correct = (fabs((double)(ms_x-mf_x))<1e-4 && fabs((double)(vs_x-vf_x))<1e-4 && fabs((double)(ms_y-mf_y))<1e-4 && fabs((double)(vs_y-vf_y))<1e-4) ? 1 : 0;
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
-           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(X); free(Y);
-    return 0;
+    double *X=malloc(N*sizeof(double)),*Y=malloc(N*sizeof(double));
+    for(int i=0;i<N;i++){X[i]=(double)((i%200)-100)*0.05;Y[i]=(double)((i%150)-75)*0.03;}
+    double mxs,mys,vxs,vys,mxf,myf,vxf,vyf;
+    struct timespec t0,t1;
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    for(int r=0;r<REPS;r++) slow_hr2_v007(X,Y,N,&mxs,&mys,&vxs,&vys);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_slow=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    for(int r=0;r<REPS;r++) fast_hr2_v007(X,Y,N,&mxf,&myf,&vxf,&vyf);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_fast=((t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6)/REPS;
+    double ref=fabs((double)mxs)+1e-12;
+    int correct=fabs((double)(mxs-mxf))<1e-7*ref&&fabs((double)(mys-myf))<1e-7*(fabs((double)mys)+1e-12)
+        &&fabs((double)(vxs-vxf))<1e-7*(fabs((double)vxs)+1e-12)&&fabs((double)(vys-vyf))<1e-7*(fabs((double)vys)+1e-12);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    free(X);free(Y);return correct?0:1;
 }

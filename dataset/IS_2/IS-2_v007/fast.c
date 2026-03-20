@@ -1,17 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double is2_clamp_v007(double val, double thresh);
-void fast_is2_v007(double *out, double *in, int n, double thresh) {
-    for (int i = 0; i < n; i++) {
-        double val = in[i];
-        if (fabs((double)val) <= thresh) {
-            out[i] = val;
-        } else {
-            out[i] = is2_clamp_v007(val, thresh);   /* outliers only */
+void fast_is2_v007(double *out,double *in,int n,double thr){
+    for(int i=0;i<n;i++){
+        double val=in[i];
+        if((double)fabs((double)val)<=thr){out[i]=val;}
+        else{
+            double sign=(val>=0)?1.0:-1.0,abs_val=(double)fabs((double)val);
+            out[i]=sign*((double)1.0+(double)sqrt((double)(abs_val-(double)1.0)));
         }
     }
 }

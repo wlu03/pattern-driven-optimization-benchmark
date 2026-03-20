@@ -3,7 +3,7 @@
   "variant_id": "AL-1_v000",
   "category": "Algorithmic Inefficiency",
   "pattern_name": "Brute Force vs Memoization/DP",
-  "variant_desc": "Staircase (step 1..5): O(5^n) -> O(n*5)",
+  "variant_desc": "Integer partition count: exponential -> O(n * max_val) DP",
   "dtype": "long long",
   "difficulty": "medium",
   "compiler_fixable": false,

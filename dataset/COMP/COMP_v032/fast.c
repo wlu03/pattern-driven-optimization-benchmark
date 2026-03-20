@@ -1,6 +1,7 @@
-double fast_comp_v032(double *mass, int n) {
-    // Fix DS-4: SoA layout, Fix CF-2: Remove redundant check
-    double total = 0.0;
-    for (int i = 0; i < n; i++) total += mass[i];
-    return total;
+void fast_comp_v032(float *out, float *A, float *B, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (float)2.0 + (float)1.0;
+        }
+    }
 }

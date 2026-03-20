@@ -1,22 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-float fn_relu_v006(float x);
-float fn_square_v006(float x);
-float fn_scale_v006(float x);
-float fn_negate_v006(float x);
-
-void fast_cf4_v006(float *out, float *in, int n, float (*fn)(float)) {
-    if      (fn == fn_relu_v006)   { for (int i=0;i<n;i++) out[i]=in[i]>(float)0?in[i]:(float)0; }
-    else if (fn == fn_square_v006) { for (int i=0;i<n;i++) out[i]=in[i]*in[i]; }
-    else if (fn == fn_scale_v006)  { for (int i=0;i<n;i++) out[i]=in[i]*(float)1.5; }
-    else if (fn == fn_negate_v006) { for (int i=0;i<n;i++) out[i]=-in[i]; }
-    else                            { for (int i=0;i<n;i++) out[i]=fn(in[i]); }
+void fast_cf4_v006(double *out,double *in,int n,int tag){
+    if(tag==0){for(int i=0;i<n;i++) out[i]=in[i]>0.0?in[i]:0.0;}
+    else if(tag==1){for(int i=0;i<n;i++) out[i]=in[i]*in[i];}
+    else{for(int i=0;i<n;i++) out[i]=in[i]*1.5;}
 }
-float fn_relu_v006(float x)   { return x > (float)0 ? x : (float)0; }
-float fn_square_v006(float x) { return x * x; }
-float fn_scale_v006(float x)  { return x * (float)1.5; }
-float fn_negate_v006(float x) { return -x; }

@@ -1,23 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+typedef struct{int key,val,occ;} HTE_v013;
 
-__attribute__((noinline))
-void ds1_build_v013(int *hk, int *hv, int *ho, int hs, int *keys, int *values, int n);
-
-int fast_ds1_v013(int *hk, int *hv, int *ho, int hs, int target) {
-    unsigned h = (unsigned)target & (unsigned)(hs - 1);
-    while (ho[h]) {
-        if (hk[h] == target) return hv[h];
-        h = (h + 1) & (unsigned)(hs - 1);
+int fast_ds1_v013(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    HTE_v013 *ht=(HTE_v013*)calloc(65536,sizeof(HTE_v013));
+    for(int i=0;i<n_keys;i++){
+        int h=(unsigned int)keys[i]&65535;
+        while(ht[h].occ) h=(h+1)&65535;
+        ht[h].key=keys[i];ht[h].val=vals[i];ht[h].occ=1;
     }
-    return -1;
-}
-void ds1_build_v013(int *hk, int *hv, int *ho, int hs, int *keys, int *values, int n) {
-    for (int i = 0; i < n; i++) {
-        unsigned h = (unsigned)keys[i] & (unsigned)(hs - 1);
-        while (ho[h]) h = (h + 1) & (unsigned)(hs - 1);
-        hk[h] = keys[i]; hv[h] = values[i]; ho[h] = 1;
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        int h=(unsigned int)queries[q]&65535;
+        while(ht[h].occ){if(ht[h].key==queries[q]){total+=ht[h].val;break;}h=(h+1)&65535;}
     }
+    free(ht);
+    return total;
 }

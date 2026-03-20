@@ -1,12 +1,13 @@
-#include <math.h>
-float penalty(float a, float b);
-__attribute__((noinline))
-float fast_sr2_v012(float *X, float *Y, int n, float alpha, float beta) {
-    float sumXsq = 0.0;
-    float sumY = 0.0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
+double fast_sr2_v012(double *X, double *Y, int n, double alpha, double beta, double gamma) {
+    double sumY = 0.0;
+    double sumX = 0.0;
+    double sumXcb = 0.0;
+    int i = 0;
+    while (i < n) {
         sumY += Y[i];
+        sumX += X[i];
+        sumXcb += X[i] * X[i] * X[i];
+        i++;
     }
-    return alpha * sumXsq + beta * sumY + (double)n * penalty(alpha, beta);
+    return gamma * sumY + beta * sumX + (double)n * beta + alpha * sumXcb + (double)n * alpha;
 }

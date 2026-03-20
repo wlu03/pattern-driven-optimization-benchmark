@@ -1,9 +1,9 @@
-#include <math.h>
-__attribute__((noinline))
-void slow_mi4_v004(double *matrix, int rows, int cols) {
+float slow_mi4_v004(float *matrix, int rows, int cols) {
+    float total = 0;
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            matrix[i * cols + j] = (double)sin((double)matrix[i * cols + j]);
+            total += matrix[i * cols + j];
         }
     }
+    return total;
 }

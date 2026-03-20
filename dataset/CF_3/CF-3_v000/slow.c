@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-static float __attribute__((noinline)) cf3_guarded_v000(float x) {
-    return (x > (float)0) ? (x * x - x) : ((float)0);
+static double __attribute__((noinline)) cf3_guard_v000(double x){
+    return x>0.0?x*x+x*0.25+1.0:0.0;
 }
-void slow_cf3_v000(float *out, float *in, int n) {
-    for (int i = 0; i < n; i++)
-        out[i] = cf3_guarded_v000(in[i]);
+
+void slow_cf3_v000(double *out,double *in,int n){
+    for(int i=0;i<n;i++) out[i]=cf3_guard_v000(in[i]);
 }

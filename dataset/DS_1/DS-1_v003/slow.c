@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-int slow_ds1_v003(int *keys, int *values, int n, int target) {
-    for (int i = 0; i < n; i++) {
-        if (keys[i] == target) return values[i];
+int slow_ds1_v003(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
     }
-    return -1;
+    return total;
 }

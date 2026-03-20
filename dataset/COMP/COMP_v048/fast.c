@@ -1,9 +1,15 @@
-double fast_comp_v048(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0.0;
-    // Fix SR-4: Hoist invariant call
-    double factor = config_val_v048(key);
-    // Fix HR-4: Remove redundant checks
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+#include <math.h>
+static __attribute__((noinline)) float compute_v048(int key){
+    volatile double _k=(double)key; /* block pure/const inference */
+    float r=0;
+    for(int i=0;i<50;i++) r+=(float)sin(_k+(double)i);
+    return r;
+}
+void fast_comp_v048(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v048(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+    }
 }

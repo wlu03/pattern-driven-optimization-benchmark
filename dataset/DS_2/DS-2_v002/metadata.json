@@ -1,14 +1,14 @@
 {
   "pattern_id": "DS-2",
   "variant_id": "DS-2_v002",
-  "category": "Data Structure Choice",
+  "category": "Data Structure",
   "pattern_name": "Repeated Allocation vs Pre-allocation",
-  "variant_desc": "chunk=8, op=identity, double, n=10000000",
+  "variant_desc": "double, n=2000000, chunk=256",
   "dtype": "double",
-  "difficulty": "easy",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 2,
-  "num_arrays": 2,
+  "num_arrays": 1,
   "lines_of_code": 12,
   "expected_speedup_range": "2x-10x",
   "composition": []

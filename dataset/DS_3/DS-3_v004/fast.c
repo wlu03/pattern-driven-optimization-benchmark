@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+typedef struct{double data[64];int size;} BS_v004;
 
-__attribute__((noinline))
-void fast_ds3_v004(double *out, double *A, double *B, int n) {
-    for (int i = 0; i < n; i++) {
-        double t = A[i] - B[i];
-        out[i] = (t * 0.5 - B[i]) * A[i];
-    }
-}
+double fast_ds3_v004(const BS_v004 *s){double sum=0;for(int i=0;i<s->size;i++) sum+=s->data[i];return sum;}

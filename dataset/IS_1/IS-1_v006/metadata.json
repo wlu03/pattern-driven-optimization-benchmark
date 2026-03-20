@@ -3,13 +3,13 @@
   "variant_id": "IS-1_v006",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Sparse Data Redundancy",
-  "variant_desc": "sparse 99%, noinline kernel, double, N=1000000",
-  "dtype": "double",
+  "variant_desc": "Sparse dot product (50% zeros), skip zero pairs, float",
+  "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 2,
-  "lines_of_code": 6,
-  "expected_speedup_range": "20x-100x",
+  "lines_of_code": 10,
+  "expected_speedup_range": "2x",
   "composition": []
 }

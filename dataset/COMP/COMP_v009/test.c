@@ -1,37 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
-
-typedef struct { int x,y,z,vx,vy,vz,mass,charge; } P_v009;
+#define ROWS 3000
+#define COLS 3000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    int n = 5000000;
-    P_v009 *p = malloc(n * sizeof(P_v009));
-    int *mass = malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++) {
-        p[i].mass = (int)(i % 100 + 1) * 0.01;
-        mass[i] = p[i].mass;
-    }
-    int r_slow = 0, r_fast = 0;
-    struct timespec t0, t1;
-    int n_reps = 3;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_slow = slow_comp_v009(p, n);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    for (int r = 0; r < n_reps; r++) r_fast = fast_comp_v009(mass, n);
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = ((t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6) / n_reps;
-    double rel = fabs((double)(r_slow - r_fast)) / fmax(fabs((double)r_slow), 1.0);
-    int correct = rel < 1e-4;
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
-           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
-    free(p); free(mass);
-    return 0;
+    int total=ROWS*COLS;
+    float *ms=malloc(total*sizeof(float)),*mf=malloc(total*sizeof(float));
+    for(int k=0;k<total;k++) ms[k]=(float)((k%100)+1)*0.1f;
+    memcpy(mf,ms,total*sizeof(float));
+    int mode=1;
+    struct timespec t0,t1;
+    clock_gettime(CLOCK_MONOTONIC,&t0); slow_comp_v009(ms,ROWS,COLS,mode); clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
+    clock_gettime(CLOCK_MONOTONIC,&t0); fast_comp_v009(mf,ROWS,COLS,mode); clock_gettime(CLOCK_MONOTONIC,&t1);
+    double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
+    int correct=1;
+    for(int k=0;k<total;k++){double d=fabs((double)(ms[k]-mf[k]));if(d>1e-6){correct=0;break;}}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    free(ms);free(mf);return correct?0:1;
 }

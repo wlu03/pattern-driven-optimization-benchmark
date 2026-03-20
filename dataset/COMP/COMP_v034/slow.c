@@ -1,12 +1,18 @@
-typedef struct { double x,y,z,vx,vy,vz,mass,charge; } P_v034;
-double slow_comp_v034(P_v034 *p, int n) {
-    double total = 0.0;
+#include <math.h>
+static __attribute__((noinline)) float compute_v034(int key){
+    volatile double _k=(double)key; /* block pure/const inference */
+    float r=0;
+    for(int i=0;i<50;i++) r+=(float)sin(_k+(double)i);
+    return r;
+}
+void slow_comp_v034(float *out, float *A, int n, int key, int mode) {
     for (int i = 0; i < n; i++) {
-        // Pattern CF-2: Redundant bounds check
-        if (i >= 0 && i < n) {
-            // Pattern DS-4: AoS access for single field
-            total += p[i].mass;
-        }
+        float factor = compute_v034(key);
+        float t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        float t2 = t1 + (float)1.0;
+        float t3 = t2;
+        out[i] = t3;
     }
-    return total;
 }

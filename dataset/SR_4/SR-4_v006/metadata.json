@@ -3,13 +3,13 @@
   "variant_id": "SR-4_v006",
   "category": "Semantic Redundancy",
   "pattern_name": "Invariant Function Call in Loop",
-  "variant_desc": "power_tower function, 3 invariant calls, work=500, double, while-loop, additive apply",
+  "variant_desc": "exp_chain function, 2 invariant calls, work=50, double",
   "dtype": "double",
   "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 18,
+  "lines_of_code": 16,
   "expected_speedup_range": "100x-1000x",
   "composition": []
 }

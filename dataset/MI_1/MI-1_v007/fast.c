@@ -1,16 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double fast_mi1_v007(double *input, int n, int win) {
-    double total = 0.0, sum = 0.0;
-    for (int j = 0; j < win; j++) sum += input[j];
-    total += sum / win;
-    for (int i = 1; i <= n - win; i++) {
-        sum += input[i + win - 1] - input[i - 1];
-        total += sum / win;
+double fast_mi1_v007(double *input,int n,int window){
+    double total=0.0,sum=0.0;
+    for(int j=0;j<window;j++) sum+=input[j];
+    total+=sum/window;
+    for(int i=1;i<=n-window;i++){
+        sum+=input[i+window-1]-input[i-1];
+        total+=sum/window;
     }
     return total;
 }

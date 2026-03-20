@@ -3,7 +3,7 @@
   "variant_id": "COMP_v016",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "Triple: invariant call + branch + temps, float",
+  "variant_desc": "Noinline penalty + temp decomposition, float",
   "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,
@@ -12,8 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "SR-4",
-    "CF-1",
+    "SR-2",
     "HR-1"
   ]
 }

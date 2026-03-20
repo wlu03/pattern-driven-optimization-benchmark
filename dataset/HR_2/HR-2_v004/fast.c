@@ -1,11 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-void fast_hr2_v004(float *X, float *Y, int n, float *min_x, float *max_x, float *min_y, float *max_y) {
-    float mnX=X[0],mxX=X[0]; float mnY=Y[0],mxY=Y[0];
-    for(int i=1;i<n;i++) { if(X[i]<mnX) mnX=X[i]; if(X[i]>mxX) mxX=X[i]; if(Y[i]<mnY) mnY=Y[i]; if(Y[i]>mxY) mxY=Y[i]; }
-    *min_x=mnX; *max_x=mxX; *min_y=mnY; *max_y=mxY;
+void fast_hr2_v004(float *X,float *Y,int n,
+    float *mx,float *my,float *vx,float *vy){
+    float sx=0,sy=0;
+    for(int i=0;i<n;i++){sx+=X[i];sy+=Y[i];}
+    *mx=sx/n; *my=sy/n;
+    float mvx=*mx,mvy=*my,vsx=0,vsy=0;
+    for(int i=0;i<n;i++){float dx=X[i]-mvx,dy=Y[i]-mvy;vsx+=dx*dx;vsy+=dy*dy;}
+    *vx=vsx/n; *vy=vsy/n;
 }

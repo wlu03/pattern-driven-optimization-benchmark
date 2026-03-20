@@ -1,32 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
 typedef struct {
-    double id;
-    double timestamp;
-    double value;
-    double weight;
-    double category;
-    double flags;
-    double score;
-    double rank;
-    double pad0;
-    double pad1;
-    double pad2;
-    double pad3;
-    double pad4;
-    double pad5;
-    double pad6;
-    double pad7;
+    float temp;
+    float humidity;
+    double pressure;
+    float wind_speed;
+    float wind_dir;
+    int light;
+    int noise;
+    float co2;
 } AoS_v002;
 
 double slow_ds4_v002(AoS_v002 *arr, int n) {
-    double total_id = 0.0;
+    double total_temp = 0.0;
+    double total_humidity = 0.0;
+    double total_light = 0.0;
     for (int i = 0; i < n; i++) {
-        total_id += (double)arr[i].id;
+        total_temp += (double)arr[i].temp;
+        total_humidity += (double)arr[i].humidity;
+        total_light += (double)arr[i].light;
     }
-    return total_id;
+    return total_temp + total_humidity + total_light;
 }

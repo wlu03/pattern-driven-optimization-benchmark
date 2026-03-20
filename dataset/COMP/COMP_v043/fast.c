@@ -1,11 +1,14 @@
-void fast_comp_v043(double *mat, double *col_avgs, int rows, int cols) {
-    // Fix MI-4: Row-major access order
-    // Fix SR-3: Running accumulator instead of recomputation
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0.0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
-    }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= rows;
+#include <math.h>
+#include <stdlib.h>
+static float config_val_v043(int key){
+    float r=0;
+    for(int i=0;i<100;i++) r+=(float)sin((double)(key+i));
+    return r;
+}
+float fast_comp_v043(float *arr, int n, int key) {
+    if (arr == NULL || n <= 0) return 0;
+    float factor = config_val_v043(key);
+    float sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

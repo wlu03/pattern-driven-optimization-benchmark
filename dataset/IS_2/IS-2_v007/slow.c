@@ -1,14 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <string.h>
-
-__attribute__((noinline))
-double is2_clamp_v007(double val, double thresh);
-void slow_is2_v007(double *out, double *in, int n, double thresh) {
-    for (int i = 0; i < n; i++) {
-        double val = in[i];
-        double clamped = is2_clamp_v007(val, thresh);   /* always called */
-        out[i] = (fabs((double)val) > thresh) ? clamped : val;
+void slow_is2_v007(double *out,double *in,int n,double thr){
+    for(int i=0;i<n;i++){
+        double val=in[i],sign=(val>=0)?1.0:-1.0,abs_val=(double)fabs((double)val);
+        out[i]=(abs_val>thr)?sign*((double)1.0+(double)sqrt((double)(abs_val-(double)1.0))):val;
     }
 }
