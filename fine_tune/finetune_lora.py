@@ -35,6 +35,7 @@ def main():
     parser.add_argument("--batch",  type=int, default=2)
     parser.add_argument("--grad_accum", type=int, default=8)
     parser.add_argument("--lr",     type=float, default=2e-4)
+    parser.add_argument("--resume", action="store_true", help="Resume from latest checkpoint in output dir")
     args = parser.parse_args()
 
     # ── Load model + tokenizer ──────────────────────────────────────────────
@@ -120,7 +121,7 @@ def main():
         response_part    = "<|im_start|>assistant\n",
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume or None)
 
     # ── Save LoRA adapter ───────────────────────────────────────────────────
     model.save_pretrained(args.output)
