@@ -1,7 +1,8 @@
-long long slow_al1_v006(int n) {
-    if (n <= 1) return 1;
-    long long res = 0;
-    for (int i = 0; i < n; i++)
-        res += slow_al1_v006(i) * slow_al1_v006(n - 1 - i);
-    return res;
+int slow_al1_v006(int *grid, int m, int n, int r, int c) {
+    if (r == 0 && c == 0) return grid[0];
+    if (r < 0 || c < 0) return 999999999;
+    int up = slow_al1_v006(grid, m, n, r-1, c);
+    int left = slow_al1_v006(grid, m, n, r, c-1);
+    int best = (up < left) ? up : left;
+    return grid[r * n + c] + best;
 }

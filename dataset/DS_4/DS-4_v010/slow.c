@@ -6,12 +6,15 @@ typedef struct {
     float ny;
     float nz;
     float u;
+    float v;
 } AoS_v010;
 
 double slow_ds4_v010(AoS_v010 *arr, int n) {
-    double total_py = -1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].py > total_py) total_py = (double)arr[i].py;
+    double total_ny = -1e308;
+    int i = 0;
+    while (i < n) {
+        if ((double)arr[i].ny > total_ny) total_ny = (double)arr[i].ny;
+        i++;
     }
-    return total_py;
+    return total_ny;
 }

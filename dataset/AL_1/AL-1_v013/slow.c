@@ -1,7 +1,5 @@
 long long slow_al1_v013(int n) {
-    if (n <= 1) return 1;
-    long long res = 0;
-    for (int i = 0; i < n; i++)
-        res += slow_al1_v013(i) * slow_al1_v013(n - 1 - i);
-    return res;
+    if (n == 0) return 0;
+    if (n <= 2) return 1;
+    return slow_al1_v013(n-1) + slow_al1_v013(n-2) + slow_al1_v013(n-3);
 }

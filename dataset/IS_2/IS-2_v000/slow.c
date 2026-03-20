@@ -1,7 +1,8 @@
 #include <math.h>
-void slow_is2_v000(float *out,float *in,int n,float thr){
+double is2_expensive_v000(double val, double thr);
+
+void slow_is2_v000(double *out,double *in,int n,double thr){
     for(int i=0;i<n;i++){
-        float val=in[i],sign=(val>=0)?1.0f:-1.0f,abs_val=(float)fabs((double)val);
-        out[i]=(abs_val>thr)?sign*((float)1.0*(1.0f+(float)exp((double)(abs_val-(float)1.0)-1.0))):val;
+        out[i]=is2_expensive_v000(in[i],thr);
     }
 }

@@ -1,15 +1,11 @@
-int fast_sr_1_v010(int *A, int *B, int *C, int *D, int rows, int cols, int k0) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        sum_A += A[row * cols + col];
-        sum_B += B[row * cols + col];
-        sum_C += C[row * cols + col];
-        sum_D += D[row * cols + col];
-        }
+float expensive_sr1_v010(int key);
+
+void fast_sr1_v010(float *arr, int n, int key0, int key1, int key2, int key3) {
+    float f0 = expensive_sr1_v010(key0);
+    float f1 = expensive_sr1_v010(key1);
+    float f2 = expensive_sr1_v010(key2);
+    float f3 = expensive_sr1_v010(key3);
+    for (int i = 0; i < n; i++) {
+        arr[i] *= f0 * f1 * f2 * f3;
     }
-    return ((int)rows * cols * k0 - sum_A) + sum_B + sum_C + sum_D;
 }

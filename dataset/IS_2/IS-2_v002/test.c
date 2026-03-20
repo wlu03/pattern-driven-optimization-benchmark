@@ -12,7 +12,7 @@ int main() {
     float *in=malloc(N*sizeof(float)),*os=malloc(N*sizeof(float)),*of=malloc(N*sizeof(float));
     srand(42);
     for(int i=0;i<N;i++) in[i]=(rand()%100<2)?((float)(rand()%40+20)):(((float)(rand()%200)-100)*0.01f);
-    float thr=(float)2.0;
+    float thr=(float)1.0;
     struct timespec t0,t1;
     clock_gettime(CLOCK_MONOTONIC,&t0); slow_is2_v002(os,in,N,thr); clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;

@@ -1,7 +1,10 @@
-double slow_sr_1_v012(double *A, double *B, int n, double k0) {
-    double total = 0.0;
-    for (int i = 0; i < n; i++) {
-        total += (k0 - A[i]) + B[i];
+float expensive_sr1_v012(int key);
+
+void slow_sr1_v012(float *arr, int n, int key) {
+    int i = 0;
+    while (i < n) {
+        float f0 = expensive_sr1_v012(key);
+        arr[i] += f0;
+        i++;
     }
-    return total;
 }

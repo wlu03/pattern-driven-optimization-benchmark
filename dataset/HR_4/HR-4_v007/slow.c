@@ -1,5 +1,7 @@
-float slow_hr4_v007(float *arr,int n){
-    float sum=0;
-    for(int i=0;i<n;i++){if(arr==NULL)continue;if(n<=0)break;if(i<0||i>=n)continue;if(arr[i]!=arr[i])continue;sum+=arr[i]*(float)2.0f+(float)1.0f;}
+double hr4_check_v007(double *arr, int idx, int n);
+
+double slow_hr4_v007(double *arr,int n){
+    double sum=0;
+    for(int i=0;i<n;i++) sum+=hr4_check_v007(arr,i,n);
     return sum;
 }

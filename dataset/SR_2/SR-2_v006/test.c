@@ -1,22 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-float slow_sr2_v006(float *X, float *Y, float *Z, float *W, int n, float alpha, float beta);
-float fast_sr2_v006(float *X, float *Y, float *Z, float *W, int n, float alpha, float beta);
+#include <time.h>
+
+#define N 20000000
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {
-    int n = 5000000;
-    float *X = malloc(5000000 * sizeof(float)); for (int k = 0; k < 5000000; k++) X[k] = (float)(k % 100) * 0.01f;
-    float *Y = malloc(5000000 * sizeof(float)); for (int k = 0; k < 5000000; k++) Y[k] = (float)(k % 100) * 0.01f;
-    float *Z = malloc(5000000 * sizeof(float)); for (int k = 0; k < 5000000; k++) Z[k] = (float)(k % 100) * 0.01f;
-    float *W = malloc(5000000 * sizeof(float)); for (int k = 0; k < 5000000; k++) W[k] = (float)(k % 100) * 0.01f;
-    float r_slow = slow_sr2_v006(X, Y, Z, W, n, 2.5, 1.7);
-    float r_fast = fast_sr2_v006(X, Y, Z, W, n, 2.5, 1.7);
+    double *X = malloc(N * sizeof(double));
+    for (int k = 0; k < N; k++) X[k] = (double)(k % 100) * 0.01;
+    double *Y = malloc(N * sizeof(double));
+    for (int k = 0; k < N; k++) Y[k] = (double)(k % 100) * 0.01;
+    double *Z = malloc(N * sizeof(double));
+    for (int k = 0; k < N; k++) Z[k] = (double)(k % 100) * 0.01;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    double r_slow = slow_sr2_v006(X, Y, Z, N, 2.5);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    double r_fast = fast_sr2_v006(X, Y, Z, N, 2.5);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
     double diff = fabs((double)(r_slow - r_fast));
-    double rel = (fabs((double)r_slow) > 1e-15) ? diff / fabs((double)r_slow) : diff;
-    printf("slow=%g fast=%g rel_err=%g %s\n", (double)r_slow, (double)r_fast, rel, rel < 1e-4 ? "PASS" : "FAIL");
+    double mag = fmax(fabs((double)r_slow), 1e-12);
+    int correct = (diff / mag < 1e-4) || (diff < 1e-9);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+
     free(X);
     free(Y);
     free(Z);
-    free(W);
-    return rel < 1e-4 ? 0 : 1;
+    return 0;
 }

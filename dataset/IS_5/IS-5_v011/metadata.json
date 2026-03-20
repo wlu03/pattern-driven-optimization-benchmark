@@ -3,7 +3,7 @@
   "variant_id": "IS-5_v011",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Runtime Alias Check for Restrict Fast-Path",
-  "variant_desc": "quadratic expr, float, n=2000000",
+  "variant_desc": "quadratic expr, float, n=10000000",
   "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,

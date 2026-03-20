@@ -1,7 +1,8 @@
-void slow_is1_v001(float *C, float *a, float *b, int m, int n) {
+void slow_is1_v001(double *y, double *A, double *x, int m, int n) {
     for (int i = 0; i < m; i++) {
+        y[i] = 0.0;
         for (int j = 0; j < n; j++) {
-            C[i * n + j] += a[i] * b[j];
+            y[i] += A[i * n + j] * x[j];
         }
     }
 }

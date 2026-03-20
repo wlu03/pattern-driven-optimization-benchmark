@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+#define N 5000000
 
 // SLOW_CODE_HERE
 
@@ -11,7 +11,7 @@
 int main() {
     double *in=malloc(N*sizeof(double)),*os=malloc(N*sizeof(double)),*of=malloc(N*sizeof(double));
     srand(42);
-    for(int i=0;i<N;i++) in[i]=(rand()%100<2)?((double)(rand()%40+20)):(((double)(rand()%200)-100)*0.01);
+    for(int i=0;i<N;i++) in[i]=(rand()%100<1)?((double)(rand()%40+20)):(((double)(rand()%200)-100)*0.01);
     double thr=(double)0.5;
     struct timespec t0,t1;
     clock_gettime(CLOCK_MONOTONIC,&t0); slow_is2_v008(os,in,N,thr); clock_gettime(CLOCK_MONOTONIC,&t1);

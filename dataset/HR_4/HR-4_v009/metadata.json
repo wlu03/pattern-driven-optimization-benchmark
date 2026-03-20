@@ -3,7 +3,7 @@
   "variant_id": "HR-4_v009",
   "category": "Human-Style Antipatterns",
   "pattern_name": "Overly Defensive Checks in Hot Loop",
-  "variant_desc": "sum, double, n=5000000",
+  "variant_desc": "scale_sum, double, n=5000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

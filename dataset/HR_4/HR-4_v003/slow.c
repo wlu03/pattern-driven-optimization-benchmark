@@ -1,5 +1,7 @@
-double slow_hr4_v003(double *A,double *B,int n){
-    double sum=0;
-    for(int i=0;i<n;i++){if(A==NULL||B==NULL)continue;if(i<0||i>=n)continue;if(A[i]!=A[i]||B[i]!=B[i])continue;sum+=A[i]*B[i];}
+float hr4_check_v003(float *arr, int idx, int n);
+
+float slow_hr4_v003(float *arr,int n){
+    float sum=0;
+    for(int i=0;i<n;i++) sum+=hr4_check_v003(arr,i,n);
     return sum;
 }

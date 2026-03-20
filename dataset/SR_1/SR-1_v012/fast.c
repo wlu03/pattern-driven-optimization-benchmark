@@ -1,9 +1,10 @@
-double fast_sr_1_v012(double *A, double *B, int n, double k0) {
-    double sum_A = 0.0;
-    double sum_B = 0.0;
-    for (int i = 0; i < n; i++) {
-        sum_A += A[i];
-        sum_B += B[i];
+float expensive_sr1_v012(int key);
+
+void fast_sr1_v012(float *arr, int n, int key) {
+    float f0 = expensive_sr1_v012(key);
+    int i = 0;
+    while (i < n) {
+        arr[i] += f0;
+        i++;
     }
-    return ((double)n * k0 - sum_A) + sum_B;
 }

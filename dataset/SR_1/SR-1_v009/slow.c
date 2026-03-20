@@ -1,7 +1,10 @@
-double slow_sr_1_v009(double *A, double *B, double *C, double *D, int n, double k0) {
-    double total = 0.0;
+double expensive_sr1_v009(int key);
+
+void slow_sr1_v009(double *arr, int n, int key0, int key1, int key2) {
     for (int i = 0; i < n; i++) {
-        total += (k0 + cos(A[i])) + cos(B[i]) + cos(C[i]) + cos(D[i]);
+        double f0 = expensive_sr1_v009(key0);
+        double f1 = expensive_sr1_v009(key1);
+        double f2 = expensive_sr1_v009(key2);
+        arr[i] += f0 * f1 * f2;
     }
-    return total;
 }

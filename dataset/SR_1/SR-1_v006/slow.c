@@ -1,9 +1,11 @@
-float slow_sr_1_v006(float *A, float *B, float *C, int rows, int cols, float k0, float k1, float k2) {
-    float total = 0.0f;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-        total += (k0 * A[row * cols + col]) + (k1 * B[row * cols + col]) + (k2 * C[row * cols + col]);
-        }
+float expensive_sr1_v006(int key);
+
+void slow_sr1_v006(float *arr, int n, int key0, int key1, int key2, int key3) {
+    for (int i = 0; i < n; i++) {
+        float f0 = expensive_sr1_v006(key0);
+        float f1 = expensive_sr1_v006(key1);
+        float f2 = expensive_sr1_v006(key2);
+        float f3 = expensive_sr1_v006(key3);
+        arr[i] *= f0 * f1 * f2 * f3;
     }
-    return total;
 }

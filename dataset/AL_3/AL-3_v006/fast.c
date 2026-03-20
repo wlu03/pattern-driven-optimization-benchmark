@@ -1,3 +1,4 @@
+#include <stdlib.h>
 static void build_fail_v006(int *pat,int pn,int *fail){
     fail[0]=0; int k=0;
     for(int i=1;i<pn;i++){

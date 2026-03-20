@@ -1,18 +1,20 @@
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
-    float co2;
+    int id;
+    double timestamp;
+    double value;
+    float weight;
+    int category;
+    int flags;
+    double score;
+    int rank;
 } AoS_v004;
 
 double slow_ds4_v004(AoS_v004 *arr, int n) {
-    double total_light = 1e308;
+    double total_weight = 0.0;
+    double total_rank = 0.0;
     for (int i = 0; i < n; i++) {
-        if ((double)arr[i].light < total_light) total_light = (double)arr[i].light;
+        total_weight += (double)arr[i].weight;
+        total_rank += (double)arr[i].rank;
     }
-    return total_light;
+    return total_weight + total_rank;
 }

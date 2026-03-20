@@ -1,8 +1,13 @@
-long long fast_al1_v006(int n) {
-    long long *dp = calloc(n+1, sizeof(long long));
-    dp[0] = dp[1] = 1;
-    for (int i = 2; i <= n; i++)
-        for (int j = 0; j < i; j++)
-            dp[i] += dp[j] * dp[i - 1 - j];
-    long long res = dp[n]; free(dp); return res;
+int fast_al1_v006(int *grid, int m, int n, int r_unused, int c_unused) {
+    int *dp = calloc(m * n, sizeof(int));
+    dp[0] = grid[0];
+    for (int j = 1; j < n; j++) dp[j] = dp[j-1] + grid[j];
+    for (int i = 1; i < m; i++) {
+        dp[i*n] = dp[(i-1)*n] + grid[i*n];
+        for (int j = 1; j < n; j++) {
+            int up = dp[(i-1)*n + j], left = dp[i*n + j - 1];
+            dp[i*n + j] = grid[i*n + j] + ((up < left) ? up : left);
+        }
+    }
+    int res = dp[m*n - 1]; free(dp); return res;
 }

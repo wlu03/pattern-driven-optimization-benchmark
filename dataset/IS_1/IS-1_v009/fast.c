@@ -1,8 +1,9 @@
-float fast_is1_v009(float *A, float *B, int n) {
-    float sum = 0.0f;
-    for (int i = 0; i < n; i++) {
-        if (A[i] == 0.0f || B[i] == 0.0f) continue;
-        sum += A[i] * B[i];
+void fast_is1_v009(double *y, double *A, double *x, int m, int n) {
+    for (int i = 0; i < m; i++) {
+        y[i] = 0.0;
+        for (int j = 0; j < n; j++) {
+            if (A[i * n + j] == 0.0) continue;
+            y[i] += A[i * n + j] * x[j];
+        }
     }
-    return sum;
 }

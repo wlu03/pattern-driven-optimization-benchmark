@@ -1,8 +1,7 @@
-long long fast_al1_v002(int n, int k) {
-    long long *dp = calloc(k+1, sizeof(long long));
-    dp[0] = 1;
-    for (int i = 1; i <= n; i++)
-        for (int j = (i < k ? i : k); j > 0; j--)
-            dp[j] += dp[j-1];
-    long long res = dp[k]; free(dp); return res;
+long long fast_al1_v002(int n) {
+    if (n == 0) return 0;
+    if (n <= 2) return 1;
+    long long a=0, b=1, c=1;
+    for (int i=3; i<=n; i++) { long long t=a+b+c; a=b; b=c; c=t; }
+    return c;
 }

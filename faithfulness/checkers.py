@@ -951,7 +951,7 @@ class HR4Checker(PatternChecker):
 
     def _regex_check(self, slow_code, model_output):
         passed, failed = [], []
-        # Null/bounds check before loop
+        # Form A: Null/bounds check before loop
         has_pre_guard = bool(re.search(
             r'(?:if\s*\([^)]*(?:NULL|null|== 0|<= 0|!= NULL)[^)]*\)[^{]*\{[^}]*return[^}]*\}'
             r'|if\s*\([^)]*NULL[^)]*\)\s*return)',
@@ -971,6 +971,14 @@ class HR4Checker(PatternChecker):
             passed.append("defensive checks removed from loop body")
         elif slow_in_loop_ifs > 0:
             failed.append("defensive checks still inside loop")
+        # Form B: Slow calls a noinline check helper per iteration; fast skips it
+        if not passed and not failed:
+            # Check if slow calls a user function inside loop that fast doesn't
+            slow_user_calls = set(re.findall(r'\b(hr4_\w+|check_\w+)\s*\(', slow_code))
+            out_user_calls = set(re.findall(r'\b(hr4_\w+|check_\w+)\s*\(', model_output))
+            eliminated = slow_user_calls - out_user_calls
+            if eliminated:
+                passed.append(f"check function(s) {sorted(eliminated)} eliminated from fast path")
         return _result(passed, failed)
 
 

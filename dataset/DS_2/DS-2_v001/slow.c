@@ -1,10 +1,14 @@
-void slow_ds2_v001(double *results,double *input,int n,int chunk){
+#include <stdlib.h>
+void* ds2_alloc_v001(int n);
+void ds2_free_v001(void *p);
+
+void slow_ds2_v001(float *results,float *input,int n,int chunk){
     for(int i=0;i<n;i+=chunk){
         int sz=(i+chunk<=n)?chunk:(n-i);
-        double *tmp=(double*)malloc(sz*sizeof(double));
+        float *tmp=(float*)ds2_alloc_v001(sz*(int)sizeof(float));
         for(int j=0;j<sz;j++) tmp[j]=input[i+j]*input[i+j];
-        double sum=0; for(int j=0;j<sz;j++) sum+=tmp[j];
+        float sum=0; for(int j=0;j<sz;j++) sum+=tmp[j];
         results[i/chunk]=sum;
-        free(tmp);
+        ds2_free_v001(tmp);
     }
 }

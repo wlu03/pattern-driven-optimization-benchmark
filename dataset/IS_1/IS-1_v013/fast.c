@@ -1,7 +1,8 @@
-void fast_is1_v013(float *y, float *x, float alpha, int n) {
-    if (alpha == 0.0f) return;
+double fast_is1_v013(double *A, double *B, int n) {
+    double sum = 0.0;
     for (int i = 0; i < n; i++) {
-        if (x[i] == 0.0f) continue;
-        y[i] += alpha * x[i];
+        if (A[i] == 0.0 || B[i] == 0.0) continue;
+        sum += A[i] * B[i];
     }
+    return sum;
 }

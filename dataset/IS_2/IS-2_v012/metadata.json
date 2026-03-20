@@ -3,7 +3,7 @@
   "variant_id": "IS-2_v012",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Unconditional Expensive Call on Skewed Data",
-  "variant_desc": "exp_clamp transform, 2% outliers, double, n=5000000",
+  "variant_desc": "sqrt_offset transform, 1% outliers, double, n=10000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,

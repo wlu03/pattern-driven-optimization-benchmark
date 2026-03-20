@@ -1,8 +1,9 @@
-#include <math.h>
-void slow_mi4_v014(float *matrix, int rows, int cols) {
+double slow_mi4_v014(double *matrix, int rows, int cols) {
+    double total = 0;
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            matrix[i * cols + j] = (float)('sqrt', 'math')((double)matrix[i * cols + j]);
+            total += matrix[i * cols + j];
         }
     }
+    return total;
 }

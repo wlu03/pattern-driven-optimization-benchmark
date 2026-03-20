@@ -1,9 +1,9 @@
-void fast_is1_v001(float *C, float *a, float *b, int m, int n) {
+void fast_is1_v001(double *y, double *A, double *x, int m, int n) {
     for (int i = 0; i < m; i++) {
-        if (a[i] == 0.0f) continue;
+        y[i] = 0.0;
         for (int j = 0; j < n; j++) {
-            if (b[j] == 0.0f) continue;
-            C[i * n + j] += a[i] * b[j];
+            if (A[i * n + j] == 0.0) continue;
+            y[i] += A[i * n + j] * x[j];
         }
     }
 }

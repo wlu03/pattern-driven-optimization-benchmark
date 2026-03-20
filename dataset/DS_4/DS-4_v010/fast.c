@@ -1,7 +1,9 @@
-double fast_ds4_v010(double *py, int n) {
-    double total_py = -1e308;
-    for (int i = 0; i < n; i++) {
-        if (py[i] > total_py) total_py = py[i];
+double fast_ds4_v010(double *ny, int n) {
+    double total_ny = -1e308;
+    int i = 0;
+    while (i < n) {
+        if (ny[i] > total_ny) total_ny = ny[i];
+        i++;
     }
-    return total_py;
+    return total_ny;
 }

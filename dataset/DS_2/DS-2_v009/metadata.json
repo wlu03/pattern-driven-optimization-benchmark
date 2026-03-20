@@ -3,7 +3,7 @@
   "variant_id": "DS-2_v009",
   "category": "Data Structure",
   "pattern_name": "Repeated Allocation vs Pre-allocation",
-  "variant_desc": "float, n=2000000, chunk=64",
+  "variant_desc": "float, n=20000000, chunk=16",
   "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,

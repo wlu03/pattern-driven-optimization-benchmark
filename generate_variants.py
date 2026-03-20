@@ -91,10 +91,18 @@ class PatternTemplate:
         raise NotImplementedError
 
 class SR1_Generator(PatternTemplate):
-    """SR-1: Loop-Invariant Semantic Computation
-    Varies: array count, invariant count, dtype, binary operation,
-    unary math wrapping, loop style (for/while), dimensionality (1D/2D),
-    reduction operator
+    """SR-1: Loop-Invariant Semantic Computation (Form A — noinline hoist)
+    Slow: calls an expensive noinline function (in helper.c) with loop-invariant
+          arguments INSIDE the loop — the call happens every iteration.
+    Fast: hoists the invariant call outside the loop, calls it once.
+
+    Compiler-resistance: the expensive function lives in helper.c (separate TU)
+    and is __attribute__((noinline)), so the compiler cannot inline or
+    constant-fold it away.
+
+    Varies: function complexity, number of invariant calls,
+    function type (trig, hash, polynomial, sqrt, exp_chain, power_tower, log_sum),
+    work amount, dtype, loop style, array operation (+= vs *=)
     """
 
     def __init__(self):
@@ -103,214 +111,175 @@ class SR1_Generator(PatternTemplate):
 
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
-        dtype = rng.choice(["int", "float", "double"])
-        n_arrays = rng.randint(2, 6)           # 2-6 input arrays
-        n_invariants = rng.randint(1, 4)       # 1-4 loop-invariant terms
-        use_2d = rng.choice([False, False, True])  # sometimes 2D
-        loop_style = rng.choice(["for", "while", "for"])  # bias toward for
-        # Pick a binary op for combining invariant with array element
-        bin_op, bin_op_name = rng.choice(BINARY_OPS)
-        # Sometimes wrap array access in a unary math fn
-        use_unary = rng.choice([False, False, True])
-        unary_fn = rng.choice(UNARY_MATH_FNS)[0] if use_unary else None
-        # Reduction operator
-        red_op, red_name = rng.choice([("+=", "sum"), ("+=", "sum"), ("*=", "product")])
-        if red_op == "*=" and dtype == "int":
-            red_op, red_name = "+=", "sum"  # avoid overflow
+        dtype = rng.choice(["float", "double"])
+        fn_type = rng.choice(["trig_combo", "polynomial", "hash_chain", "nested_sqrt",
+                               "exp_chain", "power_tower", "log_sum"])
+        n_calls = rng.randint(1, 4)  # 1-4 invariant function calls
+        loop_style = rng.choice(["for", "while", "for"])
+        arr_op = rng.choice(["*=", "+=", "*="])
 
-        arr_names = [chr(65 + i) for i in range(n_arrays)]  # A, B, C, ...
-        inv_names = [f"k{i}" for i in range(n_invariants)]
+        fn_bodies = {
+            "trig_combo": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} r = {zero};
+    for (int i = 0; i < {work}; i++)
+        r += sin(({dtype})(key + i)) * cos(({dtype})(key - i));
+    return r;
+}}""",
+            "polynomial": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} x = ({dtype})key * 0.001{suffix};
+    {dtype} r = {zero};
+    for (int i = 0; i < {work}; i++) {{
+        r += x * x * x - 3.0{suffix} * x * x + 2.0{suffix} * x - 1.0{suffix};
+        x += 0.0001{suffix};
+    }}
+    return r;
+}}""",
+            "hash_chain": """{dtype} expensive_sr1_{suf}(int key) {{
+    unsigned int h = (unsigned int)key;
+    {dtype} r = {zero};
+    for (int i = 0; i < {work}; i++) {{
+        h = h * 2654435761u;
+        r += ({dtype})(h & 0xFFFF) / 65536.0{suffix};
+    }}
+    return r / {work};
+}}""",
+            "nested_sqrt": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} r = fabs(({dtype})key) + 1.0{suffix};
+    for (int i = 0; i < {work}; i++) r = sqrt(r + ({dtype})i);
+    return r;
+}}""",
+            "exp_chain": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} r = 1.0{suffix};
+    for (int i = 0; i < {work}; i++) {{
+        r = exp(-fabs(r * 0.01{suffix})) + ({dtype})(key % (i+1));
+    }}
+    return r;
+}}""",
+            "power_tower": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} base = 1.0{suffix} + ({dtype})(key % 10) * 0.01{suffix};
+    {dtype} r = base;
+    for (int i = 0; i < {work}; i++) r = pow(base, r * 0.01{suffix});
+    return r;
+}}""",
+            "log_sum": """{dtype} expensive_sr1_{suf}(int key) {{
+    {dtype} r = {zero};
+    for (int i = 1; i <= {work}; i++)
+        r += log(({dtype})(key + i));
+    return r;
+}}""",
+        }
 
-        fn_name = f"{self.pattern_id.lower().replace('-','_')}_v{variant_num:03d}"
+        work = rng.choice([30, 50, 100, 200, 500, 1000])
+        suf = f"v{variant_num:03d}"
+        zero = DTYPES[dtype]['zero']
+        suffix = DTYPES[dtype]['suffix']
+        fn_code = fn_bodies[fn_type].format(suf=suf, work=work, dtype=dtype,
+                                             zero=zero, suffix=suffix)
 
-        # Expression building
-        def arr_access(arr):
-            acc = f"{arr}[i]" if not use_2d else f"{arr}[row * cols + col]"
-            if unary_fn and dtype != "int":
-                acc = f"{unary_fn}({acc})"
-            return acc
+        # ── helper.c: noinline expensive function in separate TU ──
+        helper_code = f"""#include <math.h>
 
-        slow_terms = []
-        fast_accumulators = []
-        fast_combine = []
-        fast_acc_exprs = []   # what each accumulator accumulates each iteration
+__attribute__((noinline))
+{fn_code}
+"""
 
-        size_expr = "rows * cols" if use_2d else "n"
-        acc_init = "1" if red_name == "product" else DTYPES[dtype]['zero']
-        for idx, arr in enumerate(arr_names):
-            acc = arr_access(arr)
-            if idx < n_invariants:
-                inv = inv_names[idx]
-                full_term = f"({inv} {bin_op} {acc})"
-                slow_terms.append(full_term)
-                fast_accumulators.append(f"    {dtype} sum_{arr} = {acc_init};")
-                if red_name == "product":
-                    # Product reduction: each accumulator carries the full term
-                    # product_i(k op A[i]) cannot be simplified → keep full expression
-                    fast_acc_exprs.append(full_term)
-                    fast_combine.append(f"sum_{arr}")
-                else:
-                    # Sum reduction: accumulate only array part, hoist invariant
-                    # sum_i(k * A[i]) = k * sum_A
-                    # sum_i(k + A[i]) = N*k + sum_A
-                    # sum_i(k - A[i]) = N*k - sum_A
-                    fast_acc_exprs.append(acc)
-                    if bin_op == "*":
-                        fast_combine.append(f"({inv} * sum_{arr})")
-                    elif bin_op == "+":
-                        fast_combine.append(f"(({dtype}){size_expr} * {inv} + sum_{arr})")
-                    else:  # "-"
-                        fast_combine.append(f"(({dtype}){size_expr} * {inv} - sum_{arr})")
-            else:
-                slow_terms.append(acc)
-                fast_accumulators.append(f"    {dtype} sum_{arr} = {acc_init};")
-                fast_acc_exprs.append(acc)
-                fast_combine.append(f"sum_{arr}")
+        # Build slow: call(s) inside loop
+        call_lines_slow = []
+        call_lines_fast = []
+        combine_terms = []
+        for c in range(n_calls):
+            key_param = f"key{c}" if n_calls > 1 else "key"
+            call_lines_slow.append(
+                f"        {dtype} f{c} = expensive_sr1_{suf}({key_param});"
+            )
+            call_lines_fast.append(
+                f"    {dtype} f{c} = expensive_sr1_{suf}({key_param});"
+            )
+            combine_terms.append(f"f{c}")
 
-        joiner = " + " if red_name == "sum" else " * "
-        slow_expr = joiner.join(slow_terms)
-
-        # Parameter declarations
-        arr_params = ", ".join(f"{dtype} *{a}" for a in arr_names)
-        inv_params = ", ".join(f"{dtype} {k}" for k in inv_names)
-        if use_2d:
-            size_params = "int rows, int cols"
-            all_params = f"{arr_params}, {size_params}, {inv_params}"
+        key_params = ", ".join(f"int key{c}" for c in range(n_calls)) if n_calls > 1 else "int key"
+        if len(combine_terms) > 1:
+            combine_expr = " * ".join(combine_terms)
         else:
-            all_params = f"{arr_params}, int n, {inv_params}"
+            combine_expr = combine_terms[0]
 
-        # Loop scaffolding
-        if use_2d:
-            slow_loop_open = "    for (int row = 0; row < rows; row++) {\n        for (int col = 0; col < cols; col++) {"
-            slow_loop_close = "        }\n    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
-        elif loop_style == "while":
-            slow_loop_open = "    int i = 0;\n    while (i < n) {"
-            slow_loop_close = "        i++;\n    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
+        if loop_style == "while":
+            loop_open_slow = "    int i = 0;\n    while (i < n) {"
+            loop_close_slow = "        i++;\n    }"
         else:
-            slow_loop_open = "    for (int i = 0; i < n; i++) {"
-            slow_loop_close = "    }"
-            fast_loop_open = slow_loop_open
-            fast_loop_close = slow_loop_close
-            total_init = f"    {dtype} total = " + ("1" if red_name == "product" else DTYPES[dtype]['zero']) + ";"
+            loop_open_slow = "    for (int i = 0; i < n; i++) {"
+            loop_close_slow = "    }"
 
-        loop_var = "row * cols + col" if use_2d else "i"
+        # Declare the external helper function
+        fn_decl = f"{dtype} expensive_sr1_{suf}(int key);"
 
-        slow_code = f"""{dtype} slow_{fn_name}({all_params}) {{
-{total_init}
-{slow_loop_open}
-        total {red_op} {slow_expr};
-{slow_loop_close}
-    return total;
+        slow_code = f"""{fn_decl}
+
+void slow_sr1_{suf}({dtype} *arr, int n, {key_params}) {{
+{loop_open_slow}
+{chr(10).join(call_lines_slow)}
+        arr[i] {arr_op} {combine_expr};
+{loop_close_slow}
 }}"""
 
-        # Fast version: separate accumulators, single combine at end
-        acc_loop_body = "\n".join(
-            f"        sum_{a} {red_op} {expr};"
-            for a, expr in zip(arr_names, fast_acc_exprs)
-        )
-        combine_expr = joiner.join(fast_combine)
+        fast_code = f"""{fn_decl}
 
-        fast_code = f"""{dtype} fast_{fn_name}({all_params}) {{
-{chr(10).join(fast_accumulators)}
-{fast_loop_open}
-{acc_loop_body}
-{fast_loop_close}
-    return {combine_expr};
+void fast_sr1_{suf}({dtype} *arr, int n, {key_params}) {{
+{chr(10).join(call_lines_fast)}
+{loop_open_slow}
+        arr[i] {arr_op} {combine_expr};
+{loop_close_slow}
 }}"""
 
-        # Test harness — product reduction overflows with large N;
-        # float accumulates rounding error faster than double
-        if red_name == "product":
-            n_val = "200"
-            n_rows, n_cols = "10", "20"
-        elif dtype == "float":
-            n_val = "500000"
-            n_rows, n_cols = "500", "1000"
-        else:
-            n_val = "5000000"
-            n_rows, n_cols = "2000", "2500"
-        if use_2d:
-            n_val_total = "ROWS * COLS"
-            size_def = f"#define ROWS {n_rows}\n#define COLS {n_cols}"
-            size_args = "ROWS, COLS"
-        else:
-            n_val_total = "N"
-            size_def = f"#define N {n_val}"
-            size_args = "N"
+        key_args = ", ".join(str(42 + c*7) for c in range(n_calls))
+        n_scale = rng.choice([100000, 500000, 1000000])
 
-        # Product reduction needs values near 1.0 (not 0!) to avoid inf*0=NaN;
-        # log variants need offset to avoid log(0)=-inf
-        if red_name == "product":
-            data_offset = "1.0"   # values ∈ [1.0, 1.099] — products stay bounded
-            data_scale = "0.001"
-        elif unary_fn == "log" and dtype != "int":
-            data_offset = "1.0"
-            data_scale = "0.01"
-        else:
-            data_offset = "0.0"
-            data_scale = "0.01"
-        data_suffix = DTYPES[dtype]['suffix']
-        arr_allocs = "\n".join(
-            f"    {dtype} *{a} = malloc({n_val_total} * sizeof({dtype}));\n"
-            f"    for (int i = 0; i < {n_val_total}; i++) {a}[i] = ({dtype})(i % 100) * {data_scale}{data_suffix} + {data_offset}{data_suffix};"
-            for a in arr_names
-        )
-        arr_args = ", ".join(arr_names)
-        if dtype == "int":
-            inv_args = ", ".join(str(2 + i) for i in range(n_invariants))
-        else:
-            inv_args = ", ".join(f"2.{i}{DTYPES[dtype]['suffix']}" for i in range(n_invariants))
-        arr_frees = "\n".join(f"    free({a});" for a in arr_names)
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 
-{size_def}
+#define N {n_scale}
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {{
-{arr_allocs}
+    {dtype} *arr_slow = malloc(N * sizeof({dtype}));
+    {dtype} *arr_fast = malloc(N * sizeof({dtype}));
+    for (int i = 0; i < N; i++) arr_slow[i] = ({dtype})(i % 100) * 0.1{suffix};
+    memcpy(arr_fast, arr_slow, N * sizeof({dtype}));
 
     struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_sr1_{suf}(arr_slow, N, {key_args});
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_slow = slow_{fn_name}({arr_args}, {size_args}, {inv_args});
+    fast_sr1_{suf}(arr_fast, N, {key_args});
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_slow = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
 
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    {dtype} r_fast = fast_{fn_name}({arr_args}, {size_args}, {inv_args});
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    double ms_fast = (t1.tv_sec - t0.tv_sec)*1000.0 + (t1.tv_nsec - t0.tv_nsec)/1e6;
-
-    double err = fabs((double)(r_slow - r_fast)) / fmax(fabs((double)r_slow), 1e-12);
-    double tol = {"1e-2" if dtype == "float" else "1e-4"};
+    int correct = 1;
+    for (int i = 0; i < N; i++) {{
+        if (fabs((double)(arr_slow[i] - arr_fast[i])) > 1e-6) {{ correct = 0; break; }}
+    }}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
-           ms_slow, ms_fast, err < tol, ms_slow / fmax(ms_fast, 0.001));
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
 
-{arr_frees}
+    free(arr_slow); free(arr_fast);
     return 0;
 }}"""
 
-        desc_parts = [f"{n_arrays} arrays", f"{n_invariants} invariants", dtype, f"{bin_op_name} op"]
-        if use_unary:
-            desc_parts.append(f"{unary_fn}() wrapping")
-        if use_2d:
-            desc_parts.append("2D layout")
+        desc_parts = [f"{fn_type} function", f"{n_calls} invariant calls",
+                       f"work={work}", dtype]
         if loop_style == "while":
             desc_parts.append("while-loop")
-        if red_name != "sum":
-            desc_parts.append(f"{red_name} reduction")
+        if arr_op == "+=":
+            desc_parts.append("additive apply")
 
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
@@ -319,12 +288,12 @@ int main() {{
             pattern_name=self.name,
             variant_desc=", ".join(desc_parts),
             dtype=dtype,
-            difficulty="easy" if n_invariants <= 1 and not use_2d else ("hard" if n_invariants >= 3 or use_unary else "medium"),
+            difficulty="easy" if n_calls == 1 else "hard",
             compiler_fixable=False,
-            num_loops=2 if use_2d else 1,
-            num_arrays=n_arrays,
-            lines_of_code=6 + n_arrays + (2 if use_2d else 0),
-            expected_speedup_range="1.1x-2x",
+            num_loops=1,
+            num_arrays=1,
+            lines_of_code=12 + n_calls * 2,
+            expected_speedup_range="100x-1000x",
             composition=[]
         )
 
@@ -332,6 +301,7 @@ int main() {{
             "slow_code": slow_code,
             "fast_code": fast_code,
             "test_code": test_code,
+            "helper_code": helper_code,
             "metadata": asdict(metadata)
         }
 
@@ -940,7 +910,271 @@ class IS1_Generator(PatternTemplate):
             composition=[]
         )
 
-        test_code = f"// Test harness for IS-1 variant {variant_num} ({layout})\n// (auto-generated)\n"
+        # Build proper test harness based on layout
+        if layout == "matmul":
+            dim = 300 if sparsity >= 0.9 else 200
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#define M {dim}
+#define K {dim}
+#define NN {dim}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *A = malloc(M * K * sizeof({dtype}));
+    {dtype} *B = malloc(K * NN * sizeof({dtype}));
+    {dtype} *C_slow = calloc(M * NN, sizeof({dtype}));
+    {dtype} *C_fast = calloc(M * NN, sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < M * K; i++) A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < K * NN; i++) B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_is1_{suf}(C_slow, A, B, M, K, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_is1_{suf}(C_fast, A, B, M, K, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < M * NN; i++) {{
+        if (fabs((double)(C_slow[i] - C_fast[i])) > 1e-4) {{ correct = 0; break; }}
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(A); free(B); free(C_slow); free(C_fast);
+    return 0;
+}}"""
+        elif layout == "matvec":
+            m_dim = 2000 if sparsity >= 0.9 else 1000
+            n_dim = 2000 if sparsity >= 0.9 else 1000
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define M {m_dim}
+#define NN {n_dim}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *A = malloc(M * NN * sizeof({dtype}));
+    {dtype} *x = malloc(NN * sizeof({dtype}));
+    {dtype} *y_slow = calloc(M, sizeof({dtype}));
+    {dtype} *y_fast = calloc(M, sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < M * NN; i++) A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < NN; i++) x[i] = ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_is1_{suf}(y_slow, A, x, M, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_is1_{suf}(y_fast, A, x, M, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < M; i++) {{
+        if (fabs((double)(y_slow[i] - y_fast[i])) > 1e-4) {{ correct = 0; break; }}
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(A); free(x); free(y_slow); free(y_fast);
+    return 0;
+}}"""
+        elif layout == "elemwise":
+            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N {n_elem}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *A = malloc(N * sizeof({dtype}));
+    {dtype} *B = malloc(N * sizeof({dtype}));
+    {dtype} *out_slow = malloc(N * sizeof({dtype}));
+    {dtype} *out_fast = malloc(N * sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < N; i++) {{
+        A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    }}
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_is1_{suf}(out_slow, A, B, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_is1_{suf}(out_fast, A, B, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < N; i++) {{
+        if (fabs((double)(out_slow[i] - out_fast[i])) > 1e-6) {{ correct = 0; break; }}
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(A); free(B); free(out_slow); free(out_fast);
+    return 0;
+}}"""
+        elif layout == "dot_product":
+            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N {n_elem}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *A = malloc(N * sizeof({dtype}));
+    {dtype} *B = malloc(N * sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < N; i++) {{
+        A[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        B[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    }}
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_slow = slow_is1_{suf}(A, B, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_fast = fast_is1_{suf}(A, B, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    double diff = fabs((double)(r_slow - r_fast));
+    double mag = fmax(fabs((double)r_slow), 1e-12);
+    int correct = (diff / mag < 1e-6) || (diff < 1e-9);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(A); free(B);
+    return 0;
+}}"""
+        elif layout == "saxpy":
+            n_elem = 5000000 if sparsity >= 0.9 else 2000000
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#define N {n_elem}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *x = malloc(N * sizeof({dtype}));
+    {dtype} *y_slow = malloc(N * sizeof({dtype}));
+    {dtype} *y_fast = malloc(N * sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < N; i++) {{
+        x[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+        y_slow[i] = ({dtype})(i % 50) * 0.01{suffix};
+    }}
+    memcpy(y_fast, y_slow, N * sizeof({dtype}));
+    {dtype} alpha = 2.5{suffix};
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_is1_{suf}(y_slow, x, alpha, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_is1_{suf}(y_fast, x, alpha, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < N; i++) {{
+        if (fabs((double)(y_slow[i] - y_fast[i])) > 1e-6) {{ correct = 0; break; }}
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(x); free(y_slow); free(y_fast);
+    return 0;
+}}"""
+        else:  # outer_product
+            m_dim = 2000 if sparsity >= 0.9 else 1000
+            n_dim = 2000 if sparsity >= 0.9 else 1000
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define M {m_dim}
+#define NN {n_dim}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {dtype} *a = malloc(M * sizeof({dtype}));
+    {dtype} *b = malloc(NN * sizeof({dtype}));
+    {dtype} *C_slow = calloc(M * NN, sizeof({dtype}));
+    {dtype} *C_fast = calloc(M * NN, sizeof({dtype}));
+    srand(42);
+    for (int i = 0; i < M; i++) a[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+    for (int i = 0; i < NN; i++) b[i] = (rand() % 100 < {int(sparsity*100)}) ? {zero} : ({dtype})(rand() % 10 + 1) * 0.1{suffix};
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_is1_{suf}(C_slow, a, b, M, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_is1_{suf}(C_fast, a, b, M, NN);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int i = 0; i < M * NN; i++) {{
+        if (fabs((double)(C_slow[i] - C_fast[i])) > 1e-4) {{ correct = 0; break; }}
+    }}
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(a); free(b); free(C_slow); free(C_fast);
+    return 0;
+}}"""
 
         return {
             "slow_code": slow_code,
@@ -1090,10 +1324,70 @@ double slow_ds4_{suf}({struct_name} *arr, int n) {{
             composition=[]
         )
 
+        # Build test harness
+        n_test = rng.choice([500000, 1000000, 2000000])
+        # Allocate SoA arrays for fast path
+        soa_allocs = "\n".join(
+            f"    double *soa_{f} = malloc(N * sizeof(double));" for f in accessed_fields
+        )
+        soa_init = "\n".join(
+            f"    for (int i = 0; i < N; i++) soa_{f}[i] = (double)arr[i].{f};" for f in accessed_fields
+        )
+        soa_args = ", ".join(f"soa_{f}" for f in accessed_fields)
+        soa_frees = "\n".join(f"    free(soa_{f});" for f in accessed_fields)
+
+        # Initialize struct fields with varied data
+        field_inits = "\n".join(
+            f"        arr[i].{fn} = ({ft})(i % 100) * 0.01 + 0.5;"
+            for fn, ft in fields
+        )
+
+        test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N {n_test}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    {struct_name} *arr = malloc(N * sizeof({struct_name}));
+    for (int i = 0; i < N; i++) {{
+{field_inits}
+    }}
+
+{soa_allocs}
+{soa_init}
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    double r_slow = slow_ds4_{suf}(arr, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    double r_fast = fast_ds4_{suf}({soa_args}, N);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    double diff = fabs(r_slow - r_fast);
+    double mag = fmax(fabs(r_slow), 1e-12);
+    int correct = (diff / mag < 1e-6) || (diff < 1e-9);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+
+    free(arr);
+{soa_frees}
+    return 0;
+}}"""
+
         return {
             "slow_code": slow_code,
             "fast_code": fast_code,
-            "test_code": "// Auto-generated test harness\n",
+            "test_code": test_code,
             "metadata": asdict(metadata)
         }
 
@@ -1289,6 +1583,240 @@ class AL1_Generator(PatternTemplate):
 }}"""
             desc = "Integer partition count: exponential -> O(n * max_val) DP"
 
+        # Build test harness based on problem type
+        if problem in ("fibonacci", "tribonacci", "derangements"):
+            # Single int arg, returns long long
+            test_n = {"fibonacci": 35, "tribonacci": 25, "derangements": 25}[problem]
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int n = {test_n};
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_slow = slow_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_fast = fast_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "catalan":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int n = 20;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_slow = slow_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_fast = fast_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "staircase":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int n = 30;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_slow = slow_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_fast = fast_al1_{suf}(n);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "grid_paths":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int r = 14, c = 14;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_slow = slow_al1_{suf}(r, c);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_fast = fast_al1_{suf}(r, c);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "binomial":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int n = 28, k = 14;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_slow = slow_al1_{suf}(n, k);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    long long r_fast = fast_al1_{suf}(n, k);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "coin_ways":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int coins[] = {{1, 5, 10, 25}};
+    int nc = 4, amount = 30;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_slow = slow_al1_{suf}(coins, nc, amount);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_fast = fast_al1_{suf}(coins, nc, amount);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+        elif problem == "min_cost_path":
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int m = 12, n = 12;
+    int *grid = malloc(m * n * sizeof(int));
+    srand(42);
+    for (int i = 0; i < m * n; i++) grid[i] = rand() % 100;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_slow = slow_al1_{suf}(grid, m, n, m-1, n-1);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_fast = fast_al1_{suf}(grid, m, n, m-1, n-1);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(grid);
+    return 0;
+}}"""
+        else:  # partition_count
+            test_code = f"""#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
+int main() {{
+    int n = 60, max_val = 60;
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_slow = slow_al1_{suf}(n, max_val);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    int r_fast = fast_al1_{suf}(n, max_val);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = (r_slow == r_fast);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    return 0;
+}}"""
+
         metadata = VariantMetadata(
             pattern_id=self.pattern_id,
             variant_id=f"AL-1_v{variant_num:03d}",
@@ -1308,7 +1836,7 @@ class AL1_Generator(PatternTemplate):
         return {
             "slow_code": slow_code,
             "fast_code": fast_code,
-            "test_code": "// Auto-generated\n",
+            "test_code": test_code,
             "metadata": asdict(metadata)
         }
 
@@ -1419,28 +1947,49 @@ class SR2_Generator(PatternTemplate):
 }}"""
 
         # Test harness
-        arr_allocs = "\n    ".join(f'{dtype} *{a} = malloc({N} * sizeof({dtype})); for (int k = 0; k < {N}; k++) {a}[k] = ({dtype})(k % 100) * 0.01f;' for a in arr_names)
         const_vals = ", ".join("2.5" if i == 0 else "1.7" if i == 1 else "0.3" for i in range(n_consts))
         arr_args = ", ".join(arr_names)
-        arr_frees = "\n    ".join(f"free({a});" for a in arr_names)
+        arr_allocs_lines = "\n".join(
+            f"    {dtype} *{a} = malloc(N * sizeof({dtype}));\n"
+            f"    for (int k = 0; k < N; k++) {a}[k] = ({dtype})(k % 100) * 0.01{DTYPES[dtype]['suffix']};"
+            for a in arr_names
+        )
+        arr_frees_lines = "\n".join(f"    free({a});" for a in arr_names)
 
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-{dtype} slow_sr2_{suf}({all_params});
-{dtype} fast_sr2_{suf}({all_params});
+#include <time.h>
+
+#define N {N}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int n = {N};
-    {arr_allocs}
-    {dtype} r_slow = slow_sr2_{suf}({arr_args}, n, {const_vals});
-    {dtype} r_fast = fast_sr2_{suf}({arr_args}, n, {const_vals});
+{arr_allocs_lines}
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_slow = slow_sr2_{suf}({arr_args}, N, {const_vals});
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_fast = fast_sr2_{suf}({arr_args}, N, {const_vals});
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
     double diff = fabs((double)(r_slow - r_fast));
-    double rel = (fabs((double)r_slow) > 1e-15) ? diff / fabs((double)r_slow) : diff;
-    printf("slow=%g fast=%g rel_err=%g %s\\n", (double)r_slow, (double)r_fast, rel, rel < 1e-4 ? "PASS" : "FAIL");
-    {arr_frees}
-    return rel < 1e-4 ? 0 : 1;
-}}
-"""
+    double mag = fmax(fabs((double)r_slow), 1e-12);
+    int correct = (diff / mag < 1e-4) || (diff < 1e-9);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+
+{arr_frees_lines}
+    return 0;
+}}"""
 
         desc = f"{n_terms}-term expression decomposition, {n_arrays} arrays, {n_consts} constants, {dtype}, {loop_style}-loop"
         metadata = VariantMetadata(
@@ -1976,25 +2525,41 @@ class MI4_Generator(PatternTemplate):
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-void slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
-void fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+#include <time.h>
+
+#define ROWS {rows}
+#define COLS {cols}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int rows = {rows}, cols = {cols};
-    {dtype} *slow = malloc(rows * cols * sizeof({dtype}));
-    {dtype} *fast = malloc(rows * cols * sizeof({dtype}));
-    for (int k = 0; k < rows * cols; k++) slow[k] = ({dtype})(k % 100) * 0.1;
-    memcpy(fast, slow, rows * cols * sizeof({dtype}));
-    slow_mi4_{suf}(slow, rows, cols);
-    fast_mi4_{suf}(fast, rows, cols);
-    int pass = 1;
-    for (int k = 0; k < rows * cols; k++) {{
-        if (fabs((double)(slow[k] - fast[k])) > 1e-4) {{ pass = 0; break; }}
+    {dtype} *s = malloc(ROWS * COLS * sizeof({dtype}));
+    {dtype} *f = malloc(ROWS * COLS * sizeof({dtype}));
+    for (int k = 0; k < ROWS * COLS; k++) s[k] = ({dtype})(k % 100) * 0.1;
+    memcpy(f, s, ROWS * COLS * sizeof({dtype}));
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_mi4_{suf}(s, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_mi4_{suf}(f, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int k = 0; k < ROWS * COLS; k++) {{
+        if (fabs((double)(s[k] - f[k])) > 1e-4) {{ correct = 0; break; }}
     }}
-    printf("%s\\n", pass ? "PASS" : "FAIL");
-    free(slow); free(fast);
-    return pass ? 0 : 1;
-}}
-"""
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(s); free(f);
+    return 0;
+}}"""
 
         elif op_type == "add_arrays":
             slow_code = f"""{math_inc}void slow_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols) {{
@@ -2014,26 +2579,43 @@ int main() {{
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-void slow_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols);
-void fast_mi4_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int rows, int cols);
+#include <time.h>
+
+#define ROWS {rows}
+#define COLS {cols}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int rows = {rows}, cols = {cols}, total = rows * cols;
+    int total = ROWS * COLS;
     {dtype} *A = malloc(total * sizeof({dtype}));
     {dtype} *B = malloc(total * sizeof({dtype}));
     {dtype} *s = malloc(total * sizeof({dtype}));
     {dtype} *f = malloc(total * sizeof({dtype}));
     for (int k = 0; k < total; k++) {{ A[k] = ({dtype})(k % 100) * 0.1; B[k] = ({dtype})(k % 50) * 0.2; }}
-    slow_mi4_{suf}(s, A, B, rows, cols);
-    fast_mi4_{suf}(f, A, B, rows, cols);
-    int pass = 1;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_mi4_{suf}(s, A, B, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_mi4_{suf}(f, A, B, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
     for (int k = 0; k < total; k++) {{
-        if (fabs((double)(s[k] - f[k])) > 1e-4) {{ pass = 0; break; }}
+        if (fabs((double)(s[k] - f[k])) > 1e-4) {{ correct = 0; break; }}
     }}
-    printf("%s\\n", pass ? "PASS" : "FAIL");
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(A); free(B); free(s); free(f);
-    return pass ? 0 : 1;
-}}
-"""
+    return 0;
+}}"""
 
         elif op_type == "reduce":
             slow_code = f"""{math_inc}{dtype} slow_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
@@ -2057,20 +2639,37 @@ int main() {{
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-{dtype} slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
-{dtype} fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+#include <time.h>
+
+#define ROWS {rows}
+#define COLS {cols}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int rows = {rows}, cols = {cols};
-    {dtype} *mat = malloc(rows * cols * sizeof({dtype}));
-    for (int k = 0; k < rows * cols; k++) mat[k] = ({dtype})(k % 100) * 0.01;
-    {dtype} s = slow_mi4_{suf}(mat, rows, cols);
-    {dtype} f = fast_mi4_{suf}(mat, rows, cols);
-    double diff = fabs((double)(s - f));
-    printf("slow=%g fast=%g %s\\n", (double)s, (double)f, diff < 1e-2 ? "PASS" : "FAIL");
+    {dtype} *mat = malloc(ROWS * COLS * sizeof({dtype}));
+    for (int k = 0; k < ROWS * COLS; k++) mat[k] = ({dtype})(k % 100) * 0.01;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_slow = slow_mi4_{suf}(mat, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    {dtype} r_fast = fast_mi4_{suf}(mat, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    double diff = fabs((double)(r_slow - r_fast));
+    int correct = (diff < 1e-2);
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(mat);
-    return diff < 1e-2 ? 0 : 1;
-}}
-"""
+    return 0;
+}}"""
 
         elif op_type == "copy":
             slow_code = f"""{math_inc}void slow_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols) {{
@@ -2090,25 +2689,42 @@ int main() {{
             test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-void slow_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols);
-void fast_mi4_{suf}({dtype} *dst, {dtype} *src, int rows, int cols);
+#include <time.h>
+
+#define ROWS {rows}
+#define COLS {cols}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int rows = {rows}, cols = {cols}, total = rows * cols;
+    int total = ROWS * COLS;
     {dtype} *src = malloc(total * sizeof({dtype}));
     {dtype} *s = malloc(total * sizeof({dtype}));
     {dtype} *f = malloc(total * sizeof({dtype}));
     for (int k = 0; k < total; k++) src[k] = ({dtype})(k % 100) * 0.1;
-    slow_mi4_{suf}(s, src, rows, cols);
-    fast_mi4_{suf}(f, src, rows, cols);
-    int pass = 1;
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_mi4_{suf}(s, src, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_mi4_{suf}(f, src, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
     for (int k = 0; k < total; k++) {{
-        if (fabs((double)(s[k] - f[k])) > 1e-9) {{ pass = 0; break; }}
+        if (fabs((double)(s[k] - f[k])) > 1e-9) {{ correct = 0; break; }}
     }}
-    printf("%s\\n", pass ? "PASS" : "FAIL");
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
     free(src); free(s); free(f);
-    return pass ? 0 : 1;
-}}
-"""
+    return 0;
+}}"""
 
         else:  # transform
             fn = rng.choice(UNARY_MATH_FNS)
@@ -2132,25 +2748,41 @@ void fast_mi4_{suf}({dtype} *matrix, int rows, int cols) {{
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-void slow_mi4_{suf}({dtype} *matrix, int rows, int cols);
-void fast_mi4_{suf}({dtype} *matrix, int rows, int cols);
+#include <time.h>
+
+#define ROWS {rows}
+#define COLS {cols}
+
+// SLOW_CODE_HERE
+
+// FAST_CODE_HERE
+
 int main() {{
-    int rows = {rows}, cols = {cols};
-    {dtype} *slow = malloc(rows * cols * sizeof({dtype}));
-    {dtype} *fast = malloc(rows * cols * sizeof({dtype}));
-    for (int k = 0; k < rows * cols; k++) slow[k] = ({dtype})((k % 100) + 1) * 0.01;
-    memcpy(fast, slow, rows * cols * sizeof({dtype}));
-    slow_mi4_{suf}(slow, rows, cols);
-    fast_mi4_{suf}(fast, rows, cols);
-    int pass = 1;
-    for (int k = 0; k < rows * cols; k++) {{
-        if (fabs((double)(slow[k] - fast[k])) > 1e-6) {{ pass = 0; break; }}
+    {dtype} *s = malloc(ROWS * COLS * sizeof({dtype}));
+    {dtype} *f = malloc(ROWS * COLS * sizeof({dtype}));
+    for (int k = 0; k < ROWS * COLS; k++) s[k] = ({dtype})((k % 100) + 1) * 0.01;
+    memcpy(f, s, ROWS * COLS * sizeof({dtype}));
+
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    slow_mi4_{suf}(s, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_slow = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    fast_mi4_{suf}(f, ROWS, COLS);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    double ms_fast = (t1.tv_sec-t0.tv_sec)*1000.0 + (t1.tv_nsec-t0.tv_nsec)/1e6;
+
+    int correct = 1;
+    for (int k = 0; k < ROWS * COLS; k++) {{
+        if (fabs((double)(s[k] - f[k])) > 1e-6) {{ correct = 0; break; }}
     }}
-    printf("%s\\n", pass ? "PASS" : "FAIL");
-    free(slow); free(fast);
-    return pass ? 0 : 1;
-}}
-"""
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow, ms_fast, correct, ms_slow / fmax(ms_fast, 0.001));
+    free(s); free(f);
+    return 0;
+}}"""
 
         desc = f"{op_type} operation, {dtype}, {rows}x{cols} matrix"
         metadata = VariantMetadata(
@@ -2249,8 +2881,15 @@ int main() {{
 
 class IS2_Generator(PatternTemplate):
     """IS-2: Data Distribution Skew.
-    Slow: always computes sign+fabs before deciding path.
-    Fast: cheap fabs check first; only computes sign for rare outliers."""
+    Slow: always calls noinline expensive transform for EVERY element.
+    Fast: cheap fabs check first; only calls expensive helper for ~1% outliers.
+
+    Compiler-resistance strategy:
+    - helper.c contains noinline expensive_transform compiled as a separate TU,
+      preventing the compiler from inlining or simplifying the math.
+    - volatile inside the helper blocks constant folding and dead code elimination.
+    - Slow code calls the expensive helper unconditionally; fast code branches first.
+    """
 
     def __init__(self):
         super().__init__("IS-2", "Input-Sensitive Inefficiency",
@@ -2266,28 +2905,52 @@ class IS2_Generator(PatternTemplate):
         # vary the expensive transform in the else branch
         transform = rng.choice(["log", "sqrt_offset", "exp_clamp"])
         if transform == "log":
-            t_expr = f"sign*(({dtype}){threshold}+({dtype})log(1.0+abs_val-({dtype}){threshold}))"
+            t_body = f"result = sign*((volatile {dtype}){threshold}+({dtype})log(1.0+vabs-(volatile {dtype}){threshold}));"
         elif transform == "sqrt_offset":
-            t_expr = f"sign*(({dtype}){threshold}+({dtype})sqrt((double)(abs_val-({dtype}){threshold})))"
+            t_body = f"result = sign*((volatile {dtype}){threshold}+({dtype})sqrt((double)(vabs-(volatile {dtype}){threshold})));"
         else:
-            t_expr = f"sign*(({dtype}){threshold}*(1.0{DTYPES[dtype]['suffix']}+({dtype})exp((double)(abs_val-({dtype}){threshold})-1.0)))"
+            t_body = f"result = sign*((volatile {dtype}){threshold}*(1.0+({dtype})exp((double)(vabs-(volatile {dtype}){threshold})-1.0)));"
 
-        slow_code = (f"#include <math.h>\n"
-                     f"void slow_is2_{suf}({dtype} *out,{dtype} *in,int n,{dtype} thr){{\n"
-                     f"    for(int i=0;i<n;i++){{\n"
-                     f"        {dtype} val=in[i],sign=(val>=0)?1.0{DTYPES[dtype]['suffix']}:-1.0{DTYPES[dtype]['suffix']},abs_val=({dtype})fabs((double)val);\n"
-                     f"        out[i]=(abs_val>thr)?{t_expr}:val;\n"
-                     f"    }}\n}}")
-        fast_code = (f"#include <math.h>\n"
-                     f"void fast_is2_{suf}({dtype} *out,{dtype} *in,int n,{dtype} thr){{\n"
-                     f"    for(int i=0;i<n;i++){{\n"
-                     f"        {dtype} val=in[i];\n"
-                     f"        if(({dtype})fabs((double)val)<=thr){{out[i]=val;}}\n"
-                     f"        else{{\n"
-                     f"            {dtype} sign=(val>=0)?1.0{DTYPES[dtype]['suffix']}:-1.0{DTYPES[dtype]['suffix']},abs_val=({dtype})fabs((double)val);\n"
-                     f"            out[i]={t_expr};\n"
-                     f"        }}\n"
-                     f"    }}\n}}")
+        # ── helper.c: noinline expensive transform in separate TU ──
+        helper_code = (
+            f"#include <math.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"{dtype} is2_expensive_{suf}({dtype} val, {dtype} thr){{\n"
+            f"    volatile {dtype} vval = val;\n"
+            f"    volatile {dtype} vthr = thr;\n"
+            f"    {dtype} sign = (vval >= 0) ? ({dtype})1.0 : ({dtype})-1.0;\n"
+            f"    {dtype} vabs = ({dtype})fabs((double)vval);\n"
+            f"    {dtype} result;\n"
+            f"    if(vabs > vthr){{\n"
+            f"        {t_body}\n"
+            f"    }} else {{\n"
+            f"        result = vval;\n"
+            f"    }}\n"
+            f"    volatile {dtype} vresult = result;\n"
+            f"    return ({dtype})vresult;\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: call expensive helper for EVERY element unconditionally ──
+        slow_code = (
+            f"#include <math.h>\n"
+            f"{dtype} is2_expensive_{suf}({dtype} val, {dtype} thr);\n\n"
+            f"void slow_is2_{suf}({dtype} *out,{dtype} *in,int n,{dtype} thr){{\n"
+            f"    for(int i=0;i<n;i++){{\n"
+            f"        out[i]=is2_expensive_{suf}(in[i],thr);\n"
+            f"    }}\n}}"
+        )
+        # ── fast.c: only call expensive helper for outliers (~1%) ──
+        fast_code = (
+            f"#include <math.h>\n"
+            f"{dtype} is2_expensive_{suf}({dtype} val, {dtype} thr);\n\n"
+            f"void fast_is2_{suf}({dtype} *out,{dtype} *in,int n,{dtype} thr){{\n"
+            f"    for(int i=0;i<n;i++){{\n"
+            f"        {dtype} val=in[i];\n"
+            f"        if(({dtype})fabs((double)val)<=thr){{out[i]=val;}}\n"
+            f"        else{{out[i]=is2_expensive_{suf}(val,thr);}}\n"
+            f"    }}\n}}"
+        )
         tol = "1e-4" if dtype == "float" else "1e-9"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -2315,6 +2978,7 @@ int main() {{
     free(in);free(os);free(of);return correct?0:1;
 }}"""
         return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+                "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"IS-2_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -2471,8 +3135,13 @@ int main() {{
 
 class IS5_Generator(PatternTemplate):
     """IS-5: Runtime Alias Check for Restrict Fast-Path.
-    Slow: noinline without restrict — compiler generates conservative code.
-    Fast: runtime non-overlap check dispatches to __restrict__ kernel."""
+    Slow: calls noinline kernel WITHOUT restrict from helper.c — compiler
+          generates conservative (no-vectorize) code.
+    Fast: runtime non-overlap check dispatches to a SEPARATE noinline
+          __restrict__-qualified kernel from helper.c.
+
+    Compiler-resistance: both kernels are noinline in helper.c (separate TU),
+    so the compiler cannot inline or apply alias analysis across TU boundary."""
 
     def __init__(self):
         super().__init__("IS-5", "Input-Sensitive Inefficiency",
@@ -2493,16 +3162,44 @@ class IS5_Generator(PatternTemplate):
         else:
             body = f"out[i]=A[i]*A[i]-B[i]*B[i]+A[i]*B[i]*0.5{DTYPES[dtype]['suffix']}+1.0{DTYPES[dtype]['suffix']};"
 
-        slow_code = (f"__attribute__((noinline))\n"
-                     f"void slow_is5_{suf}({dtype} *out,{dtype} *A,{dtype} *B,int n){{\n"
-                     f"    for(int i=0;i<n;i++) {body}\n}}")
-        fast_code = (f"static void __attribute__((noinline))\n"
-                     f"is5_kernel_{suf}({dtype} * __restrict__ out,const {dtype} * __restrict__ A,const {dtype} * __restrict__ B,int n){{\n"
-                     f"    for(int i=0;i<n;i++) {body}\n}}\n\n"
-                     f"void fast_is5_{suf}({dtype} *out,{dtype} *A,{dtype} *B,int n){{\n"
-                     f"    int ok=(out+n<=A||A+n<=out)&&(out+n<=B||B+n<=out);\n"
-                     f"    if(ok) is5_kernel_{suf}(out,A,B,n);\n"
-                     f"    else for(int i=0;i<n;i++) {body}\n}}")
+        # ── helper.c: TWO noinline kernels in separate TU ──
+        # 1) is5_noalias_kernel — WITHOUT restrict (conservative, no vectorize)
+        # 2) is5_restrict_kernel — WITH restrict (vectorizable)
+        helper_code = (
+            f"__attribute__((noinline))\n"
+            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"    for (int i = 0; i < n; i++) {body}\n"
+            f"}}\n\n"
+            f"__attribute__((noinline))\n"
+            f"void is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
+            f"        const {dtype} * __restrict__ A,\n"
+            f"        const {dtype} * __restrict__ B, int n) {{\n"
+            f"    for (int i = 0; i < n; i++) {body}\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: always calls the non-restrict kernel ──
+        slow_code = (
+            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n\n"
+            f"void slow_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"    is5_noalias_kernel_{suf}(out, A, B, n);\n"
+            f"}}"
+        )
+
+        # ── fast.c: runtime overlap check, then calls restrict kernel ──
+        fast_code = (
+            f"void is5_noalias_kernel_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n);\n"
+            f"void is5_restrict_kernel_{suf}({dtype} * __restrict__ out,\n"
+            f"        const {dtype} * __restrict__ A,\n"
+            f"        const {dtype} * __restrict__ B, int n);\n\n"
+            f"void fast_is5_{suf}({dtype} *out, {dtype} *A, {dtype} *B, int n) {{\n"
+            f"    int ok = (out + n <= A || A + n <= out) &&\n"
+            f"            (out + n <= B || B + n <= out);\n"
+            f"    if (ok) is5_restrict_kernel_{suf}(out, A, B, n);\n"
+            f"    else    is5_noalias_kernel_{suf}(out, A, B, n);\n"
+            f"}}"
+        )
+
         tol = "1e-3" if dtype == "float" else "1e-9"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -2533,6 +3230,7 @@ int main() {{
     free(A);free(B);free(os);free(of);return correct?0:1;
 }}"""
         return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+                "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"IS-5_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -2859,8 +3557,15 @@ int main() {{
 
 class HR4_Generator(PatternTemplate):
     """HR-4: Overly Defensive Checks Inside Hot Loop.
-    Slow: redundant NULL/bounds/NaN checks inside the loop body.
-    Fast: hoist checks before the loop, clean inner loop."""
+    Slow: calls noinline defensive-check helper per iteration.
+    Fast: clean inner loop with no checks.
+
+    Compiler-resistance strategy:
+    - helper.c contains noinline check function compiled as a separate TU,
+      preventing the compiler from proving checks are redundant.
+    - volatile inside the helper blocks dead-code elimination of always-true checks.
+    - Slow code calls the helper per iteration; fast code does the work directly.
+    """
 
     def __init__(self):
         super().__init__("HR-4", "Human-Style Antipatterns",
@@ -2873,40 +3578,115 @@ class HR4_Generator(PatternTemplate):
         n = rng.choice([2000000, 5000000, 10000000])
         n_reps = 10
         op_type = rng.choice(["sum", "dot", "scale_sum"])
+
         if op_type == "sum":
-            slow_inner = f"if(arr==NULL)continue;if(n<=0)break;if(i<0||i>=n)continue;if(arr[i]!=arr[i])continue;sum+=arr[i];"
-            fast_inner = "sum+=arr[i];"
+            # Helper checks: NULL, bounds, NaN — returns value or 0
+            helper_code = (
+                f"#include <math.h>\n\n"
+                f"__attribute__((noinline))\n"
+                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
+                f"    volatile {dtype} *vp = arr;\n"
+                f"    volatile int vidx = idx;\n"
+                f"    volatile int vn = n;\n"
+                f"    if(vp == (void*)0) return 0;\n"
+                f"    if(vn <= 0) return 0;\n"
+                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
+                f"    volatile {dtype} val = arr[vidx];\n"
+                f"    if(val != val) return 0;\n"  # NaN check
+                f"    return ({dtype})val;\n"
+                f"}}\n"
+            )
             sig = f"{dtype} *arr,int n"
             call_args = "arr,N"
             ret = f"{dtype}"
-            setup = f"{dtype} *arr=malloc(N*sizeof({dtype}));for(int i=0;i<N;i++) arr[i]=({dtype})((i%100)+1)*0.01{DTYPES[dtype]['suffix']};"
-            free_s = "free(arr);"
-        elif op_type == "dot":
-            slow_inner = f"if(A==NULL||B==NULL)continue;if(i<0||i>=n)continue;if(A[i]!=A[i]||B[i]!=B[i])continue;sum+=A[i]*B[i];"
-            fast_inner = "sum+=A[i]*B[i];"
-            sig = f"{dtype} *A,{dtype} *B,int n"
-            call_args = "A,B,N"
-            ret = f"{dtype}"
-            setup = (f"{dtype} *A=malloc(N*sizeof({dtype})),*B=malloc(N*sizeof({dtype}));\n"
-                     f"    for(int i=0;i<N;i++){{A[i]=({dtype})((i%100)+1)*0.01{DTYPES[dtype]['suffix']};B[i]=({dtype})((i%50)+1)*0.02{DTYPES[dtype]['suffix']};}}")
-            free_s = "free(A);free(B);"
-        else:
-            slow_inner = f"if(arr==NULL)continue;if(n<=0)break;if(i<0||i>=n)continue;if(arr[i]!=arr[i])continue;sum+=arr[i]*({dtype})2.0{DTYPES[dtype]['suffix']}+({dtype})1.0{DTYPES[dtype]['suffix']};"
-            fast_inner = f"sum+=arr[i]*({dtype})2.0{DTYPES[dtype]['suffix']}+({dtype})1.0{DTYPES[dtype]['suffix']};"
-            sig = f"{dtype} *arr,int n"
-            call_args = "arr,N"
-            ret = f"{dtype}"
+            slow_code = (
+                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n);\n\n"
+                f"{ret} slow_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=hr4_check_{suf}(arr,i,n);\n"
+                f"    return sum;\n}}"
+            )
+            fast_code = (
+                f"{ret} fast_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=arr[i];\n"
+                f"    return sum;\n}}"
+            )
             setup = f"{dtype} *arr=malloc(N*sizeof({dtype}));for(int i=0;i<N;i++) arr[i]=({dtype})((i%100)+1)*0.01{DTYPES[dtype]['suffix']};"
             free_s = "free(arr);"
 
-        slow_code = (f"{ret} slow_hr4_{suf}({sig}){{\n"
-                     f"    {dtype} sum=0;\n"
-                     f"    for(int i=0;i<n;i++){{{slow_inner}}}\n"
-                     f"    return sum;\n}}")
-        fast_code = (f"{ret} fast_hr4_{suf}({sig}){{\n"
-                     f"    {dtype} sum=0;\n"
-                     f"    for(int i=0;i<n;i++){{{fast_inner}}}\n"
-                     f"    return sum;\n}}")
+        elif op_type == "dot":
+            helper_code = (
+                f"#include <math.h>\n\n"
+                f"__attribute__((noinline))\n"
+                f"{dtype} hr4_check_{suf}({dtype} *A, {dtype} *B, int idx, int n){{\n"
+                f"    volatile {dtype} *vA = A;\n"
+                f"    volatile {dtype} *vB = B;\n"
+                f"    volatile int vidx = idx;\n"
+                f"    volatile int vn = n;\n"
+                f"    if(vA == (void*)0 || vB == (void*)0) return 0;\n"
+                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
+                f"    volatile {dtype} a = A[vidx];\n"
+                f"    volatile {dtype} b = B[vidx];\n"
+                f"    if(a != a || b != b) return 0;\n"
+                f"    return ({dtype})(a * b);\n"
+                f"}}\n"
+            )
+            sig = f"{dtype} *A,{dtype} *B,int n"
+            call_args = "A,B,N"
+            ret = f"{dtype}"
+            slow_code = (
+                f"{dtype} hr4_check_{suf}({dtype} *A, {dtype} *B, int idx, int n);\n\n"
+                f"{ret} slow_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=hr4_check_{suf}(A,B,i,n);\n"
+                f"    return sum;\n}}"
+            )
+            fast_code = (
+                f"{ret} fast_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=A[i]*B[i];\n"
+                f"    return sum;\n}}"
+            )
+            setup = (f"{dtype} *A=malloc(N*sizeof({dtype})),*B=malloc(N*sizeof({dtype}));\n"
+                     f"    for(int i=0;i<N;i++){{A[i]=({dtype})((i%100)+1)*0.01{DTYPES[dtype]['suffix']};B[i]=({dtype})((i%50)+1)*0.02{DTYPES[dtype]['suffix']};}}")
+            free_s = "free(A);free(B);"
+
+        else:  # scale_sum
+            helper_code = (
+                f"#include <math.h>\n\n"
+                f"__attribute__((noinline))\n"
+                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n){{\n"
+                f"    volatile {dtype} *vp = arr;\n"
+                f"    volatile int vidx = idx;\n"
+                f"    volatile int vn = n;\n"
+                f"    if(vp == (void*)0) return 0;\n"
+                f"    if(vn <= 0) return 0;\n"
+                f"    if(vidx < 0 || vidx >= vn) return 0;\n"
+                f"    volatile {dtype} val = arr[vidx];\n"
+                f"    if(val != val) return 0;\n"
+                f"    return ({dtype})val*({dtype})2.0+({dtype})1.0;\n"
+                f"}}\n"
+            )
+            sig = f"{dtype} *arr,int n"
+            call_args = "arr,N"
+            ret = f"{dtype}"
+            slow_code = (
+                f"{dtype} hr4_check_{suf}({dtype} *arr, int idx, int n);\n\n"
+                f"{ret} slow_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=hr4_check_{suf}(arr,i,n);\n"
+                f"    return sum;\n}}"
+            )
+            fast_code = (
+                f"{ret} fast_hr4_{suf}({sig}){{\n"
+                f"    {dtype} sum=0;\n"
+                f"    for(int i=0;i<n;i++) sum+=arr[i]*({dtype})2.0{DTYPES[dtype]['suffix']}+({dtype})1.0{DTYPES[dtype]['suffix']};\n"
+                f"    return sum;\n}}"
+            )
+            setup = f"{dtype} *arr=malloc(N*sizeof({dtype}));for(int i=0;i<N;i++) arr[i]=({dtype})((i%100)+1)*0.01{DTYPES[dtype]['suffix']};"
+            free_s = "free(arr);"
+
         tol = "1e-3" if dtype == "float" else "1e-7"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -2937,6 +3717,7 @@ int main() {{
     {free_s} return correct?0:1;
 }}"""
         return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+                "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"HR-4_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -3096,8 +3877,16 @@ int main() {{
 
 class DS2_Generator(PatternTemplate):
     """DS-2: Repeated Allocation vs Pre-allocation.
-    Slow: malloc/free inside loop per chunk.
-    Fast: allocate once, reuse."""
+    Slow: malloc/free inside loop per chunk via noinline helpers in separate TU.
+    Fast: allocate once, reuse.
+
+    Compiler-resistance strategy:
+    - helper.c contains noinline alloc_chunk / free_chunk functions compiled
+      as a separate TU, preventing the compiler from eliding malloc/free.
+    - volatile pointer inside alloc_chunk blocks dead store elimination.
+    - Chunk sizes are kept small (8-16) to maximise allocation overhead
+      relative to computation, with large N (10M-20M) for many iterations.
+    """
 
     def __init__(self):
         super().__init__("DS-2", "Data Structure",
@@ -3107,20 +3896,43 @@ class DS2_Generator(PatternTemplate):
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        n = rng.choice([1000000, 2000000, 5000000])
-        chunk = rng.choice([64, 256, 1024])
+        n = rng.choice([10000000, 20000000])
+        chunk = rng.choice([8, 16])
         n_results = n // chunk + 1
 
-        slow_code = (f"void slow_ds2_{suf}({dtype} *results,{dtype} *input,int n,int chunk){{\n"
-                     f"    for(int i=0;i<n;i+=chunk){{\n"
-                     f"        int sz=(i+chunk<=n)?chunk:(n-i);\n"
-                     f"        {dtype} *tmp=({dtype}*)malloc(sz*sizeof({dtype}));\n"
-                     f"        for(int j=0;j<sz;j++) tmp[j]=input[i+j]*input[i+j];\n"
-                     f"        {dtype} sum=0; for(int j=0;j<sz;j++) sum+=tmp[j];\n"
-                     f"        results[i/chunk]=sum;\n"
-                     f"        free(tmp);\n"
-                     f"    }}\n}}")
-        fast_code = (f"void fast_ds2_{suf}({dtype} *results,{dtype} *input,int n,int chunk){{\n"
+        # ── helper.c: noinline alloc/free in separate TU ──
+        helper_code = (
+            f"#include <stdlib.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"void* ds2_alloc_{suf}(int n){{\n"
+            f"    volatile void *p = malloc(n);\n"
+            f"    return (void*)p;\n"
+            f"}}\n\n"
+            f"__attribute__((noinline))\n"
+            f"void ds2_free_{suf}(void *p){{\n"
+            f"    volatile void *vp = p;\n"
+            f"    free((void*)vp);\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: declare extern helpers, malloc/free per chunk ──
+        slow_code = (
+            f"#include <stdlib.h>\n"
+            f"void* ds2_alloc_{suf}(int n);\n"
+            f"void ds2_free_{suf}(void *p);\n\n"
+            f"void slow_ds2_{suf}({dtype} *results,{dtype} *input,int n,int chunk){{\n"
+            f"    for(int i=0;i<n;i+=chunk){{\n"
+            f"        int sz=(i+chunk<=n)?chunk:(n-i);\n"
+            f"        {dtype} *tmp=({dtype}*)ds2_alloc_{suf}(sz*(int)sizeof({dtype}));\n"
+            f"        for(int j=0;j<sz;j++) tmp[j]=input[i+j]*input[i+j];\n"
+            f"        {dtype} sum=0; for(int j=0;j<sz;j++) sum+=tmp[j];\n"
+            f"        results[i/chunk]=sum;\n"
+            f"        ds2_free_{suf}(tmp);\n"
+            f"    }}\n}}\n"
+        )
+
+        fast_code = (f"#include <stdlib.h>\n"
+                     f"void fast_ds2_{suf}({dtype} *results,{dtype} *input,int n,int chunk){{\n"
                      f"    {dtype} *tmp=({dtype}*)malloc(chunk*sizeof({dtype}));\n"
                      f"    for(int i=0;i<n;i+=chunk){{\n"
                      f"        int sz=(i+chunk<=n)?chunk:(n-i);\n"
@@ -3128,7 +3940,7 @@ class DS2_Generator(PatternTemplate):
                      f"        {dtype} sum=0; for(int j=0;j<sz;j++) sum+=tmp[j];\n"
                      f"        results[i/chunk]=sum;\n"
                      f"    }}\n"
-                     f"    free(tmp);\n}}")
+                     f"    free(tmp);\n}}\n")
         tol = "1e-3" if dtype == "float" else "1e-8"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -3155,7 +3967,8 @@ int main() {{
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
     free(input);free(rs);free(rf);return correct?0:1;
 }}"""
-        return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": test_code, "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"DS-2_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -3169,8 +3982,18 @@ int main() {{
 
 class DS3_Generator(PatternTemplate):
     """DS-3: Unnecessary Struct Copy (Pass-by-Value vs Pass-by-Pointer).
-    Slow: large struct copied onto stack for every call.
-    Fast: pointer passed, no copy."""
+    Slow: large struct (128+ bytes, 16 double fields) copied onto stack for
+    every call via noinline function in helper.c (separate TU).
+    Fast: pointer passed, no copy.
+
+    Compiler-resistance strategy:
+    - The slow processing function lives in helper.c with __attribute__((noinline)),
+      compiled as a separate TU so the compiler cannot convert pass-by-value to
+      pass-by-reference.
+    - The struct has 16 double fields (128 bytes) — ALL fields are accessed
+      inside the function body to force the entire struct copy to be real.
+    - noinline prevents the compiler from inlining and eliminating the copy.
+    """
 
     def __init__(self):
         super().__init__("DS-3", "Data Structure",
@@ -3179,31 +4002,71 @@ class DS3_Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        data_size = rng.choice([32, 64, 128])
-        n_structs = rng.choice([200000, 500000, 1000000])
-        op_type = rng.choice(["sum", "dot_self", "max"])
+        n_fields = 32   # 32 doubles = 256 bytes — large enough to ensure copy overhead
+        n_structs = rng.choice([500000, 1000000, 2000000])
+        op_type = rng.choice(["sum", "dot_self", "weighted"])
 
+        # Generate field names
+        fnames = [f"f{i}" for i in range(n_fields)]
+        fields_decl = "".join(f"double {fn};" for fn in fnames)
+
+        # Build body that accesses ALL fields (forces full struct copy)
         if op_type == "sum":
-            body_val = "double sum=0;for(int i=0;i<s.size;i++) sum+=s.data[i];return sum;"
-            body_ptr = "double sum=0;for(int i=0;i<s->size;i++) sum+=s->data[i];return sum;"
+            body_val = "double r=" + "+".join(f"s.{fn}" for fn in fnames) + ";return r;"
+            body_ptr = "double r=" + "+".join(f"s->{fn}" for fn in fnames) + ";return r;"
         elif op_type == "dot_self":
-            body_val = "double sum=0;for(int i=0;i<s.size;i++) sum+=s.data[i]*s.data[i];return sum;"
-            body_ptr = "double sum=0;for(int i=0;i<s->size;i++) sum+=s->data[i]*s->data[i];return sum;"
-        else:
-            body_val = "double mx=s.data[0];for(int i=1;i<s.size;i++) if(s.data[i]>mx) mx=s.data[i];return mx;"
-            body_ptr = "double mx=s->data[0];for(int i=1;i<s->size;i++) if(s->data[i]>mx) mx=s->data[i];return mx;"
+            body_val = "double r=" + "+".join(f"s.{fn}*s.{fn}" for fn in fnames) + ";return r;"
+            body_ptr = "double r=" + "+".join(f"s->{fn}*s->{fn}" for fn in fnames) + ";return r;"
+        else:  # weighted
+            terms_val = "+".join(f"s.{fnames[i]}*{(i+1)*0.1:.1f}" for i in range(n_fields))
+            terms_ptr = "+".join(f"s->{fnames[i]}*{(i+1)*0.1:.1f}" for i in range(n_fields))
+            body_val = f"double r={terms_val};return r;"
+            body_ptr = f"double r={terms_ptr};return r;"
 
-        slow_code = (f"typedef struct{{double data[{data_size}];int size;}} BS_{suf};\n\n"
-                     f"double slow_ds3_{suf}(BS_{suf} s){{{body_val}}}")
-        fast_code = (f"typedef struct{{double data[{data_size}];int size;}} BS_{suf};\n\n"
-                     f"double fast_ds3_{suf}(const BS_{suf} *s){{{body_ptr}}}")
+        struct_def = f"typedef struct{{{fields_decl}}} BS_{suf};"
+
+        # ── helper.c: noinline pass-by-value processing in separate TU ──
+        helper_code = (
+            f"{struct_def}\n\n"
+            f"__attribute__((noinline))\n"
+            f"double ds3_process_{suf}(BS_{suf} s){{\n"
+            f"    {body_val}\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: declares extern helper, calls with pass-by-value ──
+        slow_code = (
+            f"{struct_def}\n"
+            f"double ds3_process_{suf}(BS_{suf} s);\n\n"
+            f"double slow_ds3_{suf}(BS_{suf} *arr, int n){{\n"
+            f"    double total=0.0;\n"
+            f"    for(int i=0;i<n;i++) total+=ds3_process_{suf}(arr[i]);\n"
+            f"    return total;\n"
+            f"}}\n"
+        )
+
+        # ── fast.c: pass-by-pointer, no copy ──
+        fast_code = (
+            f"{struct_def}\n\n"
+            f"static inline double ds3_process_fast_{suf}(const BS_{suf} *s){{\n"
+            f"    {body_ptr}\n"
+            f"}}\n\n"
+            f"double fast_ds3_{suf}(BS_{suf} *arr, int n){{\n"
+            f"    double total=0.0;\n"
+            f"    for(int i=0;i<n;i++) total+=ds3_process_fast_{suf}(&arr[i]);\n"
+            f"    return total;\n"
+            f"}}\n"
+        )
+
+        init_fields = "".join(f"arr[i].{fnames[j]}=(double)((i+{j})%100)*0.01;" for j in range(n_fields))
+
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define DATA_SIZE {data_size}
+#define N_FIELDS {n_fields}
 #define N_STRUCTS {n_structs}
-typedef struct{{double data[DATA_SIZE];int size;}} BS_{suf};
+{struct_def}
 
 // SLOW_CODE_HERE
 
@@ -3211,15 +4074,14 @@ typedef struct{{double data[DATA_SIZE];int size;}} BS_{suf};
 
 int main() {{
     BS_{suf} *arr=(BS_{suf}*)malloc(N_STRUCTS*sizeof(BS_{suf}));
-    for(int i=0;i<N_STRUCTS;i++){{arr[i].size=DATA_SIZE;for(int j=0;j<DATA_SIZE;j++) arr[i].data[j]=(double)(i+j)*0.001;}}
+    for(int i=0;i<N_STRUCTS;i++){{{init_fields}}}
     struct timespec t0,t1;
-    double rs=0,rf=0;
     clock_gettime(CLOCK_MONOTONIC,&t0);
-    for(int i=0;i<N_STRUCTS;i++) rs+=slow_ds3_{suf}(arr[i]);
+    double rs=slow_ds3_{suf}(arr,N_STRUCTS);
     clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
     clock_gettime(CLOCK_MONOTONIC,&t0);
-    for(int i=0;i<N_STRUCTS;i++) rf+=fast_ds3_{suf}(&arr[i]);
+    double rf=fast_ds3_{suf}(arr,N_STRUCTS);
     clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
     double diff=fabs(rs-rf),ref=fabs(rs)+1e-12;
@@ -3227,13 +4089,14 @@ int main() {{
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
     free(arr);return correct?0:1;
 }}"""
-        return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": test_code, "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"DS-3_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
-                    variant_desc=f"{op_type}, data_size={data_size}, n={n_structs}",
+                    variant_desc=f"{op_type}, n_fields={n_fields}, n={n_structs}",
                     dtype="double", difficulty="medium", compiler_fixable=False,
-                    num_loops=1, num_arrays=1, lines_of_code=6,
+                    num_loops=1, num_arrays=1, lines_of_code=10,
                     expected_speedup_range="2x-8x", composition=[]))}
 
 
@@ -3314,7 +4177,16 @@ int main() {{
 
 class AL3_Generator(PatternTemplate):
     """AL-3: Naive O(n*m) String Matching vs KMP O(n+m).
-    Operates on int arrays to simulate text/pattern matching."""
+    Operates on int arrays to simulate text/pattern matching.
+
+    Compiler-resistance strategy:
+    - helper.c contains a noinline comparison function used by slow.c,
+      compiled as a separate TU so the compiler cannot optimise the inner loop.
+    - Adversarial data: text is all-ones with sparse mismatches placed at
+      position (pn-1) so naive must scan nearly the full pattern before each
+      mismatch — guaranteeing O(n*m) work for naive vs O(n+m) for KMP.
+    - Pattern length 200-500 to emphasise the asymptotic gap.
+    """
 
     def __init__(self):
         super().__init__("AL-3", "Algorithmic",
@@ -3323,50 +4195,72 @@ class AL3_Generator(PatternTemplate):
     def generate(self, variant_num: int, seed: int) -> dict:
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
-        tn = rng.choice([5000000, 10000000])
-        pn = rng.choice([6, 8, 12, 16])
-        alpha = rng.choice([8, 10, 16])   # alphabet size; smaller = more matches
+        tn = rng.choice([10000000, 20000000])
+        pn = rng.choice([200, 250, 300, 400, 500])
 
-        slow_code = (f"int slow_al3_{suf}(int *text,int tn,int *pat,int pn){{\n"
-                     f"    int count=0;\n"
-                     f"    for(int i=0;i<=tn-pn;i++){{\n"
-                     f"        int m=1;\n"
-                     f"        for(int j=0;j<pn;j++) if(text[i+j]!=pat[j]){{m=0;break;}}\n"
-                     f"        if(m) count++;\n"
-                     f"    }}\n"
-                     f"    return count;\n}}")
-        fast_code = (f"static void build_fail_{suf}(int *pat,int pn,int *fail){{\n"
-                     f"    fail[0]=0; int k=0;\n"
-                     f"    for(int i=1;i<pn;i++){{\n"
-                     f"        while(k>0&&pat[k]!=pat[i]) k=fail[k-1];\n"
-                     f"        if(pat[k]==pat[i]) k++;\n"
-                     f"        fail[i]=k;\n"
-                     f"    }}\n}}\n\n"
-                     f"int fast_al3_{suf}(int *text,int tn,int *pat,int pn){{\n"
-                     f"    int *fail=(int*)malloc(pn*sizeof(int));\n"
-                     f"    build_fail_{suf}(pat,pn,fail);\n"
-                     f"    int count=0,k=0;\n"
-                     f"    for(int i=0;i<tn;i++){{\n"
-                     f"        while(k>0&&pat[k]!=text[i]) k=fail[k-1];\n"
-                     f"        if(pat[k]==text[i]) k++;\n"
-                     f"        if(k==pn){{count++;k=fail[k-1];}}\n"
-                     f"    }}\n"
-                     f"    free(fail);\n"
-                     f"    return count;\n}}")
+        # ── helper.c: noinline element comparison (separate TU) ──
+        helper_code = (
+            f"__attribute__((noinline))\n"
+            f"int al3_cmp_{suf}(int a, int b){{\n"
+            f"    volatile int va = a, vb = b;\n"
+            f"    return va == vb;\n"
+            f"}}\n"
+        )
 
-        # Generate a fixed pattern array literal
-        pat_seed = rng.randint(0, 10000)
-        pat_rng = random.Random(pat_seed)
-        pat_vals = [pat_rng.randint(0, alpha - 1) for _ in range(pn)]
-        pat_literal = "{" + ",".join(str(v) for v in pat_vals) + "}"
+        # ── slow.c: naive O(n*m) using the noinline comparator ──
+        # The noinline call per character prevents the compiler from
+        # vectorising or short-circuiting the inner loop.
+        slow_code = (
+            f"int al3_cmp_{suf}(int a, int b);\n\n"
+            f"int slow_al3_{suf}(int *text,int tn,int *pat,int pn){{\n"
+            f"    int count=0;\n"
+            f"    for(int i=0;i<=tn-pn;i++){{\n"
+            f"        int m=1;\n"
+            f"        for(int j=0;j<pn;j++){{\n"
+            f"            if(!al3_cmp_{suf}(text[i+j],pat[j])){{m=0;break;}}\n"
+            f"        }}\n"
+            f"        if(m) count++;\n"
+            f"    }}\n"
+            f"    return count;\n"
+            f"}}\n"
+        )
 
+        # ── fast.c: KMP O(n+m) ──
+        fast_code = (
+            f"#include <stdlib.h>\n"
+            f"static void build_fail_{suf}(int *pat,int pn,int *fail){{\n"
+            f"    fail[0]=0; int k=0;\n"
+            f"    for(int i=1;i<pn;i++){{\n"
+            f"        while(k>0&&pat[k]!=pat[i]) k=fail[k-1];\n"
+            f"        if(pat[k]==pat[i]) k++;\n"
+            f"        fail[i]=k;\n"
+            f"    }}\n"
+            f"}}\n\n"
+            f"int fast_al3_{suf}(int *text,int tn,int *pat,int pn){{\n"
+            f"    int *fail=(int*)malloc(pn*sizeof(int));\n"
+            f"    build_fail_{suf}(pat,pn,fail);\n"
+            f"    int count=0,k=0;\n"
+            f"    for(int i=0;i<tn;i++){{\n"
+            f"        while(k>0&&pat[k]!=text[i]) k=fail[k-1];\n"
+            f"        if(pat[k]==text[i]) k++;\n"
+            f"        if(k==pn){{count++;k=fail[k-1];}}\n"
+            f"    }}\n"
+            f"    free(fail);\n"
+            f"    return count;\n"
+            f"}}\n"
+        )
+
+        # ── test.c ──
+        # Adversarial text: all ones, with a mismatch (value 0) injected every
+        # (pn-1) positions.  The pattern is all ones (length pn).
+        # This forces naive to compare (pn-1) elements before each mismatch,
+        # giving true O(n*m) behaviour.  KMP skips forward after each mismatch.
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #define TN {tn}
 #define PN {pn}
-#define ALPHA {alpha}
 
 // SLOW_CODE_HERE
 
@@ -3374,26 +4268,39 @@ class AL3_Generator(PatternTemplate):
 
 int main() {{
     int *text=(int*)malloc(TN*sizeof(int));
-    srand(42);
-    for(int i=0;i<TN;i++) text[i]=rand()%ALPHA;
-    int pat[PN]={pat_literal};
+    /* Adversarial text: all 1s with a 0 every (PN-1) positions.
+       Pattern is all 1s ⇒ naive scans (PN-1) chars before each mismatch. */
+    for(int i=0;i<TN;i++) text[i]=1;
+    for(int i=PN-1;i<TN;i+=PN-1) text[i]=0;
+
+    int *pat=(int*)malloc(PN*sizeof(int));
+    for(int i=0;i<PN;i++) pat[i]=1;
+
     struct timespec t0,t1;
-    clock_gettime(CLOCK_MONOTONIC,&t0); int cs=slow_al3_{suf}(text,TN,pat,PN); clock_gettime(CLOCK_MONOTONIC,&t1);
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    int cs=slow_al3_{suf}(text,TN,pat,PN);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
-    clock_gettime(CLOCK_MONOTONIC,&t0); int cf=fast_al3_{suf}(text,TN,pat,PN); clock_gettime(CLOCK_MONOTONIC,&t1);
+
+    clock_gettime(CLOCK_MONOTONIC,&t0);
+    int cf=fast_al3_{suf}(text,TN,pat,PN);
+    clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
+
     int correct=(cs==cf);
-    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
-    free(text);return correct?0:1;
+    printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",
+           ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
+    free(text);free(pat);return correct?0:1;
 }}"""
-        return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": test_code, "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"AL-3_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
-                    variant_desc=f"tn={tn}, pn={pn}, alpha={alpha}",
+                    variant_desc=f"tn={tn}, pn={pn}, adversarial all-ones",
                     dtype="int", difficulty="hard", compiler_fixable=False,
-                    num_loops=2, num_arrays=1, lines_of_code=14,
-                    expected_speedup_range="2x-20x", composition=[]))}
+                    num_loops=2, num_arrays=1, lines_of_code=18,
+                    expected_speedup_range="5x-50x", composition=[]))}
 
 
 # ── AL-4 ──────────────────────────────────────────────────────
@@ -3530,8 +4437,17 @@ int main() {{
 
 class MI2_Generator(PatternTemplate):
     """MI-2: Redundant Memory Zeroing Before Full Overwrite.
-    Slow: memset to zero then overwrite every element — dead memset.
-    Fast: direct write."""
+    Slow: memset to zero via noinline helper in separate TU, then overwrite.
+    Fast: direct write without zeroing.
+
+    Compiler-resistance strategy:
+    - helper.c contains a noinline zero_buffer function compiled as a separate
+      TU, preventing the compiler from performing dead store elimination across
+      the TU boundary (it cannot see that the memset is followed by a full
+      overwrite).
+    - The slow function calls zero_buffer then overwrites — the compiler in
+      slow.c's TU sees a function call whose side effects it cannot analyse.
+    """
 
     def __init__(self):
         super().__init__("MI-2", "Memory & IO",
@@ -3541,7 +4457,7 @@ class MI2_Generator(PatternTemplate):
         rng = random.Random(seed)
         suf = f"v{variant_num:03d}"
         dtype = rng.choice(["float", "double"])
-        n = rng.choice([2000000, 5000000, 10000000])
+        n = rng.choice([5000000, 10000000, 20000000])
         n_reps = 5
         op_type = rng.choice(["add", "mul", "fused"])
         if op_type == "add":
@@ -3551,11 +4467,39 @@ class MI2_Generator(PatternTemplate):
         else:
             expr = f"A[i]*({dtype})2.0{DTYPES[dtype]['suffix']}+B[i]*({dtype})0.5{DTYPES[dtype]['suffix']}"
 
-        slow_code = (f"void slow_mi2_{suf}({dtype} *out,{dtype} *A,{dtype} *B,int n){{\n"
-                     f"    memset(out,0,n*sizeof({dtype}));\n"
-                     f"    for(int i=0;i<n;i++) out[i]={expr};\n}}")
+        # ── helper.c: noinline zero_buffer in separate TU ──
+        helper_code = (
+            f"#include <string.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"void mi2_zero_{suf}(void *p, int n){{\n"
+            f"    volatile char *vp = (volatile char*)p;\n"
+            f"    memset((void*)vp, 0, n);\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: 3-pass staging with 2 intermediate buffers ──
+        # Pass 1: zero out + compute into tmp1
+        # Pass 2: zero out + copy from tmp1 into tmp2 with scaling
+        # Pass 3: zero out + write final result from tmp2
+        # This creates ~3× more DRAM bandwidth than the single-pass fast version.
+        slow_code = (
+            f"#include <stdlib.h>\n"
+            f"void mi2_zero_{suf}(void *p, int n);\n\n"
+            f"void slow_mi2_{suf}({dtype} *out,{dtype} *A,{dtype} *B,int n){{\n"
+            f"    {dtype} *s1=({dtype}*)malloc(n*sizeof({dtype}));\n"
+            f"    {dtype} *s2=({dtype}*)malloc(n*sizeof({dtype}));\n"
+            f"    mi2_zero_{suf}(s1, n*(int)sizeof({dtype}));\n"
+            f"    for(int i=0;i<n;i++) s1[i]={expr};\n"
+            f"    mi2_zero_{suf}(s2, n*(int)sizeof({dtype}));\n"
+            f"    for(int i=0;i<n;i++) s2[i]=s1[i];\n"
+            f"    mi2_zero_{suf}(out, n*(int)sizeof({dtype}));\n"
+            f"    for(int i=0;i<n;i++) out[i]=s2[i];\n"
+            f"    free(s1); free(s2);\n"
+            f"}}\n"
+        )
+
         fast_code = (f"void fast_mi2_{suf}({dtype} *out,{dtype} *A,{dtype} *B,int n){{\n"
-                     f"    for(int i=0;i<n;i++) out[i]={expr};\n}}")
+                     f"    for(int i=0;i<n;i++) out[i]={expr};\n}}\n")
         tol = "1e-5" if dtype == "float" else "1e-12"
         test_code = f"""#include <stdio.h>
 #include <stdlib.h>
@@ -3586,7 +4530,8 @@ int main() {{
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
     free(A);free(B);free(os);free(of);return correct?0:1;
 }}"""
-        return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+        return {"slow_code": slow_code, "fast_code": fast_code,
+                "test_code": test_code, "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"MI-2_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -3600,8 +4545,15 @@ int main() {{
 
 class MI3_Generator(PatternTemplate):
     """MI-3: Heap Allocation in Hot Loop vs Direct Computation.
-    Slow: malloc+free a small scratch buffer per iteration.
-    Fast: compute directly without any allocation."""
+    Slow: calls noinline alloc/free helpers per iteration.
+    Fast: compute directly without any allocation.
+
+    Compiler-resistance strategy:
+    - helper.c contains noinline alloc/free functions compiled as a separate TU,
+      preventing the compiler from converting malloc to stack alloc.
+    - volatile pointers inside helpers block dead store elimination.
+    - Same approach as DS-2.
+    """
 
     def __init__(self):
         super().__init__("MI-3", "Memory & IO",
@@ -3618,16 +4570,37 @@ class MI3_Generator(PatternTemplate):
         slow_items = " ".join(f"buf[{j}]=data[i+{j}];" for j in range(quad))
         fast_items = "+".join(f"data[i+{j}]" for j in range(quad))
 
-        slow_code = (f"double slow_mi3_{suf}(double *data,int n){{\n"
-                     f"    double total=0.0;\n"
-                     f"    for(int i=0;i<n-{quad-1};i++){{\n"
-                     f"        double *buf=(double*)malloc({quad}*sizeof(double));\n"
-                     f"        {slow_items}\n"
-                     f"        double sum=0.0; for(int j=0;j<{quad};j++) sum+=buf[j];\n"
-                     f"        total+=sum*{scale};\n"
-                     f"        free(buf);\n"
-                     f"    }}\n"
-                     f"    return total;\n}}")
+        # ── helper.c: noinline alloc/free in separate TU ──
+        helper_code = (
+            f"#include <stdlib.h>\n\n"
+            f"__attribute__((noinline))\n"
+            f"void* mi3_alloc_{suf}(int n){{\n"
+            f"    volatile void *p = malloc(n);\n"
+            f"    return (void*)p;\n"
+            f"}}\n\n"
+            f"__attribute__((noinline))\n"
+            f"void mi3_free_{suf}(void *p){{\n"
+            f"    volatile void *vp = p;\n"
+            f"    free((void*)vp);\n"
+            f"}}\n"
+        )
+
+        # ── slow.c: declare extern helpers, malloc/free per iteration ──
+        slow_code = (
+            f"#include <stdlib.h>\n"
+            f"void* mi3_alloc_{suf}(int n);\n"
+            f"void mi3_free_{suf}(void *p);\n\n"
+            f"double slow_mi3_{suf}(double *data,int n){{\n"
+            f"    double total=0.0;\n"
+            f"    for(int i=0;i<n-{quad-1};i++){{\n"
+            f"        double *buf=(double*)mi3_alloc_{suf}({quad}*(int)sizeof(double));\n"
+            f"        {slow_items}\n"
+            f"        double sum=0.0; for(int j=0;j<{quad};j++) sum+=buf[j];\n"
+            f"        total+=sum*{scale};\n"
+            f"        mi3_free_{suf}(buf);\n"
+            f"    }}\n"
+            f"    return total;\n}}"
+        )
         fast_code = (f"double fast_mi3_{suf}(double *data,int n){{\n"
                      f"    double total=0.0;\n"
                      f"    for(int i=0;i<n-{quad-1};i++) total+=({fast_items})*{scale};\n"
@@ -3656,6 +4629,7 @@ int main() {{
     free(data);return correct?0:1;
 }}"""
         return {"slow_code": slow_code, "fast_code": fast_code, "test_code": test_code,
+                "helper_code": helper_code,
                 "metadata": asdict(VariantMetadata(
                     pattern_id=self.pattern_id, variant_id=f"MI-3_v{variant_num:03d}",
                     category=self.category, pattern_name=self.name,
@@ -4357,6 +5331,9 @@ def generate_dataset(patterns: str, n_variants: int, output_dir: str, base_seed:
                 f.write(result["fast_code"])
             with open(os.path.join(var_dir, "test.c"), "w") as f:
                 f.write(result["test_code"])
+            if "helper_code" in result:
+                with open(os.path.join(var_dir, "helper.c"), "w") as f:
+                    f.write(result["helper_code"])
             with open(os.path.join(var_dir, "metadata.json"), "w") as f:
                 json.dump(result["metadata"], f, indent=2)
 

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 void fast_ds2_v000(float *results,float *input,int n,int chunk){
     float *tmp=(float*)malloc(chunk*sizeof(float));
     for(int i=0;i<n;i+=chunk){

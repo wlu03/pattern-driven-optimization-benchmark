@@ -1,8 +1,8 @@
-double slow_sr2_v011(double *X, double *Y, double *Z, double *W, int n, double alpha) {
-    double result = 0.0;
+float slow_sr2_v011(float *X, float *Y, int n, float alpha) {
+    float result = 0.0;
     int i = 0;
     while (i < n) {
-        result += alpha * W[i] + alpha * X[i] * X[i] + alpha * X[i] * X[i] * X[i];
+        result += alpha * X[i] * X[i] * X[i] + alpha * X[i] + alpha * Y[i] * Y[i] * Y[i] + alpha;
         i++;
     }
     return result;

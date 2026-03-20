@@ -3,13 +3,13 @@
   "variant_id": "DS-4_v010",
   "category": "Data Structure Inefficiency",
   "pattern_name": "Cache-Unfriendly Access (AoS vs SoA)",
-  "variant_desc": "vertices struct (7 fields), accessing ['py'], max reduction",
+  "variant_desc": "vertices struct (8 fields), accessing ['ny'], max reduction, while-loop",
   "dtype": "double",
-  "difficulty": "medium",
+  "difficulty": "hard",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
   "lines_of_code": 12,
-  "expected_speedup_range": "7x-7x",
+  "expected_speedup_range": "8x-8x",
   "composition": []
 }

@@ -1,13 +1,11 @@
-int fast_sr_1_v013(int *A, int *B, int *C, int *D, int n, int k0, int k1, int k2, int k3) {
-    int sum_A = 0;
-    int sum_B = 0;
-    int sum_C = 0;
-    int sum_D = 0;
+float expensive_sr1_v013(int key);
+
+void fast_sr1_v013(float *arr, int n, int key0, int key1, int key2, int key3) {
+    float f0 = expensive_sr1_v013(key0);
+    float f1 = expensive_sr1_v013(key1);
+    float f2 = expensive_sr1_v013(key2);
+    float f3 = expensive_sr1_v013(key3);
     for (int i = 0; i < n; i++) {
-        sum_A += A[i];
-        sum_B += B[i];
-        sum_C += C[i];
-        sum_D += D[i];
+        arr[i] *= f0 * f1 * f2 * f3;
     }
-    return (k0 * sum_A) + (k1 * sum_B) + (k2 * sum_C) + (k3 * sum_D);
 }

@@ -1,5 +1,5 @@
-float fast_hr4_v012(float *A,float *B,int n){
-    float sum=0;
-    for(int i=0;i<n;i++){sum+=A[i]*B[i];}
+double fast_hr4_v012(double *arr,int n){
+    double sum=0;
+    for(int i=0;i<n;i++) sum+=arr[i];
     return sum;
 }

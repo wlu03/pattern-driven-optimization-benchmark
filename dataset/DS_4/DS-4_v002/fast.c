@@ -1,11 +1,11 @@
-double fast_ds4_v002(double *temp, double *humidity, double *light, int n) {
-    double total_temp = 0.0;
-    double total_humidity = 0.0;
-    double total_light = 0.0;
-    for (int i = 0; i < n; i++) {
-        total_temp += temp[i];
-        total_humidity += humidity[i];
-        total_light += light[i];
+double fast_ds4_v002(double *x, double *time, int n) {
+    double total_x = 0.0;
+    double total_time = 0.0;
+    int i = 0;
+    while (i < n) {
+        total_x += x[i];
+        total_time += time[i];
+        i++;
     }
-    return total_temp + total_humidity + total_light;
+    return total_x + total_time;
 }

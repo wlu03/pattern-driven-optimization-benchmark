@@ -1,22 +1,22 @@
 typedef struct {
-    float temp;
-    float humidity;
-    double pressure;
-    float wind_speed;
-    float wind_dir;
-    int light;
-    int noise;
-    float co2;
+    double time;
+    double x;
+    double y;
+    float energy;
+    int channel;
+    int quality;
+    double amplitude;
+    float phase;
 } AoS_v002;
 
 double slow_ds4_v002(AoS_v002 *arr, int n) {
-    double total_temp = 0.0;
-    double total_humidity = 0.0;
-    double total_light = 0.0;
-    for (int i = 0; i < n; i++) {
-        total_temp += (double)arr[i].temp;
-        total_humidity += (double)arr[i].humidity;
-        total_light += (double)arr[i].light;
+    double total_x = 0.0;
+    double total_time = 0.0;
+    int i = 0;
+    while (i < n) {
+        total_x += (double)arr[i].x;
+        total_time += (double)arr[i].time;
+        i++;
     }
-    return total_temp + total_humidity + total_light;
+    return total_x + total_time;
 }

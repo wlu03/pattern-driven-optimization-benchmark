@@ -1,3 +1,3 @@
-void fast_mi2_v012(float *out,float *A,float *B,int n){
-    for(int i=0;i<n;i++) out[i]=A[i]*(float)2.0f+B[i]*(float)0.5f;
+void fast_mi2_v012(double *out,double *A,double *B,int n){
+    for(int i=0;i<n;i++) out[i]=A[i]+B[i];
 }

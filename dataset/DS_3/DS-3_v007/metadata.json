@@ -3,13 +3,13 @@
   "variant_id": "DS-3_v007",
   "category": "Data Structure",
   "pattern_name": "Unnecessary Struct Copy (Pass-by-Value)",
-  "variant_desc": "dot_self, data_size=128, n=200000",
+  "variant_desc": "dot_self, n_fields=32, n=2000000",
   "dtype": "double",
   "difficulty": "medium",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 1,
-  "lines_of_code": 6,
+  "lines_of_code": 10,
   "expected_speedup_range": "2x-8x",
   "composition": []
 }

@@ -1,7 +1,13 @@
-int slow_sr_1_v014(int *A, int *B, int *C, int n, int k0, int k1) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        total += (k0 - A[i]) + (k1 - B[i]) + C[i];
+double expensive_sr1_v014(int key);
+
+void slow_sr1_v014(double *arr, int n, int key0, int key1, int key2, int key3) {
+    int i = 0;
+    while (i < n) {
+        double f0 = expensive_sr1_v014(key0);
+        double f1 = expensive_sr1_v014(key1);
+        double f2 = expensive_sr1_v014(key2);
+        double f3 = expensive_sr1_v014(key3);
+        arr[i] += f0 * f1 * f2 * f3;
+        i++;
     }
-    return total;
 }

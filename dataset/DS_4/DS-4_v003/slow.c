@@ -9,9 +9,17 @@ typedef struct {
 } AoS_v003;
 
 double slow_ds4_v003(AoS_v003 *arr, int n) {
-    double total_value = 1e308;
-    for (int i = 0; i < n; i++) {
-        if ((double)arr[i].value < total_value) total_value = (double)arr[i].value;
+    double total_score = 0.0;
+    double total_category = 0.0;
+    double total_timestamp = 0.0;
+    double total_value = 0.0;
+    int i = 0;
+    while (i < n) {
+        total_score += (double)arr[i].score;
+        total_category += (double)arr[i].category;
+        total_timestamp += (double)arr[i].timestamp;
+        total_value += (double)arr[i].value;
+        i++;
     }
-    return total_value;
+    return total_score + total_category + total_timestamp + total_value;
 }

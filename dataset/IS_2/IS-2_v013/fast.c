@@ -1,11 +1,10 @@
 #include <math.h>
-void fast_is2_v013(double *out,double *in,int n,double thr){
+float is2_expensive_v013(float val, float thr);
+
+void fast_is2_v013(float *out,float *in,int n,float thr){
     for(int i=0;i<n;i++){
-        double val=in[i];
-        if((double)fabs((double)val)<=thr){out[i]=val;}
-        else{
-            double sign=(val>=0)?1.0:-1.0,abs_val=(double)fabs((double)val);
-            out[i]=sign*((double)1.0+(double)log(1.0+abs_val-(double)1.0));
-        }
+        float val=in[i];
+        if((float)fabs((double)val)<=thr){out[i]=val;}
+        else{out[i]=is2_expensive_v013(val,thr);}
     }
 }

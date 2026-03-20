@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 5000000
-#define CHUNK 256
-#define N_RES 19532
+#define N 20000000
+#define CHUNK 8
+#define N_RES 2500001
 
 // SLOW_CODE_HERE
 

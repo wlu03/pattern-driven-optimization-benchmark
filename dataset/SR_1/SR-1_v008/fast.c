@@ -1,13 +1,12 @@
-double fast_sr_1_v008(double *A, double *B, double *C, double *D, int n, double k0) {
-    double sum_A = 0.0;
-    double sum_B = 0.0;
-    double sum_C = 0.0;
-    double sum_D = 0.0;
-    for (int i = 0; i < n; i++) {
-        sum_A += A[i];
-        sum_B += B[i];
-        sum_C += C[i];
-        sum_D += D[i];
+float expensive_sr1_v008(int key);
+
+void fast_sr1_v008(float *arr, int n, int key0, int key1, int key2) {
+    float f0 = expensive_sr1_v008(key0);
+    float f1 = expensive_sr1_v008(key1);
+    float f2 = expensive_sr1_v008(key2);
+    int i = 0;
+    while (i < n) {
+        arr[i] *= f0 * f1 * f2;
+        i++;
     }
-    return (k0 * sum_A) + sum_B + sum_C + sum_D;
 }

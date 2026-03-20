@@ -1,9 +1,8 @@
-double slow_sr_1_v003(double *A, double *B, int n, double k0, double k1) {
-    double total = 0.0;
-    int i = 0;
-    while (i < n) {
-        total += (k0 - A[i]) + (k1 - B[i]);
-        i++;
+double expensive_sr1_v003(int key);
+
+void slow_sr1_v003(double *arr, int n, int key) {
+    for (int i = 0; i < n; i++) {
+        double f0 = expensive_sr1_v003(key);
+        arr[i] += f0;
     }
-    return total;
 }

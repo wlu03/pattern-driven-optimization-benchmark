@@ -1,11 +1,13 @@
-double fast_ds4_v011(double *y, double *time, double *amplitude, int n) {
-    double total_y = 1e308;
-    double total_time = 1e308;
-    double total_amplitude = 1e308;
+double fast_ds4_v011(double *light, double *humidity, double *noise, double *pressure, int n) {
+    double total_light = 1e308;
+    double total_humidity = 1e308;
+    double total_noise = 1e308;
+    double total_pressure = 1e308;
     for (int i = 0; i < n; i++) {
-        if (y[i] < total_y) total_y = y[i];
-        if (time[i] < total_time) total_time = time[i];
-        if (amplitude[i] < total_amplitude) total_amplitude = amplitude[i];
+        if (light[i] < total_light) total_light = light[i];
+        if (humidity[i] < total_humidity) total_humidity = humidity[i];
+        if (noise[i] < total_noise) total_noise = noise[i];
+        if (pressure[i] < total_pressure) total_pressure = pressure[i];
     }
-    return total_y + total_time + total_amplitude;
+    return total_light + total_humidity + total_noise + total_pressure;
 }

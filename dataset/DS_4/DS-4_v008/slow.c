@@ -1,20 +1,16 @@
 typedef struct {
-    int r;
-    int g;
-    int b;
-    int a;
-    int x;
-    int y;
-    float depth;
-    float normal_x;
+    double time;
+    double x;
+    double y;
+    float energy;
+    int channel;
+    int quality;
 } AoS_v008;
 
 double slow_ds4_v008(AoS_v008 *arr, int n) {
-    double total_b = 0.0;
-    double total_g = 0.0;
+    double total_quality = 0.0;
     for (int i = 0; i < n; i++) {
-        total_b += (double)arr[i].b;
-        total_g += (double)arr[i].g;
+        total_quality += (double)arr[i].quality;
     }
-    return total_b + total_g;
+    return total_quality;
 }

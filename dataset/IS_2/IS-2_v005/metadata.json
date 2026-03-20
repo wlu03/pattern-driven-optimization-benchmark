@@ -3,7 +3,7 @@
   "variant_id": "IS-2_v005",
   "category": "Input-Sensitive Inefficiency",
   "pattern_name": "Unconditional Expensive Call on Skewed Data",
-  "variant_desc": "log transform, 5% outliers, float, n=10000000",
+  "variant_desc": "log transform, 1% outliers, float, n=10000000",
   "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,

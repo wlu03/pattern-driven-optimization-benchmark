@@ -3,13 +3,13 @@
   "variant_id": "SR-2_v010",
   "category": "Semantic Redundancy",
   "pattern_name": "Recomputable Expression Decomposition",
-  "variant_desc": "3-term expression decomposition, 4 arrays, 3 constants, float, while-loop",
+  "variant_desc": "2-term expression decomposition, 4 arrays, 2 constants, float, for-loop",
   "dtype": "float",
   "difficulty": "easy",
   "compiler_fixable": false,
   "num_loops": 1,
   "num_arrays": 4,
-  "lines_of_code": 9,
+  "lines_of_code": 8,
   "expected_speedup_range": "1.5x-5x",
   "composition": []
 }

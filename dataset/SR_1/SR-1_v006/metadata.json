@@ -3,13 +3,13 @@
   "variant_id": "SR-1_v006",
   "category": "Semantic Redundancy",
   "pattern_name": "Loop-Invariant Semantic Computation",
-  "variant_desc": "3 arrays, 3 invariants, float, mul op, 2D layout, while-loop",
+  "variant_desc": "nested_sqrt function, 4 invariant calls, work=100, float",
   "dtype": "float",
   "difficulty": "hard",
   "compiler_fixable": false,
-  "num_loops": 2,
-  "num_arrays": 3,
-  "lines_of_code": 11,
-  "expected_speedup_range": "1.1x-2x",
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 20,
+  "expected_speedup_range": "100x-1000x",
   "composition": []
 }

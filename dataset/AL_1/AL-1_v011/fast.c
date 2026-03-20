@@ -1,7 +1,9 @@
 long long fast_al1_v011(int n) {
-    if (n == 0) return 0;
-    if (n <= 2) return 1;
-    long long a=0, b=1, c=1;
-    for (int i=3; i<=n; i++) { long long t=a+b+c; a=b; b=c; c=t; }
-    return c;
+    if (n <= 0) return (n == 0) ? 1 : 0;
+    long long *dp = calloc(n+1, sizeof(long long));
+    dp[0] = 1;
+    for (int i = 1; i <= n; i++)
+        for (int s = 1; s <= 4 && s <= i; s++)
+            dp[i] += dp[i-s];
+    long long res = dp[n]; free(dp); return res;
 }
