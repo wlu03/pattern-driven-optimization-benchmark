@@ -22,7 +22,7 @@ from unsloth.chat_templates import get_chat_template, train_on_responses_only
 
 BASE_MODEL   = "Qwen/Qwen2.5-Coder-7B-Instruct"
 MAX_SEQ_LEN  = 2048   # increase to 4096 if you have VRAM to spare
-LORA_RANK    = 16     # 8 = lighter, 32 = more capacity
+LORA_RANK    = 8      # 8 = lighter, 32 = more capacity
 
 
 def main():
@@ -31,7 +31,7 @@ def main():
     parser.add_argument("--val",    default=None)          # None = no eval
     parser.add_argument("--output", default="lora_adapter/")
     parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--early_stopping_patience", type=int, default=3)
+    parser.add_argument("--early_stopping_patience", type=int, default=2)
     parser.add_argument("--batch",  type=int, default=2)
     parser.add_argument("--grad_accum", type=int, default=8)
     parser.add_argument("--lr",     type=float, default=2e-4)
@@ -52,7 +52,7 @@ def main():
         target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
                           "gate_proj", "up_proj", "down_proj"],
         lora_alpha     = LORA_RANK * 2,
-        lora_dropout   = 0,
+        lora_dropout   = 0.05,
         bias           = "none",
         use_gradient_checkpointing = "unsloth",
         random_state   = 42,

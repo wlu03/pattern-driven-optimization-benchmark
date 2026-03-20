@@ -18,7 +18,7 @@ pip install unsloth datasets trl
 
 # 1. Generate training data (960 variants × 2 strategies = 1920 examples)
 python3 prepare_finetune_data.py \
-  --strategies generic pattern-aware \
+  --strategies generic pattern-aware taxonomy-guided \
   --split 0.9 \
   --train train.jsonl \
   --val val.jsonl
@@ -67,11 +67,11 @@ python3 prepare_finetune_data.py --strategies generic pattern-aware taxonomy-gui
 |---|---|---|
 | Base model | `Qwen/Qwen2.5-Coder-7B-Instruct` | Instruct variant for chat template alignment |
 | Quantization | 4-bit NF4 (QLoRA) | ~4× less VRAM vs. full BF16 |
-| LoRA rank | 16 | Increase to 64 if underfitting |
-| LoRA alpha | 32 (2× rank) | Scales adapter update magnitude |
+| LoRA rank | 8 | Increase to 16-64 if underfitting |
+| LoRA alpha | 16 (2× rank) | Scales adapter update magnitude |
 | LoRA target modules | all attention + MLP projections | q/k/v/o + gate/up/down |
 | Max sequence length | 2048 | Increase to 4096 for longer examples |
-| Epochs | 10 (with early stopping) | Stops after 3 epochs without eval loss improvement |
+| Epochs | 10 (with early stopping) | Stops after 2 epochs without eval loss improvement |
 | Learning rate | 2e-4 | Cosine schedule with 5% warmup |
 | Batch size | 2 × 8 grad accum = 16 effective | |
 | Optimizer | `adamw_torch_fused` | Fastest AdamW for PyTorch 2.x |
