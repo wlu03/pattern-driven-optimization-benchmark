@@ -3,3 +3,21 @@ anthropic>=0.40.0
 openai>=1.50.0
 google-generativeai>=0.8.0
 pyyaml>=6.0
+
+# Local LoRA inference (peft_local provider)
+torch>=2.0.0
+transformers>=4.40.0
+peft>=0.10.0
+bitsandbytes>=0.43.0
+accelerate>=0.30.0
+
+# AST faithfulness checker
+pycparser>=2.22
+
+# Ablation study notebook
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+seaborn>=0.13.0
+jupyter>=1.0.0
+ipykernel>=6.0.0

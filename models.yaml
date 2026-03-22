@@ -401,3 +401,39 @@ models:
     max_tokens: 2048
     temperature: 0.2
     description: "Falcon 7B via Ollama (local)"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # LoRA fine-tuned models — local PEFT inference (no API key required)
+  # Requires: pip install torch transformers peft bitsandbytes accelerate
+  # Base model: Qwen2.5-Coder-7B-Instruct (4-bit quantized)
+  #
+  # Each adapter was trained with a different prompting strategy.
+  # Evaluate with the matching strategy for best results:
+  #   python3 evaluate_llm.py --model qwen-lora-generic --strategy generic
+  #   python3 evaluate_llm.py --model qwen-lora-pattern --strategy pattern-aware
+  #   python3 evaluate_llm.py --model qwen-lora-taxonomy --strategy taxonomy-guided
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - id: qwen-lora-generic
+    provider: peft_local
+    base_model: unsloth/qwen2.5-coder-7b-instruct-bnb-4bit
+    adapter_path: fine_tune/lora_fine_tuning/lora_generic
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Qwen2.5-Coder-7B + LoRA (generic strategy)"
+
+  - id: qwen-lora-pattern
+    provider: peft_local
+    base_model: unsloth/qwen2.5-coder-7b-instruct-bnb-4bit
+    adapter_path: fine_tune/lora_fine_tuning/lora_pattern
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Qwen2.5-Coder-7B + LoRA (pattern-aware strategy)"
+
+  - id: qwen-lora-taxonomy
+    provider: peft_local
+    base_model: unsloth/qwen2.5-coder-7b-instruct-bnb-4bit
+    adapter_path: fine_tune/lora_fine_tuning/lora_taxonomy
+    max_tokens: 2048
+    temperature: 0.2
+    description: "Qwen2.5-Coder-7B + LoRA (taxonomy-guided strategy)"

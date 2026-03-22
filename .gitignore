@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+dataset_test/
+figures/
+
+# LoRA training checkpoints (too large, only keep final adapters)
+fine_tune/lora_fine_tuning/*/checkpoint-*/

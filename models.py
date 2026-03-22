@@ -111,12 +111,80 @@ def _call_google(prompt: str, model_cfg: dict) -> str:
     return response.text
 
 
+def _call_peft_local(prompt: str, model_cfg: dict) -> str:
+    """Run inference on a local PEFT/LoRA model using transformers + peft."""
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+        from peft import PeftModel
+    except ImportError as e:
+        raise RuntimeError(
+            f"Missing package for peft_local provider: {e}\n"
+            "Install: pip install torch transformers peft bitsandbytes accelerate"
+        )
+
+    cache_key = model_cfg.get("_cache_key")
+    if cache_key and cache_key in _peft_model_cache:
+        model, tokenizer = _peft_model_cache[cache_key]
+    else:
+        base_model_name = model_cfg["base_model"]
+        adapter_path = model_cfg["adapter_path"]
+
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            adapter_path, trust_remote_code=True
+        )
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_model_name,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+        model = PeftModel.from_pretrained(base_model, adapter_path)
+        model.eval()
+
+        if cache_key:
+            _peft_model_cache[cache_key] = (model, tokenizer)
+
+    messages = [{"role": "user", "content": prompt}]
+    text = tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+    inputs = tokenizer(text, return_tensors="pt").to(model.device)
+
+    max_new_tokens = model_cfg.get("max_tokens", 2048)
+    temperature = model_cfg.get("temperature", 0.2)
+
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            temperature=max(temperature, 0.01),
+            do_sample=temperature > 0,
+            top_p=0.95,
+            pad_token_id=tokenizer.eos_token_id,
+        )
+
+    new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+    return tokenizer.decode(new_tokens, skip_special_tokens=True)
+
+
+# Cache loaded PEFT models to avoid reloading per-variant
+_peft_model_cache: dict = {}
+
+
 _PROVIDER_FNS = {
     "anthropic":     _call_anthropic,
     "openai":        _call_openai,
     "openai_compat": _call_openai,
     "google":        _call_google,
     "ollama":        _call_ollama,
+    "peft_local":    _call_peft_local,
 }
 
 
@@ -126,6 +194,10 @@ def make_call_llm_fn(model_cfg: dict, retries: int = 2) -> Callable[[str, str], 
     provider_fn = _PROVIDER_FNS.get(provider)
     if provider_fn is None:
         raise ValueError(f"Unknown provider '{provider}'. Supported: {list(_PROVIDER_FNS)}")
+
+    # Set cache key for peft_local so model stays loaded across variants
+    if provider == "peft_local" and "_cache_key" not in model_cfg:
+        model_cfg["_cache_key"] = model_cfg.get("adapter_path", model_cfg.get("id", "default"))
 
     def call_llm(prompt: str, _model_id: str) -> str:
         last_err = None
