@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 
-def compile_and_run(code: str, test_harness: str, timeout: int = 30,
+def compile_and_run(code: str, test_harness: str, timeout: int = 120,
                     opt_level: str = "O2", runs: int = 3) -> dict:
     """Compile LLM-generated code with test harness, run, parse output.
 

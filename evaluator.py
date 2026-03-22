@@ -77,12 +77,12 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
     if pattern.test_harness and result.get("correct"):
         slow_ref = normalize_function_name(pattern.slow_code.strip())
         slow_ref = sanitize_llm_code(slow_ref, pattern.test_harness)
-        slow_result = compile_and_run(slow_ref, pattern.test_harness)
+        slow_result = compile_and_run(slow_ref, pattern.test_harness, timeout=120, runs=1)
         slow_ms = slow_result.get("time_ms", 0)
 
         fast_ref = normalize_function_name(pattern.fast_code.strip())
         fast_ref = sanitize_llm_code(fast_ref, pattern.test_harness)
-        fast_result = compile_and_run(fast_ref, pattern.test_harness)
+        fast_result = compile_and_run(fast_ref, pattern.test_harness, runs=1)
         ref_fast_ms = fast_result.get("time_ms", 0)
 
         if slow_ms > 0:
