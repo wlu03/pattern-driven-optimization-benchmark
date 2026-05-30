@@ -1,0 +1,21 @@
+{
+  "pattern_id": "HO-SR-5",
+  "variant_id": "HO-SR-5_v000",
+  "category": "Semantic Redundancy",
+  "pattern_name": "BearSSL Conditional-Move via Mask vs Compiler-Introduced Branch (Inverted)",
+  "variant_desc": "Canonical BearSSL CT conditional copy with mask = -(((x|-x)>>31)^1) -- clang/gcc at -O3 recognize 'is x zero?' and rewrite to test/je/jmp memcpy@PLT (slow) -> volatile-barrier-defended version that preserves the masked scan (fast)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 3,
+  "lines_of_code": 12,
+  "expected_speedup_range": "0.5x-2x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Pornin 'On the Tightness of Constant-Time Cryptographic Constructions' IACR eprint 2025/435 Section 3; BearSSL inner.h CT macros (https://www.bearssl.org/); LLVM RFC __builtin_ct_select (Trail of Bits, 2024).",
+  "novelty_rationale": "INVERTED-FRAMING pattern, twin to HO-SR-4. The 'slow' version is the canonical BearSSL CT conditional-copy idiom most engineers WOULD write when they see 'constant-time conditional copy'.  At -O3 both LLVM and GCC recognize the `(x | -x) >> 31` zero-test pattern and rewrite the loop into a branch + memcpy -- collapsing the CT discipline into a leaky test/je/jmp.  The 'fast' version uses a volatile barrier on the mask so the compiler cannot prove what the mask depends on, preserving the unconditional masked-OR scan.  SPEED IS NOT THE METRIC: when LLVM 22's __builtin_ct_select intrinsic lands, that's the proper fix; until then, the volatile barrier is the portable defense.  correct=1 is the success metric.",
+  "correctness_tolerance": {"type": "exact", "epsilon": 0.0},
+  "pattern_type": "constant_time_inverted"
+}

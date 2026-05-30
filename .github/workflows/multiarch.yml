@@ -1,0 +1,235 @@
+name: Multi-Architecture Benchmark
+
+# Runs the harness on x86_64 (ubuntu-latest), Armv9-A SVE2 (ubuntu-24.04-arm,
+# Cobalt 100 / Neoverse N2), and Apple Silicon (macos-14, M1). Free on public
+# repos. AVX-512 is NOT guaranteed on the free x86 runner — the workflow
+# probes CPU features at runtime and records them with the results.
+#
+# Reference: §Cross-Architecture Evaluation in docs/implementation.tex
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_superopt:
+        description: 'Run Souper+Polly ablation (adds ~30min for first build, cached after)'
+        required: false
+        default: 'false'
+      run_setup_randomization:
+        description: 'Run setup-randomization sweep over all 27 patterns (~20-35min, produces bootstrap CIs for the paper)'
+        required: false
+        default: 'false'
+  push:
+    branches: [main]
+    paths:
+      - 'pdob_core/**'
+      - 'faithfulness/**'
+      - 'scripts/**'
+      - '.github/workflows/multiarch.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/multiarch.yml'
+
+jobs:
+  benchmark:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch:   x86_64
+            os:     linux
+          - runner: ubuntu-24.04-arm
+            arch:   aarch64
+            os:     linux
+          - runner: macos-14
+            arch:   arm64
+            os:     macos
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe CPU features
+        shell: bash
+        run: |
+          mkdir -p results
+          {
+            echo "runner=${{ matrix.runner }}"
+            echo "arch=${{ matrix.arch }}"
+            echo "os=${{ matrix.os }}"
+            echo "---"
+          } | tee results/cpu_info.txt
+          if [ "${{ matrix.os }}" = "linux" ]; then
+            echo "=== /proc/cpuinfo (head) ==="    | tee -a results/cpu_info.txt
+            head -20 /proc/cpuinfo                  | tee -a results/cpu_info.txt
+            if [ "${{ matrix.arch }}" = "x86_64" ]; then
+              echo "=== x86 SIMD features present ==="                    | tee -a results/cpu_info.txt
+              grep -o -E '\b(sse[0-9_]*|ssse3|avx[0-9_a-z]*|fma[0-9]*|bmi[12])\b' /proc/cpuinfo \
+                | sort -u                                                  | tee -a results/cpu_info.txt
+              echo "AVX-512 available: $(grep -q avx512 /proc/cpuinfo && echo YES || echo NO)" \
+                                                                            | tee -a results/cpu_info.txt
+            else
+              echo "=== ARM Features ==="                                  | tee -a results/cpu_info.txt
+              grep -E "^(Features|CPU implementer|CPU part|CPU variant)" /proc/cpuinfo | head -10 \
+                                                                            | tee -a results/cpu_info.txt
+              echo "SVE2 available: $(grep -q sve2 /proc/cpuinfo && echo YES || echo NO)" \
+                                                                            | tee -a results/cpu_info.txt
+            fi
+          else
+            echo "=== sysctl machdep.cpu ==="                              | tee -a results/cpu_info.txt
+            sysctl -a 2>/dev/null \
+              | grep -E "^(machdep\.cpu\.brand_string|hw\.optional|hw\.perflevel|hw\.nperflevels)" \
+                                                                            | tee -a results/cpu_info.txt
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install build tools (Linux)
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          # clang + Polly: Polly support is compiled into Ubuntu's clang
+          # package (no separate apt install required). We probe it at
+          # runtime so the workflow records availability rather than
+          # assuming. Polly is part of the LLVM build, not a plugin.
+          sudo apt-get install -y gcc clang
+          echo "Clang version:" | tee -a results/cpu_info.txt
+          clang --version             | tee -a results/cpu_info.txt
+          # Probe Polly: compile a trivial program with -mllvm -polly.
+          # If clang was built without Polly, this fails and the
+          # superopt step skips that regime.
+          echo "int main(void){return 0;}" > /tmp/polly_probe.c
+          if clang -O3 -mllvm -polly -o /dev/null /tmp/polly_probe.c 2>/dev/null; then
+            echo "polly_available=YES" | tee -a results/cpu_info.txt
+          else
+            echo "polly_available=NO  (clang built without Polly)" \
+              | tee -a results/cpu_info.txt
+          fi
+          rm -f /tmp/polly_probe.c
+
+      - name: Cache Souper build
+        if: matrix.os == 'linux' && github.event.inputs.run_superopt == 'true'
+        id: souper-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/souper-install
+          # Cache key is content-addressed by the install script;
+          # change the version tag to force a rebuild on Souper updates.
+          key: souper-${{ runner.os }}-${{ runner.arch }}-v1
+
+      - name: Build + install Souper from source
+        if: |
+          matrix.os == 'linux' &&
+          github.event.inputs.run_superopt == 'true' &&
+          steps.souper-cache.outputs.cache-hit != 'true'
+        run: |
+          # Souper requires building a patched LLVM. The first build is
+          # ~30 min; subsequent runs hit the cache instantly. We follow
+          # the upstream README's build-deps script which fetches LLVM,
+          # Alive2, and Z3 and links the Souper passes against them.
+          sudo apt-get install -y \
+            build-essential cmake ninja-build python3-dev \
+            libssl-dev zlib1g-dev libxml2-dev \
+            re2c hwloc-nox
+          mkdir -p ~/souper-src && cd ~/souper-src
+          git clone --depth 1 https://github.com/google/souper.git
+          cd souper
+          ./build_deps.sh
+          mkdir -p ../build && cd ../build
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=$HOME/souper-install \
+            ../souper
+          ninja
+          ninja install
+          # sclang wrapper is the documented drop-in compiler used by
+          # measure_superoptimizer_resistance.py
+          test -x $HOME/souper-install/bin/sclang \
+            || { echo "Souper build produced no sclang wrapper"; exit 1; }
+
+      - name: Add Souper to PATH
+        if: matrix.os == 'linux' && github.event.inputs.run_superopt == 'true'
+        run: echo "$HOME/souper-install/bin" >> $GITHUB_PATH
+
+      - name: Configure performance environment (Linux best-effort)
+        if: matrix.os == 'linux'
+        shell: bash
+        run: |
+          # GitHub-hosted runners may not allow these inside the VM; we attempt
+          # the documented commands and record the outcome. See
+          # docs/implementation.tex §Statistical Methodology for what each does.
+          (sudo cpupower frequency-set --governor performance 2>&1 || echo "(governor change skipped)") \
+            | tee -a results/cpu_info.txt
+          (echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost 2>&1 || echo "(boost-off skipped)") \
+            | tee -a results/cpu_info.txt
+
+      - name: Compile-and-correctness sweep (one variant per pattern)
+        shell: bash
+        env:
+          BENCH_N:    "1000000"
+          BENCH_SEED: "42"
+        run: |
+          # Quick coverage check across all 27 patterns + COMP. Logs which
+          # patterns compile + pass correctness on this architecture.
+          python3 scripts/batch_test.py dataset 2>&1 \
+            | tee results/batch_${{ matrix.arch }}.txt
+
+      - name: Multi-input sweep on canary patterns
+        shell: bash
+        run: |
+          # Five canary patterns covering diverse categories. The runner is
+          # arch-aware: an output divergence between architectures here is the
+          # exact signal §Cross-Architecture Evaluation claims to surface.
+          for pid in SR-1 IS-4 DS-1 AL-1 MI-4; do
+            python3 scripts/run_multi_input.py --pattern "$pid" 2>&1 \
+              | tee "results/multi_input_${pid}_${{ matrix.arch }}.txt" || true
+          done
+
+      - name: Superoptimizer-resistance ablation (Polly + Souper)
+        if: matrix.os == 'linux'
+        shell: bash
+        run: |
+          # Auto-detects clang / Polly / Souper. With run_superopt=false
+          # the cache + build steps were skipped, so only clang_O3 and
+          # clang_polly (if available) regimes run — Souper is recorded
+          # as unavailable. This keeps every push fast while letting
+          # workflow_dispatch with run_superopt=true produce the full
+          # 3-regime table on demand.
+          mkdir -p results
+          python3 scripts/measure_superoptimizer_resistance.py dataset \
+            --out "results/superopt_${{ matrix.arch }}.csv" --workers 4 2>&1 \
+            | tee "results/superopt_log_${{ matrix.arch }}.txt" || true
+
+      - name: Setup-randomization sweep (all 27 patterns, bootstrap CI)
+        if: github.event.inputs.run_setup_randomization == 'true'
+        shell: bash
+        run: |
+          # The methodology paper section (§Statistical Methodology in
+          # docs/implementation.tex) claims every per-pattern speedup is
+          # gated on a bootstrap CI from a Mytkowicz-style setup sweep.
+          # This step produces the per-pattern summary table that backs
+          # that claim — per arch. ~20-35 min on a 4-worker runner.
+          mkdir -p results/setup_randomization
+          python3 scripts/setup_randomization_all.py \
+            --out "results/setup_randomization/${{ matrix.arch }}" \
+            --workers 4 2>&1 \
+            | tee "results/setup_rand_log_${{ matrix.arch }}.txt"
+          # Copy the human-readable summary up to the artifact root so it
+          # shows in the GH Actions web UI without unpacking the bundle.
+          cp "results/setup_randomization/${{ matrix.arch }}/summary.txt" \
+             "results/setup_rand_summary_${{ matrix.arch }}.txt" || true
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.arch }}-${{ matrix.os }}
+          path: results/
+          retention-days: 30

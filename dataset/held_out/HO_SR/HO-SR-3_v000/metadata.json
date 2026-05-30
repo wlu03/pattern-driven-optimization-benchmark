@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-SR-3",
+  "variant_id": "HO-SR-3_v000",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Heap-to-Stack Allocation Conversion (Abseil Tip #83)",
+  "variant_desc": "malloc()/free() of 120B struct per iter, populated by cross-TU noinline init, hot field reads -> stack alloc + same init, no malloc per iter",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 0,
+  "lines_of_code": 12,
+  "expected_speedup_range": "3x-20x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "Abseil Performance Tip #83 (2024-06-17): 'stats_info was only 120 bytes, so accessing its fields from data.stats_info might entail 4 cachelines.'",
+  "novelty_rationale": "Tests recognition that small, locally-scoped structs should be stack-allocated rather than malloc'd. Compilers have heap-elision passes (LLVM, GCC) but they FAIL across TU boundaries, with custom allocators (tcmalloc/jemalloc), and when the pointer escapes via a noinline init function -- which is the typical real-world case. The fast version eliminates per-call malloc/free pairs and improves cache locality of field reads."
+}

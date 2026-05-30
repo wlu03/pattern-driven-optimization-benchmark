@@ -1,0 +1,21 @@
+{
+  "pattern_id": "HO-MI-4",
+  "variant_id": "HO-MI-4_v000",
+  "category": "Memory & IO",
+  "pattern_name": "Manual 8x Unroll Required Under Security Mitigation Flags",
+  "variant_desc": "Tight 1-symbol-per-iter Huffman inner loop relying on compiler auto-unroll (which is suppressed under -mretpoline / -mcet-switch / -fcf-protection=full) -> manually unrolled 8x body",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 3,
+  "num_arrays": 4,
+  "lines_of_code": 60,
+  "expected_speedup_range": "1x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "zstd PR #3826 (Yann Collet 2023, 'Manual unroll for Huffman inner loop under CET/retpoline').",
+  "novelty_rationale": "Tests recognition that defensive security-mitigation compile flags (-mretpoline, -mcet-switch, -fcf-protection=full) suppress the compiler's auto-unroll heuristic on tight inner loops, forcing the loop to run at one-symbol-per-iter latency. The fix is to MANUALLY unroll the body 8x so the unroll exists in source and survives independent of -funroll-loops. IMPORTANT: this pattern's compiler-resistance is GATED on those mitigation flags being present at compile time -- under the benchmark's default -O3 -fno-lto regime (no -mretpoline etc.) the compiler will auto-unroll slow.c, the gap closes, and the speedup may approach 1x. expected_speedup_range is honestly set to '1x-3x' to reflect both regimes; the model under test should recognize the manual-unroll pattern regardless of measured speedup.",
+  "correctness_tolerance": {"type": "exact", "epsilon": 0.0},
+  "pattern_type": "standard"
+}

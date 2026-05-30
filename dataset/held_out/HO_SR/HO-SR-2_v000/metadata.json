@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-SR-2",
+  "variant_id": "HO-SR-2_v000",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Specialized Integer Hash via CRC32",
+  "variant_desc": "xxh3-style 12-multiply avalanche on 8-byte keys (~30 insns) -> CRC32 + single multiply (~5 insns x86) or 2-multiply Mulxsh (~3 insns ARM)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 3,
+  "lines_of_code": 30,
+  "expected_speedup_range": "2x-5x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "Birler, Schmidt, Fent, Neumann. CedarDB DaMoN'24 hash-table paper Figure 8.",
+  "novelty_rationale": "Tests recognition that for fixed-width 8-byte keys, an xxh3-style avalanche mixer is wasteful: a single CRC32 hardware instruction (x86-64 SSE4.2) provides adequate hash quality for in-memory hash tables. Compilers never perform cross-algorithm hash-function substitution because they cannot know whether the avalanche quality matters to the application. Portability: x86 path uses __builtin_ia32_crc32di; ARM/non-SSE4.2 falls back to a 2-multiply mix (still simpler than xxh3 though smaller speedup)."
+}

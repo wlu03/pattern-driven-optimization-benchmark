@@ -1,0 +1,21 @@
+{
+  "pattern_id": "HO-AL-4",
+  "variant_id": "HO-AL-4_v000",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "HyperLogLogLog (Compressed HLL) via Base+Offset and Bulking",
+  "variant_desc": "Vanilla HLL with 16384x8b registers (16 KB) -> HyperLogLogLog with 16384x4b offsets + 256x8b per-block bases (~8.25 KB), amortized O(1) inserts via 256-element bulking that batches rebases",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 4,
+  "lines_of_code": 80,
+  "expected_speedup_range": "0.5x-2x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Karppa & Pagh, 'HyperLogLogLog: Cardinality Estimation With One Log More' (KDD 2022). arXiv:2205.11327",
+  "novelty_rationale": "Tests recognition of the Karppa-Pagh 2022 insight that HLL registers cluster within a narrow window above a per-block base once N >> m, so the canonical 8-bit-per-register HLL layout is information-theoretically wasteful. The compressed scheme stores 4-bit offsets plus per-block 8-bit bases (~2x memory reduction) but adds per-insert rebase-check complexity. Naive per-insert handling makes HLLL ~10x slower than vanilla HLL; the pattern requires *bulking* (256-element batched per-block updates) to amortize the rebase cost and approach vanilla HLL insert throughput. No compiler recognizes this transform -- it requires reasoning about the rank distribution of streaming hash values and applying paper-specific amortization. NOTE: per Karppa-Pagh, the goal is MEMORY compression (~2x) at ROUGHLY EQUAL throughput, not speedup. Speedup in this microbenchmark hovers around 1x; the win shows up at scale in real cardinality-monitoring workloads where many HLL instances compete for L2/L3 footprint.",
+  "correctness_tolerance": {"type": "relative", "epsilon": 0.02},
+  "pattern_type": "standard"
+}

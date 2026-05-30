@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-IS-2",
+  "variant_id": "HO-IS-2_v000",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Multi-Tier Adaptive Sort Dispatch (DuckDB 2025 Sort Redesign)",
+  "variant_desc": "unconditional qsort on 1M ints -> 3-tier adaptive: pre-sorted-run detection, counting sort for small range, qsort fallback",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 8,
+  "num_arrays": 1,
+  "lines_of_code": 56,
+  "expected_speedup_range": "5x-30x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "DuckDB blog 'Sorting Again' (2025-09-24); reported 10x speedup on already-sorted input.",
+  "novelty_rationale": "Tests recognition that comparison-based sorts (qsort) leave dramatic performance on the table when the input has detectable structure: an already-sorted run can be returned in O(n) scan, a descending run reverses in O(n), and a small-range input distributes via counting sort in O(n + R). Compilers cannot perform runtime input characterization and algorithm dispatch -- they emit one fixed sort implementation."
+}
