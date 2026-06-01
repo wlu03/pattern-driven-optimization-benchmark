@@ -53,9 +53,20 @@ class VariantPaths:
     helper_path: Optional[str]
 
 
-def discover_variants(dataset_dir: str) -> Iterator[VariantPaths]:
-    """Walk the dataset directory and yield one VariantPaths per variant."""
-    for root, _dirs, files in os.walk(dataset_dir):
+def discover_variants(dataset_dir: str,
+                       include_excluded: bool = False) -> Iterator[VariantPaths]:
+    """Walk the dataset directory and yield one VariantPaths per variant.
+
+    Skips ``dataset/excluded/`` by default — those variants were filtered
+    by ``scripts/filter_non_resistant.py`` because their measured -O3
+    speedup fell below their per-pattern resistance threshold (i.e. the
+    compiler closes the gap, so they are not informative for LLM
+    optimization measurements). Pass ``include_excluded=True`` to walk
+    them anyway (useful for diagnostic / regression analysis).
+    """
+    for root, dirs, files in os.walk(dataset_dir):
+        if not include_excluded and "excluded" in dirs:
+            dirs.remove("excluded")
         if "metadata.json" not in files:
             continue
         if "slow.c" not in files or "fast.c" not in files or "test.c" not in files:

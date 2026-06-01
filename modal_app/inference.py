@@ -4,38 +4,37 @@ Runs every active dataset variant through one open-source model served by
 vLLM on Modal, writes results to a CSV that scripts/transfer_analysis.py
 and faithfulness/report_2x2.py can consume directly.
 
-Usage (from your laptop, with Modal CLI installed and `modal token set`):
+Usage (from your laptop, with Modal CLI installed and `modal token new`):
 
     modal run modal_app/inference.py::evaluate_all \
-        --model qwen2.5-coder-7b-instruct \
+        --model qwen2.5-coder-7b \
         --strategy taxonomy-guided \
         --output results/qwen25_coder_7b_taxonomy.csv
 
 Models pre-wired (see MODELS dict below): the Pareto-frontier shortlist.
-Add new entries to the dict to evaluate more.
 
 GPU pinning per model size:
     1.5B-3B  -> T4   ($0.59/hr)
     7B       -> A10G ($1.10/hr)
     14B      -> L40S ($1.95/hr)
     32B      -> A100-80GB ($2.50/hr)
-    70B+     -> H100 ($3.95/hr) or H200
+    70B+     -> H100 ($3.95/hr)
 
 Typical wall-clock for 1,244 variants with 10 concurrent containers:
-    7B   on 10x A10G: ~6 min,  ~$1.10 (10 containers x 0.1h x $1.10)
-    32B  on 10x A100: ~15 min, ~$6
-    70B  on  4x H100: ~25 min, ~$6.50
+    7B   on 10x A10G:  ~6 min,  ~$1.10
+    32B  on 10x A100:  ~15 min, ~$6
+    70B  on  4x H100:  ~25 min, ~$6.50
 """
 import json
-import os
+import sys
 from pathlib import Path
 
 import modal
 
 APP_NAME = "pdob-inference"
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# --- Pareto-frontier shortlist ------------------------------------------------
-# Model recipes — pick by string key on the CLI via --model
+# --- Pareto-frontier shortlist ----------------------------------------------
 MODELS = {
     "qwen2.5-coder-1.5b": {
         "hf_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
@@ -84,7 +83,7 @@ MODELS = {
     },
 }
 
-# --- Modal app + image -------------------------------------------------------
+# --- Modal app + image ------------------------------------------------------
 app = modal.App(APP_NAME)
 
 vllm_image = (
@@ -99,8 +98,7 @@ vllm_image = (
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
 )
 
-# Persistent volumes for HF + vLLM cache so models don't re-download per run
-hf_cache_vol  = modal.Volume.from_name("pdob-hf-cache", create_if_missing=True)
+hf_cache_vol   = modal.Volume.from_name("pdob-hf-cache",   create_if_missing=True)
 vllm_cache_vol = modal.Volume.from_name("pdob-vllm-cache", create_if_missing=True)
 
 VOLUMES = {
@@ -109,19 +107,18 @@ VOLUMES = {
 }
 
 
-# --- Inference function ------------------------------------------------------
+# --- Inference function -----------------------------------------------------
 @app.cls(
     image=vllm_image,
     volumes=VOLUMES,
-    timeout=60 * 60,                  # 1 h max per container
-    scaledown_window=5 * 60,          # keep warm 5 min after last call
+    timeout=60 * 60,
+    scaledown_window=5 * 60,
 )
 class VLLMServer:
     model_key: str = modal.parameter()
 
     @modal.enter()
     def load(self):
-        """One-time model load per container."""
         from vllm import LLM
         cfg = MODELS[self.model_key]
         self.llm = LLM(
@@ -130,51 +127,49 @@ class VLLMServer:
             trust_remote_code=True,
             dtype="auto",
         )
-        # vLLM auto-loads sampling params from generation_config.json; we
-        # override below for deterministic-ish optimization output.
 
     @modal.method()
-    def generate_one(self, prompt: str, max_tokens: int = 2048) -> str:
-        """Run one prompt; return raw model text."""
+    def generate_batch(self, prompts: list[str],
+                       max_tokens: int = 2048) -> list[str]:
+        """Generate completions for a batch of prompts (vLLM continuous batching)."""
         from vllm import SamplingParams
         params = SamplingParams(
-            temperature=0.0,
-            top_p=1.0,
-            max_tokens=max_tokens,
+            temperature=0.0, top_p=1.0, max_tokens=max_tokens,
         )
-        out = self.llm.generate([prompt], params)[0]
-        return out.outputs[0].text
+        outputs = self.llm.generate(prompts, params)
+        return [o.outputs[0].text for o in outputs]
 
 
-# --- Local entrypoint --------------------------------------------------------
-def _load_active_variants(dataset_dir: str) -> list[dict]:
-    """Load variant metadata + slow.c source for every active variant."""
-    variants = []
-    for md_path in Path(dataset_dir).rglob("metadata.json"):
-        if "excluded" in md_path.parts:
-            continue
-        try:
-            meta = json.loads(md_path.read_text())
-        except Exception:
-            continue
-        slow_c = md_path.parent / "slow.c"
-        if not slow_c.exists():
-            continue
-        meta["_variant_dir"] = str(md_path.parent)
-        meta["_slow_src"]    = slow_c.read_text()
-        variants.append(meta)
-    return variants
+# --- Local prompt building (uses pdob_core's authoritative builders) --------
+def _build_variant_prompts(variants_meta: list[dict],
+                            strategy: str,
+                            hw_target: str = "generic") -> list[str]:
+    """Use pdob_core's _build_variant_prompt for consistency with the local
+    scripts/evaluate.py output. Runs locally on your laptop before submission
+    to Modal so we don't have to ship pdob_core into the Modal image."""
+    sys.path.insert(0, str(REPO_ROOT))
+    from pdob_core.patterns import PATTERNS
+    from pdob_core.dataset_evaluator import discover_variants
+    from pdob_core.evaluator import _build_variant_prompt
+
+    pattern_lookup = {p.pattern_id: p for p in PATTERNS}
+    # Re-map the variant meta dicts back to VariantPaths-like objects
+    # (we already loaded them; just give the prompt builder what it needs)
+    by_vid = {}
+    for v in discover_variants(variants_meta["dataset_dir"]):
+        by_vid[v.variant_id] = v
+
+    prompts = []
+    for meta in variants_meta["records"]:
+        vp = by_vid.get(meta["variant_id"])
+        if vp is None:
+            raise RuntimeError(f"Variant {meta['variant_id']} not found on disk")
+        prompts.append(_build_variant_prompt(vp, pattern_lookup, strategy,
+                                              hw_target))
+    return prompts
 
 
-def _build_prompt(slow_src: str, strategy: str, pattern_meta: dict) -> str:
-    """Pull the prompt builder from pdob_core so this stays consistent
-    with scripts/evaluate.py."""
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from pdob_core.prompts import build_prompt
-    return build_prompt(slow_src, strategy, pattern_meta)
-
-
+# --- Local entrypoint -------------------------------------------------------
 @app.local_entrypoint()
 def evaluate_all(
     model: str,
@@ -183,46 +178,72 @@ def evaluate_all(
     dataset_dir: str = "dataset",
     limit: int = 0,
     max_concurrent: int = 10,
+    hw_target: str = "generic",
 ):
     """Fan out inference across the active dataset.
 
     Args:
-        model: key in MODELS dict (run with --help to list)
-        strategy: prompt strategy (generic | pattern-aware | taxonomy-guided | ...)
-        output: CSV path for results
-        dataset_dir: where to find variants
-        limit: 0 for full sweep; >0 for a smoke test
-        max_concurrent: vLLM container count (cost scales linearly)
+        model:          key in MODELS dict (run with --help to list)
+        strategy:       generic | pattern-aware | taxonomy-guided | hardware-target | diagnosis
+        output:         CSV path for results
+        dataset_dir:    where to find variants (excluded/ is auto-skipped)
+        limit:          0 for full sweep; >0 for a smoke test
+        max_concurrent: vLLM container count
+        hw_target:      hardware target hint (generic | x86_avx2 | arm_neon | ...)
     """
     import csv
     if model not in MODELS:
-        raise SystemExit(f"Unknown model {model!r}. "
-                         f"Available: {list(MODELS)}")
-    variants = _load_active_variants(dataset_dir)
+        raise SystemExit(f"Unknown model {model!r}. Available: {list(MODELS)}")
+
+    # Build the prompts locally using pdob_core's authoritative builder.
+    sys.path.insert(0, str(REPO_ROOT))
+    from pdob_core.dataset_evaluator import discover_variants
+    from pdob_core.evaluator import _build_variant_prompt
+    from pdob_core.patterns import PATTERNS
+
+    variants = list(discover_variants(dataset_dir))
     if limit > 0:
         variants = variants[:limit]
-    print(f"Loaded {len(variants)} active variants")
+    pattern_lookup = {p.pattern_id: p for p in PATTERNS}
+
+    print(f"Loaded {len(variants)} active variants (excluded/ skipped)")
+    prompts = [_build_variant_prompt(v, pattern_lookup, strategy, hw_target)
+               for v in variants]
+    print(f"Built {len(prompts)} prompts (strategy={strategy}, hw={hw_target})")
+    print(f"Submitting to {model} on {MODELS[model]['gpu']} "
+          f"(max {max_concurrent} parallel containers)...")
 
     server = VLLMServer.with_options(
         gpu=MODELS[model]["gpu"],
         max_containers=max_concurrent,
     )(model_key=model)
 
-    prompts = [_build_prompt(v["_slow_src"], strategy, v) for v in variants]
-    print(f"Submitting {len(prompts)} prompts to {model} on "
-          f"{MODELS[model]['gpu']} (max {max_concurrent} parallel)...")
+    # Chunk into batches; each batch goes to one container, vLLM batches
+    # within the container via continuous batching.
+    batch_size = max(1, len(prompts) // max(1, max_concurrent))
+    batches = [prompts[i:i+batch_size]
+               for i in range(0, len(prompts), batch_size)]
+    print(f"Splitting into {len(batches)} batches of ~{batch_size} prompts each")
 
-    # .map() auto-batches across containers
-    results = list(server.generate_one.map(prompts, order_outputs=True))
+    all_outputs = []
+    for batch_out in server.generate_batch.map(batches, order_outputs=True):
+        all_outputs.extend(batch_out)
+    assert len(all_outputs) == len(prompts), \
+        f"output count mismatch: {len(all_outputs)} != {len(prompts)}"
 
     out_path = Path(output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["variant_id", "pattern_id", "model", "strategy",
-                    "raw_output_chars", "raw_output"])
-        for v, r in zip(variants, results):
-            w.writerow([v["variant_id"], v["pattern_id"], model, strategy,
-                        len(r), r])
-    print(f"Wrote {len(results)} results to {out_path}")
-    print(f"Next: python3 scripts/evaluate.py --score-from-csv {out_path}")
+        w.writerow(["variant_id", "pattern_id", "category", "model",
+                    "strategy", "hw_target", "raw_output_chars",
+                    "raw_output"])
+        for v, r in zip(variants, all_outputs):
+            w.writerow([v.variant_id, v.pattern_id, v.category, model,
+                        strategy, hw_target, len(r), r])
+    print(f"Wrote {len(all_outputs)} results to {out_path}")
+    print(f"Next steps:")
+    print(f"  1. Score with: python3 scripts/evaluate.py "
+          f"--score-from-csv {out_path}")
+    print(f"  2. Faithfulness 2x2: python3 faithfulness/report_2x2.py "
+          f"{out_path}")
