@@ -89,7 +89,11 @@ MODELS = {
     },
     "codestral-22b": {
         "hf_id": "mistralai/Codestral-22B-v0.1",
-        "gpu":   "L40S",
+        # L40S (48 GB) OOMs during KV-cache allocation:
+        # `Available KV cache memory: -4.85 GiB` (22B bf16 weights ≈ 44 GB
+        # plus workspace exceeds 0.85 * 48 GB allocation). Move to
+        # A100-80GB so KV cache has room. Cost delta: $1.95/hr → $2.50/hr.
+        "gpu":   "A100-80GB",
         "max_model_len": 8192,
         "reasoning": False,
     },
