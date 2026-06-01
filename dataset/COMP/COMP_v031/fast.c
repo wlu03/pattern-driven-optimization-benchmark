@@ -1,7 +1,15 @@
-void fast_comp_v031(int *out, int *A, int *B, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (int)2.0 + (int)1.0;
-        }
-    }
+#include <math.h>
+#include <stdlib.h>
+static __attribute__((noinline)) int config_val_v031(int key){
+    volatile int _k=key; /* block ipa-pure-const inference */
+    int r=0;
+    for(int i=0;i<100;i++) r+=(int)sin((double)(_k+i));
+    return r;
+}
+int fast_comp_v031(int *arr, int n, int key) {
+    if (arr == NULL || n <= 0) return 0;
+    int factor = config_val_v031(key);
+    int sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

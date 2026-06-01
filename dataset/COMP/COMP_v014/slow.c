@@ -1,9 +1,8 @@
-void slow_comp_v014(float *mat, int rows, int cols, int mode) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (mode == 1) mat[i * cols + j] *= (float)2.0;
-            else if (mode == 2) mat[i * cols + j] += (float)1.0;
-            else mat[i * cols + j] -= (float)0.5;
-        }
+typedef struct { float val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v014;
+float slow_comp_v014(R_v014 *r, int n) {
+    float acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += r[i].val * r[i].weight;
     }
+    return acc;
 }

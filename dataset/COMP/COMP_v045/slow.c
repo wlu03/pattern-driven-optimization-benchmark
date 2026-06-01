@@ -1,18 +1,21 @@
-#include <math.h>
-#include <stdlib.h>
-static double config_val_v045(int key){
-    double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
+static __attribute__((noinline)) int expensive_check_v045(unsigned short qt){
+    volatile unsigned short _q=qt; /* block ipa-pure-const */
+    int r=0;
+    for(int k=1;k<=200;k++) r += (int)((_q*k) & 0xFF);
     return r;
 }
-double slow_comp_v045(double *arr, int n, int key) {
-    double sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        double factor = config_val_v045(key);
-        sum += arr[i] * factor;
+long slow_comp_v045(long *pointers, unsigned short *tags, int n, unsigned short *queries, int m) {
+    long matches = 0;
+    for (int q = 0; q < m; q++) {
+        unsigned short qt = queries[q];
+        for (int i = 0; i < n; i++) {
+            unsigned short t = tags[i];
+            long p = pointers[i];
+            if ((t & qt) == qt) {
+                /* per-iteration noinline call — loop-invariant arg but cannot be hoisted */
+                matches += expensive_check_v045(qt) + (int)(p & 0xFF);
+            }
+        }
     }
-    return sum;
+    return matches;
 }

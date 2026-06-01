@@ -1,14 +1,16 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v109(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
-    return r;
-}
-int fast_comp_v109(int *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    int factor = config_val_v109(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+float fast_comp_v109(float *raw, int *n_valid, int *valid_indices, int n_chunks, int chunk_size) {
+    /* shared physical buffer (raw) + per-chunk selection vector — no compaction memcpy */
+    float acc = 0;
+    for (int c = 0; c < n_chunks; c++) {
+        int nv = n_valid[c];
+        float *base = raw + c * chunk_size;
+        if (nv == 1) {
+            /* skip-memcpy fast path: single valid row */
+            acc += base[valid_indices[c * chunk_size]];
+        } else {
+            int *sel = valid_indices + c * chunk_size;
+            for (int k = 0; k < nv; k++) acc += base[sel[k]];
+        }
+    }
+    return acc;
 }

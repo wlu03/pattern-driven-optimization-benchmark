@@ -1,18 +1,13 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v019(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
+static __attribute__((noinline)) float apply_v019(float x, int mode){
+    volatile int _m=mode; /* block ipa-pure-const inference */
+    if (_m==1) return x*(float)2.0;
+    else if (_m==2) return x+(float)1.0;
+    else return x-(float)0.5;
 }
-void slow_comp_v019(int *out, int *A, int n, int key, int mode) {
-    for (int i = 0; i < n; i++) {
-        int factor = compute_v019(key);
-        int t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        int t2 = t1 + (int)1.0;
-        int t3 = t2;
-        out[i] = t3;
+void slow_comp_v019(float *mat, int rows, int cols, int mode) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            mat[i * cols + j] = apply_v019(mat[i * cols + j], mode);
+        }
     }
 }

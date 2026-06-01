@@ -1,18 +1,10 @@
-#include <math.h>
-#include <stdlib.h>
-static float config_val_v112(int key){
-    float r=0;
-    for(int i=0;i<100;i++) r+=(float)sin((double)(key+i));
-    return r;
-}
-float slow_comp_v112(float *arr, int n, int key) {
-    float sum = 0;
+typedef struct { double x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v112;
+double slow_comp_v112(P_v112 *p, int n) {
+    double total = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        float factor = config_val_v112(key);
-        sum += arr[i] * factor;
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
+        }
     }
-    return sum;
+    return total;
 }

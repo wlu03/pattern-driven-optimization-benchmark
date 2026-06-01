@@ -1,13 +1,19 @@
-void slow_comp_v050(float *out, float *A, float *B, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                float t1 = A[i*cols+j] + B[i*cols+j];
-                float t2 = t1 * (float)2.0;
-                float t3 = t2 + (float)1.0;
-                float result = t3;
-                out[i*cols+j] = result;
-            }
+int slow_comp_v050(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int found = -1;
+        for (int i = 0; i < n; i++) {
+            int v = sorted_arr[i];
+            int cmp;
+            /* branchy comparator: emits three different paths */
+            if (v < target) cmp = -1;
+            else if (v > target) cmp = 1;
+            else cmp = 0;
+            if (cmp == 0) { found = i; break; }
+            if (cmp > 0) break;
         }
+        if (found >= 0) hits++;
     }
+    return hits;
 }

@@ -1,13 +1,34 @@
-void slow_comp_v121(float *out, float *A, float *B, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                float t1 = A[i*cols+j] + B[i*cols+j];
-                float t2 = t1 * (float)2.0;
-                float t3 = t2 + (float)1.0;
-                float result = t3;
-                out[i*cols+j] = result;
+typedef struct {
+    double scale;
+    unsigned char qs[16];     /* 32 quantized 4-bit values packed in 16 bytes */
+    unsigned char pad[1024 - sizeof(double) - 16];  /* superblock padding (DS-4 stride) */
+} block_q4k_v121;
+double slow_comp_v121(block_q4k_v121 *blocks, int *block_indices, int n_groups, int n_reps) {
+    double acc = 0;
+    for (int r = 0; r < n_reps; r++) {
+        /* indirect access via block_indices — defeats prefetcher */
+        for (int g = 0; g < n_groups; g++) {
+            int gi = block_indices[g];
+            for (int b = 0; b < 8; b++) {
+                block_q4k_v121 *blk = &blocks[gi * 8 + b];
+                double s = blk->scale;
+                /* touch multiple offsets in the padded struct to force several cache-line loads */
+                volatile unsigned char t1 = blk->pad[128 - sizeof(double) - 16];
+                volatile unsigned char t2 = blk->pad[256 - sizeof(double) - 16];
+                volatile unsigned char t3 = blk->pad[384 - sizeof(double) - 16];
+                volatile unsigned char t4 = blk->pad[512 - sizeof(double) - 16];
+                volatile unsigned char t5 = blk->pad[640 - sizeof(double) - 16];
+                volatile unsigned char t6 = blk->pad[768 - sizeof(double) - 16];
+                volatile unsigned char t7 = blk->pad[896 - sizeof(double) - 16];
+                volatile unsigned char t8 = blk->pad[1024 - sizeof(double) - 16 - 1];
+                (void)t1; (void)t2; (void)t3; (void)t4; (void)t5; (void)t6; (void)t7; (void)t8;
+                for (int k = 0; k < 16; k++) {
+                    unsigned char p = blk->qs[k];
+                    acc += (double)(p & 0x0F) * s;
+                    acc += (double)((p >> 4) & 0x0F) * s;
+                }
             }
         }
     }
+    return acc;
 }

@@ -1,9 +1,9 @@
-void fast_comp_v117(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
-        }
+double fast_comp_v117(double *val, double *weight, int n) {
+    double acc = 0;
+    for (int i = 0; i < n; i++) {
+        double v = val[i];
+        if (v == 0) continue;
+        acc += v * weight[i];
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= (float)rows;
+    return acc;
 }

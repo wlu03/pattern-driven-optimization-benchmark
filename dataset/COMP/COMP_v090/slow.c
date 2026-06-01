@@ -1,15 +1,8 @@
-static __attribute__((noinline)) double scale_fn_v090(double base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    double r = 0;
-    for(int k=1;k<=20;k++) r+=(double)sin(_b*k+1.0);
-    return r;
-}
-double slow_comp_v090(double *A, int n, double base, int mode) {
-    double total = 0;
-    for (int i = 0; i < n; i++) {
-        double s = scale_fn_v090(base);
-        if (mode == 0) total += A[i] * s;
-        else           total += A[i] * s * (double)2.0;
+void slow_comp_v090(double *vec, double *mat, double *out, int rows, int cols) {
+    for (int j = 0; j < cols; j++) out[j] = 0;
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            out[j] += vec[i] * mat[i * cols + j];
+        }
     }
-    return total;
 }

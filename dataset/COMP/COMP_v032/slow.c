@@ -1,13 +1,13 @@
-void slow_comp_v032(float *out, float *A, float *B, int rows, int cols) {
+static __attribute__((noinline)) int apply_v032(int x, int mode){
+    volatile int _m=mode; /* block ipa-pure-const inference */
+    if (_m==1) return x*(int)2.0;
+    else if (_m==2) return x+(int)1.0;
+    else return x-(int)0.5;
+}
+void slow_comp_v032(int *mat, int rows, int cols, int mode) {
     for (int j = 0; j < cols; j++) {
         for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                float t1 = A[i*cols+j] + B[i*cols+j];
-                float t2 = t1 * (float)2.0;
-                float t3 = t2 + (float)1.0;
-                float result = t3;
-                out[i*cols+j] = result;
-            }
+            mat[i * cols + j] = apply_v032(mat[i * cols + j], mode);
         }
     }
 }

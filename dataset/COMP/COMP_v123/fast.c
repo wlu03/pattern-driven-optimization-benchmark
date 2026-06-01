@@ -1,14 +1,17 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v123(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
-    return r;
-}
-int fast_comp_v123(int *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    int factor = config_val_v123(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+int fast_comp_v123(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int lo = 0, hi = n;
+        while (lo < hi) {
+            int mid = (lo + hi) >> 1;
+            int v = sorted_arr[mid];
+            /* branchless: compute lo/hi using arithmetic on (v<target) */
+            int lt = (v < target);
+            lo = lt ? (mid + 1) : lo;
+            hi = lt ? hi : mid;
+        }
+        if (lo < n && sorted_arr[lo] == target) hits++;
+    }
+    return hits;
 }

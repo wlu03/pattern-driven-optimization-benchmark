@@ -1,14 +1,18 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v097(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
+static __attribute__((noinline)) double log_scale_v097(double base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    double r = 0;
+    for(int k=1;k<=15;k++) r+=(double)(log(_b*k+1.0)/k);
     return r;
 }
-int fast_comp_v097(int *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    int factor = config_val_v097(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+double fast_comp_v097(double *A, double *B, int rows, int cols, double base) {
+    double scale = log_scale_v097(base);
+    double sumAsq = 0, sumB = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int idx = i*cols+j;
+            sumAsq += A[idx] * A[idx];
+            sumB += B[idx];
+        }
+    }
+    return scale * sumAsq + scale * sumB;
 }

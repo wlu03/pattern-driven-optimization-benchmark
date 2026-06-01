@@ -1,13 +1,19 @@
-void slow_comp_v064(float *out, float *A, float *B, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                float t1 = A[i*cols+j] + B[i*cols+j];
-                float t2 = t1 * (float)2.0;
-                float t3 = t2 + (float)1.0;
-                float result = t3;
-                out[i*cols+j] = result;
-            }
-        }
+#include <math.h>
+#include <stdlib.h>
+static __attribute__((noinline)) double config_val_v064(int key){
+    volatile int _k=key; /* block ipa-pure-const inference */
+    double r=0;
+    for(int i=0;i<100;i++) r+=(double)sin((double)(_k+i));
+    return r;
+}
+double slow_comp_v064(double *arr, int n, int key) {
+    double sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr == NULL) continue;
+        if (n <= 0) break;
+        if (i < 0 || i >= n) continue;
+        double factor = config_val_v064(key);
+        sum += arr[i] * factor;
     }
+    return sum;
 }

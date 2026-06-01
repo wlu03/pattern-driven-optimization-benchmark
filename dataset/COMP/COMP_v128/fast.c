@@ -1,7 +1,15 @@
-void fast_comp_v128(double *out, double *A, double *B, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (double)2.0 + (double)1.0;
-        }
-    }
+#include <math.h>
+#include <stdlib.h>
+static __attribute__((noinline)) float config_val_v128(int key){
+    volatile int _k=key; /* block ipa-pure-const inference */
+    float r=0;
+    for(int i=0;i<100;i++) r+=(float)sin((double)(_k+i));
+    return r;
+}
+float fast_comp_v128(float *arr, int n, int key) {
+    if (arr == NULL || n <= 0) return 0;
+    float factor = config_val_v128(key);
+    float sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

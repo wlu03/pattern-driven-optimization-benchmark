@@ -1,18 +1,19 @@
-#include <math.h>
-#include <stdlib.h>
-static float config_val_v024(int key){
-    float r=0;
-    for(int i=0;i<100;i++) r+=(float)sin((double)(key+i));
-    return r;
-}
-float slow_comp_v024(float *arr, int n, int key) {
-    float sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        float factor = config_val_v024(key);
-        sum += arr[i] * factor;
+int slow_comp_v024(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int found = -1;
+        for (int i = 0; i < n; i++) {
+            int v = sorted_arr[i];
+            int cmp;
+            /* branchy comparator: emits three different paths */
+            if (v < target) cmp = -1;
+            else if (v > target) cmp = 1;
+            else cmp = 0;
+            if (cmp == 0) { found = i; break; }
+            if (cmp > 0) break;
+        }
+        if (found >= 0) hits++;
     }
-    return sum;
+    return hits;
 }

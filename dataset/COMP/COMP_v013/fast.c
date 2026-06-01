@@ -1,18 +1,15 @@
-static __attribute__((noinline)) int log_scale_v013(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
+#include <math.h>
+static __attribute__((noinline)) float compute_v013(float x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    float r=0;
+    for(int k=1;k<=50;k++) r+=(float)sin(_v*k+1.0);
     return r;
 }
-int fast_comp_v013(int *A, int *B, int rows, int cols, int base) {
-    int scale = log_scale_v013(base);
-    int sumAsq = 0, sumB = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            int idx = i*cols+j;
-            sumAsq += A[idx] * A[idx];
-            sumB += B[idx];
-        }
+void fast_comp_v013(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v013(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
     }
-    return scale * sumAsq + scale * sumB;
 }

@@ -1,12 +1,19 @@
-void slow_comp_v025(double *mat, double *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        double sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
+int slow_comp_v025(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int found = -1;
+        for (int i = 0; i < n; i++) {
+            int v = sorted_arr[i];
+            int cmp;
+            /* branchy comparator: emits three different paths */
+            if (v < target) cmp = -1;
+            else if (v > target) cmp = 1;
+            else cmp = 0;
+            if (cmp == 0) { found = i; break; }
+            if (cmp > 0) break;
         }
-        col_avgs[j] = sum / (double)rows;
+        if (found >= 0) hits++;
     }
+    return hits;
 }

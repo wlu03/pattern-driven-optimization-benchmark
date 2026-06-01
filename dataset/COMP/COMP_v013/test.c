@@ -2,25 +2,31 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define ROWS 500
-#define COLS 1000
+/* ── standardized correctness check (auto-injected) ─────────────────── */
+static inline int _bench_close(double a, double b, double atol, double rtol) {
+    double d = a - b; if (d < 0) d = -d;
+    double mb = b; if (mb < 0) mb = -mb;
+    return d <= atol + rtol * mb;
+}
+/* ── end ────────────────────────────────────────────────────────────── */
+
+#define N 5000000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    int total=ROWS*COLS;
-    int *A=malloc(total*sizeof(int)),*B=malloc(total*sizeof(int));
-    for(int i=0;i<total;i++){A[i]=(int)((i%100)+1)*0.01;B[i]=(int)((i%50)+1)*0.02;}
-    int base=(int)2.0;
+    float *A=malloc(N*sizeof(float)),*os=malloc(N*sizeof(float)),*of=malloc(N*sizeof(float));
+    for(int i=0;i<N;i++) A[i]=(float)((i%100)+1)*0.01f;
+    int key=42,mode=1;
     struct timespec t0,t1;
-    clock_gettime(CLOCK_MONOTONIC,&t0); int rs=slow_comp_v013(A,B,ROWS,COLS,base); clock_gettime(CLOCK_MONOTONIC,&t1);
+    clock_gettime(CLOCK_MONOTONIC,&t0); slow_comp_v013(os,A,N,key,mode); clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
-    clock_gettime(CLOCK_MONOTONIC,&t0); int rf=fast_comp_v013(A,B,ROWS,COLS,base); clock_gettime(CLOCK_MONOTONIC,&t1);
+    clock_gettime(CLOCK_MONOTONIC,&t0); fast_comp_v013(of,A,N,key,mode); clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
-    double diff=fabs((double)(rs-rf)),ref=fabs((double)rs)+1e-12;
-    int correct=diff<1e-6*ref;
+    int correct=1;
+    for(int i=0;i<N;i++){double d=fabs((double)(os[i]-of[i]));if(d>1e-3*(fabs((double)os[i])+1e-12)){correct=0;break;}}
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
-    free(A);free(B);return correct?0:1;
+    free(A);free(os);free(of);return correct?0:1;
 }

@@ -1,18 +1,8 @@
-#include <math.h>
-static __attribute__((noinline)) double compute_v144(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    double r=0;
-    for(int i=0;i<50;i++) r+=(double)sin(_k+(double)i);
-    return r;
-}
-void slow_comp_v144(double *out, double *A, int n, int key, int mode) {
+typedef struct { int a, b, cold0,cold1,cold2,cold3,cold4,cold5,cold6,cold7,cold8,cold9,cold10,cold11,cold12,cold13,cold14,cold15,cold16,cold17,cold18,cold19,cold20,cold21,cold22,cold23,cold24,cold25,cold26,cold27,cold28,cold29; } Wide_v144;
+int slow_comp_v144(Wide_v144 *w, int n) {
+    int acc = 0;
     for (int i = 0; i < n; i++) {
-        double factor = compute_v144(key);
-        double t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        double t2 = t1 + (double)1.0;
-        double t3 = t2;
-        out[i] = t3;
+        acc += w[i].a * w[i].b;
     }
+    return acc;
 }

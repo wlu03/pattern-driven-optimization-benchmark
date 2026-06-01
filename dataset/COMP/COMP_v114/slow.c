@@ -1,18 +1,20 @@
-#include <math.h>
-#include <stdlib.h>
-static double config_val_v114(int key){
-    double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
+static __attribute__((noinline)) int rare_fn_v114(int a){
+    volatile double _a=(double)a; /* block ipa-pure-const */
+    int r = 0;
+    for(int k=1;k<=200;k++) r += (int)sin(_a * k);
     return r;
 }
-double slow_comp_v114(double *arr, int n, int key) {
-    double sum = 0;
+int slow_comp_v114(int *A, int *B, int n) {
+    int acc = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        double factor = config_val_v114(key);
-        sum += arr[i] * factor;
+        int a = A[i];
+        int b = B[i];
+        if (a > (int)9) {
+            /* rare branch: heavy noinline call per occurrence */
+            acc += rare_fn_v114(a);
+        } else {
+            acc += a * b;
+        }
     }
-    return sum;
+    return acc;
 }

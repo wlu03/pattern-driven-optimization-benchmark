@@ -1,12 +1,26 @@
-void slow_comp_v056(int *mat, int *col_avgs, int rows, int cols) {
+static long *_dp_table_v056 = 0;
+static int _dp_cols_v056 = 0;
+static __attribute__((noinline)) long dp_descent_v056(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    long *t = _dp_table_v056;
+    int c = _dp_cols_v056;
+    if (t[i*c+j] != 0) return t[i*c+j];
+    long r = dp_descent_v056(i-1, j) + dp_descent_v056(i, j-1);
+    t[i*c+j] = r;
+    return r;
+}
+long slow_comp_v056(int rows, int cols) {
+    long *table = (long*)calloc((size_t)rows * cols, sizeof(long));
+    _dp_table_v056 = table;
+    _dp_cols_v056 = cols;
+    long acc = 0;
+    /* column-major outer order — fills col-by-col into row-major-stored table */
     for (int j = 0; j < cols; j++) {
-        int sum = 0;
         for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
+            acc += dp_descent_v056(i, j);
         }
-        col_avgs[j] = sum / (int)rows;
     }
+    free(table);
+    _dp_table_v056 = 0;
+    return acc;
 }

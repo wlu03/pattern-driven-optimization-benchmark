@@ -1,18 +1,21 @@
-static __attribute__((noinline)) double penalty_v041(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
+static __attribute__((noinline)) float log_scale_v041(float base){
+    volatile double _b=(double)base; /* block pure/const inference */
+    float r = 0;
+    for(int k=1;k<=15;k++) r+=(float)(log(_b*k+1.0)/k);
     return r;
 }
-float slow_comp_v041(float *X, float *Y, int n, float alpha, float beta) {
+float slow_comp_v041(float *A, float *B, int rows, int cols, float base) {
     float result = 0;
-    for (int i = 0; i < n; i++) {
-        float t1 = X[i] * X[i];
-        float t2 = alpha * t1;
-        float t3 = beta * Y[i];
-        float t4 = t2 + t3;
-        float pen = (float)penalty_v041((double)alpha, (double)beta);
-        result += t4 + pen;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (i >= 0 && i < rows && j >= 0 && j < cols) {
+                float scale = log_scale_v041(base);
+                float t1 = A[i*cols+j] * A[i*cols+j];
+                float t2 = scale * t1;
+                float t3 = B[i*cols+j] * scale;
+                result += t2 + t3;
+            }
+        }
     }
     return result;
 }

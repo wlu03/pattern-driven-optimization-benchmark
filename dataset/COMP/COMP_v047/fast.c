@@ -1,13 +1,15 @@
-static __attribute__((noinline)) float scale_fn_v047(float base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    float r = 0;
-    for(int k=1;k<=20;k++) r+=(float)sin(_b*k+1.0);
+static __attribute__((noinline)) double penalty_v047(double a, double b){
+    volatile double _a=a,_b=b; /* block pure/const inference */
+    double r = 0.0;
+    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
     return r;
 }
-float fast_comp_v047(float *A, int n, float base, int mode) {
-    float s = scale_fn_v047(base);
-    float w = (mode == 0) ? s : s * (float)2.0f;
-    float total = 0;
-    for (int i = 0; i < n; i++) total += A[i] * w;
-    return total;
+float fast_comp_v047(float *X, float *Y, int n, float alpha, float beta) {
+    float pen = (float)penalty_v047((double)alpha, (double)beta);
+    float sumXsq = 0, sumY = 0;
+    for (int i = 0; i < n; i++) {
+        sumXsq += X[i] * X[i];
+        sumY += Y[i];
+    }
+    return alpha * sumXsq + beta * sumY + (float)n * pen;
 }

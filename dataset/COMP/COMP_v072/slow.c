@@ -1,18 +1,15 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v072(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
-}
-void slow_comp_v072(int *out, int *A, int n, int key, int mode) {
-    for (int i = 0; i < n; i++) {
-        int factor = compute_v072(key);
-        int t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        int t2 = t1 + (int)1.0;
-        int t3 = t2;
-        out[i] = t3;
+float slow_comp_v072(float *raw, int *n_valid, int *valid_indices, int n_chunks, int chunk_size) {
+    float *scratch = (float*)malloc(chunk_size * sizeof(float));
+    float acc = 0;
+    for (int c = 0; c < n_chunks; c++) {
+        /* fixed-size memcpy: copy the whole chunk regardless of n_valid */
+        memcpy(scratch, raw + c * chunk_size, chunk_size * sizeof(float));
+        int nv = n_valid[c];
+        for (int k = 0; k < nv; k++) {
+            int idx = valid_indices[c * chunk_size + k];
+            acc += scratch[idx];
+        }
     }
+    free(scratch);
+    return acc;
 }

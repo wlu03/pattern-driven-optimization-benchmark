@@ -1,9 +1,10 @@
-void slow_comp_v098(double *mat, int rows, int cols, int mode) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (mode == 1) mat[i * cols + j] *= (double)2.0;
-            else if (mode == 2) mat[i * cols + j] += (double)1.0;
-            else mat[i * cols + j] -= (double)0.5;
+int slow_comp_v098(int *keys, int *vals, int n, int *queries, int m) {
+    int sum = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        for (int i = 0; i < n; i++) {
+            if (keys[i] == target) { sum += vals[i]; break; }
         }
     }
+    return sum;
 }

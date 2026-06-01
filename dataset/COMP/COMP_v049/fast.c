@@ -1,15 +1,14 @@
-static __attribute__((noinline)) double penalty_v049(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
-    return r;
-}
-double fast_comp_v049(double *X, double *Y, int n, double alpha, double beta) {
-    double pen = (double)penalty_v049((double)alpha, (double)beta);
-    double sumXsq = 0, sumY = 0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+long fast_comp_v049(int rows, int cols, int n_runs) {
+    long *dp = (long*)malloc(rows * cols * sizeof(long));
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (i == 0 || j == 0) dp[i*cols+j] = 1;
+            else dp[i*cols+j] = dp[(i-1)*cols+j] + dp[i*cols+(j-1)];
+        }
     }
-    return alpha * sumXsq + beta * sumY + (double)n * pen;
+    long total = 0;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++) total += dp[i*cols+j];
+    free(dp);
+    return total * (long)n_runs;
 }

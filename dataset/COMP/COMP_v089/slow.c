@@ -1,18 +1,8 @@
-#include <math.h>
-#include <stdlib.h>
-static float config_val_v089(int key){
-    float r=0;
-    for(int i=0;i<100;i++) r+=(float)sin((double)(key+i));
-    return r;
-}
-float slow_comp_v089(float *arr, int n, int key) {
-    float sum = 0;
+typedef struct { int val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v089;
+int slow_comp_v089(R_v089 *r, int n) {
+    int acc = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        float factor = config_val_v089(key);
-        sum += arr[i] * factor;
+        acc += r[i].val * r[i].weight;
     }
-    return sum;
+    return acc;
 }

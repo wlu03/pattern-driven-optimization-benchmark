@@ -1,7 +1,5 @@
-void fast_comp_v115(float *out, float *A, float *B, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (float)2.0 + (float)1.0;
-        }
-    }
+int fast_comp_v115(int *mass, int n) {
+    int total = 0;
+    for (int i = 0; i < n; i++) total += mass[i];
+    return total;
 }

@@ -2,7 +2,7 @@
 
 A benchmark for evaluating whether LLMs can optimize C code patterns that compilers **cannot** fix automatically. Each pattern is specifically selected because `-O3` leaves it unoptimized — the inefficiency is semantic, algorithmic, or data-structural, not syntactic.
 
-Includes 27 patterns across 7 categories, a variant generator producing ~810 dataset entries, and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
+Includes 27 base patterns across 7 categories, a variant generator producing 1,140 dataset entries (including 700 composed multi-pattern variants in `dataset/COMP/` spanning 23 distinct two- and three-pattern combinations), a 36-pattern post-cutoff held-out test set for contamination defense (`dataset/held_out/`), and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
 
 ---
 
@@ -107,6 +107,39 @@ The evaluation pipeline feeds compile errors and wrong-output signals back to th
 ### 5. The Pattern-Aware Backfire Effect
 Giving the model a category label sometimes *hurts* performance vs giving no label. This happens when the label activates a pattern the model over-applies. It is a concrete example of how context can mislead rather than help a model — relevant to RAG and prompt injection research.
 
+### 6. Two-Axis Faithfulness Verdict
+
+Runtime correctness and observed speedup do not distinguish three substantively different outcomes:
+**(i)** the model applied the *expected* structural transformation,
+**(ii)** the model applied a *different valid* transformation that produces the same answer faster (e.g., we expected hoisting, the model vectorized), or
+**(iii)** the model produced code that happens to be correct on the single configuration tested but does not generalize (hardcoded constant, special-case for the random seed, etc.).
+
+The faithfulness layer (`faithfulness/`) is designed to separate these. Each model output is scored along two independent axes and routed into one of four cells:
+
+|                       | **Expected shape**     | **Alternative**            |
+|-----------------------|------------------------|----------------------------|
+| **Equivalent**        | `FAITHFUL`             | `FAITHFUL_ALTERNATIVE`     |
+| **Not equivalent**    | `STRUCTURAL_ONLY`      | `FAILED`                   |
+
+- **Equivalent** is determined empirically by `differential_equivalence` (in `faithfulness/equivalence.py`): the candidate must pass correctness across nine input configurations (3 problem sizes × 3 seeds + 4 adversarial distributions) that exercise the `BENCH_N`/`BENCH_SEED`/`BENCH_DIST` hooks in every harness. A model that hardcodes the answer for the default config fails this check.
+- **Expected shape** is determined by the AST-based per-pattern checkers in `faithfulness/checkers/` (e.g., for loop-invariant hoisting: "the expensive call no longer appears inside any loop body"). When pycparser fails to parse the model output, the checker falls through to regex matching, and the fallback rate is reported per pattern by `faithfulness/report_2x2.py` as a first-class data-quality signal.
+
+**Evidence and design rationale.**
+
+The two-axis schema follows the empirical finding from *Wu et al. (FSE 2025, [arXiv:2504.04321](https://arxiv.org/abs/2504.04321))* on optimization-guided equivalence transformation: specify the expected transformation up-front via AST conditions, then verify equivalence empirically via differential execution. The cascade architecture (semantic-first, structural-second) follows *Le-Cong et al., **INVALIDATOR**, IEEE TSE 2023 ([arXiv:2301.01113](https://arxiv.org/abs/2301.01113))*, which targets the closely analogous problem of distinguishing genuinely correct automated-program-repair patches from overfitting ones and reports that the hybrid cascade beats either tier alone by 11–26 percentage points on 885 Defects4J patches.
+
+**Why the verdict does *not* condition on the model's reasoning trace.**
+
+A natural extension would be to read the model's stated optimization plan (Claude extended thinking, o-series reasoning summaries, DeepSeek-R1 chains) and score whether the plan matches the emitted code. We deliberately don't, on three converging pieces of evidence:
+
+- *Chen, Benton et al. (Anthropic, [arXiv:2505.05410](https://arxiv.org/abs/2505.05410), May 2025)* report that frontier reasoning models verbalize the cues actually driving their answers only **25–39%** of the time on average — and in reward-hacking environments, they exploit hints **>99%** of the time while verbalizing them **<2%**, "constructing fake rationales for why the incorrect answer was in fact right."
+- *Lanham et al. ([arXiv:2307.13702](https://arxiv.org/abs/2307.13702), 2023)* show, via causal interventions (Early Answering, Adding Mistakes, Paraphrasing), that the CoT is load-bearing for the final answer only sometimes — Answering-Over-Chain values range from 44% on AQuA to 2% on ARC Easy on the same model.
+- *Turpin et al. (NeurIPS 2023, [arXiv:2305.04388](https://proceedings.neurips.cc/paper_files/paper/2023/hash/ed3fea9033a80fea1376299fa7863f4a-Abstract-Conference.html))* document up to **36% accuracy swings** on BIG-Bench Hard from biasing features (e.g., reordering MCQ options) that CoT never acknowledged.
+
+A faithfulness scorer that reads the model's stated plan would inherit all of these unreliabilities. The benchmark judges the **artifact** (the diff, the AST, the runtime behavior across the differential sweep), not the **narrative**.
+
+**Known limitation.** The cascade does not currently include an LLM-as-judge tier for the `FAITHFUL_ALTERNATIVE` cell, which means the benchmark detects that the model achieved equivalence via an alternative transformation but doesn't auto-label which alternative. Adding one is straightforward (judge the diff, not the CoT — see above) and would directly address an open question: no published head-to-head comparison currently exists between structural checkers and LLM judges on code-optimization faithfulness specifically.
+
 ---
 
 ## Getting Started
@@ -115,7 +148,7 @@ Giving the model a category label sometimes *hurts* performance vs giving no lab
 pip install -r requirements.txt   # anthropic openai google-generativeai pyyaml
 
 # Generate dataset variants
-python3 generate_variants.py --patterns all --variants 30 --output dataset/
+python3 scripts/generate.py --patterns all --variants 30 --output dataset/
 python3 scripts/batch_test.py dataset/   # verify generated dataset compiles + is correct
 ```
 
@@ -136,28 +169,28 @@ export GROQ_API_KEY=...               # same models, faster inference
 ```bash
 brew services start ollama            # macOS background daemon
 ollama pull qwen2.5-coder:7b          # ~5GB GGUF download
-python3 evaluate_llm.py --model qwen2.5-coder-7b-ollama --strategy taxonomy-guided
+python3 scripts/evaluate.py --model qwen2.5-coder-7b-ollama --strategy taxonomy-guided
 ```
 
 ### Run Evaluations
 
 ```bash
 # See all available models
-python3 evaluate_llm.py --list-models
+python3 scripts/evaluate.py --list-models
 
 # Dry run — preview prompts without calling API
-python3 evaluate_llm.py --dry-run --model gpt-4o --strategy taxonomy-guided
+python3 scripts/evaluate.py --dry-run --model gpt-4o --strategy taxonomy-guided
 
 # Single model, single strategy
-python3 evaluate_llm.py --model claude-sonnet-4-6  --strategy taxonomy-guided --output results.csv
-python3 evaluate_llm.py --model gpt-4o             --strategy pattern-aware   --output results.csv
-python3 evaluate_llm.py --model qwen2.5-coder-7b-ollama --strategy generic    --output results.csv
+python3 scripts/evaluate.py --model claude-sonnet-4-6  --strategy taxonomy-guided --output results.csv
+python3 scripts/evaluate.py --model gpt-4o             --strategy pattern-aware   --output results.csv
+python3 scripts/evaluate.py --model qwen2.5-coder-7b-ollama --strategy generic    --output results.csv
 
 # All models at once
-python3 evaluate_llm.py --all-models --strategy taxonomy-guided --output results.csv
+python3 scripts/evaluate.py --all-models --strategy taxonomy-guided --output results.csv
 
 # Specific patterns only
-python3 evaluate_llm.py --model gpt-4o --patterns SR-3,IS-4,MI-4 --strategy pattern-aware
+python3 scripts/evaluate.py --model gpt-4o --patterns SR-3,IS-4,MI-4 --strategy pattern-aware
 ```
 
 ### Prompting Strategies
@@ -196,43 +229,64 @@ To add a new model, append an entry to `models.yaml` — no code changes require
 ```
 .
 ├── README.md
-├── Makefile
-│
-├── main.c                             # Runs all patterns at O0 and O3 for reference
-├── harness/
-│   └── bench_harness.h               # Timing, verification, reporting utilities
-├── patterns/
-│   ├── cat1_semantic_redundancy.c    # SR-1 to SR-5  (5 patterns)
-│   ├── cat2_input_sensitive.c        # IS-1 to IS-5  (5 patterns)
-│   ├── cat3_control_flow.c           # CF-3 to CF-4  (2 patterns; CF-1/2 removed — compiler-fixable)
-│   ├── cat4_human_style.c            # HR-2 to HR-4  (3 patterns; HR-1/5 removed — compiler-fixable)
-│   ├── cat5_data_structure.c         # DS-1 to DS-4  (4 patterns)
-│   ├── cat6_algorithmic.c            # AL-1 to AL-4  (4 patterns)
-│   └── cat7_memory_io.c              # MI-1 to MI-4  (4 patterns; 1 removed = 3 active)
-│
-├── evaluate_llm.py                   # CLI entry point — arg parsing and main()
-├── patterns.py                       # PatternEntry dataclass and all 27 PATTERNS entries
-├── prompts.py                        # Prompt builders and HW_TARGET_DESCRIPTIONS
-├── compiler.py                       # compile_and_run, normalize/sanitize helpers
-├── evaluator.py                      # EvalResult dataclass and evaluate_pattern
-├── models.py                         # load_model_config, provider call functions
-├── generate_variants.py              # Generates N slow/fast C pairs per pattern
-├── prepare_finetune_data.py          # Converts dataset to JSONL for LoRA fine-tuning
-├── lora_finetune_tutorial.ipynb      # Step-by-step LoRA fine-tuning guide
+├── LICENSE
+├── requirements.txt
 ├── models.yaml                       # Model registry (add new models here)
 │
-├── scripts/
-│   ├── test_variant.py               # Test one generated variant
-│   └── batch_test.py                 # Test all generated variants
+├── pdob_core/                        # Core library — import as `pdob_core.*`
+│   ├── __init__.py                   # Re-exports: PATTERNS, compile_and_run, evaluate_pattern, ...
+│   ├── compiler.py                   # compile_and_run, normalize/sanitize helpers
+│   ├── evaluator.py                  # EvalResult dataclass + evaluate_pattern / evaluate_variant
+│   ├── dataset_evaluator.py          # Multi-TU compile path for dataset/ variants
+│   ├── prompts.py                    # Prompt builders + HW_TARGET_DESCRIPTIONS
+│   ├── models.py                     # load_model_config + provider call functions
+│   ├── patterns/                     # PatternEntry + all 27 PATTERNS (one file per category)
+│   └── generators/                   # Variant generator (one file per category) + dataset glue
 │
-└── dataset/                          # Generated variants
-    ├── index.json
-    ├── index.csv
-    └── SR_1/SR-1_v000/
-        ├── slow.c                    # Inefficient code
-        ├── fast.c                    # Hand-optimized reference
-        ├── test.c                    # Compile + verify harness
-        └── metadata.json             # Pattern ID, difficulty, description
+├── scripts/                          # CLI entry points
+│   ├── evaluate.py                   # LLM evaluation driver — was `evaluate_llm.py`
+│   ├── generate.py                   # Dataset generator    — was `generate_variants.py`
+│   ├── test_variant.py               # Test one generated variant (multi-TU + helper.c)
+│   ├── batch_test.py                 # Test all generated variants
+│   ├── measure_compiler_fixable.py   # Per-variant compiler-fix measurement (5 regimes)
+│   └── run_multi_input.py            # Run a pattern across multiple n × seed × distribution configs
+│
+├── notebooks/
+│   ├── ablation_study.ipynb          # Ablation analysis notebook (local)
+│   └── ablation_study_colab.ipynb    # Ablation analysis notebook (Colab)
+│
+├── docs/
+│   ├── implementation.tex            # Paper section: pipeline + harness
+│   └── related_work.tex              # Paper section: related work
+│
+├── faithfulness/
+│   ├── checkers/                     # AST-based per-pattern structural checkers (one file per category)
+│   │   └── _base.py                  # Verdict + FaithfulnessResult + TwoAxisVerdict / Cell schema
+│   ├── equivalence.py                # Tier 1: differential_equivalence + two_axis_verdict
+│   ├── evaluate_faithfulness.py      # Driver for faithfulness scoring
+│   └── report_2x2.py                 # Faithful×fast 2×2 matrix + pycparser parse-success rate
+│
+├── fine_tune/                        # QLoRA fine-tuning workflow (independent)
+│   ├── README.md
+│   ├── prepare_finetune_data.py
+│   ├── finetune_lora.py
+│   ├── merge_and_export.py
+│   ├── lora_finetune_tutorial.ipynb
+│   ├── train.jsonl / val.jsonl       # Prepared training data
+│   └── lora_fine_tuning/             # Trained adapter checkpoints
+│
+└── dataset/                          # Generated variants (1,140 main + 36 held-out)
+    ├── index.json / index.csv
+    ├── <PID>/<PID>_v<NNN>/           # 27 base patterns × ~15 variants + COMP × 700
+    │   ├── slow.c                    # Inefficient code
+    │   ├── fast.c                    # Hand-optimized reference
+    │   ├── helper.c                  # `expensive_*` noinline functions (where applicable)
+    │   ├── test.c                    # Compile + verify harness
+    │   └── metadata.json             # Pattern ID, difficulty, description
+    └── held_out/                     # 36 post-2026-05 contamination-defense patterns
+        ├── README.md                 # Per-wave provenance + per-pattern citations
+        ├── HO_{AL,CF,DS,HR,IS,MI,SR}/ # Categorized like the main set, never trained on
+        └── ...
 ```
 
 ---
@@ -243,13 +297,14 @@ The dataset can be used to LoRA fine-tune a base model and measure whether fine-
 
 ```bash
 # Generate JSONL training data from dataset/
+cd fine_tune
 python3 prepare_finetune_data.py \
   --strategies generic pattern-aware taxonomy-guided \
   --split 0.9 \
   --train train.jsonl \
   --val val.jsonl
 
-# See lora_finetune_tutorial.ipynb for step-by-step training with Unsloth + TRL
+# See fine_tune/lora_finetune_tutorial.ipynb for step-by-step training with Unsloth + TRL
 ```
 
 The notebook covers: LoRA adapter setup, QLoRA 4-bit quantization, SFTTrainer configuration, loss curve analysis, inference testing, and serving the fine-tuned adapter via Ollama.

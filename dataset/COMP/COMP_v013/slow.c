@@ -1,21 +1,18 @@
-static __attribute__((noinline)) int log_scale_v013(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
+#include <math.h>
+static __attribute__((noinline)) float compute_v013(float x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    float r=0;
+    for(int k=1;k<=50;k++) r+=(float)sin(_v*k+1.0);
     return r;
 }
-int slow_comp_v013(int *A, int *B, int rows, int cols, int base) {
-    int result = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                int scale = log_scale_v013(base);
-                int t1 = A[i*cols+j] * A[i*cols+j];
-                int t2 = scale * t1;
-                int t3 = B[i*cols+j] * scale;
-                result += t2 + t3;
-            }
-        }
+void slow_comp_v013(float *out, float *A, int n, int key, int mode) {
+    for (int i = 0; i < n; i++) {
+        float factor = compute_v013(key);
+        float t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        float t2 = t1 + (float)1.0;
+        float t3 = t2;
+        out[i] = t3;
     }
-    return result;
 }

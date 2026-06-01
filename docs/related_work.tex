@@ -1,0 +1,147 @@
+\section{Related Work}
+
+\subsection{Large Language Models for Code}
+
+The application of large language models to source code has advanced rapidly in recent years. Codex~\cite{chen2021codex}, trained on a large corpus of publicly available code, demonstrated that generative models could synthesize functionally correct programs from natural language descriptions, establishing code generation as a tractable LLM task. CodeBERT~\cite{feng2020codebert} introduced bimodal pre-training over code and natural language, producing representations useful for downstream tasks including code search and summarization. Subsequent models including CodeT5~\cite{wang2021codet5}, InCoder~\cite{fried2022incoder}, and StarCoder~\cite{li2023starcoder} refined these capabilities through improved pre-training objectives and larger corpora. More recently, general-purpose frontier models such as GPT-4~\cite{openai2023gpt4} and Claude~\cite{anthropic2024claude} have demonstrated strong performance on code-related tasks without code-specific pre-training. AlphaCode~\cite{li2022alphacode} extended these results to competitive programming, achieving performance comparable to median human participants on contest problems. While these works establish that LLMs can produce correct code, they do not specifically examine whether models can identify and eliminate semantic inefficiencies of the kind that compilers leave untouched.
+
+\subsection{Machine Learning for Code Optimization}
+
+Several lines of work apply machine learning to problems in compiler optimization. Early work on learned compiler heuristics trained models to predict beneficial optimization sequences or flag configurations for a given program~\cite{ashouri2018survey}. MLGO~\cite{trofin2021mlgo} integrated reinforcement learning directly into the LLVM inlining pipeline, replacing hand-tuned heuristics with a learned policy. ProGraML~\cite{cummins2021programl} represented programs as graphs to support a range of compiler analysis tasks. These approaches operate at the level of compiler intermediate representations and focus on tuning transformations that the compiler already knows how to perform.
+
+Most closely related to our work is PIE~\cite{shypula2023pie}, which constructs a dataset of performance-improving edits mined from competitive programming submissions and fine-tunes LLMs to generate faster variants. PIE demonstrates that models can learn to produce speedups on real programs. However, its optimization targets are drawn from competitive programming contexts and are not categorized by why the compiler fails to apply them automatically. BeyondO3 complements PIE by focusing on a controlled taxonomy of patterns that are empirically verified to survive \texttt{-O3} compilation unchanged, isolating the contribution of semantic reasoning from mechanical transformation.
+
+AlphaDev~\cite{mankowitz2023alphadev} used reinforcement learning to discover novel sorting algorithms expressed in assembly, achieving improvements over hand-optimized routines. While impressive, this approach targets instruction-level search rather than the semantic-level pattern recognition that characterizes the inefficiencies we study.
+
+\subsection{Code Benchmarks and Evaluation}
+
+A number of benchmarks have been proposed to evaluate LLM code capabilities. HumanEval~\cite{chen2021codex} and MBPP~\cite{austin2021mbpp} measure functional correctness on short synthesis tasks using unit tests. EvalPlus~\cite{liu2023evalplus} extends HumanEval with a larger and more rigorous test suite. SWE-bench~\cite{jimenez2024swebench} evaluates models on real GitHub issues requiring multi-file edits, shifting focus from synthesis to software engineering in context. CodeContests~\cite{li2022alphacode} provides a large collection of competitive programming problems for training and evaluation.
+
+These benchmarks share a correctness-first orientation: success is defined by whether the output passes a test suite, not by whether it is efficient. BeyondO3 differs in that correctness is a necessary but not sufficient condition for success. The primary evaluation axis is whether the model identifies the correct optimization, compiles cleanly, and produces a measurable runtime speedup over the unoptimized baseline.
+
+\subsection{Compiler Optimization and Program Analysis}
+
+Classical compiler optimizations such as common subexpression elimination, loop-invariant code motion, strength reduction, and dead code elimination are well studied~\cite{aho2006compilers}. Modern compilers implement sophisticated variants of these transformations but remain conservative under aliasing uncertainty and floating-point non-associativity~\cite{allen2001optimizing}. Polyhedral-model compilers such as Polly~\cite{grosser2012polly} and PLUTO~\cite{bondhugula2008pluto} extend this to affine loop nests, enabling transformations for locality and parallelism. Auto-vectorization frameworks detect patterns suitable for SIMD execution~\cite{nuzman2006auto}.
+
+Despite this breadth, these techniques share a fundamental limitation: they operate on static program structure and cannot reason about runtime data distributions, semantic algebraic equivalences that alter floating-point behavior, or algorithmic restructurings that change computational complexity. The patterns in BeyondO3 are specifically designed to fall outside the scope of these classical techniques, making them a natural evaluation target for reasoning-capable models.
+
+\subsection{Superoptimization}
+
+Superoptimizers attempt to find provably-better implementations of a code fragment by searching the space of possible programs. Bansal and Aiken's peephole superoptimizer~\cite{bansal2006gso} learned approximately three thousand code-size and twenty-one hundred runtime optimizations and demonstrated $1.7\times$--$10\times$ speedups on hand-picked integer kernels, but only $1$--$5\%$ improvement on whole SPEC CINT2000 applications and under $1\%$ on ICC-compiled binaries --- establishing the canonical empirical ceiling for peephole-scope tools. STOKE~\cite{schkufza2013stoke} extended the approach with MCMC-based stochastic search over x86-64 binaries, achieving $1.6\times$ on Montgomery multiplication by discovering a different instruction-set-level algorithm, but is documented by its authors to operate only on the innermost loop-free fragment of a function. Souper~\cite{sasnauskas2017souper} integrates SMT-based synthesis into the LLVM peephole pass and is intentionally restricted to straight-line code with an extraction window of approximately one kilobyte of intermediate representation; as a fully automated pass it produces a Clang self-build that is approximately $2\%$ slower overall. The polyhedral loop optimizer Polly~\cite{grosser2012polly} addresses a different regime --- affine loop nests on multi-dimensional arrays --- and is the natural baseline for memory-access-pattern transformations such as loop interchange on row-major versus column-major access. BeyondO3 uses these tools as an ablation tier (\S~\ref{subsec:compiler-resistance}) rather than as competitors: the structural scope of each tool predicts which pattern categories it cannot reach (cross-translation-unit calls for all three peephole tools, memoization and data-layout transformations for all four), so the surviving categories provide a defensible justification for the benchmark's compiler-resistance framing.
+
+\subsection{Measurement Methodology for Compiler Benchmarks}
+
+Mytkowicz et al.~\cite{mytkowicz2009producing} demonstrated that benchmark performance is far more sensitive to seemingly orthogonal experimental setup than the community generally assumes: varying only the size of an unused UNIX environment variable can change execution time by approximately $33\%$ routinely and up to $300\%$ in extreme cases, and varying only link order can produce a $15$ percentage-point range in measured speedup --- enough to flip the sign of an \texttt{-O3} vs \texttt{-O2} comparison. Their 133-paper survey of ASPLOS, PACT, PLDI, and CGO found none that adequately addressed measurement bias. Subsequent work has reinforced this finding rather than disputing it: Curtsinger and Berger's Stabilizer~\cite{curtsinger2013stabilizer} repeatedly re-randomizes code, stack, and heap layout during execution to make ordinary statistical tests valid, and Georges et al.~\cite{georges2007statistical} establish Mann-Whitney U on per-run distributions as the appropriate test for Java performance comparisons. BeyondO3's statistical methodology (\S~\ref{subsec:stats}) follows the practical synthesis of these results: report median and bootstrap confidence interval rather than mean point estimates, gate speedup claims on the lower confidence-interval bound exceeding $1.0$, and acknowledge an approximately $10\%$ noise floor below which single-setup conclusions are not trustworthy without explicit setup randomization.
+
+\subsection{Faithfulness and Chain-of-Thought}
+
+A separate line of work on chain-of-thought faithfulness motivates the benchmark's design decision (\S~\ref{subsec:faithfulness}) to evaluate model outputs solely on their emitted code and runtime behavior, without conditioning on the model's stated optimization plan. Turpin et al.~\cite{turpin2023language} showed that biasing features in the prompt (for example, reordering multiple-choice options) can produce up to $36$ percentage-point accuracy shifts on BIG-Bench Hard while chain-of-thought explanations never acknowledge the bias. Lanham et al.~\cite{lanham2023measuring} introduced causal-intervention metrics (Early Answering, Adding Mistakes) that measure whether reasoning traces are load-bearing for the final answer and found per-task variation from $44\%$ to $2\%$ Answering-Over-Chain on the same model. Most directly relevant, Chen et al.~\cite{chen2025reasoningmodels} reported that frontier reasoning models verbalize the cues actually driving their answers only $25$--$39\%$ of the time on average and under $2\%$ in reward-hacking environments while exploiting the hidden cue more than $99\%$ of the time. The architectural lesson, applied to BeyondO3's faithfulness verifier, is to judge the artifact (diff, AST, runtime behavior) rather than the narrative. The cascade structure of the verifier --- semantic equivalence first, structural matching second --- follows the empirical finding of Le-Cong et al.'s INVALIDATOR~\cite{lecong2023invalidator} that a hybrid semantic-then-syntactic verifier for automated-program-repair patch correctness outperforms either component alone by $11$--$26$ percentage points on the Defects4J benchmark.
+
+\subsection{Prompting Strategies for Code Tasks}
+
+Recent work has explored how prompting design affects LLM performance on code tasks. Chain-of-thought prompting~\cite{wei2022chain} improves multi-step reasoning and has been shown to benefit code generation when the model is asked to explain its reasoning before producing an answer. Studies on prompt sensitivity~\cite{sclar2023quantifying} demonstrate that superficially equivalent prompts can produce substantially different outputs, motivating systematic evaluation across prompt variants. BeyondO3 operationalizes this by evaluating five prompting strategies --- generic, pattern-aware, taxonomy-guided, diagnosis-only, and hardware-targeted --- over the same pattern set, providing a controlled measurement of how semantic guidance in the prompt affects optimization success.
+
+\begin{thebibliography}{99}
+
+\bibitem{chen2021codex}
+M.~Chen et al., ``Evaluating large language models trained on code,'' \textit{arXiv preprint arXiv:2107.03374}, 2021.
+
+\bibitem{feng2020codebert}
+Z.~Feng et al., ``CodeBERT: A pre-trained model for programming and natural languages,'' in \textit{Proc. EMNLP Findings}, 2020, pp. 1536--1547.
+
+\bibitem{wang2021codet5}
+Y.~Wang, W.~Wang, S.~Joty, and S.~C.~Hoi, ``CodeT5: Identifier-aware unified pre-trained encoder-decoder models for code understanding and generation,'' in \textit{Proc. EMNLP}, 2021, pp. 8696--8708.
+
+\bibitem{fried2022incoder}
+D.~Fried et al., ``InCoder: A generative model for code infilling and synthesis,'' in \textit{Proc. ICLR}, 2023.
+
+\bibitem{li2023starcoder}
+R.~Li et al., ``StarCoder: May the source be with you!'' \textit{arXiv preprint arXiv:2305.06161}, 2023.
+
+\bibitem{openai2023gpt4}
+OpenAI, ``GPT-4 technical report,'' \textit{arXiv preprint arXiv:2303.08774}, 2023.
+
+\bibitem{anthropic2024claude}
+Anthropic, ``The Claude 3 model family: Opus, Sonnet, Haiku,'' Technical Report, 2024.
+
+\bibitem{li2022alphacode}
+Y.~Li et al., ``Competition-level code generation with AlphaCode,'' \textit{Science}, vol. 378, no. 6624, pp. 1092--1097, 2022.
+
+\bibitem{ashouri2018survey}
+A.~H.~Ashouri, W.~Killian, J.~Cavazos, G.~Palermo, and C.~Silvano, ``A survey on compiler autotuning using machine learning,'' \textit{ACM Comput. Surv.}, vol. 51, no. 5, pp. 1--42, 2018.
+
+\bibitem{trofin2021mlgo}
+M.~Trofin, Y.~Qian, E.~Brevdo, Z.~Lin, K.~Choromanski, and D.~Li, ``MLGO: A machine learning guided compiler optimizations framework,'' \textit{arXiv preprint arXiv:2101.04808}, 2021.
+
+\bibitem{cummins2021programl}
+C.~Cummins, Z.~V.~Fisches, T.~Ben-Nun, T.~Hoefler, M.~F.~P.~O'Boyle, and H.~Leather, ``ProGraML: A graph-based program representation for data flow analysis and compiler optimizations,'' in \textit{Proc. ICML}, 2021, pp. 2244--2253.
+
+\bibitem{shypula2023pie}
+A.~Shypula et al., ``Learning performance-improving code edits,'' in \textit{Proc. ICLR}, 2024.
+
+\bibitem{mankowitz2023alphadev}
+D.~J.~Mankowitz et al., ``Faster sorting algorithms discovered using deep reinforcement learning,'' \textit{Nature}, vol. 618, pp. 257--263, 2023.
+
+\bibitem{austin2021mbpp}
+J.~Austin et al., ``Program synthesis with large language models,'' \textit{arXiv preprint arXiv:2108.07732}, 2021.
+
+\bibitem{liu2023evalplus}
+J.~Liu, C.~S.~Xia, Y.~Wang, and L.~Zhang, ``Is your code generated by ChatGPT really correct? Rigorous evaluation of large language models for code generation,'' in \textit{Proc. NeurIPS}, 2023.
+
+\bibitem{jimenez2024swebench}
+C.~E.~Jimenez et al., ``SWE-bench: Can language models resolve real-world GitHub issues?'' in \textit{Proc. ICLR}, 2024.
+
+\bibitem{aho2006compilers}
+A.~V.~Aho, M.~S.~Lam, R.~Sethi, and J.~D.~Ullman, \textit{Compilers: Principles, Techniques, and Tools}, 2nd~ed. Pearson, 2006.
+
+\bibitem{allen2001optimizing}
+R.~Allen and K.~Kennedy, \textit{Optimizing Compilers for Modern Architectures}. Morgan Kaufmann, 2001.
+
+\bibitem{grosser2012polly}
+T.~Grosser, A.~Groesslinger, and C.~Lengauer, ``Polly --- Performing polyhedral optimizations on a low-level intermediate representation,'' \textit{Parallel Process. Lett.}, vol. 22, no. 4, 2012.
+
+\bibitem{bondhugula2008pluto}
+U.~Bondhugula, A.~Hartono, J.~Ramanujam, and P.~Sadayappan, ``A practical automatic polyhedral parallelizer and locality optimizer,'' in \textit{Proc. PLDI}, 2008, pp. 101--113.
+
+\bibitem{nuzman2006auto}
+D.~Nuzman and R.~Henderson, ``Multi-platform auto-vectorization,'' in \textit{Proc. CGO}, 2006, pp. 281--294.
+
+\bibitem{wei2022chain}
+J.~Wei et al., ``Chain-of-thought prompting elicits reasoning in large language models,'' in \textit{Proc. NeurIPS}, 2022.
+
+\bibitem{sclar2023quantifying}
+M.~Sclar, Y.~Choi, Y.~Tsvetkov, and A.~Suhr, ``Quantifying language models' sensitivity to spurious features in prompt design,'' \textit{arXiv preprint arXiv:2310.11324}, 2023.
+
+\bibitem{bansal2006gso}
+S.~Bansal and A.~Aiken, ``Automatic generation of peephole superoptimizers,'' in \textit{Proc.\ ASPLOS}, 2006, pp.~394--403.
+
+\bibitem{schkufza2013stoke}
+E.~Schkufza, R.~Sharma, and A.~Aiken, ``Stochastic superoptimization,'' in \textit{Proc.\ ASPLOS}, 2013, pp.~305--316.
+
+\bibitem{sasnauskas2017souper}
+R.~Sasnauskas, Y.~Chen, P.~Collingbourne, J.~Ketema, J.~Taneja, and J.~Regehr, ``Souper: A synthesizing superoptimizer,'' \textit{arXiv preprint arXiv:1711.04422}, 2017.
+
+\bibitem{mytkowicz2009producing}
+T.~Mytkowicz, A.~Diwan, M.~Hauswirth, and P.~F.~Sweeney, ``Producing wrong data without doing anything obviously wrong!,'' in \textit{Proc.\ ASPLOS}, 2009, pp.~265--276. DOI~10.1145/1508244.1508275.
+
+\bibitem{curtsinger2013stabilizer}
+C.~Curtsinger and E.~D.~Berger, ``Stabilizer: Statistically sound performance evaluation,'' in \textit{Proc.\ ASPLOS}, 2013, pp.~219--228.
+
+\bibitem{georges2007statistical}
+A.~Georges, D.~Buytaert, and L.~Eeckhout, ``Statistically rigorous Java performance evaluation,'' in \textit{Proc.\ OOPSLA}, 2007, pp.~57--76.
+
+\bibitem{chen2025reasoningmodels}
+Y.~Chen, J.~Benton, et~al., ``Reasoning models don't always say what they think,'' Anthropic, arXiv:2505.05410, May 2025.
+
+\bibitem{lanham2023measuring}
+T.~Lanham, A.~Chen, et~al., ``Measuring faithfulness in chain-of-thought reasoning,'' \textit{arXiv preprint arXiv:2307.13702}, 2023.
+
+\bibitem{turpin2023language}
+M.~Turpin, J.~Michael, E.~Perez, and S.~R.~Bowman, ``Language models don't always say what they think: Unfaithful explanations in chain-of-thought prompting,'' in \textit{Proc.\ NeurIPS}, 2023.
+
+\bibitem{lecong2023invalidator}
+T.~Le-Cong et~al., ``Invalidator: Automated patch correctness assessment via semantic and syntactic reasoning,'' \textit{IEEE Trans.\ Softw.\ Eng.}, 2023.
+
+\bibitem{wu2025fse}
+J.~Wu et~al., ``Optimization-guided equivalent transformation for compiler testing,'' in \textit{Proc.\ ACM Foundations of Software Engineering} (FSE), 2025.
+
+\end{thebibliography}

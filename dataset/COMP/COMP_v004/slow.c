@@ -1,15 +1,10 @@
-static __attribute__((noinline)) int scale_fn_v004(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
-    return r;
-}
-int slow_comp_v004(int *A, int n, int base, int mode) {
-    int total = 0;
+typedef struct { double x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v004;
+double slow_comp_v004(P_v004 *p, int n) {
+    double total = 0;
     for (int i = 0; i < n; i++) {
-        int s = scale_fn_v004(base);
-        if (mode == 0) total += A[i] * s;
-        else           total += A[i] * s * (int)2.0;
+        if (i >= 0 && i < n) {
+            total += p[i].mass;
+        }
     }
     return total;
 }

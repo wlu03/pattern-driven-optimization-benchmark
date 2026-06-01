@@ -1,10 +1,34 @@
-typedef struct { int x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v058;
-int slow_comp_v058(P_v058 *p, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
+typedef struct {
+    double scale;
+    unsigned char qs[16];     /* 32 quantized 4-bit values packed in 16 bytes */
+    unsigned char pad[1024 - sizeof(double) - 16];  /* superblock padding (DS-4 stride) */
+} block_q4k_v058;
+double slow_comp_v058(block_q4k_v058 *blocks, int *block_indices, int n_groups, int n_reps) {
+    double acc = 0;
+    for (int r = 0; r < n_reps; r++) {
+        /* indirect access via block_indices — defeats prefetcher */
+        for (int g = 0; g < n_groups; g++) {
+            int gi = block_indices[g];
+            for (int b = 0; b < 8; b++) {
+                block_q4k_v058 *blk = &blocks[gi * 8 + b];
+                double s = blk->scale;
+                /* touch multiple offsets in the padded struct to force several cache-line loads */
+                volatile unsigned char t1 = blk->pad[128 - sizeof(double) - 16];
+                volatile unsigned char t2 = blk->pad[256 - sizeof(double) - 16];
+                volatile unsigned char t3 = blk->pad[384 - sizeof(double) - 16];
+                volatile unsigned char t4 = blk->pad[512 - sizeof(double) - 16];
+                volatile unsigned char t5 = blk->pad[640 - sizeof(double) - 16];
+                volatile unsigned char t6 = blk->pad[768 - sizeof(double) - 16];
+                volatile unsigned char t7 = blk->pad[896 - sizeof(double) - 16];
+                volatile unsigned char t8 = blk->pad[1024 - sizeof(double) - 16 - 1];
+                (void)t1; (void)t2; (void)t3; (void)t4; (void)t5; (void)t6; (void)t7; (void)t8;
+                for (int k = 0; k < 16; k++) {
+                    unsigned char p = blk->qs[k];
+                    acc += (double)(p & 0x0F) * s;
+                    acc += (double)((p >> 4) & 0x0F) * s;
+                }
+            }
         }
     }
-    return total;
+    return acc;
 }

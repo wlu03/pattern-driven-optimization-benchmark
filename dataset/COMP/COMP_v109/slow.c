@@ -1,18 +1,15 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v109(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
-    return r;
-}
-int slow_comp_v109(int *arr, int n, int key) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        int factor = config_val_v109(key);
-        sum += arr[i] * factor;
+float slow_comp_v109(float *raw, int *n_valid, int *valid_indices, int n_chunks, int chunk_size) {
+    float *scratch = (float*)malloc(chunk_size * sizeof(float));
+    float acc = 0;
+    for (int c = 0; c < n_chunks; c++) {
+        /* fixed-size memcpy: copy the whole chunk regardless of n_valid */
+        memcpy(scratch, raw + c * chunk_size, chunk_size * sizeof(float));
+        int nv = n_valid[c];
+        for (int k = 0; k < nv; k++) {
+            int idx = valid_indices[c * chunk_size + k];
+            acc += scratch[idx];
+        }
     }
-    return sum;
+    free(scratch);
+    return acc;
 }

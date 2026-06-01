@@ -1,0 +1,18 @@
+{
+  "pattern_id": "COMP",
+  "variant_id": "COMP_v557",
+  "category": "Composed",
+  "pattern_name": "Multiple Overlapping Patterns",
+  "variant_desc": "Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], double",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 15,
+  "expected_speedup_range": "10x-1000x",
+  "composition": [
+    "DS-4",
+    "MI-4"
+  ]
+}

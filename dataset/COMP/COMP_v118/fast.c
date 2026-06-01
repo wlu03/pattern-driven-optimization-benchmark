@@ -1,12 +1,15 @@
-void fast_comp_v118(float *mat, int rows, int cols, int mode) {
-    if (mode == 1) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] *= (float)2.0;
-    } else if (mode == 2) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] += (float)1.0;
-    } else {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] -= (float)0.5;
-    }
+#include <math.h>
+#include <stdlib.h>
+static __attribute__((noinline)) int config_val_v118(int key){
+    volatile int _k=key; /* block ipa-pure-const inference */
+    int r=0;
+    for(int i=0;i<100;i++) r+=(int)sin((double)(_k+i));
+    return r;
+}
+int fast_comp_v118(int *arr, int n, int key) {
+    if (arr == NULL || n <= 0) return 0;
+    int factor = config_val_v118(key);
+    int sum = 0;
+    for (int i = 0; i < n; i++) sum += arr[i] * factor;
+    return sum;
 }

@@ -1,13 +1,8 @@
-void slow_comp_v020(float *out, float *A, float *B, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                float t1 = A[i*cols+j] + B[i*cols+j];
-                float t2 = t1 * (float)2.0;
-                float t3 = t2 + (float)1.0;
-                float result = t3;
-                out[i*cols+j] = result;
-            }
-        }
+typedef struct { double val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v020;
+double slow_comp_v020(R_v020 *r, int n) {
+    double acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += r[i].val * r[i].weight;
     }
+    return acc;
 }

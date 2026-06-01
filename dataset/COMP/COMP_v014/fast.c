@@ -1,12 +1,9 @@
-void fast_comp_v014(float *mat, int rows, int cols, int mode) {
-    if (mode == 1) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] *= (float)2.0;
-    } else if (mode == 2) {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] += (float)1.0;
-    } else {
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++) mat[i * cols + j] -= (float)0.5;
+float fast_comp_v014(float *val, float *weight, int n) {
+    float acc = 0;
+    for (int i = 0; i < n; i++) {
+        float v = val[i];
+        if (v == 0) continue;
+        acc += v * weight[i];
     }
+    return acc;
 }

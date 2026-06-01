@@ -1,10 +1,19 @@
-typedef struct { int x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v011;
-int slow_comp_v011(P_v011 *p, int n) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
-        }
+static __attribute__((noinline)) int expensive_lookup_v011(int key){
+    volatile int _k=key; /* block ipa-pure-const */
+    int r=0;
+    for(int i=1;i<=80;i++) r+=(int)sin((double)(_k+i)*0.1);
+    return r;
+}
+static __attribute__((noinline)) long fib_rec_v011(int n){
+    if (n < 2) return n;
+    return fib_rec_v011(n-1) + fib_rec_v011(n-2);
+}
+int slow_comp_v011(int n_iters, int fib_k, int key) {
+    int acc = 0;
+    for (int i = 0; i < n_iters; i++) {
+        int seed = expensive_lookup_v011(key);
+        long f = fib_rec_v011(fib_k);
+        acc += seed + (int)f;
     }
-    return total;
+    return acc;
 }

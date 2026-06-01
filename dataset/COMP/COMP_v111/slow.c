@@ -1,15 +1,8 @@
-static __attribute__((noinline)) int scale_fn_v111(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
-    return r;
-}
-int slow_comp_v111(int *A, int n, int base, int mode) {
-    int total = 0;
+typedef struct { float a, b, cold0,cold1,cold2,cold3,cold4,cold5,cold6,cold7,cold8,cold9,cold10,cold11,cold12,cold13,cold14,cold15,cold16,cold17,cold18,cold19,cold20,cold21,cold22,cold23,cold24,cold25,cold26,cold27,cold28,cold29; } Wide_v111;
+float slow_comp_v111(Wide_v111 *w, int n) {
+    float acc = 0;
     for (int i = 0; i < n; i++) {
-        int s = scale_fn_v111(base);
-        if (mode == 0) total += A[i] * s;
-        else           total += A[i] * s * (int)2.0;
+        acc += w[i].a * w[i].b;
     }
-    return total;
+    return acc;
 }

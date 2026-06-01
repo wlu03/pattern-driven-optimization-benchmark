@@ -1,18 +1,11 @@
-static __attribute__((noinline)) double log_scale_v079(double base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    double r = 0;
-    for(int k=1;k<=15;k++) r+=(double)(log(_b*k+1.0)/k);
-    return r;
-}
-double fast_comp_v079(double *A, double *B, int rows, int cols, double base) {
-    double scale = log_scale_v079(base);
-    double sumAsq = 0, sumB = 0;
+void fast_comp_v079(float *vec, float *mat, float *out, int rows, int cols) {
+    for (int j = 0; j < cols; j++) out[j] = 0;
     for (int i = 0; i < rows; i++) {
+        float v = vec[i];
+        if (v == 0) continue;
+        float *row = mat + i * cols;
         for (int j = 0; j < cols; j++) {
-            int idx = i*cols+j;
-            sumAsq += A[idx] * A[idx];
-            sumB += B[idx];
+            out[j] += v * row[j];
         }
     }
-    return scale * sumAsq + scale * sumB;
 }

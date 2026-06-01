@@ -1,12 +1,10 @@
-void slow_comp_v086(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        float sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
+double slow_comp_v086(int *keys, double *vals, int n, int *queries, int m) {
+    double sum = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        for (int i = 0; i < n; i++) {
+            if (keys[i] == target) { sum += vals[i]; break; }
         }
-        col_avgs[j] = sum / (float)rows;
     }
+    return sum;
 }

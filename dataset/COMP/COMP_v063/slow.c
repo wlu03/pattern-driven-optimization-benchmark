@@ -1,10 +1,23 @@
-typedef struct { int x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v063;
-int slow_comp_v063(P_v063 *p, int n) {
-    int total = 0;
+#include <math.h>
+#include <stdlib.h>
+static __attribute__((noinline)) float scale_factor_v063(float alpha){
+    volatile double _a=(double)alpha; /* block ipa-pure-const */
+    float r = 0;
+    for(int k=1;k<=20;k++) r += (float)(sin(_a * k + 1.0));
+    return r;
+}
+static int cmp_int_v063(const void *a, const void *b){
+    int ia = *(const int*)a, ib = *(const int*)b;
+    return (ia > ib) - (ia < ib);
+}
+float slow_comp_v063(int *keys, float *vals, int n, float alpha) {
+    /* always qsort, even when already sorted */
+    qsort(keys, (size_t)n, sizeof(int), cmp_int_v063);
+    float acc = 0;
     for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
-        }
+        /* per-iter noinline call with loop-invariant alpha — cannot hoist */
+        float s = scale_factor_v063(alpha);
+        acc += vals[i] * s;
     }
-    return total;
+    return acc;
 }

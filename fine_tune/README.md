@@ -1,6 +1,57 @@
 # Fine-Tuning
 
-LoRA fine-tune a code model on the benchmark dataset so it learns to recognize and fix the compiler-resistant inefficiency patterns.
+LoRA fine-tune a code model on the benchmark dataset so it learns to recognize and fix the compiler-resistant inefficiency patterns, then evaluate the fine-tuned model's **transfer** to the held-out test set (post-cutoff patterns the model has never seen during training).
+
+## Train / val / held-out split
+
+The benchmark explicitly partitions data into three non-overlapping sets:
+
+| Set | Location | Count | Used for |
+|---|---|---|---|
+| **Train** | `dataset/<CAT>_<N>/<PID>_v<NNN>/` + `dataset/COMP/` | ~440 base + ~700 COMP variants | Fine-tuning corpus (after 90/10 split into train/val) |
+| **Val** | sampled from Train via `--split 0.9` | ~10% of above | Loss monitoring during training |
+| **Held-out** | `dataset/held_out/HO_<CAT>/HO-<CAT>-<N>_v000/` | 29 patterns | Final evaluation only — NEVER in training |
+
+**Contamination defense (CRITICAL).** `prepare_finetune_data.py` excludes `dataset/held_out/` by default. The `--exclude held_out` flag is on by default; you'll see `[skip] held_out/` in stderr when training data is built. The held-out set post-dates the announced training cutoffs of all evaluated frontier models (creation_date 2026-05-29 onward), following the LiveBench (arXiv:2406.19314) and SWE-bench-Live (arXiv:2505.23419) temporal-boundary precedent — see `docs/implementation.tex` §Held-Out Contamination Defense for the full methodology.
+
+To intentionally include held-out in training (for a contamination-control experiment ONLY), pass `--include-held-out`. The script emits a loud `WARNING` to stderr making clear that any contamination-defense claim is invalid for that run.
+
+## The transfer experiment
+
+The core experimental question this workflow supports: **does fine-tuning on the 590 base+COMP variants transfer to held-out patterns?**
+
+```bash
+# Step 1 — build training data (held_out automatically excluded)
+python3 fine_tune/prepare_finetune_data.py \
+    --dataset ../dataset --strategies generic pattern-aware taxonomy-guided \
+    --split 0.9 --train fine_tune/train.jsonl --val fine_tune/val.jsonl
+
+# Step 2 — fine-tune (your usual workflow)
+python3 fine_tune/finetune_lora.py --train fine_tune/train.jsonl --val fine_tune/val.jsonl
+
+# Step 3 — evaluate BASE model on held-out
+python3 scripts/evaluate.py --model qwen2.5-coder-7b-ollama \
+    --strategy taxonomy-guided --faithfulness \
+    --dataset dataset/held_out --output results_base_holdout.csv
+
+# Step 4 — evaluate FINE-TUNED model on the SAME held-out patterns
+python3 scripts/evaluate.py --model qwen2.5-coder-7b-finetuned \
+    --strategy taxonomy-guided --faithfulness \
+    --dataset dataset/held_out --output results_ft_holdout.csv
+
+# Step 5 — paired transfer analysis (per-category delta + Wilcoxon p)
+python3 scripts/finetune_transfer_eval.py \
+    --base-csv results_base_holdout.csv \
+    --finetuned-csv results_ft_holdout.csv \
+    --metric faithful \
+    --out transfer_eval/
+
+# Step 6 (optional) — cross-pattern transfer matrix restricted to held-out
+python3 scripts/transfer_analysis.py results_ft_holdout.csv \
+    --held-out-only --out figs/transfer_holdout.pdf
+```
+
+The headline result is the Wilcoxon p-value plus the per-category delta table: does the fine-tuned model do significantly better on held-out, and which categories benefit most? If fine-tuning improves SR but hurts AL, that's a per-category finding — not a single aggregate number.
 
 ## Files
 

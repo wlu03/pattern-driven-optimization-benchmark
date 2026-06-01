@@ -1,18 +1,8 @@
-#include <math.h>
-static __attribute__((noinline)) double compute_v092(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    double r=0;
-    for(int i=0;i<50;i++) r+=(double)sin(_k+(double)i);
-    return r;
-}
-void slow_comp_v092(double *out, double *A, int n, int key, int mode) {
+typedef struct { int val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v092;
+int slow_comp_v092(R_v092 *r, int n) {
+    int acc = 0;
     for (int i = 0; i < n; i++) {
-        double factor = compute_v092(key);
-        double t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        double t2 = t1 + (double)1.0;
-        double t3 = t2;
-        out[i] = t3;
+        acc += r[i].val * r[i].weight;
     }
+    return acc;
 }

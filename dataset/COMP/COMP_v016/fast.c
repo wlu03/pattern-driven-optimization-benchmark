@@ -1,15 +1,17 @@
-static __attribute__((noinline)) double penalty_v016(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
-    return r;
-}
-float fast_comp_v016(float *X, float *Y, int n, float alpha, float beta) {
-    float pen = (float)penalty_v016((double)alpha, (double)beta);
-    float sumXsq = 0, sumY = 0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+int fast_comp_v016(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int lo = 0, hi = n;
+        while (lo < hi) {
+            int mid = (lo + hi) >> 1;
+            int v = sorted_arr[mid];
+            /* branchless: compute lo/hi using arithmetic on (v<target) */
+            int lt = (v < target);
+            lo = lt ? (mid + 1) : lo;
+            hi = lt ? hi : mid;
+        }
+        if (lo < n && sorted_arr[lo] == target) hits++;
     }
-    return alpha * sumXsq + beta * sumY + (float)n * pen;
+    return hits;
 }

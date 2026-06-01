@@ -1,15 +1,16 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v072(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
-}
-void fast_comp_v072(int *out, int *A, int n, int key, int mode) {
-    int factor = compute_v072(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+float fast_comp_v072(float *raw, int *n_valid, int *valid_indices, int n_chunks, int chunk_size) {
+    /* shared physical buffer (raw) + per-chunk selection vector — no compaction memcpy */
+    float acc = 0;
+    for (int c = 0; c < n_chunks; c++) {
+        int nv = n_valid[c];
+        float *base = raw + c * chunk_size;
+        if (nv == 1) {
+            /* skip-memcpy fast path: single valid row */
+            acc += base[valid_indices[c * chunk_size]];
+        } else {
+            int *sel = valid_indices + c * chunk_size;
+            for (int k = 0; k < nv; k++) acc += base[sel[k]];
+        }
     }
+    return acc;
 }

@@ -1,14 +1,8 @@
-#include <math.h>
-#include <stdlib.h>
-static double config_val_v070(int key){
-    double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
-    return r;
-}
-double fast_comp_v070(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    double factor = config_val_v070(key);
-    double sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+typedef struct { int a, b; } Hot_v070;
+int fast_comp_v070(Hot_v070 *h, int n) {
+    int acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += h[i].a * h[i].b;
+    }
+    return acc;
 }

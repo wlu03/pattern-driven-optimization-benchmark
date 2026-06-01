@@ -1,21 +1,26 @@
-static __attribute__((noinline)) double log_scale_v093(double base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    double r = 0;
-    for(int k=1;k<=15;k++) r+=(double)(log(_b*k+1.0)/k);
+static long *_dp_table_v093 = 0;
+static int _dp_cols_v093 = 0;
+static __attribute__((noinline)) long dp_descent_v093(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    long *t = _dp_table_v093;
+    int c = _dp_cols_v093;
+    if (t[i*c+j] != 0) return t[i*c+j];
+    long r = dp_descent_v093(i-1, j) + dp_descent_v093(i, j-1);
+    t[i*c+j] = r;
     return r;
 }
-double slow_comp_v093(double *A, double *B, int rows, int cols, double base) {
-    double result = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                double scale = log_scale_v093(base);
-                double t1 = A[i*cols+j] * A[i*cols+j];
-                double t2 = scale * t1;
-                double t3 = B[i*cols+j] * scale;
-                result += t2 + t3;
-            }
+long slow_comp_v093(int rows, int cols) {
+    long *table = (long*)calloc((size_t)rows * cols, sizeof(long));
+    _dp_table_v093 = table;
+    _dp_cols_v093 = cols;
+    long acc = 0;
+    /* column-major outer order — fills col-by-col into row-major-stored table */
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            acc += dp_descent_v093(i, j);
         }
     }
-    return result;
+    free(table);
+    _dp_table_v093 = 0;
+    return acc;
 }

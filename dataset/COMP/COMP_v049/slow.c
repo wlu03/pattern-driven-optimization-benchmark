@@ -1,18 +1,15 @@
-static __attribute__((noinline)) double penalty_v049(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
-    return r;
+static __attribute__((noinline)) long dp_rec_v049(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    return dp_rec_v049(i-1, j) + dp_rec_v049(i, j-1);
 }
-double slow_comp_v049(double *X, double *Y, int n, double alpha, double beta) {
-    double result = 0;
-    for (int i = 0; i < n; i++) {
-        double t1 = X[i] * X[i];
-        double t2 = alpha * t1;
-        double t3 = beta * Y[i];
-        double t4 = t2 + t3;
-        double pen = (double)penalty_v049((double)alpha, (double)beta);
-        result += t4 + pen;
+long slow_comp_v049(int rows, int cols, int n_runs) {
+    long acc = 0;
+    for (int r = 0; r < n_runs; r++) {
+        for (int j = 0; j < cols; j++) {
+            for (int i = 0; i < rows; i++) {
+                acc += dp_rec_v049(i, j);
+            }
+        }
     }
-    return result;
+    return acc;
 }

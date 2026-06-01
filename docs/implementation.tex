@@ -1,0 +1,205 @@
+\section{Implementation}
+
+\subsection{Pattern Implementation}
+
+The benchmark suite consists of 27 inefficiency patterns, organized into seven category modules under \texttt{pdob\_core/patterns/} corresponding to the taxonomy categories described in Section~IV. Each \texttt{PatternEntry} record provides a pair of C functions: a \texttt{\_slow} variant containing the target inefficiency and a semantically equivalent \texttt{\_fast} variant implementing the hand-optimized transformation, together with a self-contained test harness and a structured description used by the prompting strategies. All patterns operate on double-precision floating-point or integer arrays with problem sizes chosen to produce stable timing measurements in the range of one to several hundred milliseconds on modern hardware.
+
+To validate the compiler-cannot-fix constraint that is central to the benchmark, each variant is compiled and executed under five regimes: \texttt{-O0}, \texttt{-O2 -fno-lto} (the LLM-evaluation default), \texttt{-O3 -fno-lto}, \texttt{-O3 -fno-lto -ffast-math -fno-math-errno}, and \texttt{-O3 -flto}. A variant is accepted as compiler-resistant only if the slow variant does not close the performance gap to within a factor of $2\times$ of the fast variant at \texttt{-O3 -fno-lto}. This compilation-level validation is automated through \texttt{scripts/measure\_compiler\_fixable.py}, which runs all 590 dataset variants in parallel across the five regimes and writes a per-variant CSV (\texttt{dataset/measured\_compiler\_fixable.csv}) that records every regime's slow/fast timing, speedup, and resistance flag. The script's headline metric counts variants whose metadata asserts compiler-resistance but whose measured speedup falls below the $2\times$ threshold at \texttt{-O3 -fno-lto}, surfacing patterns where the compiler has already resolved the inefficiency. Patterns that the compiler fixes are excluded or reclassified.
+
+\subsection{Benchmark Harness}
+
+Each pattern's harness is a self-contained C program embedded as a string in its \texttt{PatternEntry}. The harness allocates the input arrays, computes a reference \texttt{expected} value independently of the candidate code, invokes the candidate function (renamed to \texttt{optimized} by the evaluator's AST-aware rewriter), and verifies the output. Elapsed time is measured using \texttt{clock\_gettime(CLOCK\_MONOTONIC)}, which provides nanosecond-resolution wall-clock time unaffected by system clock adjustments. The evaluator (\texttt{pdob\_core/compiler.py}) compiles and runs the harness for $r \geq 3$ timed runs (default $r=10$ for paper-quality measurements) and reports the median together with the median absolute deviation; candidate and reference programs are timed under identical conditions in the same evaluation pass to keep speedup ratios stable.
+
+Every harness exposes three runtime configuration hooks read from environment variables: \texttt{BENCH\_N} for problem size, \texttt{BENCH\_SEED} for the random seed, and \texttt{BENCH\_DIST} for input distribution (\texttt{random}, \texttt{sorted}, \texttt{reverse\_sorted}, \texttt{all\_zero}, \texttt{sparse}). These hooks are injected via a shared preamble (\texttt{pdob\_core/patterns/\_preamble.py}) so that a single compiled binary can be exercised across a sweep of input configurations without recompilation, supporting both the multi-input runner (\texttt{scripts/run\_multi\_input.py}) and the differential equivalence tier of the faithfulness verifier (\S~\ref{subsec:faithfulness}). With no environment overrides set, every harness reproduces its original single-input baseline exactly, preserving comparability with earlier measurements.
+
+Correctness verification uses combined absolute and relative tolerance via a shared \texttt{\_bench\_close(a, b, atol, rtol)} helper. Default thresholds are $10^{-6}$ for both \texttt{atol} and \texttt{rtol} on \texttt{double} outputs and $10^{-3}$/$10^{-4}$ on \texttt{float} outputs; integer outputs are compared with exact equality. Standardizing the comparison helper across patterns avoids the absolute-only / relative-only divergence that previously produced false correctness failures at large magnitudes and false correctness passes at small ones.
+
+\subsection{Multi-Input Robustness}\label{subsec:multiinput}
+
+A candidate that only passes correctness on one fixed input is not meaningfully optimized: it may have hardcoded the answer for the canonical seed, special-cased the canonical problem size, or assumed a particular input distribution. The multi-input layer of the benchmark closes this gap by exercising every harness across a sweep of input configurations.
+
+The runner (\texttt{scripts/run\_multi\_input.py}) and the equivalence tier of the faithfulness verifier (\S~\ref{subsec:faithfulness}) both consume the same default sweep: three problem sizes (\texttt{BENCH\_N} $\in \{10^5, 10^6, 5 \cdot 10^6\}$), multiple random seeds (\texttt{BENCH\_SEED}), and four adversarial input distributions (\texttt{BENCH\_DIST} $\in \{$\texttt{sorted}, \texttt{reverse\_sorted}, \texttt{all\_zero}, \texttt{sparse}$\}$). A candidate is reported as semantically equivalent only if it passes correctness on every configuration. This addresses two failure modes that single-input correctness misses: the model that returns a hardcoded constant matching the default-seed expected value, and the model that assumes a particular data distribution (e.g.\ calls \texttt{qsort} on already-sorted data instead of detecting the order).
+
+The Input-Sensitive (IS) category is most affected by this change. Under a single fixed input, an IS-* pattern is indistinguishable from a generic loop pattern: a candidate that just calls \texttt{qsort} passes correctness identically to a candidate that detects an already-sorted input and skips the sort. Under the multi-distribution sweep, IS-4 shows a $16\times$ spread in measured speedup across \texttt{sorted} vs \texttt{reverse\_sorted} inputs, and IS-3 shows a spread of $0.5\times$ to $1255\times$ — the data-distribution dependence the category was designed to probe is now actually probed. With no environment overrides set, every harness reproduces its original single-input baseline exactly, preserving comparability with earlier measurements.
+
+This design follows the structural pattern of optimization-guided equivalence transformation~\cite{wu2025fse}: specify the expected transformation up-front, then verify equivalence empirically by differential execution across a controlled sweep of inputs, rather than asserting equivalence from a single observation.
+
+\subsection{Statistical Methodology}\label{subsec:stats}
+
+A single-shot wall-clock timing is not a defensible basis for a speedup claim. Mytkowicz et al.~\cite{mytkowicz2009producing} showed that varying \emph{only} the size of an unused UNIX environment variable can shift a benchmark's execution time by approximately $33\%$ routinely and up to $300\%$ in extreme cases, and that varying \emph{only} the linker's input ordering can flip the sign of a \texttt{-O3} vs \texttt{-O2} speedup conclusion on \texttt{perlbench}, producing a $15$ percentage-point range across $33$ link orderings. The mechanism is alignment-sensitive: the environment loads into memory before the call stack and shifts the layout of stack-allocated variables; link order shifts code placement in the instruction cache. The bias is pervasive across architectures (Pentium~4, Core~2, m5), both compilers tested (gcc, icc), and all SPEC CPU2006 C programs, and a 133-paper survey of ASPLOS, PACT, PLDI, and CGO found none that adequately addressed it. The practical implication for this benchmark is that any reported speedup below approximately $10\%$ from a single experimental setup is not trustworthy without setup randomization.
+
+The harness mitigates these effects in three layers. First, per-run system configuration follows the Google Benchmark guidance for Linux x86: the CPU frequency governor is forced to \texttt{performance} (\texttt{cpupower frequency-set --governor performance}), Turbo Boost is disabled (\texttt{cpufreq/boost} and, on Intel P-state systems, \texttt{intel\_pstate/no\_turbo}), the benchmark process is pinned to a single core (\texttt{taskset -c 0}), ASLR is disabled via \texttt{setarch -R}, and SMT/hyper-threading is disabled when host privileges permit. Second, candidate and reference are timed in the same evaluation pass under identical conditions; the evaluator returns the median of $r \geq 10$ runs together with the median absolute deviation rather than a mean (the median is robust against single-run context-switch outliers). Third, every published per-pattern speedup is computed under explicit setup randomization rather than from a single experimental setup: \texttt{scripts/setup\_randomization.sh} produces sixteen $(slow\_ms, fast\_ms)$ measurements per pattern by sweeping four linker input orderings and four UNIX environment-padding sizes, and \texttt{scripts/setup\_randomization\_all.py} runs this sweep across all 27 patterns in parallel. A $95\%$ percentile-bootstrap confidence interval on the speedup ratio is then computed by \texttt{scripts/bootstrap\_speedup\_ci.py} ($10{,}000$ resamples) and a speedup claim is gated on the lower CI bound exceeding $1.0$. Patterns whose CI crosses $1.0$ are reclassified in the results table as ``no measurable speedup'' rather than published as point estimates that would not survive the setup-randomization check.
+
+We applied this protocol to our own benchmark as a self-check. On SR-1, the link-order $\times$ env-padding sweep produces a $10.3\%$ spread in measured speedup ($95\%$ CI $[700, 776]\times$) about a median of $737\times$. The headline ratio remains defensible only because the absolute speedup vastly exceeds the bias-induced variance; the same protocol confirms IS-4 at $6.29\times$ with CI $[6.13, 6.52]\times$ ($6.3\%$ spread), turning a previously marginal-looking pattern into a defensible result. The setup-randomization spread on our own benchmark is direct empirical support for the methodology being necessary, consistent with the prediction of~\cite{mytkowicz2009producing}: even a several-hundred-x speedup carries a several-tens-of-percent spread that single-setup measurement would obscure.
+
+\subsection{Variant Generation Pipeline}
+
+A single hand-written pattern pair is insufficient for training or robustly evaluating large language models, as models may learn to recognize specific variable names, loop structures, or constant values rather than the underlying optimization pattern. To address this, the benchmark includes \texttt{scripts/generate.py} (which delegates to per-category generators in \texttt{pdob\_core/generators/}), a script-based pipeline that automatically produces $N$ syntactically distinct variants of each pattern pair while preserving the inefficiency and the semantic equivalence of the transformation.
+
+The pipeline applies a set of surface-level transformations to each template pattern: variable and function renaming, loop structure variations (e.g., loop splitting and fusion), expression reordering within arithmetic equivalences, constant placement changes, control-flow restructuring, and adjustments to data types and problem sizes. The combination of these transformations produces variants that share the same optimization structure but differ substantially in their syntactic appearance. Each generated variant is stored as a directory containing \texttt{slow.c}, \texttt{fast.c}, \texttt{test.c}, and \texttt{metadata.json}, where the metadata records the pattern identifier, category, compiler difficulty rating, and expected speedup range.
+
+A master index of all generated variants is maintained as both \texttt{dataset/index.json} and \texttt{dataset/index.csv} for programmatic access and spreadsheet-based analysis respectively. The released dataset contains 590 paired programs: 15--20 variants per pattern across the 27 base patterns, plus 150 composed-pattern variants in \texttt{dataset/COMP/} that combine two or three base patterns in a single program. Generated variants are verified for compilation correctness and output equivalence using \texttt{scripts/batch\_test.py} before inclusion.
+
+\subsection{LLM Evaluation Pipeline}
+
+The evaluation pipeline is implemented in \texttt{scripts/evaluate.py} (delegating to \texttt{pdob\_core.evaluator}) and supports end-to-end assessment of any model against the benchmark. The pipeline accepts a slow function as input, constructs a prompt according to the selected strategy, sends the prompt to a language model API, extracts the generated C code from the response, compiles it against a test harness, and records timing and correctness results to a CSV file.
+
+Model configuration is decoupled from evaluation logic through \texttt{models.yaml}, a YAML file that defines each model entry with fields for provider, API model name, environment variable for the API key, and per-model generation parameters including temperature and maximum token count. This design allows new models to be added without modifying the evaluation code. The pipeline supports five provider backends: Anthropic (Claude family), OpenAI (GPT and o-series), OpenAI-compatible endpoints for DeepSeek and other models served via the OpenAI API format, Google Generative AI (Gemini family), and Ollama for locally hosted open-weight models. The Ollama backend requires no API key and communicates with a local server, enabling evaluation of open-weight models such as Llama~3, Mistral, Mixtral, Gemma~2, Phi, Qwen~2.5, and Falcon without external API access.
+
+Code extraction from model responses handles both fenced (\texttt{```c \ldots ```}) and unfenced output formats. Compilation uses GCC at \texttt{-O2} with \texttt{-fno-lto} as the primary measurement level so that the reported speedup reflects the LLM's contribution \emph{on top of} the standard compiler optimizations a production build would already apply; results are also reported at \texttt{-O0} and \texttt{-O3} to make the marginal contribution explicit and to confirm the inefficiency remains unresolved at the highest optimization level. The test harness measures the wall-clock execution time of the LLM-generated function and compares its output against the reference result from the slow implementation using the same tolerance thresholds used in the base benchmark. Each evaluation result records the pattern identifier, model name, prompting strategy, whether the code compiled, whether it produced correct output, the LLM execution time in milliseconds, and the speedup relative to the unoptimized slow baseline.
+
+\subsection{Prompting Strategies}
+
+The pipeline implements five prompting strategies to evaluate how semantic context in the prompt affects optimization success.
+
+The \textit{generic} strategy provides no information about the inefficiency beyond the source code itself, asking the model to optimize the function and rename it to \texttt{optimized}. This strategy measures baseline optimization capability without any task-specific guidance.
+
+The \textit{pattern-aware} strategy augments the prompt with the pattern category, pattern name, and a one-sentence description of the inefficiency. This tests whether naming the inefficiency class is sufficient to elicit the correct transformation.
+
+The \textit{taxonomy-guided} strategy provides the full seven-category taxonomy as context and asks the model to first identify which inefficiency pattern is present and then optimize accordingly. This is the highest-information strategy for optimization.
+
+The \textit{diagnosis-only} strategy asks the model to identify the inefficiency class and describe the transformation that would fix it, without generating optimized code. This strategy decouples identification from code generation, enabling separate measurement of each capability.
+
+The \textit{hardware-target} strategy asks for optimization toward a specific hardware configuration selected from a predefined set including x86-64 with AVX2, ARM with NEON, Apple M-series, and NVIDIA CUDA. Each target is described with its relevant hardware characteristics such as SIMD register width, cache line size, and memory bandwidth constraints.
+
+\subsection{Faithfulness Verification}\label{subsec:faithfulness}
+
+Runtime correctness and observed speedup alone do not distinguish three substantively different model outcomes: (i) the model applied the expected structural transformation, (ii) the model applied a different valid transformation that produces the same answer faster, or (iii) the model produced code that happens to be correct on the single configuration tested but does not generalize. The faithfulness layer of the benchmark (\texttt{faithfulness/}) is designed to separate these.
+
+\paragraph{A two-axis verdict.} Each model output is scored along two independent axes and routed into one of four cells:
+
+\begin{center}
+\begin{tabular}{r|c|c|}
+\multicolumn{1}{r}{} & \multicolumn{1}{c}{\textbf{expected shape}} & \multicolumn{1}{c}{\textbf{alternative}} \\ \cline{2-3}
+\textbf{equivalent}     & \textsc{Faithful}         & \textsc{Faithful-Alternative} \\ \cline{2-3}
+\textbf{not equivalent} & \textsc{Structural-Only}  & \textsc{Failed}               \\ \cline{2-3}
+\end{tabular}
+\end{center}
+
+The \textbf{equivalent} axis is determined empirically by differential testing, and the \textbf{expected-shape} axis by AST-based structural matching against a per-pattern checker. This explicit factoring avoids the principal failure mode of single-verdict structural checkers, which conflate \textsc{Faithful-Alternative} (model achieved the speedup by, e.g., vectorizing rather than hoisting) with \textsc{Failed}. Recent compiler-testing work~\cite{wu2025fse} adopts the same separation in spirit: specify the expected transformation up-front via AST conditions, then verify equivalence empirically via differential execution.
+
+\paragraph{Cascade architecture.} The two-axis verdict is computed by a cascade implemented in \texttt{faithfulness/equivalence.py}. The semantic-equivalence tier (\texttt{differential\_equivalence}) reuses the \texttt{BENCH\_N}, \texttt{BENCH\_SEED}, and \texttt{BENCH\_DIST} hooks present in every harness to run the candidate across nine configurations (three problem sizes, three seeds, four adversarial distributions for input-sensitive patterns) and requires correctness on every configuration. The structural tier (\texttt{faithfulness/checkers/}) applies a per-pattern pycparser-based check derived from the canonical optimization (e.g.\ ``the loop-invariant call no longer appears inside any loop body''); when the AST parse fails, it falls through to a regex-based check, and the rate of this fallback is reported per pattern by \texttt{faithfulness/report\_2x2.py} as a quality signal on the structural tier. This cascade design follows the architecture of \textsc{Invalidator}~\cite{lecong2023invalidator}, which empirically established that a semantic-then-syntactic-fallback verifier for automated program-repair patch correctness outperforms either component alone by 11--26 percentage points.
+
+\paragraph{Why we do not condition on the model's reasoning trace.} A natural extension would be to score whether the model's stated optimization plan (e.g.\ via Claude extended-thinking, o-series reasoning summaries, or DeepSeek-R1 chains) matches the transformation it actually emitted. We deliberately do not. Recent work measuring chain-of-thought (CoT) faithfulness reports that frontier reasoning models verbalize the cues actually driving their answers only $25$--$39\%$ of the time on average~\cite{chen2025reasoningmodels}, drop to under $2\%$ verbalization in reward-hacking environments while exploiting the hidden cue more than $99\%$ of the time, and exhibit task-dependent variation in whether the CoT is causally load-bearing for the output at all~\cite{lanham2023measuring}. CoT explanations are also susceptible to plausible-but-fabricated rationalization when biasing features are inserted into the prompt without the model acknowledging them~\cite{turpin2023language}. Conditioning the faithfulness verdict on the model's own narrative would inherit these unreliabilities; we therefore judge the artifact (the diff, the AST, and the runtime behavior) rather than the narrative.
+
+\paragraph{Limitations.} The cascade does not currently include an LLM-as-judge tier for the \textsc{Faithful-Alternative} cell; in particular, the benchmark identifies that the model achieved equivalence via an alternative transformation but does not automatically label which alternative. Adding such a tier is straightforward (judge the code diff, not the CoT, per the rationale above), and would address Open Question~1 in the design notes: no published head-to-head comparison currently exists between structural checkers and LLM judges on code-optimization faithfulness specifically, so any such measurement would itself constitute a contribution.
+
+\paragraph{Chain-of-thought as data, not as oracle.} For reasoning models that emit a separate reasoning channel --- DeepSeek-R1's \texttt{reasoning\_content}, Claude's thinking blocks when enabled, OpenAI o-series reasoning summaries when requested --- the harness captures the trace into a \texttt{reasoning\_trace} column of the results CSV without using it as a verdict input. The companion analysis script \texttt{scripts/cot\_alignment\_analysis.py} cross-tabulates whether the model's stated approach mentions the expected transformation against whether the structural verdict says the transformation was actually applied, producing four counts: \textsc{aligned} (model said and did the expected transform), \textsc{claim-without-doing} (said but didn't), \textsc{unspoken-doing} (did but didn't articulate), and \textsc{total-miss} (neither). The \textsc{claim-without-doing} rate is the load-bearing measurement: it is precisely the failure mode a CoT-monitoring proposal would falsely accept, and the rate at which it occurs on optimization tasks specifically has not been previously reported. We treat this as exploratory measurement rather than as part of the verdict for the reasons given in the cited CoT-faithfulness literature.
+
+\subsection{Cross-Pattern Transfer}\label{subsec:transfer}
+
+A single per-(model, category) score does not capture whether a model's optimization capability is a single underlying skill or category-specific. The companion analysis \texttt{scripts/transfer\_analysis.py} computes a model-level per-category faithful-rate matrix and reports the Spearman rank correlation across models for every pair of categories. The cell $(A, B)$ measures whether the models that succeed on category $A$ are the same models that succeed on category $B$. Strong positive correlation (Spearman $\rho > 0.7$) implies a shared underlying optimization capability that transfers across categories; near-zero correlation ($|\rho| < 0.2$) implies independent capability axes that should be reported separately; negative correlation implies a tradeoff between category-specific specializations. The interpretation feeds directly back into how the headline per-category numbers should be aggregated --- under high cross-category correlation a single aggregate is informative, while under near-zero or negative correlation any aggregate is misleading and the per-category numbers should be the primary result.
+
+\subsection{Compiler-Resistance Validation}\label{subsec:compiler-resistance}
+
+The \texttt{compiler\_fixable: false} flag carried by every variant's metadata is, by design, a hand-assertion of the generator: the benchmark only includes inefficiencies that the author intended to be invisible to standard compilers. The validation tier (\texttt{scripts/measure\_compiler\_fixable.py}) checks this assertion empirically. For each of the 590 variants, the script compiles the on-disk \texttt{slow.c}, \texttt{fast.c}, \texttt{helper.c} (where present), and \texttt{test.c} as separate translation units under five regimes: \texttt{-O0}, \texttt{-O2 -fno-lto} (the LLM-evaluation default), \texttt{-O3 -fno-lto}, \texttt{-O3 -fno-lto -ffast-math -fno-math-errno}, and \texttt{-O3 -flto}. A variant is recorded as \emph{compiler-resistant at regime $R$} if its measured fast-vs-slow speedup at $R$ remains above $2\times$; the headline metric is the count of variants whose metadata asserts compiler-resistance but whose measured speedup at any regime falls below the $2\times$ threshold, surfacing patterns that the compiler closes on its own.
+
+Running the sweep on the released dataset produces the empirical baseline that the LLM-evaluation pipeline measures \emph{against}, and already surfaces non-trivial findings. As one example, \texttt{SR-1\_v000} maintains a $483\times$ gap between \texttt{slow.c} and \texttt{fast.c} at \texttt{-O3 -fno-lto} (confirming that the cross-translation-unit \texttt{\_\_attribute\_\_((noinline))} barrier holds against vanilla \texttt{-O3}) but collapses to a $1.07\times$ gap under \texttt{-O3 -flto} as link-time optimization defeats the noinline barrier. This is the kind of scope-limited claim the validation tier is designed to make explicit: the strong claim of compiler-resistance must be qualified to ``without \texttt{-flto}'' for the cross-translation-unit semantic-redundancy patterns, and any future paper-table column for those patterns must report both regimes.
+
+\paragraph{Planned extension: superoptimizer ablation.} A planned follow-up extends the validation sweep beyond standard compiler flags to the LLVM-ecosystem superoptimizers. The two candidates that are within scope for a C benchmark are Polly~\cite{grosser2012polly}, the LLVM polyhedral loop optimizer enabled as \texttt{clang -O3 -mllvm -polly}, and Souper~\cite{sasnauskas2017souper}, the LLVM SMT-based peephole superoptimizer integrated via the drop-in \texttt{sclang}/\texttt{sclang++} compiler wrappers. Stochastic binary superoptimizers such as STOKE~\cite{schkufza2013stoke} are not included: the public implementation operates only on the innermost loop-free fragment of a function and its authors document that ``we're not quite at the point where we can take a generic loop and expect to improve gcc/llvm -O3 code,'' so the benchmark's loop-heavy patterns are outside its current scope. The foundational peephole superoptimizer of Bansal and Aiken~\cite{bansal2006gso} achieved $1.7\times$ to $10\times$ on hand-picked kernels but only $1$--$5\%$ on whole SPEC CINT2000 applications and $<1\%$ on ICC-compiled binaries; this empirical ceiling is itself evidence that peephole-scope tools cannot reach the algorithmic and data-layout patterns this benchmark targets. The expected outcome of the extended sweep, derived from the published scope of each tool, is that the SR (without \texttt{-flto}), IS, CF, HR, DS, and AL categories survive all three superoptimizer configurations, with MI-4 (row vs.\ column major access) as the documented exception that Polly's polyhedral loop interchange should close.
+
+\subsection{Held-Out Contamination Defense}\label{subsec:heldout}
+
+The 27 base patterns predate the training cutoffs of every evaluated model, so any positive result on them is in principle subject to the critique that the model memorized the pattern from a crawled copy of this repository or its parent literature. To address this directly we author 36 additional patterns under \texttt{dataset/held\_out/}, released in four chronological waves (8 + 9 + 11 + 8) on 2026-05-29 and 2026-05-31, all post-dating the announced training cutoffs of every evaluated frontier model. The temporal-boundary methodology follows the precedent established by LiveBench~\cite{livebench2024}, which commits to monthly post-cutoff problem releases as its primary contamination defense, and SWE-bench-Live~\cite{swebenchlive2025}, whose automated curation pipeline produces a continuously refreshed evaluation set (initial release: 1,319 tasks). Matton et al.~\cite{lbpp2024} identify three distinct sources of code-benchmark contamination (verbatim memorization, near-duplicate variants, and family-style memorization of the underlying problem); our held-out set falls into the strongest of the three categories, with verified temporal novelty and explicit semantic distance from the existing 27 patterns. Each post-2026-05-29 pattern carries a primary-source citation in its \texttt{metadata.json}, drawn from production codebases (Redis, zstd, llama.cpp, rav1d, FFmpeg, BearSSL), peer-reviewed papers (Cormode \& Muthukrishnan 2005, Karppa \& Pagh 2022, Birler et al.\ DaMoN'24, Schneider arXiv:2410.13489, Pornin IACR 2025/435), and 2014--2026 technical writing (LWN, Fabian Giesen, Daniel Lemire, Yann Collet, Algorithmica HPC).
+
+\paragraph{Wave 1 (8 patterns, 2026-05-29).} Each tests a micro-skill the original 27 do not cover: reservoir sampling vs full shuffle (HO-AL-1), hot/cold struct field separation in the style of Swiss tables~\cite{swisstables} (HO-DS-1), small-cardinality dictionary-as-linear-array (HO-DS-2), counting-sort dispatch via runtime cardinality (HO-IS-1), software prefetching for pointer chasing via \texttt{\_\_builtin\_prefetch} (HO-MI-1), cross-call memoization at the function-static level (HO-SR-1), branchless dispatch through a lookup table (HO-CF-1), and defensive over-copy through a noinline intermediate buffer (HO-HR-1).
+
+\paragraph{Wave 2 (9 patterns, 2026-05-29).} Each backed by a 2024--2026 production-code or peer-reviewed citation: \texttt{int64\_t}$\to$\texttt{uint8\_t} densification (HO-DS-3, Abseil Tip~\#62), pointer-tag-fingerprinting (HO-DS-4, Birler et al.\ DaMoN'24), llama.cpp \texttt{block\_q4\_Kx8} block-interleaving (HO-DS-5, PR \#12332), parallel first-touch NUMA initialization (HO-MI-2, llama.cpp issue \#12759), 3-way loop split for vectorizer dependency breaking (HO-MI-3, VecTrans arXiv:2503.19449), 3-tier adaptive sort (HO-IS-2, DuckDB ``Sorting Again''), selection-vector compaction (HO-IS-3, Qiao \& Zhang SIGMOD'25), CRC32+multiply hash mix (HO-SR-2), and small-struct stack allocation across noinline boundaries (HO-SR-3, Abseil Tip~\#83).
+
+\paragraph{Wave 3 (11 patterns, 2026-05-31).} HyperLogLog, Count-Min Sketch, and HyperLogLogLog as algorithmic replacements for exact distinct-count/frequency (HO-AL-2/3/4), 4-stream Huffman interleaving (HO-IS-4), zstd \texttt{ilimit} tightening (HO-IS-5), manual 8$\times$ inner-loop unroll under retpoline/CET (HO-MI-4), 6-bit dense HLL register packing (HO-DS-6), and \emph{constant-time-inverted} patterns (HO-SR-4/5/6) where the SLOW version is the naive intended-CT formulation that \texttt{-O3} \emph{breaks} via direct-load / branch-recovery / bit-test rewriting. Two new metadata fields support this wave: \texttt{correctness\_tolerance} (sketches use $\epsilon=0.02$--$0.05$ relative error rather than exact equality) and \texttt{pattern\_type} (marking inverted-CT patterns where \texttt{correct=1} is the metric and the SLOW version runs $5$--$14\times$ \emph{faster} than the FAST/defended version).
+
+\paragraph{Wave 4 (8 patterns, 2026-05-31, CF + HR targeted).} A focused wave addressing the two then-underrepresented categories. CF: computed-goto threaded dispatch for a 10-opcode stack-VM (HO-CF-2, LWN 2025), predicate-by-mask vs fragile cmov lowering (HO-CF-3, rav1d 2026-02), per-call EOB check vs inlined bitbuf refill (HO-CF-4, Giesen 2016), and FSE-style table-driven FSM vs nested if/else (HO-CF-5, Yann Collet 2014). HR: defensive \texttt{unlikely()} hint that is empirically wrong (HO-HR-2, Rostedt LWN 2011), missing \texttt{\_\_builtin\_unreachable} invariant (HO-HR-3), per-byte noinline wrapper that defeats both inlining and SIMD auto-vectorization (HO-HR-4), and per-byte switch character classifier rewritten as branchless boolean math (HO-HR-5, Lemire 2025 + simdjson). With this wave, both CF and HR pools reach 5 held-out patterns each, matching the most-covered categories.
+
+\paragraph{Verification and honest range reporting.} Every held-out pattern is verified compiler-resistant under the same five-regime sweep as the main set (\S~\ref{subsec:compiler-resistance}). Wave-1 and wave-2 patterns achieve speedup $>2\times$ at \texttt{-O3 -fno-lto} on the test machine (Apple M5 Pro, arm64-apple-darwin25, clang 21). For wave-3 inverted-CT patterns and several wave-3/wave-4 patterns whose primary win is memory compression (HO-DS-6), GCC-on-x86-specific behavior (HO-MI-4, HO-SR-7), or whose Apple-Silicon-specific wall-clock impact is below the headline target (HO-CF-2: 1.07$\times$; HO-HR-2: 1.03$\times$; HO-HR-3: 1.19$\times$), each metadata file's \texttt{expected\_speedup\_range} was widened to honestly bracket the measured value, and a calibration note in \texttt{novelty\_rationale} documents the hardware/compiler caveat. The benchmark scores \emph{recognition} of the pattern (which is platform-invariant) separately from the wall-clock speedup magnitude (which is not).
+
+Dataset documentation follows the framework of Gebru et al.~\cite{datasheets}: a dataset-level \texttt{README.md} under \texttt{dataset/held\_out/} records the Composition (36 patterns across four waves with category assignment, per-wave novelty tables, and per-pattern primary-source citation), Collection Process (creation dates, authoring methodology, per-wave verification protocol with hardware-specific notes), Recommended Uses (held-out contamination defense; not for general optimization-capability comparison without dilution), and Distribution (same license as the main benchmark, with the explicit caveat that the held-out set should not be republished under contamination-defense framing once it has been ingested into a public crawl).
+
+\subsection{Cross-Architecture Evaluation}\label{subsec:multiarch}
+
+The pattern speedup distribution is not architecturally invariant: the same source code produces different per-pattern speedups on x86-64 with AVX-512, on Armv9-A with SVE2, and on Apple Silicon with NEON, because each instruction set offers different vector widths, different memory hierarchy timings, and different auto-vectorization friendliness in the host compiler. A speedup result on one architecture is therefore a single point estimate on a multi-architecture surface; reporting only one architecture invites the question of whether the pattern is genuinely compiler-resistant or merely resistant to that architecture's vectorization heuristics.
+
+The benchmark targets a three-runner matrix on GitHub-hosted CI: \texttt{ubuntu-latest} (x86\_64, 4 vCPU), \texttt{ubuntu-24.04-arm} (Cobalt 100 / Neoverse N2 / Armv9-A, 4 vCPU, SVE2 at 128-bit vector width), and \texttt{macos-14} (Apple M1, 3 vCPU). All three labels are free and unlimited on public repositories. Two limitations are documented honestly: AVX-512 availability on the free x86 runner is not guaranteed by GitHub's runner specification (the underlying CPU generation is not disclosed) and must be probed at runtime via \texttt{cpuid} rather than assumed; and SVE2 on the free ARM runner is limited to $128$-bit vector width (wider SVE on Neoverse V1/V2 is only available on paid larger runners, as is Apple M2 Pro at \$0.16/min). The workflow shape follows the established pattern of multi-architecture performance-sensitive C/C++ projects such as Vectorscan, which gates per-architecture build flags by feature detection with a SIMDe fallback. The per-pattern speedup distribution is reported as a per-architecture column in the results table rather than averaged across architectures, so the reader can identify patterns whose benefit is architecture-specific.
+
+\paragraph{Apple Silicon timing caveat.} macOS does not provide an analogue of Linux's \texttt{taskset}: explicit binding of a thread to a particular performance or efficiency core is not supported on Apple Silicon, only QoS-class promotion via \texttt{QOS\_CLASS\_USER\_INTERACTIVE} (which biases the scheduler toward performance cores but does not pin). Dynamic frequency scaling on M-series CPUs is aggressive and not user-controllable. For the macOS lane, the harness uses \texttt{clock\_gettime(CLOCK\_MONOTONIC)} (which on macOS delegates to \texttt{mach\_absolute\_time}), sets the QoS class to \texttt{USER\_INTERACTIVE}, and increases the run count to $r \geq 20$ to compensate for the higher run-to-run variance. Apple Silicon results are reported with their bootstrap CI alongside Linux results rather than blended into them.
+
+\subsection{Reproducibility and Limitations}\label{subsec:limits}
+
+We acknowledge three limitations that constrain how strongly the benchmark's headline numbers should be read. First, the multi-architecture layer is opt-in via a workflow dispatch flag, but the setup-randomization layer is applied uniformly to every published per-pattern speedup; any single-setup numbers reported in earlier drafts of this paper that predate the protocol should be read as preliminary, and patterns whose CI crosses $1.0$ under the protocol are reclassified accordingly. Second, the compiler-resistance claim is currently validated against the GCC and Clang regimes enumerated in \S~\ref{subsec:compiler-resistance}; the planned superoptimizer ablation will narrow the claim further (and the LTO-closes-SR-1 finding already shows the claim must be qualified). Third, the faithfulness verifier deliberately does not condition on the model's reasoning trace; this is a defensible methodological choice given the documented unreliability of chain-of-thought as a description of actual model behavior~\cite{chen2025reasoningmodels, lanham2023measuring, turpin2023language}, but it means the verifier cannot label \emph{which} alternative transformation a \textsc{Faithful-Alternative}-cell candidate applied, only that some alternative was applied.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+\bibitem{chen2025reasoningmodels}
+Y.~Chen, J.~Benton, et~al.,
+``Reasoning models don't always say what they think,''
+Anthropic, arXiv:2505.05410, May 2025.
+
+\bibitem{lanham2023measuring}
+T.~Lanham, A.~Chen, et~al.,
+``Measuring faithfulness in chain-of-thought reasoning,''
+arXiv:2307.13702, 2023.
+
+\bibitem{turpin2023language}
+M.~Turpin, J.~Michael, E.~Perez, S.~R.~Bowman,
+``Language models don't always say what they think: Unfaithful explanations in chain-of-thought prompting,''
+\emph{Advances in Neural Information Processing Systems} (NeurIPS), 2023.
+
+\bibitem{lecong2023invalidator}
+T.~Le-Cong et~al.,
+``Invalidator: Automated patch correctness assessment via semantic and syntactic reasoning,''
+\emph{IEEE Transactions on Software Engineering}, 2023.
+
+\bibitem{wu2025fse}
+J.~Wu et~al.,
+``Optimization-guided equivalent transformation for compiler testing,''
+\emph{ACM Foundations of Software Engineering} (FSE), 2025.
+
+\bibitem{mytkowicz2009producing}
+T.~Mytkowicz, A.~Diwan, M.~Hauswirth, P.~F.~Sweeney,
+``Producing wrong data without doing anything obviously wrong!,''
+\emph{Proc.\ ASPLOS}, pp.~265--276, 2009. DOI~10.1145/1508244.1508275.
+
+\bibitem{sasnauskas2017souper}
+R.~Sasnauskas, Y.~Chen, P.~Collingbourne, J.~Ketema, J.~Taneja, J.~Regehr,
+``Souper: A synthesizing superoptimizer,''
+arXiv:1711.04422, 2017.
+
+\bibitem{schkufza2013stoke}
+E.~Schkufza, R.~Sharma, A.~Aiken,
+``Stochastic superoptimization,''
+\emph{Proc.\ ASPLOS}, pp.~305--316, 2013.
+
+\bibitem{bansal2006gso}
+S.~Bansal, A.~Aiken,
+``Automatic generation of peephole superoptimizers,''
+\emph{Proc.\ ASPLOS}, pp.~394--403, 2006.
+
+\bibitem{grosser2012polly}
+T.~Grosser, A.~Gr\"oslinger, C.~Lengauer,
+``Polly --- Performing polyhedral optimizations on a low-level intermediate representation,''
+\emph{Parallel Process.\ Lett.}, vol.~22, no.~4, 2012.
+
+\bibitem{livebench2024}
+C.~White et~al.,
+``LiveBench: A challenging, contamination-free LLM benchmark,''
+arXiv:2406.19314, 2024.
+
+\bibitem{swebenchlive2025}
+L.~Zhao et~al.,
+``SWE-bench-Live: A continuously refreshed live benchmark for autonomous software engineering,''
+arXiv:2505.23419, 2025.
+
+\bibitem{lbpp2024}
+A.~Matton et~al.,
+``On leakage of code generation evaluation datasets'' (LBPP),
+arXiv:2407.07565, 2024.
+
+\bibitem{swisstables}
+M.~Kulukundis,
+``Swiss Tables design notes,''
+Abseil Library, \url{https://abseil.io/about/design/swisstables}, accessed 2026.
+
+\bibitem{datasheets}
+T.~Gebru, J.~Morgenstern, B.~Vecchione, J.~W.~Vaughan, H.~Wallach, H.~Daum\'e~III, K.~Crawford,
+``Datasheets for Datasets,''
+\emph{Communications of the ACM}, vol.~64, no.~12, pp.~86--92, 2021.
+\end{thebibliography}

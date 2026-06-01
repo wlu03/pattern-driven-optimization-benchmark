@@ -1,8 +1,9 @@
 #include <math.h>
 #include <stdlib.h>
-static double config_val_v030(int key){
+static __attribute__((noinline)) double config_val_v030(int key){
+    volatile int _k=key; /* block ipa-pure-const inference */
     double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
+    for(int i=0;i<100;i++) r+=(double)sin((double)(_k+i));
     return r;
 }
 double slow_comp_v030(double *arr, int n, int key) {

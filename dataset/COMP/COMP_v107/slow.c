@@ -1,15 +1,15 @@
-static __attribute__((noinline)) double scale_fn_v107(double base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    double r = 0;
-    for(int k=1;k<=20;k++) r+=(double)sin(_b*k+1.0);
-    return r;
+static __attribute__((noinline)) long dp_rec_v107(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    return dp_rec_v107(i-1, j) + dp_rec_v107(i, j-1);
 }
-double slow_comp_v107(double *A, int n, double base, int mode) {
-    double total = 0;
-    for (int i = 0; i < n; i++) {
-        double s = scale_fn_v107(base);
-        if (mode == 0) total += A[i] * s;
-        else           total += A[i] * s * (double)2.0;
+long slow_comp_v107(int rows, int cols, int n_runs) {
+    long acc = 0;
+    for (int r = 0; r < n_runs; r++) {
+        for (int j = 0; j < cols; j++) {
+            for (int i = 0; i < rows; i++) {
+                acc += dp_rec_v107(i, j);
+            }
+        }
     }
-    return total;
+    return acc;
 }

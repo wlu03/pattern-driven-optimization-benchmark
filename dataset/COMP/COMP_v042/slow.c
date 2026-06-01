@@ -1,12 +1,19 @@
-void slow_comp_v042(int *mat, int *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        int sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
-        }
-        col_avgs[j] = sum / (int)rows;
+static __attribute__((noinline)) double expensive_lookup_v042(int key){
+    volatile int _k=key; /* block ipa-pure-const */
+    double r=0;
+    for(int i=1;i<=80;i++) r+=(double)sin((double)(_k+i)*0.1);
+    return r;
+}
+static __attribute__((noinline)) long fib_rec_v042(int n){
+    if (n < 2) return n;
+    return fib_rec_v042(n-1) + fib_rec_v042(n-2);
+}
+double slow_comp_v042(int n_iters, int fib_k, int key) {
+    double acc = 0;
+    for (int i = 0; i < n_iters; i++) {
+        double seed = expensive_lookup_v042(key);
+        long f = fib_rec_v042(fib_k);
+        acc += seed + (double)f;
     }
+    return acc;
 }

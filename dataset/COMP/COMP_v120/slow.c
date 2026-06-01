@@ -1,18 +1,23 @@
 #include <math.h>
-static __attribute__((noinline)) double compute_v120(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    double r=0;
-    for(int i=0;i<50;i++) r+=(double)sin(_k+(double)i);
+#include <stdlib.h>
+static __attribute__((noinline)) float scale_factor_v120(float alpha){
+    volatile double _a=(double)alpha; /* block ipa-pure-const */
+    float r = 0;
+    for(int k=1;k<=20;k++) r += (float)(sin(_a * k + 1.0));
     return r;
 }
-void slow_comp_v120(double *out, double *A, int n, int key, int mode) {
+static int cmp_int_v120(const void *a, const void *b){
+    int ia = *(const int*)a, ib = *(const int*)b;
+    return (ia > ib) - (ia < ib);
+}
+float slow_comp_v120(int *keys, float *vals, int n, float alpha) {
+    /* always qsort, even when already sorted */
+    qsort(keys, (size_t)n, sizeof(int), cmp_int_v120);
+    float acc = 0;
     for (int i = 0; i < n; i++) {
-        double factor = compute_v120(key);
-        double t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        double t2 = t1 + (double)1.0;
-        double t3 = t2;
-        out[i] = t3;
+        /* per-iter noinline call with loop-invariant alpha — cannot hoist */
+        float s = scale_factor_v120(alpha);
+        acc += vals[i] * s;
     }
+    return acc;
 }

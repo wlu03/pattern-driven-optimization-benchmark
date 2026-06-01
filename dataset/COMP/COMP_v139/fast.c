@@ -1,15 +1,27 @@
-static __attribute__((noinline)) double penalty_v139(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
-    return r;
-}
-float fast_comp_v139(float *X, float *Y, int n, float alpha, float beta) {
-    float pen = (float)penalty_v139((double)alpha, (double)beta);
-    float sumXsq = 0, sumY = 0;
+float fast_comp_v139(int *keys, float *vals, int n, int *queries, int m) {
+    int cap = 1;
+    while (cap < n * 2) cap <<= 1;
+    int mask = cap - 1;
+    int *htab_k = (int*)malloc(cap * sizeof(int));
+    float *htab_v = (float*)malloc(cap * sizeof(float));
+    for (int i = 0; i < cap; i++) { htab_k[i] = -1; htab_v[i] = 0; }
     for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+        unsigned int h = (unsigned int)keys[i] * 2654435761u;
+        int idx = (int)(h & (unsigned int)mask);
+        while (htab_k[idx] != -1) idx = (idx + 1) & mask;
+        htab_k[idx] = keys[i];
+        htab_v[idx] = vals[i];
     }
-    return alpha * sumXsq + beta * sumY + (float)n * pen;
+    float sum = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        unsigned int h = (unsigned int)target * 2654435761u;
+        int idx = (int)(h & (unsigned int)mask);
+        while (htab_k[idx] != -1) {
+            if (htab_k[idx] == target) { sum += htab_v[idx]; break; }
+            idx = (idx + 1) & mask;
+        }
+    }
+    free(htab_k); free(htab_v);
+    return sum;
 }

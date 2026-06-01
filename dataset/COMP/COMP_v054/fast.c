@@ -1,14 +1,13 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v054(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
+static __attribute__((noinline)) double scale_fn_v054(double x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    double r=0;
+    for(int k=1;k<=20;k++) r+=(double)sin(_v*k+1.0);
     return r;
 }
-int fast_comp_v054(int *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    int factor = config_val_v054(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+double fast_comp_v054(double *A, int n, double base, int mode) {
+    double s = scale_fn_v054(base);
+    double w = (mode == 0) ? s : s * (double)2.0;
+    double total = 0;
+    for (int i = 0; i < n; i++) total += A[i] * w;
+    return total;
 }

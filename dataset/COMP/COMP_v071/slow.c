@@ -1,9 +1,12 @@
-void slow_comp_v071(int *mat, int rows, int cols, int mode) {
+void slow_comp_v071(int *mat, int *col_avgs, int rows, int cols) {
     for (int j = 0; j < cols; j++) {
+        int sum = 0;
         for (int i = 0; i < rows; i++) {
-            if (mode == 1) mat[i * cols + j] *= (int)2.0;
-            else if (mode == 2) mat[i * cols + j] += (int)1.0;
-            else mat[i * cols + j] -= (int)0.5;
+            sum = 0;
+            for (int k = 0; k <= i; k++) {
+                sum += mat[k * cols + j];
+            }
         }
+        col_avgs[j] = sum / (int)rows;
     }
 }

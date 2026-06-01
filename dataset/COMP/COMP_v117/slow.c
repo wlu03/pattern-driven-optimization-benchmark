@@ -1,12 +1,8 @@
-void slow_comp_v117(float *mat, float *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        float sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
-        }
-        col_avgs[j] = sum / (float)rows;
+typedef struct { double val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v117;
+double slow_comp_v117(R_v117 *r, int n) {
+    double acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += r[i].val * r[i].weight;
     }
+    return acc;
 }

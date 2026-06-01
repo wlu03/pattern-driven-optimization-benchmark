@@ -1,14 +1,15 @@
 #include <math.h>
-#include <stdlib.h>
-static double config_val_v101(int key){
-    double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
+static __attribute__((noinline)) float compute_v101(float x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    float r=0;
+    for(int k=1;k<=50;k++) r+=(float)sin(_v*k+1.0);
     return r;
 }
-double fast_comp_v101(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    double factor = config_val_v101(key);
-    double sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+void fast_comp_v101(float *out, float *A, int n, int key, int mode) {
+    float factor = compute_v101(key);
+    if (mode == 1) {
+        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
+    } else {
+        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
+    }
 }

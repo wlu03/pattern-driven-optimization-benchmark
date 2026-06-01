@@ -11,3 +11,5 @@ figures/
 
 # LoRA training checkpoints (too large, only keep final adapters)
 fine_tune/lora_fine_tuning/*/checkpoint-*/
+passk.pdf
+passk.png

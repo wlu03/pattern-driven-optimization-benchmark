@@ -1,13 +1,23 @@
-static __attribute__((noinline)) float scale_fn_v069(float base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    float r = 0;
-    for(int k=1;k<=20;k++) r+=(float)sin(_b*k+1.0);
-    return r;
-}
-float fast_comp_v069(float *A, int n, float base, int mode) {
-    float s = scale_fn_v069(base);
-    float w = (mode == 0) ? s : s * (float)2.0f;
-    float total = 0;
-    for (int i = 0; i < n; i++) total += A[i] * w;
-    return total;
+typedef struct {
+    float scales[8];        /* 8 scales contiguous */
+    unsigned char qs[8*16];   /* 8 blocks of 16 packed bytes interleaved sequentially */
+} block_q4k_x8_v069;
+float fast_comp_v069(block_q4k_x8_v069 *xb, int n_groups, int n_reps) {
+    float acc = 0;
+    for (int r = 0; r < n_reps; r++) {
+        /* sequential dense access — prefetcher fully utilized */
+        for (int g = 0; g < n_groups; g++) {
+            block_q4k_x8_v069 *blk = &xb[g];
+            for (int b = 0; b < 8; b++) {
+                float s = blk->scales[b];
+                unsigned char *qsb = blk->qs + b * 16;
+                for (int k = 0; k < 16; k++) {
+                    unsigned char p = qsb[k];
+                    acc += (float)(p & 0x0F) * s;
+                    acc += (float)((p >> 4) & 0x0F) * s;
+                }
+            }
+        }
+    }
+    return acc;
 }

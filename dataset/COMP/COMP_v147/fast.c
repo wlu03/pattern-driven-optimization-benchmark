@@ -1,15 +1,27 @@
 #include <math.h>
-static __attribute__((noinline)) int compute_v147(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
+#include <stdlib.h>
+static __attribute__((noinline)) float scale_factor_v147(float alpha){
+    volatile double _a=(double)alpha; /* block ipa-pure-const */
+    float r = 0;
+    for(int k=1;k<=20;k++) r += (float)(sin(_a * k + 1.0));
     return r;
 }
-void fast_comp_v147(int *out, int *A, int n, int key, int mode) {
-    int factor = compute_v147(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+static int cmp_int_v147(const void *a, const void *b){
+    int ia = *(const int*)a, ib = *(const int*)b;
+    return (ia > ib) - (ia < ib);
+}
+float fast_comp_v147(int *keys, float *vals, int n, float alpha) {
+    /* fast path: detect already-sorted in O(n), skip qsort */
+    int sorted = 1;
+    for (int i = 1; i < n; i++) {
+        if (keys[i] < keys[i-1]) { sorted = 0; break; }
     }
+    if (!sorted) qsort(keys, (size_t)n, sizeof(int), cmp_int_v147);
+    /* hoist invariant scale_factor call out of the loop */
+    float s = scale_factor_v147(alpha);
+    float acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += vals[i] * s;
+    }
+    return acc;
 }

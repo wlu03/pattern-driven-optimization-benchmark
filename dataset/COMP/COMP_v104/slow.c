@@ -1,21 +1,8 @@
-static __attribute__((noinline)) int log_scale_v104(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
-    return r;
-}
-int slow_comp_v104(int *A, int *B, int rows, int cols, int base) {
-    int result = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                int scale = log_scale_v104(base);
-                int t1 = A[i*cols+j] * A[i*cols+j];
-                int t2 = scale * t1;
-                int t3 = B[i*cols+j] * scale;
-                result += t2 + t3;
-            }
-        }
+typedef struct { int val, weight, p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29; } R_v104;
+int slow_comp_v104(R_v104 *r, int n) {
+    int acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += r[i].val * r[i].weight;
     }
-    return result;
+    return acc;
 }

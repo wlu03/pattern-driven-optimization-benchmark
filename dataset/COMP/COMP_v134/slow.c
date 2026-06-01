@@ -1,10 +1,26 @@
-typedef struct { double x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v134;
-double slow_comp_v134(P_v134 *p, int n) {
-    double total = 0;
-    for (int i = 0; i < n; i++) {
-        if (i >= 0 && i < n) {
-            total += p[i].mass;
+static long *_dp_table_v134 = 0;
+static int _dp_cols_v134 = 0;
+static __attribute__((noinline)) long dp_descent_v134(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    long *t = _dp_table_v134;
+    int c = _dp_cols_v134;
+    if (t[i*c+j] != 0) return t[i*c+j];
+    long r = dp_descent_v134(i-1, j) + dp_descent_v134(i, j-1);
+    t[i*c+j] = r;
+    return r;
+}
+long slow_comp_v134(int rows, int cols) {
+    long *table = (long*)calloc((size_t)rows * cols, sizeof(long));
+    _dp_table_v134 = table;
+    _dp_cols_v134 = cols;
+    long acc = 0;
+    /* column-major outer order — fills col-by-col into row-major-stored table */
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            acc += dp_descent_v134(i, j);
         }
     }
-    return total;
+    free(table);
+    _dp_table_v134 = 0;
+    return acc;
 }

@@ -1,15 +1,12 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v019(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
-}
-void fast_comp_v019(int *out, int *A, int n, int key, int mode) {
-    int factor = compute_v019(key);
+void fast_comp_v019(float *mat, int rows, int cols, int mode) {
     if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] *= (float)2.0;
+    } else if (mode == 2) {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] += (float)1.0;
     } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++) mat[i * cols + j] -= (float)0.5;
     }
 }

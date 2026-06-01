@@ -2,24 +2,33 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 2000000
-typedef struct { double x,y,z,vx,vy,vz,mass,charge,p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23; } P_v044;
+/* ── standardized correctness check (auto-injected) ─────────────────── */
+static inline int _bench_close(double a, double b, double atol, double rtol) {
+    double d = a - b; if (d < 0) d = -d;
+    double mb = b; if (mb < 0) mb = -mb;
+    return d <= atol + rtol * mb;
+}
+/* ── end ────────────────────────────────────────────────────────────── */
+
+#define ROWS 500
+#define COLS 1000
 
 // SLOW_CODE_HERE
 
 // FAST_CODE_HERE
 
 int main() {
-    P_v044 *aos=(P_v044*)malloc(N*sizeof(P_v044));
-    double *mass=malloc(N*sizeof(double));
-    for(int i=0;i<N;i++){aos[i].mass=(double)(i%100)*0.1;mass[i]=aos[i].mass;}
+    int total=ROWS*COLS;
+    double *A=malloc(total*sizeof(double)),*B=malloc(total*sizeof(double));
+    for(int i=0;i<total;i++){A[i]=(double)((i%100)+1)*0.01;B[i]=(double)((i%50)+1)*0.02;}
+    double base=(double)2.0;
     struct timespec t0,t1;
-    clock_gettime(CLOCK_MONOTONIC,&t0); double rs=slow_comp_v044(aos,N); clock_gettime(CLOCK_MONOTONIC,&t1);
+    clock_gettime(CLOCK_MONOTONIC,&t0); double rs=slow_comp_v044(A,B,ROWS,COLS,base); clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_slow=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
-    clock_gettime(CLOCK_MONOTONIC,&t0); double rf=fast_comp_v044(mass,N); clock_gettime(CLOCK_MONOTONIC,&t1);
+    clock_gettime(CLOCK_MONOTONIC,&t0); double rf=fast_comp_v044(A,B,ROWS,COLS,base); clock_gettime(CLOCK_MONOTONIC,&t1);
     double ms_fast=(t1.tv_sec-t0.tv_sec)*1000.0+(t1.tv_nsec-t0.tv_nsec)/1e6;
     double diff=fabs((double)(rs-rf)),ref=fabs((double)rs)+1e-12;
     int correct=diff<1e-6*ref;
     printf("slow_ms=%.4f fast_ms=%.4f correct=%d speedup=%.2f\n",ms_slow,ms_fast,correct,ms_slow/fmax(ms_fast,0.001));
-    free(aos);free(mass);return correct?0:1;
+    free(A);free(B);return correct?0:1;
 }

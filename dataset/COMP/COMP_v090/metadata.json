@@ -3,7 +3,7 @@
   "variant_id": "COMP_v090",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "Noinline loop-invariant scale + hoistable branch, double",
+  "variant_desc": "Sparse vec x col-major matrix vs sparse fast + row-major, double",
   "dtype": "double",
   "difficulty": "hard",
   "compiler_fixable": false,
@@ -12,7 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "SR-1",
-    "CF-1"
+    "IS-1",
+    "MI-4"
   ]
 }

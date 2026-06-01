@@ -1,18 +1,17 @@
-static __attribute__((noinline)) int log_scale_v133(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
-    return r;
-}
-int fast_comp_v133(int *A, int *B, int rows, int cols, int base) {
-    int scale = log_scale_v133(base);
-    int sumAsq = 0, sumB = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            int idx = i*cols+j;
-            sumAsq += A[idx] * A[idx];
-            sumB += B[idx];
+int fast_comp_v133(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int lo = 0, hi = n;
+        while (lo < hi) {
+            int mid = (lo + hi) >> 1;
+            int v = sorted_arr[mid];
+            /* branchless: compute lo/hi using arithmetic on (v<target) */
+            int lt = (v < target);
+            lo = lt ? (mid + 1) : lo;
+            hi = lt ? hi : mid;
         }
+        if (lo < n && sorted_arr[lo] == target) hits++;
     }
-    return scale * sumAsq + scale * sumB;
+    return hits;
 }

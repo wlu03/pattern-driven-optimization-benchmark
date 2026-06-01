@@ -1,13 +1,15 @@
-void slow_comp_v052(int *out, int *A, int *B, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        for (int i = 0; i < rows; i++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                int t1 = A[i*cols+j] + B[i*cols+j];
-                int t2 = t1 * (int)2.0;
-                int t3 = t2 + (int)1.0;
-                int result = t3;
-                out[i*cols+j] = result;
-            }
-        }
+static __attribute__((noinline)) int scale_fn_v052(int x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    int r=0;
+    for(int k=1;k<=20;k++) r+=(int)sin(_v*k+1.0);
+    return r;
+}
+int slow_comp_v052(int *A, int n, int base, int mode) {
+    int total = 0;
+    for (int i = 0; i < n; i++) {
+        int s = scale_fn_v052(base);
+        if (mode == 0) total += A[i] * s;
+        else           total += A[i] * s * (int)2.0;
     }
+    return total;
 }

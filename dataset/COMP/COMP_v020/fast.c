@@ -1,7 +1,9 @@
-void fast_comp_v020(float *out, float *A, float *B, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (float)2.0 + (float)1.0;
-        }
+double fast_comp_v020(double *val, double *weight, int n) {
+    double acc = 0;
+    for (int i = 0; i < n; i++) {
+        double v = val[i];
+        if (v == 0) continue;
+        acc += v * weight[i];
     }
+    return acc;
 }

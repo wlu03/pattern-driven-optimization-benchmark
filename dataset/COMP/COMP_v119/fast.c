@@ -1,14 +1,14 @@
-#include <math.h>
-#include <stdlib.h>
-static double config_val_v119(int key){
-    double r=0;
-    for(int i=0;i<100;i++) r+=(double)sin((double)(key+i));
-    return r;
-}
-double fast_comp_v119(double *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    double factor = config_val_v119(key);
-    double sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+long fast_comp_v119(int rows, int cols, int n_runs) {
+    long *dp = (long*)malloc(rows * cols * sizeof(long));
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (i == 0 || j == 0) dp[i*cols+j] = 1;
+            else dp[i*cols+j] = dp[(i-1)*cols+j] + dp[i*cols+(j-1)];
+        }
+    }
+    long total = 0;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++) total += dp[i*cols+j];
+    free(dp);
+    return total * (long)n_runs;
 }

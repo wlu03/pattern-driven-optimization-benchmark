@@ -1,18 +1,26 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v122(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
+static long *_dp_table_v122 = 0;
+static int _dp_cols_v122 = 0;
+static __attribute__((noinline)) long dp_descent_v122(int i, int j){
+    if (i == 0 || j == 0) return 1;
+    long *t = _dp_table_v122;
+    int c = _dp_cols_v122;
+    if (t[i*c+j] != 0) return t[i*c+j];
+    long r = dp_descent_v122(i-1, j) + dp_descent_v122(i, j-1);
+    t[i*c+j] = r;
     return r;
 }
-int slow_comp_v122(int *arr, int n, int key) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        int factor = config_val_v122(key);
-        sum += arr[i] * factor;
+long slow_comp_v122(int rows, int cols) {
+    long *table = (long*)calloc((size_t)rows * cols, sizeof(long));
+    _dp_table_v122 = table;
+    _dp_cols_v122 = cols;
+    long acc = 0;
+    /* column-major outer order — fills col-by-col into row-major-stored table */
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            acc += dp_descent_v122(i, j);
+        }
     }
-    return sum;
+    free(table);
+    _dp_table_v122 = 0;
+    return acc;
 }

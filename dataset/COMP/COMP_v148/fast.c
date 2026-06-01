@@ -1,15 +1,7 @@
-static __attribute__((noinline)) double penalty_v148(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
-    return r;
-}
-int fast_comp_v148(int *X, int *Y, int n, int alpha, int beta) {
-    int pen = (int)penalty_v148((double)alpha, (double)beta);
-    int sumXsq = 0, sumY = 0;
-    for (int i = 0; i < n; i++) {
-        sumXsq += X[i] * X[i];
-        sumY += Y[i];
+void fast_comp_v148(double *out, double *A, double *B, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            out[i*cols+j] = (A[i*cols+j] + B[i*cols+j]) * (double)2.0 + (double)1.0;
+        }
     }
-    return alpha * sumXsq + beta * sumY + (int)n * pen;
 }

@@ -1,15 +1,13 @@
-#include <math.h>
-static __attribute__((noinline)) float compute_v048(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    float r=0;
-    for(int i=0;i<50;i++) r+=(float)sin(_k+(double)i);
+static __attribute__((noinline)) int scale_fn_v048(int x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    int r=0;
+    for(int k=1;k<=20;k++) r+=(int)sin(_v*k+1.0);
     return r;
 }
-void fast_comp_v048(float *out, float *A, int n, int key, int mode) {
-    float factor = compute_v048(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (float)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (float)1.0;
-    }
+int fast_comp_v048(int *A, int n, int base, int mode) {
+    int s = scale_fn_v048(base);
+    int w = (mode == 0) ? s : s * (int)2.0;
+    int total = 0;
+    for (int i = 0; i < n; i++) total += A[i] * w;
+    return total;
 }

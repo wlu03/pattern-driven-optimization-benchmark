@@ -3,7 +3,7 @@
   "variant_id": "COMP_v077",
   "category": "Composed",
   "pattern_name": "Multiple Overlapping Patterns",
-  "variant_desc": "Invariant function call + defensive checks, int",
+  "variant_desc": "Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",
   "dtype": "int",
   "difficulty": "hard",
   "compiler_fixable": false,
@@ -12,7 +12,7 @@
   "lines_of_code": 15,
   "expected_speedup_range": "10x-1000x",
   "composition": [
-    "SR-4",
-    "HR-4"
+    "DS-4",
+    "MI-4"
   ]
 }

@@ -1,12 +1,18 @@
-void slow_comp_v012(int *mat, int *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) {
-        int sum = 0;
-        for (int i = 0; i < rows; i++) {
-            sum = 0;
-            for (int k = 0; k <= i; k++) {
-                sum += mat[k * cols + j];
-            }
-        }
-        col_avgs[j] = sum / (int)rows;
+#include <math.h>
+static __attribute__((noinline)) double compute_v012(double x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    double r=0;
+    for(int k=1;k<=50;k++) r+=(double)sin(_v*k+1.0);
+    return r;
+}
+void slow_comp_v012(double *out, double *A, int n, int key, int mode) {
+    for (int i = 0; i < n; i++) {
+        double factor = compute_v012(key);
+        double t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        double t2 = t1 + (double)1.0;
+        double t3 = t2;
+        out[i] = t3;
     }
 }

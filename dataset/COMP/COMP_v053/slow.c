@@ -1,18 +1,18 @@
-static __attribute__((noinline)) double penalty_v053(double a, double b){
-    volatile double _a=a,_b=b; /* block pure/const inference */
-    double r = 0.0;
-    for(int k=1;k<=20;k++) r+=sin(_a*k)*exp(-_b*k*0.05);
+#include <math.h>
+static __attribute__((noinline)) float compute_v053(float x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    float r=0;
+    for(int k=1;k<=50;k++) r+=(float)sin(_v*k+1.0);
     return r;
 }
-int slow_comp_v053(int *X, int *Y, int n, int alpha, int beta) {
-    int result = 0;
+void slow_comp_v053(float *out, float *A, int n, int key, int mode) {
     for (int i = 0; i < n; i++) {
-        int t1 = X[i] * X[i];
-        int t2 = alpha * t1;
-        int t3 = beta * Y[i];
-        int t4 = t2 + t3;
-        int pen = (int)penalty_v053((double)alpha, (double)beta);
-        result += t4 + pen;
+        float factor = compute_v053(key);
+        float t1;
+        if (mode == 1) t1 = A[i] * factor;
+        else t1 = A[i] + factor;
+        float t2 = t1 + (float)1.0;
+        float t3 = t2;
+        out[i] = t3;
     }
-    return result;
 }

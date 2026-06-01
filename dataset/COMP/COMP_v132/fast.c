@@ -1,14 +1,9 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v132(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
-    return r;
-}
-int fast_comp_v132(int *arr, int n, int key) {
-    if (arr == NULL || n <= 0) return 0;
-    int factor = config_val_v132(key);
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i] * factor;
-    return sum;
+void fast_comp_v132(double *mat, double *col_avgs, int rows, int cols) {
+    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            col_avgs[j] += mat[i * cols + j];
+        }
+    }
+    for (int j = 0; j < cols; j++) col_avgs[j] /= (double)rows;
 }

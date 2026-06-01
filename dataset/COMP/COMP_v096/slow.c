@@ -1,15 +1,13 @@
-static __attribute__((noinline)) int scale_fn_v096(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=20;k++) r+=(int)sin(_b*k+1.0);
-    return r;
+static __attribute__((noinline)) float apply_v096(float x, int mode){
+    volatile int _m=mode; /* block ipa-pure-const inference */
+    if (_m==1) return x*(float)2.0;
+    else if (_m==2) return x+(float)1.0;
+    else return x-(float)0.5;
 }
-int slow_comp_v096(int *A, int n, int base, int mode) {
-    int total = 0;
-    for (int i = 0; i < n; i++) {
-        int s = scale_fn_v096(base);
-        if (mode == 0) total += A[i] * s;
-        else           total += A[i] * s * (int)2.0;
+void slow_comp_v096(float *mat, int rows, int cols, int mode) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            mat[i * cols + j] = apply_v096(mat[i * cols + j], mode);
+        }
     }
-    return total;
 }

@@ -1,15 +1,8 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v102(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
-}
-void fast_comp_v102(int *out, int *A, int n, int key, int mode) {
-    int factor = compute_v102(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+typedef struct { int a, b; } Hot_v102;
+int fast_comp_v102(Hot_v102 *h, int n) {
+    int acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += h[i].a * h[i].b;
     }
+    return acc;
 }

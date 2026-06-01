@@ -1,18 +1,8 @@
-static __attribute__((noinline)) int log_scale_v066(int base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    int r = 0;
-    for(int k=1;k<=15;k++) r+=(int)(log(_b*k+1.0)/k);
-    return r;
-}
-int fast_comp_v066(int *A, int *B, int rows, int cols, int base) {
-    int scale = log_scale_v066(base);
-    int sumAsq = 0, sumB = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            int idx = i*cols+j;
-            sumAsq += A[idx] * A[idx];
-            sumB += B[idx];
-        }
+typedef struct { int a, b; } Hot_v066;
+int fast_comp_v066(Hot_v066 *h, int n) {
+    int acc = 0;
+    for (int i = 0; i < n; i++) {
+        acc += h[i].a * h[i].b;
     }
-    return scale * sumAsq + scale * sumB;
+    return acc;
 }

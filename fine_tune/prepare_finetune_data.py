@@ -146,10 +146,22 @@ def load_variant(variant_dir: Path) -> dict | None:
             "variant_id": meta.get("variant_id", variant_dir.name)}
 
 
-def iter_variants(dataset_dir: Path):
-    """Yield variant dicts for every variant_dir found under dataset_dir."""
+def iter_variants(dataset_dir: Path, exclude: set = frozenset({"held_out"})):
+    """Yield variant dicts for every variant_dir found under dataset_dir.
+
+    EXCLUDES dataset/held_out/ by default — held-out patterns post-date
+    model cutoffs and MUST NOT enter the fine-tuning corpus. The previous
+    behavior relied on directory-nesting accident (held_out's HO_<CAT>/
+    subdirs aren't shaped like variant_dirs) which is fragile; this is the
+    explicit defense. Override with --include-held-out only if you
+    intentionally want to test contamination.
+    """
     for pattern_dir in sorted(dataset_dir.iterdir()):
         if not pattern_dir.is_dir():
+            continue
+        if pattern_dir.name in exclude:
+            print(f"  [skip] {pattern_dir.name}/ (excluded — held-out / "
+                  f"contamination defense)", file=sys.stderr)
             continue
         for variant_dir in sorted(pattern_dir.iterdir()):
             if not variant_dir.is_dir():
@@ -246,7 +258,25 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--stats", action="store_true",
                         help="Print dataset statistics and exit (no file written)")
+    parser.add_argument("--exclude", nargs="+", default=["held_out"],
+                        help="Subdirectories of dataset/ to exclude from "
+                             "training (default: held_out). MUST include "
+                             "'held_out' for any contamination-defense claim "
+                             "in the paper. Pass an empty list to disable: "
+                             "--exclude '' (NOT recommended).")
+    parser.add_argument("--include-held-out", action="store_true",
+                        help="Override --exclude to include held_out/ — "
+                             "ONLY for contamination-control experiments "
+                             "where you intentionally want held-out in "
+                             "training. Default is to exclude.")
     args = parser.parse_args()
+    if args.include_held_out:
+        exclude_set = frozenset(x for x in args.exclude if x != "held_out")
+        print("WARNING: --include-held-out is set — held-out patterns will "
+              "be in the training corpus. Any contamination-defense claim "
+              "is invalid for this run.", file=sys.stderr)
+    else:
+        exclude_set = frozenset(x for x in args.exclude if x)
 
     dataset_dir = Path(args.dataset)
     if not dataset_dir.exists():
@@ -256,7 +286,7 @@ def main():
     # Build examples
     all_examples: list[dict] = []
     n_variants = 0
-    for variant in iter_variants(dataset_dir):
+    for variant in iter_variants(dataset_dir, exclude=exclude_set):
         n_variants += 1
         all_examples.extend(build_examples(variant, args.strategies))
 

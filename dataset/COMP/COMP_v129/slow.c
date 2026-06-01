@@ -1,18 +1,19 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v129(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
+static __attribute__((noinline)) int expensive_lookup_v129(int key){
+    volatile int _k=key; /* block ipa-pure-const */
     int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
+    for(int i=1;i<=80;i++) r+=(int)sin((double)(_k+i)*0.1);
     return r;
 }
-void slow_comp_v129(int *out, int *A, int n, int key, int mode) {
-    for (int i = 0; i < n; i++) {
-        int factor = compute_v129(key);
-        int t1;
-        if (mode == 1) t1 = A[i] * factor;
-        else t1 = A[i] + factor;
-        int t2 = t1 + (int)1.0;
-        int t3 = t2;
-        out[i] = t3;
+static __attribute__((noinline)) long fib_rec_v129(int n){
+    if (n < 2) return n;
+    return fib_rec_v129(n-1) + fib_rec_v129(n-2);
+}
+int slow_comp_v129(int n_iters, int fib_k, int key) {
+    int acc = 0;
+    for (int i = 0; i < n_iters; i++) {
+        int seed = expensive_lookup_v129(key);
+        long f = fib_rec_v129(fib_k);
+        acc += seed + (int)f;
     }
+    return acc;
 }

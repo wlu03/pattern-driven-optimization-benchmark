@@ -1,18 +1,15 @@
-#include <math.h>
-#include <stdlib.h>
-static int config_val_v054(int key){
-    int r=0;
-    for(int i=0;i<100;i++) r+=(int)sin((double)(key+i));
+static __attribute__((noinline)) double scale_fn_v054(double x){
+    volatile double _v=(double)x; /* block ipa-pure-const inference */
+    double r=0;
+    for(int k=1;k<=20;k++) r+=(double)sin(_v*k+1.0);
     return r;
 }
-int slow_comp_v054(int *arr, int n, int key) {
-    int sum = 0;
+double slow_comp_v054(double *A, int n, double base, int mode) {
+    double total = 0;
     for (int i = 0; i < n; i++) {
-        if (arr == NULL) continue;
-        if (n <= 0) break;
-        if (i < 0 || i >= n) continue;
-        int factor = config_val_v054(key);
-        sum += arr[i] * factor;
+        double s = scale_fn_v054(base);
+        if (mode == 0) total += A[i] * s;
+        else           total += A[i] * s * (double)2.0;
     }
-    return sum;
+    return total;
 }

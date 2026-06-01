@@ -1,18 +1,14 @@
-static __attribute__((noinline)) double log_scale_v093(double base){
-    volatile double _b=(double)base; /* block pure/const inference */
-    double r = 0;
-    for(int k=1;k<=15;k++) r+=(double)(log(_b*k+1.0)/k);
-    return r;
-}
-double fast_comp_v093(double *A, double *B, int rows, int cols, double base) {
-    double scale = log_scale_v093(base);
-    double sumAsq = 0, sumB = 0;
+long fast_comp_v093(int rows, int cols) {
+    long *dp = (long*)malloc((size_t)rows * cols * sizeof(long));
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            int idx = i*cols+j;
-            sumAsq += A[idx] * A[idx];
-            sumB += B[idx];
+            if (i == 0 || j == 0) dp[i*cols+j] = 1;
+            else dp[i*cols+j] = dp[(i-1)*cols+j] + dp[i*cols+(j-1)];
         }
     }
-    return scale * sumAsq + scale * sumB;
+    long acc = 0;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++) acc += dp[i*cols+j];
+    free(dp);
+    return acc;
 }

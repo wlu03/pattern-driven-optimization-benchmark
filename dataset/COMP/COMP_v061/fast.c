@@ -1,15 +1,17 @@
-#include <math.h>
-static __attribute__((noinline)) int compute_v061(int key){
-    volatile double _k=(double)key; /* block pure/const inference */
-    int r=0;
-    for(int i=0;i<50;i++) r+=(int)sin(_k+(double)i);
-    return r;
-}
-void fast_comp_v061(int *out, int *A, int n, int key, int mode) {
-    int factor = compute_v061(key);
-    if (mode == 1) {
-        for (int i = 0; i < n; i++) out[i] = A[i] * factor + (int)1.0;
-    } else {
-        for (int i = 0; i < n; i++) out[i] = A[i] + factor + (int)1.0;
+int fast_comp_v061(int *sorted_arr, int n, int *queries, int m) {
+    int hits = 0;
+    for (int q = 0; q < m; q++) {
+        int target = queries[q];
+        int lo = 0, hi = n;
+        while (lo < hi) {
+            int mid = (lo + hi) >> 1;
+            int v = sorted_arr[mid];
+            /* branchless: compute lo/hi using arithmetic on (v<target) */
+            int lt = (v < target);
+            lo = lt ? (mid + 1) : lo;
+            hi = lt ? hi : mid;
+        }
+        if (lo < n && sorted_arr[lo] == target) hits++;
     }
+    return hits;
 }

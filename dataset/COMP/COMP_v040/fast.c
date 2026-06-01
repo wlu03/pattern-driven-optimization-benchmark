@@ -1,9 +1,11 @@
-void fast_comp_v040(int *mat, int *col_avgs, int rows, int cols) {
-    for (int j = 0; j < cols; j++) col_avgs[j] = 0;
+void fast_comp_v040(double *vec, double *mat, double *out, int rows, int cols) {
+    for (int j = 0; j < cols; j++) out[j] = 0;
     for (int i = 0; i < rows; i++) {
+        double v = vec[i];
+        if (v == 0) continue;
+        double *row = mat + i * cols;
         for (int j = 0; j < cols; j++) {
-            col_avgs[j] += mat[i * cols + j];
+            out[j] += v * row[j];
         }
     }
-    for (int j = 0; j < cols; j++) col_avgs[j] /= (int)rows;
 }

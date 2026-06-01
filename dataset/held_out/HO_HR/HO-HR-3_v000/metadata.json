@@ -1,0 +1,21 @@
+{
+  "pattern_id": "HO-HR-3",
+  "variant_id": "HO-HR-3_v000",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Missing __builtin_unreachable Invariant for Bounds-Check Elimination",
+  "variant_desc": "10M-element loop with per-iter bounds check the compiler cannot prove away without programmer-supplied contract",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 22,
+  "expected_speedup_range": "0.95x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://en.algorithmica.org/hpc/compilation/contracts/ — Algorithmica HPC on programmer-supplied compiler contracts. GCC __builtin_unreachable / Clang __builtin_assume.",
+  "novelty_rationale": "Tests whether the LLM knows to insert __builtin_unreachable() to communicate range invariants the compiler cannot derive (e.g., function arg coming from a noinline helper). Range/value analysis is local; the compiler cannot prove invariants depending on caller-side constraints without an explicit hint. CAVEAT: __builtin_assume itself is fragile (libc++ removed it due to LLVM regressions) — the __builtin_unreachable form is more reliable.",
+  "correctness_tolerance": {"type": "exact", "epsilon": 0.0},
+  "pattern_type": "standard"
+}
