@@ -1,0 +1,1177 @@
+variant_id,pattern_id,category,difficulty,speedup_clang_O3,speedup_clang_polly,min_speedup_across_regimes,resistant
+AL-1_v006,AL-1,Algorithmic Inefficiency,hard,2979.0,2781.0,2781.0,True
+AL-1_v000,AL-1,Algorithmic Inefficiency,hard,3033.0,2837.0,2837.0,True
+AL-1_v005,AL-1,Algorithmic Inefficiency,hard,57.0,60.0,57.0,True
+AL-1_v004,AL-1,Algorithmic Inefficiency,medium,1507.0,3422.0,1507.0,True
+AL-1_v001,AL-1,Algorithmic Inefficiency,medium,1513.0,3644.0,1513.0,True
+AL-1_v002,AL-1,Algorithmic Inefficiency,medium,1667.0,3483.0,1667.0,True
+AL-1_v007,AL-1,Algorithmic Inefficiency,medium,36129.67,62132.5,36129.67,True
+AL-1_v003,AL-1,Algorithmic Inefficiency,hard,113821.23,130735.67,113821.23,True
+AL-1_v008,AL-1,Algorithmic Inefficiency,hard,59.0,57.0,57.0,True
+AL-1_v010,AL-1,Algorithmic Inefficiency,hard,2393.53,25929.0,2393.53,True
+AL-1_v013,AL-1,Algorithmic Inefficiency,medium,1697.0,3576.0,1697.0,True
+AL-1_v014,AL-1,Algorithmic Inefficiency,medium,192.0,175.0,175.0,True
+AL-1_v011,AL-1,Algorithmic Inefficiency,medium,43978.42,584748.0,43978.42,True
+AL-1_v012,AL-1,Algorithmic Inefficiency,medium,263762.0,601653.0,263762.0,True
+AL-1_v009,AL-1,Algorithmic Inefficiency,hard,116663.08,1553489.0,116663.08,True
+AL-2_v000,AL-2,Algorithmic,hard,293.92,309.52,293.92,True
+AL-2_v001,AL-2,Algorithmic,hard,135.45,134.65,134.65,True
+AL-2_v003,AL-2,Algorithmic,hard,174.91,176.31,174.91,True
+AL-2_v004,AL-2,Algorithmic,hard,197.0,129.4,129.4,True
+AL-2_v005,AL-2,Algorithmic,hard,196.87,198.56,196.87,True
+AL-2_v002,AL-2,Algorithmic,hard,246.03,240.58,240.58,True
+AL-2_v006,AL-2,Algorithmic,hard,301.92,300.73,300.73,True
+AL-2_v007,AL-2,Algorithmic,hard,236.98,246.65,236.98,True
+AL-2_v008,AL-2,Algorithmic,hard,237.71,221.12,221.12,True
+AL-2_v010,AL-2,Algorithmic,hard,196.61,194.0,194.0,True
+AL-2_v011,AL-2,Algorithmic,hard,301.98,307.0,301.98,True
+AL-2_v012,AL-2,Algorithmic,hard,137.17,137.34,137.17,True
+AL-2_v009,AL-2,Algorithmic,hard,422.64,404.86,404.86,True
+AL-2_v013,AL-2,Algorithmic,hard,134.51,132.96,132.96,True
+AL-2_v014,AL-2,Algorithmic,hard,135.74,130.44,130.44,True
+AL-3_v001,AL-3,Algorithmic,hard,40.05,44.86,40.05,True
+AL-3_v000,AL-3,Algorithmic,hard,33.32,35.14,33.32,True
+AL-3_v003,AL-3,Algorithmic,hard,28.65,32.13,28.65,True
+AL-3_v005,AL-3,Algorithmic,hard,62.06,47.81,47.81,True
+AL-3_v006,AL-3,Algorithmic,hard,38.06,36.35,36.35,True
+AL-3_v004,AL-3,Algorithmic,hard,81.7,59.29,59.29,True
+AL-3_v007,AL-3,Algorithmic,hard,32.09,31.86,31.86,True
+AL-3_v002,AL-3,Algorithmic,hard,54.45,43.11,43.11,True
+AL-3_v008,AL-3,Algorithmic,hard,52.41,78.96,52.41,True
+AL-3_v010,AL-3,Algorithmic,hard,30.49,29.3,29.3,True
+AL-3_v012,AL-3,Algorithmic,hard,46.11,43.43,43.43,True
+AL-3_v009,AL-3,Algorithmic,hard,62.91,54.18,54.18,True
+AL-4_v000,AL-4,Algorithmic,hard,1390827.0,1696290.0,1390827.0,True
+AL-3_v013,AL-3,Algorithmic,hard,44.82,52.2,44.82,True
+AL-3_v011,AL-3,Algorithmic,hard,60.3,56.67,56.67,True
+AL-3_v014,AL-3,Algorithmic,hard,62.79,70.79,62.79,True
+AL-4_v003,AL-4,Algorithmic,hard,695911.0,918667.0,695911.0,True
+AL-4_v002,AL-4,Algorithmic,hard,2599145.0,3248597.0,2599145.0,True
+AL-4_v006,AL-4,Algorithmic,hard,1423135.0,1685077.0,1423135.0,True
+AL-4_v008,AL-4,Algorithmic,hard,370641.0,444457.0,370641.0,True
+AL-4_v007,AL-4,Algorithmic,hard,1366424.0,1688941.0,1366424.0,True
+AL-4_v004,AL-4,Algorithmic,hard,2824156.0,3393511.0,2824156.0,True
+AL-4_v009,AL-4,Algorithmic,hard,348514.0,423266.0,348514.0,True
+AL-4_v001,AL-4,Algorithmic,hard,5421438.0,6606993.0,5421438.0,True
+AL-4_v005,AL-4,Algorithmic,hard,5300677.0,6533927.0,5300677.0,True
+AL-4_v012,AL-4,Algorithmic,hard,631512.0,831215.0,631512.0,True
+AL-4_v010,AL-4,Algorithmic,hard,1314551.0,1687272.0,1314551.0,True
+AL-4_v011,AL-4,Algorithmic,hard,1337750.0,1713322.0,1337750.0,True
+AL-4_v014,AL-4,Algorithmic,hard,725912.0,791871.0,725912.0,True
+CF-3_v000,CF-3,Control Flow,hard,2.51,2.49,2.49,True
+AL-4_v013,AL-4,Algorithmic,hard,1343398.0,1672782.0,1343398.0,True
+CF-3_v001,CF-3,Control Flow,hard,2.64,2.88,2.64,True
+CF-3_v002,CF-3,Control Flow,hard,2.58,2.69,2.58,True
+CF-3_v003,CF-3,Control Flow,hard,4.81,4.85,4.81,True
+CF-3_v004,CF-3,Control Flow,hard,4.48,5.0,4.48,True
+CF-3_v005,CF-3,Control Flow,hard,2.51,2.18,2.18,True
+CF-3_v006,CF-3,Control Flow,hard,2.5,2.71,2.5,True
+CF-3_v007,CF-3,Control Flow,hard,4.49,4.5,4.49,True
+CF-3_v008,CF-3,Control Flow,hard,4.44,5.03,4.44,True
+CF-3_v009,CF-3,Control Flow,hard,2.43,2.35,2.35,True
+CF-3_v010,CF-3,Control Flow,hard,2.58,2.23,2.23,True
+CF-3_v011,CF-3,Control Flow,hard,2.33,2.57,2.33,True
+CF-3_v012,CF-3,Control Flow,hard,3.97,4.34,3.97,True
+CF-3_v013,CF-3,Control Flow,hard,4.49,4.6,4.49,True
+CF-3_v014,CF-3,Control Flow,hard,2.48,2.44,2.44,True
+CF-4_v000,CF-4,Control Flow,hard,6.49,4.85,4.85,True
+CF-4_v001,CF-4,Control Flow,hard,4.58,4.57,4.57,True
+CF-4_v002,CF-4,Control Flow,hard,2.4,2.42,2.4,True
+CF-4_v003,CF-4,Control Flow,hard,2.25,2.63,2.25,True
+CF-4_v004,CF-4,Control Flow,hard,2.62,2.69,2.62,True
+CF-4_v005,CF-4,Control Flow,hard,2.91,2.35,2.35,True
+CF-4_v006,CF-4,Control Flow,hard,2.52,2.35,2.35,True
+CF-4_v007,CF-4,Control Flow,hard,4.64,4.2,4.2,True
+CF-4_v008,CF-4,Control Flow,hard,4.57,4.33,4.33,True
+CF-4_v009,CF-4,Control Flow,hard,2.39,2.42,2.39,True
+CF-4_v010,CF-4,Control Flow,hard,4.54,4.9,4.54,True
+CF-4_v011,CF-4,Control Flow,hard,2.46,2.4,2.4,True
+CF-4_v012,CF-4,Control Flow,hard,2.36,2.13,2.13,True
+CF-4_v013,CF-4,Control Flow,hard,4.77,4.86,4.77,True
+CF-4_v014,CF-4,Control Flow,hard,2.58,2.41,2.41,True
+COMP_v000,COMP,Composed,hard,2.61,2.8,2.61,True
+COMP_v001,COMP,Composed,hard,2.73,2.56,2.56,True
+COMP_v002,COMP,Composed,hard,215.2,228.33,215.2,True
+COMP_v003,COMP,Composed,hard,2.28,1.83,1.83,False
+COMP_v004,COMP,Composed,hard,14.07,14.91,14.07,True
+COMP_v005,COMP,Composed,hard,77.76,138.46,77.76,True
+COMP_v006,COMP,Composed,hard,117.97,65.54,65.54,True
+COMP_v008,COMP,Composed,hard,214.44,199.5,199.5,True
+COMP_v007,COMP,Composed,hard,271.63,285.64,271.63,True
+COMP_v010,COMP,Composed,hard,275.77,249.91,249.91,True
+COMP_v009,COMP,Composed,hard,1.88,1.94,1.88,False
+COMP_v011,COMP,Composed,hard,102530.0,121560.0,102530.0,True
+COMP_v014,COMP,Composed,hard,7.04,7.73,7.04,True
+COMP_v012,COMP,Composed,hard,218.01,210.98,210.98,True
+COMP_v015,COMP,Composed,hard,280.0,59.86,59.86,True
+COMP_v013,COMP,Composed,hard,436.12,368.17,368.17,True
+COMP_v016,COMP,Composed,hard,269.94,289.61,269.94,True
+COMP_v017,COMP,Composed,hard,2.29,1.92,1.92,False
+COMP_v018,COMP,Composed,hard,399.03,337.8,337.8,True
+COMP_v019,COMP,Composed,hard,9.46,6.02,6.02,True
+COMP_v020,COMP,Composed,hard,8.93,8.66,8.66,True
+COMP_v021,COMP,Composed,hard,1.96,1.94,1.94,False
+COMP_v022,COMP,Composed,hard,134.71,51.62,51.62,True
+COMP_v023,COMP,Composed,hard,77.7,75.83,75.83,True
+COMP_v024,COMP,Composed,hard,276.29,226.56,226.56,True
+COMP_v025,COMP,Composed,hard,279.99,280.2,279.99,True
+COMP_v026,COMP,Composed,hard,8.52,2.57,2.57,True
+COMP_v027,COMP,Composed,hard,3636.55,3459.74,3459.74,True
+COMP_v028,COMP,Composed,hard,271.67,82.6,82.6,True
+COMP_v029,COMP,Composed,hard,46.39,30.43,30.43,True
+COMP_v030,COMP,Composed,hard,387.91,400.89,387.91,True
+COMP_v031,COMP,Composed,hard,3847.29,3504.27,3504.27,True
+COMP_v032,COMP,Composed,hard,15.39,6.88,6.88,True
+COMP_v033,COMP,Composed,hard,14.85,4.9,4.9,True
+COMP_v034,COMP,Composed,hard,49.17,34.0,34.0,True
+COMP_v035,COMP,Composed,hard,80.18,80.28,80.18,True
+COMP_v036,COMP,Composed,hard,137.87,127.0,127.0,True
+COMP_v037,COMP,Composed,hard,1304.5,3694.0,1304.5,True
+COMP_v038,COMP,Composed,hard,51.61,31.57,31.57,True
+COMP_v039,COMP,Composed,hard,276.57,293.55,276.57,True
+COMP_v040,COMP,Composed,hard,94.75,117.2,94.75,True
+COMP_v041,COMP,Composed,hard,50.16,31.58,31.58,True
+COMP_v042,COMP,Composed,hard,101640.0,117189.0,101640.0,True
+COMP_v043,COMP,Composed,hard,3607.48,3548.57,3548.57,True
+COMP_v044,COMP,Composed,hard,47.61,32.2,32.2,True
+COMP_v045,COMP,Composed,hard,93.51,93.94,93.51,True
+COMP_v046,COMP,Composed,hard,205.0,56.64,56.64,True
+COMP_v047,COMP,Composed,hard,111.73,69.43,69.43,True
+COMP_v048,COMP,Composed,hard,738.64,758.45,738.64,True
+COMP_v049,COMP,Composed,hard,2584.0,3624.0,2584.0,True
+COMP_v050,COMP,Composed,hard,282.48,280.3,280.3,True
+COMP_v051,COMP,Composed,hard,8.14,8.62,8.14,True
+COMP_v052,COMP,Composed,hard,798.22,435.39,435.39,True
+COMP_v054,COMP,Composed,hard,52.83,73.42,52.83,True
+COMP_v053,COMP,Composed,hard,399.86,413.25,399.86,True
+COMP_v055,COMP,Composed,hard,284.39,348.49,284.39,True
+COMP_v056,COMP,Composed,hard,2.53,2.79,2.53,True
+COMP_v057,COMP,Composed,hard,7.43,7.46,7.43,True
+COMP_v059,COMP,Composed,hard,51.1,30.72,30.72,True
+COMP_v058,COMP,Composed,hard,1.93,1.85,1.85,False
+COMP_v060,COMP,Composed,hard,282.94,276.47,276.47,True
+COMP_v061,COMP,Composed,hard,280.23,252.73,252.73,True
+COMP_v062,COMP,Composed,hard,15.81,13.84,13.84,True
+COMP_v063,COMP,Composed,hard,59.98,50.98,50.98,True
+COMP_v064,COMP,Composed,hard,385.59,348.4,348.4,True
+COMP_v065,COMP,Composed,hard,391.83,371.15,371.15,True
+COMP_v066,COMP,Composed,hard,34.93,40.68,34.93,True
+COMP_v067,COMP,Composed,hard,3253.21,3489.67,3253.21,True
+COMP_v068,COMP,Composed,hard,80.03,77.24,77.24,True
+COMP_v070,COMP,Composed,hard,41.69,46.63,41.69,True
+COMP_v071,COMP,Composed,hard,215.0,69.67,69.67,True
+COMP_v069,COMP,Composed,hard,2.06,2.05,2.05,True
+COMP_v072,COMP,Composed,hard,36.18,21.39,21.39,True
+COMP_v073,COMP,Composed,hard,2.87,2.63,2.63,True
+COMP_v074,COMP,Composed,hard,3014.0,3802.0,3014.0,True
+COMP_v075,COMP,Composed,hard,2714.0,3469.0,2714.0,True
+COMP_v076,COMP,Composed,hard,8.52,2.43,2.43,True
+COMP_v078,COMP,Composed,hard,9.35,9.2,9.2,True
+COMP_v077,COMP,Composed,hard,13.11,5.55,5.55,True
+COMP_v079,COMP,Composed,hard,203.17,228.0,203.17,True
+COMP_v080,COMP,Composed,hard,317.29,326.13,317.29,True
+COMP_v081,COMP,Composed,hard,94465.0,108594.0,94465.0,True
+COMP_v082,COMP,Composed,hard,24.95,24.76,24.76,True
+COMP_v083,COMP,Composed,hard,1.9,1.83,1.83,False
+COMP_v084,COMP,Composed,hard,56.64,53.9,53.9,True
+COMP_v085,COMP,Composed,hard,32.33,30.61,30.61,True
+COMP_v086,COMP,Composed,hard,110.89,84.35,84.35,True
+COMP_v087,COMP,Composed,hard,52.21,29.91,29.91,True
+COMP_v088,COMP,Composed,hard,47.63,30.72,30.72,True
+COMP_v089,COMP,Composed,hard,10.02,11.03,10.02,True
+COMP_v090,COMP,Composed,hard,76.47,127.4,76.47,True
+COMP_v091,COMP,Composed,hard,4.84,4.99,4.84,True
+COMP_v092,COMP,Composed,hard,10.68,10.58,10.58,True
+COMP_v093,COMP,Composed,hard,2.82,2.65,2.65,True
+COMP_v094,COMP,Composed,hard,8.28,2.75,2.75,True
+COMP_v095,COMP,Composed,hard,8.37,6.36,6.36,True
+COMP_v096,COMP,Composed,hard,8.42,6.4,6.4,True
+COMP_v097,COMP,Composed,hard,26.3,29.9,26.3,True
+COMP_v098,COMP,Composed,hard,148.69,168.25,148.69,True
+COMP_v099,COMP,Composed,hard,5.1,3.61,3.61,True
+COMP_v100,COMP,Composed,hard,266.97,360.18,266.97,True
+COMP_v102,COMP,Composed,hard,32.6,44.31,32.6,True
+COMP_v101,COMP,Composed,hard,457.65,433.31,433.31,True
+COMP_v104,COMP,Composed,hard,10.26,9.55,9.55,True
+COMP_v103,COMP,Composed,hard,427.59,442.34,427.59,True
+COMP_v105,COMP,Composed,hard,165.2,59.6,59.6,True
+COMP_v106,COMP,Composed,hard,37.1,29.45,29.45,True
+COMP_v107,COMP,Composed,hard,2949.0,3547.0,2949.0,True
+COMP_v108,COMP,Composed,hard,286.0,71.0,71.0,True
+COMP_v109,COMP,Composed,hard,17.05,19.18,17.05,True
+COMP_v110,COMP,Composed,hard,144.83,54.0,54.0,True
+COMP_v111,COMP,Composed,hard,11.57,11.8,11.57,True
+COMP_v112,COMP,Composed,hard,13.65,13.46,13.46,True
+COMP_v113,COMP,Composed,hard,305.18,353.49,305.18,True
+COMP_v114,COMP,Composed,hard,9.07,9.3,9.07,True
+COMP_v115,COMP,Composed,hard,97.92,77.36,77.36,True
+COMP_v116,COMP,Composed,hard,145.33,56.13,56.13,True
+COMP_v117,COMP,Composed,hard,7.85,7.23,7.23,True
+COMP_v118,COMP,Composed,hard,3516.91,3407.39,3407.39,True
+COMP_v119,COMP,Composed,hard,2705.0,3514.0,2705.0,True
+COMP_v120,COMP,Composed,hard,56.84,41.43,41.43,True
+COMP_v122,COMP,Composed,hard,2.67,2.76,2.67,True
+COMP_v121,COMP,Composed,hard,2.02,1.87,1.87,False
+COMP_v123,COMP,Composed,hard,280.77,277.84,277.84,True
+COMP_v124,COMP,Composed,hard,7.03,1.62,1.62,False
+COMP_v125,COMP,Composed,hard,268.67,56.86,56.86,True
+COMP_v126,COMP,Composed,hard,2615.0,1717.0,1717.0,True
+COMP_v127,COMP,Composed,hard,328.21,329.02,328.21,True
+COMP_v128,COMP,Composed,hard,394.79,334.87,334.87,True
+COMP_v129,COMP,Composed,hard,93730.0,112239.0,93730.0,True
+COMP_v130,COMP,Composed,hard,269.33,69.67,69.67,True
+COMP_v131,COMP,Composed,hard,16.15,8.04,8.04,True
+COMP_v132,COMP,Composed,hard,148.0,55.89,55.89,True
+COMP_v133,COMP,Composed,hard,275.34,301.22,275.34,True
+COMP_v134,COMP,Composed,hard,2.78,9.44,2.78,True
+COMP_v135,COMP,Composed,hard,287.0,59.47,59.47,True
+COMP_v136,COMP,Composed,hard,125.98,66.17,66.17,True
+COMP_v137,COMP,Composed,hard,134916.0,133866.0,133866.0,True
+COMP_v138,COMP,Composed,hard,6.16,5.84,5.84,True
+COMP_v139,COMP,Composed,hard,181.92,153.77,153.77,True
+COMP_v141,COMP,Composed,hard,12.86,19.91,12.86,True
+COMP_v140,COMP,Composed,hard,13.95,5.57,5.57,True
+COMP_v142,COMP,Composed,hard,11.61,12.71,11.61,True
+COMP_v143,COMP,Composed,hard,157.13,142.43,142.43,True
+COMP_v144,COMP,Composed,hard,36.37,33.77,33.77,True
+COMP_v145,COMP,Composed,hard,217.67,222.44,217.67,True
+COMP_v146,COMP,Composed,hard,10.39,12.14,10.39,True
+COMP_v147,COMP,Composed,hard,56.06,56.68,56.06,True
+COMP_v148,COMP,Composed,hard,6.8,1.49,1.49,False
+COMP_v149,COMP,Composed,hard,10.23,7.36,7.36,True
+COMP_v150,COMP,Composed,hard,122.69,43.14,43.14,True
+COMP_v152,COMP,Composed,hard,2.83,2.72,2.72,True
+COMP_v151,COMP,Composed,hard,367.16,282.98,282.98,True
+COMP_v153,COMP,Composed,hard,53.01,52.52,52.52,True
+COMP_v154,COMP,Composed,hard,2845.0,3629.0,2845.0,True
+COMP_v155,COMP,Composed,hard,282.47,297.98,282.47,True
+COMP_v156,COMP,Composed,hard,110946.0,120454.0,110946.0,True
+COMP_v157,COMP,Composed,hard,264.34,385.2,264.34,True
+COMP_v160,COMP,Composed,hard,121.18,56.66,56.66,True
+COMP_v158,COMP,Composed,hard,258.83,374.29,258.83,True
+COMP_v161,COMP,Composed,hard,5.03,4.66,4.66,True
+COMP_v159,COMP,Composed,hard,224.54,180.71,180.71,True
+COMP_v162,COMP,Composed,hard,276.31,290.37,276.31,True
+COMP_v163,COMP,Composed,hard,129.56,175.42,129.56,True
+COMP_v164,COMP,Composed,hard,117.39,125.94,117.39,True
+COMP_v166,COMP,Composed,hard,2694.0,3871.0,2694.0,True
+COMP_v167,COMP,Composed,hard,32.83,38.14,32.83,True
+COMP_v165,COMP,Composed,hard,1.94,1.8,1.8,False
+COMP_v169,COMP,Composed,hard,194.36,194.73,194.36,True
+COMP_v168,COMP,Composed,hard,93.21,94.03,93.21,True
+COMP_v171,COMP,Composed,hard,48.76,44.12,44.12,True
+COMP_v170,COMP,Composed,hard,222.08,231.08,222.08,True
+COMP_v172,COMP,Composed,hard,7.22,4.88,4.88,True
+COMP_v173,COMP,Composed,hard,12.14,12.22,12.14,True
+COMP_v174,COMP,Composed,hard,140.97,138.26,138.26,True
+COMP_v176,COMP,Composed,hard,74.97,66.69,66.69,True
+COMP_v175,COMP,Composed,hard,201.64,227.44,201.64,True
+COMP_v177,COMP,Composed,hard,75.06,68.14,68.14,True
+COMP_v179,COMP,Composed,hard,205.6,201.5,201.5,True
+COMP_v178,COMP,Composed,hard,92.28,91.3,91.3,True
+COMP_v180,COMP,Composed,hard,101559.0,115368.0,101559.0,True
+COMP_v182,COMP,Composed,hard,9.07,9.4,9.07,True
+COMP_v181,COMP,Composed,hard,201.63,170.31,170.31,True
+COMP_v183,COMP,Composed,hard,11.6,12.17,11.6,True
+COMP_v184,COMP,Composed,hard,8.38,2.91,2.91,True
+COMP_v185,COMP,Composed,hard,2325.02,3557.35,2325.02,True
+COMP_v186,COMP,Composed,hard,145.21,57.81,57.81,True
+COMP_v187,COMP,Composed,hard,60.71,70.91,60.71,True
+COMP_v188,COMP,Composed,hard,3809.97,3290.24,3290.24,True
+COMP_v189,COMP,Composed,hard,347.23,370.02,347.23,True
+COMP_v190,COMP,Composed,hard,1.89,1.84,1.84,False
+COMP_v191,COMP,Composed,hard,8.63,2.63,2.63,True
+COMP_v192,COMP,Composed,hard,2937.0,3743.0,2937.0,True
+COMP_v193,COMP,Composed,hard,78.06,76.34,76.34,True
+COMP_v194,COMP,Composed,hard,267.05,279.37,267.05,True
+COMP_v195,COMP,Composed,hard,47.96,57.82,47.96,True
+COMP_v196,COMP,Composed,hard,7.71,2.69,2.69,True
+COMP_v197,COMP,Composed,hard,843.41,656.06,656.06,True
+COMP_v199,COMP,Composed,hard,450.1,331.8,331.8,True
+COMP_v200,COMP,Composed,hard,6.47,7.3,6.47,True
+COMP_v198,COMP,Composed,hard,100.74,91.12,91.12,True
+COMP_v201,COMP,Composed,hard,7.76,2.44,2.44,True
+COMP_v202,COMP,Composed,hard,14.82,8.91,8.91,True
+COMP_v203,COMP,Composed,hard,112602.0,110124.0,110124.0,True
+COMP_v204,COMP,Composed,hard,13.91,14.47,13.91,True
+COMP_v205,COMP,Composed,hard,5.03,4.96,4.96,True
+COMP_v206,COMP,Composed,hard,2921.0,3513.0,2921.0,True
+COMP_v208,COMP,Composed,hard,58.77,56.13,56.13,True
+COMP_v207,COMP,Composed,hard,15.13,8.02,8.02,True
+COMP_v209,COMP,Composed,hard,6.24,7.25,6.24,True
+COMP_v210,COMP,Composed,hard,259.0,68.33,68.33,True
+COMP_v211,COMP,Composed,hard,147.07,133.93,133.93,True
+COMP_v212,COMP,Composed,hard,199.5,211.44,199.5,True
+COMP_v215,COMP,Composed,hard,15.64,8.26,8.26,True
+COMP_v213,COMP,Composed,hard,273.21,289.53,273.21,True
+COMP_v216,COMP,Composed,hard,189.91,110.89,110.89,True
+COMP_v217,COMP,Composed,hard,7.1,1.86,1.86,False
+COMP_v214,COMP,Composed,hard,464.2,347.97,347.97,True
+COMP_v218,COMP,Composed,hard,206.0,194.45,194.45,True
+COMP_v219,COMP,Composed,hard,13.97,13.12,13.12,True
+COMP_v220,COMP,Composed,hard,7.26,6.36,6.36,True
+COMP_v221,COMP,Composed,hard,43.21,51.19,43.21,True
+COMP_v222,COMP,Composed,hard,7.56,6.28,6.28,True
+COMP_v223,COMP,Composed,hard,106949.0,104626.0,104626.0,True
+COMP_v224,COMP,Composed,hard,7.88,1.9,1.9,False
+COMP_v225,COMP,Composed,hard,46.37,52.09,46.37,True
+COMP_v226,COMP,Composed,hard,271.33,49.22,49.22,True
+COMP_v227,COMP,Composed,hard,33.4,48.47,33.4,True
+COMP_v228,COMP,Composed,hard,98092.0,116910.0,98092.0,True
+COMP_v229,COMP,Composed,hard,66.86,95.55,66.86,True
+COMP_v230,COMP,Composed,hard,310.51,349.65,310.51,True
+COMP_v233,COMP,Composed,hard,9.15,11.96,9.15,True
+COMP_v232,COMP,Composed,hard,402.58,294.31,294.31,True
+COMP_v231,COMP,Composed,hard,421.1,457.31,421.1,True
+COMP_v234,COMP,Composed,hard,106.84,87.88,87.88,True
+COMP_v235,COMP,Composed,hard,392.0,81.17,81.17,True
+COMP_v236,COMP,Composed,hard,7.01,7.44,7.01,True
+COMP_v237,COMP,Composed,hard,9.53,2.66,2.66,True
+COMP_v238,COMP,Composed,hard,30.28,63.88,30.28,True
+COMP_v239,COMP,Composed,hard,185.91,199.5,185.91,True
+COMP_v241,COMP,Composed,hard,9.68,10.62,9.68,True
+COMP_v242,COMP,Composed,hard,5.21,5.03,5.03,True
+COMP_v243,COMP,Composed,hard,13.89,29.33,13.89,True
+COMP_v240,COMP,Composed,hard,13.64,6.56,6.56,True
+COMP_v244,COMP,Composed,hard,261.28,150.48,150.48,True
+COMP_v245,COMP,Composed,hard,7.67,2.12,2.12,True
+COMP_v246,COMP,Composed,hard,5.34,8.55,5.34,True
+COMP_v247,COMP,Composed,hard,102226.0,312044.5,102226.0,True
+COMP_v248,COMP,Composed,hard,99582.0,494501.0,99582.0,True
+COMP_v249,COMP,Composed,hard,59.49,86.77,59.49,True
+COMP_v251,COMP,Composed,hard,85.91,120.7,85.91,True
+COMP_v250,COMP,Composed,hard,92.14,202.96,92.14,True
+COMP_v252,COMP,Composed,hard,40.41,38.71,38.71,True
+COMP_v253,COMP,Composed,hard,9.84,3.22,3.22,True
+COMP_v254,COMP,Composed,hard,6.01,7.84,6.01,True
+COMP_v256,COMP,Composed,hard,3.82,1.97,1.97,False
+COMP_v257,COMP,Composed,hard,228.19,126.0,126.0,True
+COMP_v255,COMP,Composed,hard,84.98,133.88,84.98,True
+COMP_v258,COMP,Composed,hard,2760.0,1368.78,1368.78,True
+COMP_v259,COMP,Composed,hard,113.34,107.23,107.23,True
+COMP_v260,COMP,Composed,hard,186.26,79.2,79.2,True
+COMP_v261,COMP,Composed,hard,4784.8,3410.0,3410.0,True
+COMP_v262,COMP,Composed,hard,20.68,3.33,3.33,True
+COMP_v265,COMP,Composed,hard,97.03,165.5,97.03,True
+COMP_v266,COMP,Composed,hard,314922.0,119515.0,119515.0,True
+COMP_v263,COMP,Composed,hard,265.91,215.34,215.34,True
+COMP_v264,COMP,Composed,hard,2.45,2.13,2.13,True
+COMP_v267,COMP,Composed,hard,128.47,293.2,128.47,True
+COMP_v268,COMP,Composed,hard,7.68,2.56,2.56,True
+COMP_v269,COMP,Composed,hard,5.0,4.91,4.91,True
+COMP_v270,COMP,Composed,hard,10.45,10.53,10.45,True
+COMP_v271,COMP,Composed,hard,93517.0,109162.0,93517.0,True
+COMP_v273,COMP,Composed,hard,34.22,51.99,34.22,True
+COMP_v272,COMP,Composed,hard,259.13,314.75,259.13,True
+COMP_v274,COMP,Composed,hard,103584.0,96079.0,96079.0,True
+COMP_v275,COMP,Composed,hard,397.72,420.6,397.72,True
+COMP_v276,COMP,Composed,hard,12.02,11.99,11.99,True
+COMP_v277,COMP,Composed,hard,103701.0,97232.0,97232.0,True
+COMP_v278,COMP,Composed,hard,2972.0,3477.0,2972.0,True
+COMP_v279,COMP,Composed,hard,55.34,54.47,54.47,True
+COMP_v280,COMP,Composed,hard,53.47,51.37,51.37,True
+COMP_v281,COMP,Composed,hard,142.0,52.07,52.07,True
+COMP_v282,COMP,Composed,hard,4.84,4.91,4.84,True
+COMP_v283,COMP,Composed,hard,13.63,5.87,5.87,True
+COMP_v284,COMP,Composed,hard,2570.0,3472.0,2570.0,True
+COMP_v285,COMP,Composed,hard,268.33,54.27,54.27,True
+COMP_v286,COMP,Composed,hard,198.17,149.62,149.62,True
+COMP_v287,COMP,Composed,hard,94.46,92.75,92.75,True
+COMP_v288,COMP,Composed,hard,2620.0,3524.0,2620.0,True
+COMP_v289,COMP,Composed,hard,7.71,8.14,7.71,True
+COMP_v290,COMP,Composed,hard,8.65,8.65,8.65,True
+COMP_v291,COMP,Composed,hard,7.34,8.04,7.34,True
+COMP_v292,COMP,Composed,hard,93.05,93.37,93.05,True
+COMP_v293,COMP,Composed,hard,2.47,2.36,2.36,True
+COMP_v294,COMP,Composed,hard,199.0,219.4,199.0,True
+COMP_v295,COMP,Composed,hard,3341.8,2966.09,2966.09,True
+COMP_v296,COMP,Composed,hard,38.01,23.79,23.79,True
+COMP_v297,COMP,Composed,hard,7.51,7.36,7.36,True
+COMP_v298,COMP,Composed,hard,868.33,594.83,594.83,True
+COMP_v299,COMP,Composed,hard,278.54,280.69,278.54,True
+COMP_v300,COMP,Composed,hard,21.89,52.61,21.89,True
+COMP_v301,COMP,Composed,hard,139.67,137.04,137.04,True
+COMP_v302,COMP,Composed,hard,14.75,8.56,8.56,True
+COMP_v303,COMP,Composed,hard,132.8,126.87,126.87,True
+COMP_v305,COMP,Composed,hard,50.03,30.8,30.8,True
+COMP_v304,COMP,Composed,hard,92.76,93.3,92.76,True
+COMP_v306,COMP,Composed,hard,261.03,275.81,261.03,True
+COMP_v308,COMP,Composed,hard,40.16,44.04,40.16,True
+COMP_v307,COMP,Composed,hard,184.23,188.07,184.23,True
+COMP_v309,COMP,Composed,hard,169.0,167.29,167.29,True
+COMP_v310,COMP,Composed,hard,79.13,78.29,78.29,True
+COMP_v311,COMP,Composed,hard,274.0,56.5,56.5,True
+COMP_v313,COMP,Composed,hard,129.43,60.91,60.91,True
+COMP_v312,COMP,Composed,hard,349.09,656.7,349.09,True
+COMP_v314,COMP,Composed,hard,397.4,419.52,397.4,True
+COMP_v315,COMP,Composed,hard,2.0,2.0,2.0,False
+COMP_v316,COMP,Composed,hard,146.67,57.14,57.14,True
+COMP_v317,COMP,Composed,hard,2819.0,3398.0,2819.0,True
+COMP_v318,COMP,Composed,hard,412.25,433.34,412.25,True
+COMP_v319,COMP,Composed,hard,95472.0,111887.0,95472.0,True
+COMP_v320,COMP,Composed,hard,77.95,84.41,77.95,True
+COMP_v321,COMP,Composed,hard,3541.82,2120.57,2120.57,True
+COMP_v322,COMP,Composed,hard,8.31,8.21,8.21,True
+COMP_v323,COMP,Composed,hard,10.25,8.8,8.8,True
+COMP_v324,COMP,Composed,hard,358.52,360.4,358.52,True
+COMP_v325,COMP,Composed,hard,8.17,6.66,6.66,True
+COMP_v326,COMP,Composed,hard,2.84,2.66,2.66,True
+COMP_v328,COMP,Composed,hard,48.68,30.99,30.99,True
+COMP_v329,COMP,Composed,hard,12.23,12.63,12.23,True
+COMP_v327,COMP,Composed,hard,12.15,5.78,5.78,True
+COMP_v330,COMP,Composed,hard,675.61,748.26,675.61,True
+COMP_v331,COMP,Composed,hard,93955.0,109144.0,93955.0,True
+COMP_v332,COMP,Composed,hard,166.71,190.0,166.71,True
+COMP_v333,COMP,Composed,hard,2.75,2.63,2.63,True
+COMP_v336,COMP,Composed,hard,8.0,7.62,7.62,True
+COMP_v334,COMP,Composed,hard,407.8,408.52,407.8,True
+COMP_v337,COMP,Composed,hard,287.54,274.2,274.2,True
+COMP_v335,COMP,Composed,hard,417.84,394.94,394.94,True
+COMP_v338,COMP,Composed,hard,11.85,10.31,10.31,True
+COMP_v339,COMP,Composed,hard,218.06,210.09,210.09,True
+COMP_v341,COMP,Composed,hard,8.2,2.47,2.47,True
+COMP_v340,COMP,Composed,hard,361.08,341.64,341.64,True
+COMP_v343,COMP,Composed,hard,94378.0,109283.0,94378.0,True
+COMP_v344,COMP,Composed,hard,12.41,12.37,12.37,True
+COMP_v345,COMP,Composed,hard,12.91,12.19,12.19,True
+COMP_v346,COMP,Composed,hard,7.39,8.36,7.39,True
+COMP_v342,COMP,Composed,hard,430.57,464.61,430.57,True
+COMP_v347,COMP,Composed,hard,2.69,2.58,2.58,True
+COMP_v348,COMP,Composed,hard,2649.0,3648.0,2649.0,True
+COMP_v350,COMP,Composed,hard,149.5,57.43,57.43,True
+COMP_v351,COMP,Composed,hard,5.01,5.1,5.01,True
+COMP_v349,COMP,Composed,hard,327.6,334.33,327.6,True
+COMP_v352,COMP,Composed,hard,2625.0,3411.0,2625.0,True
+COMP_v353,COMP,Composed,hard,9.13,9.04,9.04,True
+COMP_v354,COMP,Composed,hard,85.69,109.73,85.69,True
+COMP_v355,COMP,Composed,hard,2.57,2.63,2.57,True
+COMP_v356,COMP,Composed,hard,53.22,47.72,47.72,True
+COMP_v357,COMP,Composed,hard,288.0,58.93,58.93,True
+COMP_v359,COMP,Composed,hard,2.92,2.56,2.56,True
+COMP_v358,COMP,Composed,hard,3619.31,3374.84,3374.84,True
+COMP_v360,COMP,Composed,hard,6.85,4.88,4.88,True
+COMP_v361,COMP,Composed,hard,51.19,47.37,47.37,True
+COMP_v362,COMP,Composed,hard,190.61,206.44,190.61,True
+COMP_v363,COMP,Composed,hard,2624.0,3667.0,2624.0,True
+COMP_v364,COMP,Composed,hard,10.26,6.39,6.39,True
+COMP_v365,COMP,Composed,hard,7.73,7.3,7.3,True
+COMP_v366,COMP,Composed,hard,884.0,694.84,694.84,True
+COMP_v367,COMP,Composed,hard,129.0,55.07,55.07,True
+COMP_v368,COMP,Composed,hard,92.79,92.31,92.31,True
+COMP_v369,COMP,Composed,hard,94562.0,116453.0,94562.0,True
+COMP_v370,COMP,Composed,hard,328.1,317.58,317.58,True
+COMP_v371,COMP,Composed,hard,92.08,106.36,92.08,True
+COMP_v373,COMP,Composed,hard,7.82,3.85,3.85,True
+COMP_v374,COMP,Composed,hard,42.43,34.23,34.23,True
+COMP_v375,COMP,Composed,hard,7.28,2.15,2.15,True
+COMP_v372,COMP,Composed,hard,1.98,1.95,1.95,False
+COMP_v376,COMP,Composed,hard,7.68,2.73,2.73,True
+COMP_v377,COMP,Composed,hard,23.51,30.83,23.51,True
+COMP_v378,COMP,Composed,hard,7.43,8.89,7.43,True
+COMP_v379,COMP,Composed,hard,8.24,8.49,8.24,True
+COMP_v380,COMP,Composed,hard,43.31,32.86,32.86,True
+COMP_v381,COMP,Composed,hard,79.0,61.61,61.61,True
+COMP_v382,COMP,Composed,hard,6.65,5.41,5.41,True
+COMP_v383,COMP,Composed,hard,5.04,4.89,4.89,True
+COMP_v384,COMP,Composed,hard,12.53,11.77,11.77,True
+COMP_v385,COMP,Composed,hard,1.92,1.93,1.92,False
+COMP_v386,COMP,Composed,hard,266.67,59.29,59.29,True
+COMP_v387,COMP,Composed,hard,11.87,13.78,11.87,True
+COMP_v388,COMP,Composed,hard,8.97,10.8,8.97,True
+COMP_v389,COMP,Composed,hard,94460.0,113530.0,94460.0,True
+COMP_v390,COMP,Composed,hard,803.87,237.12,237.12,True
+COMP_v391,COMP,Composed,hard,115.85,61.17,61.17,True
+COMP_v392,COMP,Composed,hard,104898.0,95964.0,95964.0,True
+COMP_v393,COMP,Composed,hard,5.01,4.91,4.91,True
+COMP_v394,COMP,Composed,hard,107347.0,96793.0,96793.0,True
+COMP_v395,COMP,Composed,hard,11.6,6.22,6.22,True
+COMP_v396,COMP,Composed,hard,277.48,281.07,277.48,True
+COMP_v397,COMP,Composed,hard,12.04,12.76,12.04,True
+COMP_v398,COMP,Composed,hard,275.9,408.89,275.9,True
+COMP_v399,COMP,Composed,hard,57.95,76.81,57.95,True
+COMP_v400,COMP,Composed,hard,2.78,3.01,2.78,True
+COMP_v401,COMP,Composed,hard,164.89,203.51,164.89,True
+COMP_v402,COMP,Composed,hard,73.56,62.66,62.66,True
+COMP_v403,COMP,Composed,hard,94349.0,112161.0,94349.0,True
+COMP_v404,COMP,Composed,hard,2907.0,3404.0,2907.0,True
+COMP_v405,COMP,Composed,hard,7.99,8.43,7.99,True
+COMP_v406,COMP,Composed,hard,9.11,9.32,9.11,True
+COMP_v407,COMP,Composed,hard,282.0,56.64,56.64,True
+COMP_v408,COMP,Composed,hard,6.48,5.06,5.06,True
+COMP_v409,COMP,Composed,hard,734.12,3609.16,734.12,True
+COMP_v410,COMP,Composed,hard,110805.0,100589.0,100589.0,True
+COMP_v411,COMP,Composed,hard,7.77,4.9,4.9,True
+COMP_v413,COMP,Composed,hard,3286.89,3438.09,3286.89,True
+COMP_v414,COMP,Composed,hard,128.0,84.6,84.6,True
+COMP_v415,COMP,Composed,hard,14.61,64.69,14.61,True
+COMP_v412,COMP,Composed,hard,405.04,415.92,405.04,True
+COMP_v416,COMP,Composed,hard,13.67,6.1,6.1,True
+COMP_v418,COMP,Composed,hard,115.5,62.81,62.81,True
+COMP_v417,COMP,Composed,hard,340.29,348.09,340.29,True
+COMP_v419,COMP,Composed,hard,12.67,12.31,12.31,True
+COMP_v420,COMP,Composed,hard,12.4,11.47,11.47,True
+COMP_v421,COMP,Composed,hard,93.09,92.24,92.24,True
+COMP_v423,COMP,Composed,hard,8.62,5.1,5.1,True
+COMP_v422,COMP,Composed,hard,278.72,272.21,272.21,True
+COMP_v424,COMP,Composed,hard,276.78,277.15,276.78,True
+COMP_v425,COMP,Composed,hard,4.98,4.76,4.76,True
+COMP_v426,COMP,Composed,hard,11.69,11.85,11.69,True
+COMP_v427,COMP,Composed,hard,273.19,274.27,273.19,True
+COMP_v428,COMP,Composed,hard,6.96,1.8,1.8,False
+COMP_v429,COMP,Composed,hard,14.11,6.74,6.74,True
+COMP_v430,COMP,Composed,hard,13.29,5.03,5.03,True
+COMP_v431,COMP,Composed,hard,115.32,61.56,61.56,True
+COMP_v432,COMP,Composed,hard,140.84,133.35,133.35,True
+COMP_v433,COMP,Composed,hard,6.65,1.54,1.54,False
+COMP_v434,COMP,Composed,hard,10.48,8.81,8.81,True
+COMP_v435,COMP,Composed,hard,813.48,570.75,570.75,True
+COMP_v436,COMP,Composed,hard,71.57,72.85,71.57,True
+COMP_v438,COMP,Composed,hard,41.99,45.81,41.99,True
+COMP_v437,COMP,Composed,hard,360.66,359.94,359.94,True
+COMP_v439,COMP,Composed,hard,10.91,9.28,9.28,True
+COMP_v440,COMP,Composed,hard,266.67,56.43,56.43,True
+COMP_v441,COMP,Composed,hard,199.8,214.78,199.8,True
+COMP_v442,COMP,Composed,hard,24.05,34.1,24.05,True
+COMP_v443,COMP,Composed,hard,148.5,56.57,56.57,True
+COMP_v444,COMP,Composed,hard,53.33,52.41,52.41,True
+COMP_v445,COMP,Composed,hard,276.21,276.7,276.21,True
+COMP_v446,COMP,Composed,hard,8.77,8.02,8.02,True
+COMP_v447,COMP,Composed,hard,93912.0,112700.0,93912.0,True
+COMP_v448,COMP,Composed,hard,821.91,616.7,616.7,True
+COMP_v449,COMP,Composed,hard,706.0,3461.0,706.0,True
+COMP_v450,COMP,Composed,hard,387.21,395.98,387.21,True
+COMP_v451,COMP,Composed,hard,755.17,673.14,673.14,True
+COMP_v452,COMP,Composed,hard,8.97,8.99,8.97,True
+COMP_v453,COMP,Composed,hard,92.72,93.25,92.72,True
+COMP_v455,COMP,Composed,hard,7.77,8.06,7.77,True
+COMP_v454,COMP,Composed,hard,443.12,452.34,443.12,True
+COMP_v456,COMP,Composed,hard,110.51,63.71,63.71,True
+COMP_v457,COMP,Composed,hard,95076.0,114668.0,95076.0,True
+COMP_v458,COMP,Composed,hard,198.78,203.84,198.78,True
+COMP_v459,COMP,Composed,hard,87.38,116.6,87.38,True
+COMP_v461,COMP,Composed,hard,2819.0,3471.0,2819.0,True
+COMP_v460,COMP,Composed,hard,2.05,1.97,1.97,False
+COMP_v462,COMP,Composed,hard,93.89,93.04,93.04,True
+COMP_v464,COMP,Composed,hard,7.97,7.86,7.86,True
+COMP_v463,COMP,Composed,hard,340.83,387.27,340.83,True
+COMP_v465,COMP,Composed,hard,73.82,74.72,73.82,True
+COMP_v466,COMP,Composed,hard,32.85,59.5,32.85,True
+COMP_v467,COMP,Composed,hard,2.6,2.53,2.53,True
+COMP_v468,COMP,Composed,hard,139.25,107.0,107.0,True
+COMP_v469,COMP,Composed,hard,110.94,133.73,110.94,True
+COMP_v470,COMP,Composed,hard,2784.0,3439.0,2784.0,True
+COMP_v471,COMP,Composed,hard,135.58,137.91,135.58,True
+COMP_v472,COMP,Composed,hard,7.29,7.25,7.25,True
+COMP_v473,COMP,Composed,hard,140.5,57.0,57.0,True
+COMP_v474,COMP,Composed,hard,50.86,54.55,50.86,True
+COMP_v475,COMP,Composed,hard,8.07,8.3,8.07,True
+COMP_v476,COMP,Composed,hard,117.67,61.14,61.14,True
+COMP_v477,COMP,Composed,hard,25.61,21.14,21.14,True
+COMP_v478,COMP,Composed,hard,93745.0,111880.0,93745.0,True
+COMP_v479,COMP,Composed,hard,94692.0,109562.0,94692.0,True
+COMP_v480,COMP,Composed,hard,208.62,188.18,188.18,True
+COMP_v481,COMP,Composed,hard,2.04,1.95,1.95,False
+COMP_v482,COMP,Composed,hard,4.89,4.9,4.89,True
+COMP_v483,COMP,Composed,hard,133.75,102.0,102.0,True
+COMP_v484,COMP,Composed,hard,4.96,4.98,4.96,True
+COMP_v485,COMP,Composed,hard,12.4,11.4,11.4,True
+COMP_v486,COMP,Composed,hard,7.77,2.57,2.57,True
+COMP_v487,COMP,Composed,hard,201.43,204.79,201.43,True
+COMP_v488,COMP,Composed,hard,158.33,44.0,44.0,True
+COMP_v489,COMP,Composed,hard,354.41,324.07,324.07,True
+COMP_v490,COMP,Composed,hard,71.61,55.91,55.91,True
+COMP_v491,COMP,Composed,hard,191.0,83.09,83.09,True
+COMP_v493,COMP,Composed,hard,2614.0,3414.0,2614.0,True
+COMP_v492,COMP,Composed,hard,2.0,1.9,1.9,False
+COMP_v494,COMP,Composed,hard,82.31,84.51,82.31,True
+COMP_v495,COMP,Composed,hard,396.43,353.7,353.7,True
+COMP_v496,COMP,Composed,hard,41.14,48.14,41.14,True
+COMP_v497,COMP,Composed,hard,686.76,686.93,686.76,True
+COMP_v498,COMP,Composed,hard,93.59,92.17,92.17,True
+COMP_v499,COMP,Composed,hard,94020.0,113454.0,94020.0,True
+COMP_v500,COMP,Composed,hard,47.89,32.33,32.33,True
+COMP_v501,COMP,Composed,hard,267.33,60.08,60.08,True
+COMP_v502,COMP,Composed,hard,111.96,61.11,61.11,True
+COMP_v503,COMP,Composed,hard,2.71,2.93,2.71,True
+COMP_v504,COMP,Composed,hard,3592.83,3036.87,3036.87,True
+COMP_v505,COMP,Composed,hard,19.38,33.29,19.38,True
+COMP_v506,COMP,Composed,hard,78.39,71.82,71.82,True
+COMP_v507,COMP,Composed,hard,423.29,442.63,423.29,True
+COMP_v508,COMP,Composed,hard,94264.0,119986.0,94264.0,True
+COMP_v509,COMP,Composed,hard,2628.0,3449.0,2628.0,True
+COMP_v510,COMP,Composed,hard,116.81,69.62,69.62,True
+COMP_v511,COMP,Composed,hard,70.23,73.36,70.23,True
+COMP_v512,COMP,Composed,hard,2.77,2.56,2.56,True
+COMP_v513,COMP,Composed,hard,181.64,200.4,181.64,True
+COMP_v514,COMP,Composed,hard,68.96,78.8,68.96,True
+COMP_v515,COMP,Composed,hard,10.08,5.35,5.35,True
+COMP_v516,COMP,Composed,hard,7.46,7.37,7.37,True
+COMP_v517,COMP,Composed,hard,12.7,12.16,12.16,True
+COMP_v518,COMP,Composed,hard,7.42,3.07,3.07,True
+COMP_v519,COMP,Composed,hard,14.5,14.84,14.5,True
+COMP_v520,COMP,Composed,hard,164.82,370.64,164.82,True
+COMP_v521,COMP,Composed,hard,3097.0,3866.0,3097.0,True
+COMP_v522,COMP,Composed,hard,40.78,24.28,24.28,True
+COMP_v523,COMP,Composed,hard,47.8,56.83,47.8,True
+COMP_v524,COMP,Composed,hard,2685.0,3397.0,2685.0,True
+COMP_v526,COMP,Composed,hard,8.1,8.1,8.1,True
+COMP_v525,COMP,Composed,hard,13.64,6.64,6.64,True
+COMP_v527,COMP,Composed,hard,46.57,59.28,46.57,True
+COMP_v528,COMP,Composed,hard,2900.0,4001.0,2900.0,True
+COMP_v530,COMP,Composed,hard,122.78,89.82,89.82,True
+COMP_v529,COMP,Composed,hard,394.69,393.88,393.88,True
+COMP_v532,COMP,Composed,hard,13.23,13.53,13.23,True
+COMP_v533,COMP,Composed,hard,7.82,2.43,2.43,True
+COMP_v534,COMP,Composed,hard,2.82,2.51,2.51,True
+COMP_v531,COMP,Composed,hard,480.1,424.18,424.18,True
+COMP_v535,COMP,Composed,hard,1.91,1.83,1.83,False
+COMP_v536,COMP,Composed,hard,43.32,19.22,19.22,True
+COMP_v538,COMP,Composed,hard,92.43,93.88,92.43,True
+COMP_v537,COMP,Composed,hard,391.58,305.79,305.79,True
+COMP_v539,COMP,Composed,hard,4.96,5.0,4.96,True
+COMP_v540,COMP,Composed,hard,8.15,2.55,2.55,True
+COMP_v541,COMP,Composed,hard,14.95,14.61,14.61,True
+COMP_v542,COMP,Composed,hard,5.01,5.06,5.01,True
+COMP_v544,COMP,Composed,hard,981.15,641.94,641.94,True
+COMP_v543,COMP,Composed,hard,13.31,6.44,6.44,True
+COMP_v545,COMP,Composed,hard,137.97,75.27,75.27,True
+COMP_v546,COMP,Composed,hard,291.33,31.41,31.41,True
+COMP_v547,COMP,Composed,hard,2891.0,3545.0,2891.0,True
+COMP_v549,COMP,Composed,hard,129.93,77.15,77.15,True
+COMP_v548,COMP,Composed,hard,506.15,441.75,441.75,True
+COMP_v550,COMP,Composed,hard,194.53,129.38,129.38,True
+COMP_v551,COMP,Composed,hard,15.31,4.16,4.16,True
+COMP_v552,COMP,Composed,hard,6.97,3.41,3.41,True
+COMP_v553,COMP,Composed,hard,640.34,430.64,430.64,True
+COMP_v554,COMP,Composed,hard,8.81,9.69,8.81,True
+COMP_v556,COMP,Composed,hard,1567.0,3314.0,1567.0,True
+COMP_v555,COMP,Composed,hard,195.94,281.76,195.94,True
+COMP_v558,COMP,Composed,hard,177.0,199.4,177.0,True
+COMP_v557,COMP,Composed,hard,1.98,1.85,1.85,False
+COMP_v559,COMP,Composed,hard,7.53,1.51,1.51,False
+COMP_v560,COMP,Composed,hard,213.14,223.28,213.14,True
+COMP_v561,COMP,Composed,hard,137.83,143.88,137.83,True
+COMP_v562,COMP,Composed,hard,9.11,9.0,9.0,True
+COMP_v563,COMP,Composed,hard,11.83,11.16,11.16,True
+COMP_v564,COMP,Composed,hard,107940.0,127096.0,107940.0,True
+COMP_v565,COMP,Composed,hard,112740.0,127984.0,112740.0,True
+COMP_v566,COMP,Composed,hard,7.8,3.02,3.02,True
+COMP_v567,COMP,Composed,hard,9.38,2.17,2.17,True
+COMP_v568,COMP,Composed,hard,720.14,298.87,298.87,True
+COMP_v569,COMP,Composed,hard,55.08,31.14,31.14,True
+COMP_v570,COMP,Composed,hard,9.17,2.38,2.38,True
+COMP_v571,COMP,Composed,hard,35.24,52.18,35.24,True
+COMP_v572,COMP,Composed,hard,2847.32,1999.97,1999.97,True
+COMP_v573,COMP,Composed,hard,48.97,55.69,48.97,True
+COMP_v574,COMP,Composed,hard,8.51,2.15,2.15,True
+COMP_v575,COMP,Composed,hard,9.17,10.32,9.17,True
+COMP_v577,COMP,Composed,hard,3.89,3.86,3.86,True
+COMP_v576,COMP,Composed,hard,202.67,112.5,112.5,True
+COMP_v578,COMP,Composed,hard,348.1,401.92,348.1,True
+COMP_v579,COMP,Composed,hard,43.05,28.76,28.76,True
+COMP_v580,COMP,Composed,hard,130989.0,121237.0,121237.0,True
+COMP_v581,COMP,Composed,hard,57.79,133.94,57.79,True
+COMP_v582,COMP,Composed,hard,7.38,6.05,6.05,True
+COMP_v583,COMP,Composed,hard,212.72,262.31,212.72,True
+COMP_v584,COMP,Composed,hard,158.33,56.5,56.5,True
+COMP_v585,COMP,Composed,hard,88.7,87.41,87.41,True
+COMP_v586,COMP,Composed,hard,54.2,34.65,34.65,True
+COMP_v587,COMP,Composed,hard,101.37,96.2,96.2,True
+COMP_v588,COMP,Composed,hard,8.13,7.94,7.94,True
+COMP_v589,COMP,Composed,hard,39.29,33.3,33.3,True
+COMP_v590,COMP,Composed,hard,110.86,141.62,110.86,True
+COMP_v591,COMP,Composed,hard,99156.0,124901.0,99156.0,True
+COMP_v592,COMP,Composed,hard,367.79,390.81,367.79,True
+COMP_v593,COMP,Composed,hard,264.82,286.09,264.82,True
+COMP_v594,COMP,Composed,hard,3443.92,3579.13,3443.92,True
+COMP_v595,COMP,Composed,hard,5.47,3.59,3.59,True
+COMP_v596,COMP,Composed,hard,7.31,3.07,3.07,True
+COMP_v597,COMP,Composed,hard,95.52,63.03,63.03,True
+COMP_v599,COMP,Composed,hard,132.0,85.83,85.83,True
+COMP_v598,COMP,Composed,hard,2.01,2.07,2.01,True
+COMP_v600,COMP,Composed,hard,43.3,38.1,38.1,True
+COMP_v601,COMP,Composed,hard,11.63,5.94,5.94,True
+COMP_v602,COMP,Composed,hard,180.69,194.21,180.69,True
+COMP_v604,COMP,Composed,hard,69.26,50.51,50.51,True
+COMP_v603,COMP,Composed,hard,1.75,1.69,1.69,False
+COMP_v605,COMP,Composed,hard,433.05,291.85,291.85,True
+COMP_v606,COMP,Composed,hard,103.72,76.98,76.98,True
+COMP_v607,COMP,Composed,hard,11.79,11.67,11.67,True
+COMP_v608,COMP,Composed,hard,2.27,1.99,1.99,False
+COMP_v610,COMP,Composed,hard,2779.0,3789.0,2779.0,True
+COMP_v609,COMP,Composed,hard,336.79,362.77,336.79,True
+COMP_v611,COMP,Composed,hard,100893.0,122010.0,100893.0,True
+COMP_v612,COMP,Composed,hard,2.11,2.75,2.11,True
+COMP_v613,COMP,Composed,hard,7.45,7.47,7.45,True
+COMP_v614,COMP,Composed,hard,222.56,156.38,156.38,True
+COMP_v615,COMP,Composed,hard,13.86,13.0,13.0,True
+COMP_v616,COMP,Composed,hard,205.8,165.43,165.43,True
+COMP_v617,COMP,Composed,hard,110415.0,105214.0,105214.0,True
+COMP_v618,COMP,Composed,hard,78.0,77.75,77.75,True
+COMP_v619,COMP,Composed,hard,76.62,81.41,76.62,True
+COMP_v620,COMP,Composed,hard,133.07,71.11,71.11,True
+COMP_v621,COMP,Composed,hard,6.1,2.24,2.24,True
+COMP_v623,COMP,Composed,hard,2.7,2.96,2.7,True
+COMP_v622,COMP,Composed,hard,407.03,463.66,407.03,True
+COMP_v624,COMP,Composed,hard,869.8,808.53,808.53,True
+COMP_v625,COMP,Composed,hard,78.33,69.73,69.73,True
+COMP_v626,COMP,Composed,hard,139.83,51.77,51.77,True
+COMP_v627,COMP,Composed,hard,118.8,119.0,118.8,True
+COMP_v628,COMP,Composed,hard,68.12,49.64,49.64,True
+COMP_v629,COMP,Composed,hard,95.16,97.75,95.16,True
+COMP_v630,COMP,Composed,hard,8.24,7.28,7.28,True
+COMP_v631,COMP,Composed,hard,10.16,5.42,5.42,True
+COMP_v632,COMP,Composed,hard,3.5,4.22,3.5,True
+COMP_v634,COMP,Composed,hard,54.62,44.07,44.07,True
+COMP_v633,COMP,Composed,hard,364.97,303.99,303.99,True
+COMP_v635,COMP,Composed,hard,93.47,94.12,93.47,True
+COMP_v636,COMP,Composed,hard,91.28,88.46,88.46,True
+COMP_v637,COMP,Composed,hard,13.76,13.79,13.76,True
+COMP_v638,COMP,Composed,hard,128.99,32.84,32.84,True
+COMP_v639,COMP,Composed,hard,9.7,69.5,9.7,True
+COMP_v640,COMP,Composed,hard,1674.5,1847.5,1674.5,True
+COMP_v641,COMP,Composed,hard,217.22,192.2,192.2,True
+COMP_v642,COMP,Composed,hard,5.15,4.98,4.98,True
+COMP_v643,COMP,Composed,hard,181.27,163.08,163.08,True
+COMP_v644,COMP,Composed,hard,7.5,7.77,7.5,True
+COMP_v645,COMP,Composed,hard,4.91,4.97,4.91,True
+COMP_v646,COMP,Composed,hard,10.35,10.13,10.13,True
+COMP_v647,COMP,Composed,hard,2760.0,3457.0,2760.0,True
+COMP_v648,COMP,Composed,hard,37.42,33.45,33.45,True
+COMP_v650,COMP,Composed,hard,4.13,5.15,4.13,True
+COMP_v649,COMP,Composed,hard,58.75,97.29,58.75,True
+COMP_v653,COMP,Composed,hard,363.26,322.73,322.73,True
+COMP_v651,COMP,Composed,hard,409.72,404.53,404.53,True
+COMP_v652,COMP,Composed,hard,334.61,346.66,334.61,True
+COMP_v654,COMP,Composed,hard,19.81,14.68,14.68,True
+COMP_v655,COMP,Composed,hard,93.9,95.84,93.9,True
+COMP_v656,COMP,Composed,hard,77.82,71.63,71.63,True
+COMP_v658,COMP,Composed,hard,5.2,5.0,5.0,True
+COMP_v657,COMP,Composed,hard,451.56,452.21,451.56,True
+COMP_v659,COMP,Composed,hard,123.6,84.4,84.4,True
+COMP_v660,COMP,Composed,hard,8.92,6.26,6.26,True
+COMP_v661,COMP,Composed,hard,107240.0,107253.0,107240.0,True
+COMP_v662,COMP,Composed,hard,2.0,2.04,2.0,False
+COMP_v663,COMP,Composed,hard,3.07,2.81,2.81,True
+COMP_v664,COMP,Composed,hard,26.49,32.14,26.49,True
+COMP_v665,COMP,Composed,hard,3106.0,3610.0,3106.0,True
+COMP_v666,COMP,Composed,hard,2.01,1.87,1.87,False
+COMP_v667,COMP,Composed,hard,9.32,8.46,8.46,True
+COMP_v668,COMP,Composed,hard,187.64,204.0,187.64,True
+COMP_v669,COMP,Composed,hard,34.04,26.28,26.28,True
+COMP_v670,COMP,Composed,hard,9.21,8.92,8.92,True
+COMP_v671,COMP,Composed,hard,390.97,409.52,390.97,True
+COMP_v672,COMP,Composed,hard,291.83,245.17,245.17,True
+COMP_v673,COMP,Composed,hard,92.22,98.31,92.22,True
+COMP_v674,COMP,Composed,hard,108.33,88.47,88.47,True
+COMP_v677,COMP,Composed,hard,354.97,342.74,342.74,True
+COMP_v675,COMP,Composed,hard,425.97,410.87,410.87,True
+COMP_v676,COMP,Composed,hard,384.98,365.54,365.54,True
+COMP_v678,COMP,Composed,hard,338.56,380.52,338.56,True
+COMP_v679,COMP,Composed,hard,95.77,117.4,95.77,True
+COMP_v680,COMP,Composed,hard,6.89,1.43,1.43,False
+COMP_v681,COMP,Composed,hard,422.61,391.19,391.19,True
+COMP_v682,COMP,Composed,hard,2906.0,3790.0,2906.0,True
+COMP_v683,COMP,Composed,hard,80.82,81.39,80.82,True
+COMP_v684,COMP,Composed,hard,2.64,2.73,2.64,True
+COMP_v685,COMP,Composed,hard,15.35,8.11,8.11,True
+COMP_v686,COMP,Composed,hard,8.59,2.67,2.67,True
+COMP_v687,COMP,Composed,hard,193.5,190.7,190.7,True
+COMP_v688,COMP,Composed,hard,433.23,450.23,433.23,True
+COMP_v689,COMP,Composed,hard,280.0,60.07,60.07,True
+COMP_v690,COMP,Composed,hard,277.33,87.6,87.6,True
+COMP_v692,COMP,Composed,hard,15.55,9.11,9.11,True
+COMP_v691,COMP,Composed,hard,90.3,95.92,90.3,True
+COMP_v693,COMP,Composed,hard,66.62,63.06,63.06,True
+COMP_v694,COMP,Composed,hard,1.96,1.94,1.94,False
+COMP_v695,COMP,Composed,hard,47.47,31.45,31.45,True
+COMP_v696,COMP,Composed,hard,115.42,124.15,115.42,True
+COMP_v697,COMP,Composed,hard,121.46,133.43,121.46,True
+COMP_v698,COMP,Composed,hard,199.7,190.3,190.3,True
+COMP_v699,COMP,Composed,hard,136.5,110.25,110.25,True
+DS-1_v000,DS-1,Data Structure,hard,182.32,181.65,181.65,True
+DS-1_v001,DS-1,Data Structure,hard,89.86,74.35,74.35,True
+DS-1_v002,DS-1,Data Structure,hard,79.06,81.33,79.06,True
+DS-1_v003,DS-1,Data Structure,hard,70.33,51.0,51.0,True
+DS-1_v004,DS-1,Data Structure,hard,107.15,134.64,107.15,True
+DS-1_v005,DS-1,Data Structure,hard,72.67,61.86,61.86,True
+DS-1_v006,DS-1,Data Structure,hard,101.69,97.36,97.36,True
+DS-1_v007,DS-1,Data Structure,hard,156.28,102.35,102.35,True
+DS-1_v008,DS-1,Data Structure,hard,304.12,282.21,282.21,True
+DS-1_v009,DS-1,Data Structure,hard,276.96,250.39,250.39,True
+DS-1_v010,DS-1,Data Structure,hard,158.8,162.95,158.8,True
+DS-1_v011,DS-1,Data Structure,hard,58.5,65.2,58.5,True
+DS-1_v012,DS-1,Data Structure,hard,137.89,181.77,137.89,True
+DS-1_v013,DS-1,Data Structure,hard,70.33,74.78,70.33,True
+DS-1_v014,DS-1,Data Structure,hard,120.64,146.0,120.64,True
+DS-2_v000,DS-2,Data Structure,hard,4.82,4.14,4.14,True
+DS-2_v001,DS-2,Data Structure,hard,5.49,5.29,5.29,True
+DS-2_v002,DS-2,Data Structure,hard,3.64,3.81,3.64,True
+DS-2_v003,DS-2,Data Structure,hard,6.13,5.48,5.48,True
+DS-2_v004,DS-2,Data Structure,hard,5.97,5.25,5.25,True
+DS-2_v005,DS-2,Data Structure,hard,3.8,3.85,3.8,True
+DS-2_v006,DS-2,Data Structure,hard,3.82,3.75,3.75,True
+DS-2_v007,DS-2,Data Structure,hard,4.56,4.31,4.31,True
+DS-2_v008,DS-2,Data Structure,hard,3.65,3.77,3.65,True
+DS-2_v009,DS-2,Data Structure,hard,4.51,4.59,4.51,True
+DS-2_v010,DS-2,Data Structure,hard,4.58,4.68,4.58,True
+DS-2_v011,DS-2,Data Structure,hard,3.66,3.43,3.43,True
+DS-2_v012,DS-2,Data Structure,hard,3.8,3.81,3.8,True
+DS-2_v013,DS-2,Data Structure,hard,5.39,5.29,5.29,True
+DS-2_v014,DS-2,Data Structure,hard,5.44,5.13,5.13,True
+DS-3_v000,DS-3,Data Structure,medium,2.56,1.37,1.37,False
+DS-3_v001,DS-3,Data Structure,medium,2.19,2.1,2.1,True
+DS-3_v003,DS-3,Data Structure,medium,1.8,1.92,1.8,False
+DS-3_v002,DS-3,Data Structure,medium,2.54,3.81,2.54,True
+DS-3_v004,DS-3,Data Structure,medium,1.97,4.09,1.97,False
+DS-3_v005,DS-3,Data Structure,medium,3.97,3.17,3.17,True
+DS-3_v006,DS-3,Data Structure,medium,1.39,1.71,1.39,False
+DS-3_v007,DS-3,Data Structure,medium,2.03,3.43,2.03,True
+DS-3_v008,DS-3,Data Structure,medium,3.29,3.57,3.29,True
+DS-3_v010,DS-3,Data Structure,medium,1.65,1.41,1.41,False
+DS-3_v011,DS-3,Data Structure,medium,1.55,1.38,1.38,False
+DS-3_v009,DS-3,Data Structure,medium,3.82,1.76,1.76,False
+DS-3_v012,DS-3,Data Structure,medium,3.94,2.17,2.17,True
+DS-3_v013,DS-3,Data Structure,medium,6.52,4.06,4.06,True
+DS-3_v014,DS-3,Data Structure,medium,1.41,1.31,1.31,False
+DS-3_v015,DS-3,Data Structure,medium,2.25,2.13,2.13,True
+DS-3_v016,DS-3,Data Structure,medium,2.22,2.11,2.11,True
+DS-3_v017,DS-3,Data Structure,medium,1.61,1.67,1.61,False
+DS-3_v018,DS-3,Data Structure,medium,1.35,1.46,1.35,False
+DS-3_v019,DS-3,Data Structure,medium,1.96,1.52,1.52,False
+DS-4_v000,DS-4,Data Structure Inefficiency,hard,1.97,6.37,1.97,False
+DS-4_v001,DS-4,Data Structure Inefficiency,medium,3.13,7.71,3.13,True
+DS-4_v002,DS-4,Data Structure Inefficiency,hard,2.93,3.59,2.93,True
+DS-4_v003,DS-4,Data Structure Inefficiency,medium,5.65,5.01,5.01,True
+DS-4_v004,DS-4,Data Structure Inefficiency,hard,4.67,3.9,3.9,True
+DS-4_v005,DS-4,Data Structure Inefficiency,hard,4.87,3.26,3.26,True
+DS-4_v006,DS-4,Data Structure Inefficiency,medium,1.21,3.29,1.21,False
+DS-4_v007,DS-4,Data Structure Inefficiency,hard,4.24,5.82,4.24,True
+DS-4_v008,DS-4,Data Structure Inefficiency,medium,2.02,5.86,2.02,True
+DS-4_v009,DS-4,Data Structure Inefficiency,medium,3.81,6.86,3.81,True
+DS-4_v010,DS-4,Data Structure Inefficiency,hard,2.29,2.93,2.29,True
+DS-4_v011,DS-4,Data Structure Inefficiency,hard,2.46,9.59,2.46,True
+DS-4_v012,DS-4,Data Structure Inefficiency,hard,4.32,3.14,3.14,True
+DS-4_v013,DS-4,Data Structure Inefficiency,medium,3.48,7.56,3.48,True
+DS-4_v014,DS-4,Data Structure Inefficiency,hard,4.79,3.98,3.98,True
+DS-4_v015,DS-4,Data Structure Inefficiency,medium,3.25,8.43,3.25,True
+DS-4_v016,DS-4,Data Structure Inefficiency,medium,2.33,4.36,2.33,True
+DS-4_v017,DS-4,Data Structure Inefficiency,hard,7.28,5.32,5.32,True
+DS-4_v018,DS-4,Data Structure Inefficiency,hard,2.83,5.42,2.83,True
+DS-4_v019,DS-4,Data Structure Inefficiency,hard,4.74,5.51,4.74,True
+HR-2_v000,HR-2,Human-Style Antipatterns,medium,1.9,1.05,1.05,False
+HR-2_v001,HR-2,Human-Style Antipatterns,medium,1.98,1.0,1.0,False
+HR-2_v002,HR-2,Human-Style Antipatterns,medium,1.8,1.08,1.08,False
+HR-2_v003,HR-2,Human-Style Antipatterns,medium,1.83,1.03,1.03,False
+HR-2_v004,HR-2,Human-Style Antipatterns,medium,1.95,1.0,1.0,False
+HR-2_v005,HR-2,Human-Style Antipatterns,medium,1.92,0.99,0.99,False
+HR-2_v006,HR-2,Human-Style Antipatterns,medium,1.89,1.02,1.02,False
+HR-2_v007,HR-2,Human-Style Antipatterns,medium,1.84,0.99,0.99,False
+HR-2_v008,HR-2,Human-Style Antipatterns,medium,1.85,1.05,1.05,False
+HR-2_v009,HR-2,Human-Style Antipatterns,medium,1.83,1.0,1.0,False
+HR-2_v010,HR-2,Human-Style Antipatterns,medium,1.96,1.0,1.0,False
+HR-2_v011,HR-2,Human-Style Antipatterns,medium,1.85,1.01,1.01,False
+HR-2_v012,HR-2,Human-Style Antipatterns,medium,1.85,1.03,1.03,False
+HR-2_v013,HR-2,Human-Style Antipatterns,medium,1.84,1.02,1.02,False
+HR-2_v014,HR-2,Human-Style Antipatterns,medium,1.94,1.05,1.05,False
+HR-3_v000,HR-3,Human-Style Antipatterns,hard,7.06,7.47,7.06,True
+HR-3_v001,HR-3,Human-Style Antipatterns,hard,9.02,8.62,8.62,True
+HR-3_v002,HR-3,Human-Style Antipatterns,hard,5.87,5.72,5.72,True
+HR-3_v003,HR-3,Human-Style Antipatterns,hard,5.79,5.86,5.79,True
+HR-3_v004,HR-3,Human-Style Antipatterns,hard,8.6,8.75,8.6,True
+HR-3_v005,HR-3,Human-Style Antipatterns,hard,5.6,5.66,5.6,True
+HR-3_v006,HR-3,Human-Style Antipatterns,hard,7.36,7.25,7.25,True
+HR-3_v007,HR-3,Human-Style Antipatterns,hard,5.7,5.76,5.7,True
+HR-3_v008,HR-3,Human-Style Antipatterns,hard,7.08,7.84,7.08,True
+HR-3_v009,HR-3,Human-Style Antipatterns,hard,5.56,5.8,5.56,True
+HR-3_v010,HR-3,Human-Style Antipatterns,hard,7.2,6.75,6.75,True
+HR-3_v011,HR-3,Human-Style Antipatterns,hard,8.4,8.59,8.4,True
+HR-3_v012,HR-3,Human-Style Antipatterns,hard,8.31,8.77,8.31,True
+HR-3_v013,HR-3,Human-Style Antipatterns,hard,5.12,4.83,4.83,True
+HR-3_v014,HR-3,Human-Style Antipatterns,hard,6.87,4.12,4.12,True
+HR-4_v000,HR-4,Human-Style Antipatterns,medium,4.95,5.09,4.95,True
+HR-4_v001,HR-4,Human-Style Antipatterns,medium,6.92,7.77,6.92,True
+HR-4_v002,HR-4,Human-Style Antipatterns,medium,7.68,7.62,7.62,True
+HR-4_v003,HR-4,Human-Style Antipatterns,medium,4.96,4.98,4.96,True
+HR-4_v004,HR-4,Human-Style Antipatterns,medium,4.85,4.88,4.85,True
+HR-4_v005,HR-4,Human-Style Antipatterns,medium,7.64,7.37,7.37,True
+HR-4_v006,HR-4,Human-Style Antipatterns,medium,5.1,4.95,4.95,True
+HR-4_v007,HR-4,Human-Style Antipatterns,medium,7.36,7.68,7.36,True
+HR-4_v008,HR-4,Human-Style Antipatterns,medium,7.68,7.46,7.46,True
+HR-4_v009,HR-4,Human-Style Antipatterns,medium,8.07,8.08,8.07,True
+HR-4_v010,HR-4,Human-Style Antipatterns,medium,4.45,4.79,4.45,True
+HR-4_v011,HR-4,Human-Style Antipatterns,medium,5.05,4.96,4.96,True
+HR-4_v012,HR-4,Human-Style Antipatterns,medium,7.42,7.17,7.17,True
+HR-4_v013,HR-4,Human-Style Antipatterns,medium,7.48,7.36,7.36,True
+HR-4_v015,HR-4,Human-Style Antipatterns,medium,5.03,4.95,4.95,True
+HR-4_v014,HR-4,Human-Style Antipatterns,medium,7.3,7.17,7.17,True
+HR-4_v016,HR-4,Human-Style Antipatterns,medium,7.29,7.52,7.29,True
+HR-4_v018,HR-4,Human-Style Antipatterns,medium,7.55,7.47,7.47,True
+HR-4_v017,HR-4,Human-Style Antipatterns,medium,5.06,4.96,4.96,True
+HR-4_v019,HR-4,Human-Style Antipatterns,medium,4.93,4.93,4.93,True
+IS-1_v000,IS-1,Input-Sensitive Inefficiency,medium,1.4,1.43,1.4,False
+IS-1_v001,IS-1,Input-Sensitive Inefficiency,hard,116.7,92.25,92.25,True
+IS-1_v002,IS-1,Input-Sensitive Inefficiency,medium,26.32,29.07,26.32,True
+IS-1_v003,IS-1,Input-Sensitive Inefficiency,hard,86.23,85.35,85.35,True
+IS-1_v004,IS-1,Input-Sensitive Inefficiency,hard,20.23,19.43,19.43,True
+IS-1_v005,IS-1,Input-Sensitive Inefficiency,hard,8.27,7.32,7.32,True
+IS-1_v006,IS-1,Input-Sensitive Inefficiency,medium,1.47,1.69,1.47,False
+IS-1_v007,IS-1,Input-Sensitive Inefficiency,medium,1.4,1.49,1.4,False
+IS-1_v008,IS-1,Input-Sensitive Inefficiency,medium,5.53,5.58,5.53,True
+IS-1_v009,IS-1,Input-Sensitive Inefficiency,medium,1.53,1.42,1.42,False
+IS-1_v010,IS-1,Input-Sensitive Inefficiency,medium,5.52,5.16,5.16,True
+IS-1_v011,IS-1,Input-Sensitive Inefficiency,medium,5.38,5.24,5.24,True
+IS-1_v012,IS-1,Input-Sensitive Inefficiency,hard,7.3,7.0,7.0,True
+IS-1_v013,IS-1,Input-Sensitive Inefficiency,medium,1.76,1.38,1.38,False
+IS-1_v014,IS-1,Input-Sensitive Inefficiency,medium,42.58,46.27,42.58,True
+IS-1_v015,IS-1,Input-Sensitive Inefficiency,hard,7.79,7.31,7.31,True
+IS-1_v016,IS-1,Input-Sensitive Inefficiency,hard,82.76,86.86,82.76,True
+IS-1_v017,IS-1,Input-Sensitive Inefficiency,medium,1.4,1.41,1.4,False
+IS-1_v018,IS-1,Input-Sensitive Inefficiency,medium,42.92,41.18,41.18,True
+IS-1_v019,IS-1,Input-Sensitive Inefficiency,medium,5.83,5.49,5.49,True
+IS-2_v000,IS-2,Input-Sensitive Inefficiency,medium,1.24,1.26,1.24,False
+IS-2_v001,IS-2,Input-Sensitive Inefficiency,medium,1.78,1.88,1.78,False
+IS-2_v002,IS-2,Input-Sensitive Inefficiency,medium,3.5,4.05,3.5,True
+IS-2_v003,IS-2,Input-Sensitive Inefficiency,medium,3.29,3.6,3.29,True
+IS-2_v004,IS-2,Input-Sensitive Inefficiency,medium,2.61,2.82,2.61,True
+IS-2_v005,IS-2,Input-Sensitive Inefficiency,medium,1.27,1.3,1.27,False
+IS-2_v006,IS-2,Input-Sensitive Inefficiency,medium,1.3,1.28,1.28,False
+IS-2_v007,IS-2,Input-Sensitive Inefficiency,medium,3.09,3.1,3.09,True
+IS-2_v008,IS-2,Input-Sensitive Inefficiency,medium,1.39,1.35,1.35,False
+IS-2_v009,IS-2,Input-Sensitive Inefficiency,medium,3.87,3.78,3.78,True
+IS-2_v010,IS-2,Input-Sensitive Inefficiency,medium,1.21,1.22,1.21,False
+IS-2_v011,IS-2,Input-Sensitive Inefficiency,medium,1.29,1.15,1.15,False
+IS-2_v012,IS-2,Input-Sensitive Inefficiency,medium,2.45,2.38,2.38,True
+IS-2_v013,IS-2,Input-Sensitive Inefficiency,medium,1.3,1.29,1.29,False
+IS-2_v014,IS-2,Input-Sensitive Inefficiency,medium,3.25,3.12,3.12,True
+IS-3_v000,IS-3,Input-Sensitive Inefficiency,hard,1177.25,1179.3,1177.25,True
+IS-3_v001,IS-3,Input-Sensitive Inefficiency,hard,1274.5,1170.3,1170.3,True
+IS-3_v002,IS-3,Input-Sensitive Inefficiency,hard,646.75,582.9,582.9,True
+IS-3_v003,IS-3,Input-Sensitive Inefficiency,hard,245.5,257.7,245.5,True
+IS-3_v004,IS-3,Input-Sensitive Inefficiency,hard,177.35,192.95,177.35,True
+IS-3_v005,IS-3,Input-Sensitive Inefficiency,hard,509.15,505.25,505.25,True
+IS-3_v006,IS-3,Input-Sensitive Inefficiency,hard,522.85,534.0,522.85,True
+IS-3_v007,IS-3,Input-Sensitive Inefficiency,hard,1171.9,1199.2,1171.9,True
+IS-3_v008,IS-3,Input-Sensitive Inefficiency,hard,89.85,91.95,89.85,True
+IS-3_v009,IS-3,Input-Sensitive Inefficiency,hard,1113.65,1019.55,1019.55,True
+IS-3_v010,IS-3,Input-Sensitive Inefficiency,hard,250.75,238.25,238.25,True
+IS-3_v011,IS-3,Input-Sensitive Inefficiency,hard,226.6,222.0,222.0,True
+IS-3_v012,IS-3,Input-Sensitive Inefficiency,hard,262.1,264.8,262.1,True
+IS-3_v013,IS-3,Input-Sensitive Inefficiency,hard,523.65,533.45,523.65,True
+IS-3_v014,IS-3,Input-Sensitive Inefficiency,hard,526.15,536.3,526.15,True
+IS-4_v000,IS-4,Input-Sensitive Inefficiency,hard,6.5,5.88,5.88,True
+IS-4_v001,IS-4,Input-Sensitive Inefficiency,hard,5.44,6.36,5.44,True
+IS-4_v002,IS-4,Input-Sensitive Inefficiency,hard,6.43,6.21,6.21,True
+IS-4_v003,IS-4,Input-Sensitive Inefficiency,hard,6.36,6.27,6.27,True
+IS-4_v004,IS-4,Input-Sensitive Inefficiency,hard,6.08,6.0,6.0,True
+IS-4_v005,IS-4,Input-Sensitive Inefficiency,hard,1.01,0.98,0.98,False
+IS-4_v006,IS-4,Input-Sensitive Inefficiency,hard,6.0,5.39,5.39,True
+IS-4_v007,IS-4,Input-Sensitive Inefficiency,hard,5.97,6.5,5.97,True
+IS-4_v008,IS-4,Input-Sensitive Inefficiency,hard,1.03,1.0,1.0,False
+IS-4_v009,IS-4,Input-Sensitive Inefficiency,hard,0.96,1.05,0.96,False
+IS-4_v010,IS-4,Input-Sensitive Inefficiency,hard,6.34,5.87,5.87,True
+IS-4_v011,IS-4,Input-Sensitive Inefficiency,hard,6.07,6.09,6.07,True
+IS-4_v012,IS-4,Input-Sensitive Inefficiency,hard,1.03,0.99,0.99,False
+IS-4_v013,IS-4,Input-Sensitive Inefficiency,hard,1.0,1.01,1.0,False
+IS-4_v014,IS-4,Input-Sensitive Inefficiency,hard,7.05,7.28,7.05,True
+IS-5_v001,IS-5,Input-Sensitive Inefficiency,hard,5.04,12.1,5.04,True
+IS-5_v000,IS-5,Input-Sensitive Inefficiency,hard,2.82,6.45,2.82,True
+IS-5_v002,IS-5,Input-Sensitive Inefficiency,hard,2.9,7.35,2.9,True
+IS-5_v003,IS-5,Input-Sensitive Inefficiency,hard,3.01,6.84,3.01,True
+IS-5_v005,IS-5,Input-Sensitive Inefficiency,hard,2.13,6.96,2.13,True
+IS-5_v006,IS-5,Input-Sensitive Inefficiency,hard,4.86,9.68,4.86,True
+IS-5_v004,IS-5,Input-Sensitive Inefficiency,hard,2.32,4.94,2.32,True
+IS-5_v007,IS-5,Input-Sensitive Inefficiency,hard,2.49,6.62,2.49,True
+IS-5_v009,IS-5,Input-Sensitive Inefficiency,hard,4.05,12.12,4.05,True
+IS-5_v008,IS-5,Input-Sensitive Inefficiency,hard,2.75,7.18,2.75,True
+IS-5_v010,IS-5,Input-Sensitive Inefficiency,hard,2.13,6.32,2.13,True
+IS-5_v011,IS-5,Input-Sensitive Inefficiency,hard,2.76,5.42,2.76,True
+IS-5_v012,IS-5,Input-Sensitive Inefficiency,hard,5.11,11.58,5.11,True
+IS-5_v013,IS-5,Input-Sensitive Inefficiency,hard,4.36,13.27,4.36,True
+IS-5_v014,IS-5,Input-Sensitive Inefficiency,hard,4.39,12.53,4.39,True
+IS-5_v015,IS-5,Input-Sensitive Inefficiency,hard,2.59,7.12,2.59,True
+IS-5_v016,IS-5,Input-Sensitive Inefficiency,hard,4.55,13.45,4.55,True
+IS-5_v017,IS-5,Input-Sensitive Inefficiency,hard,2.82,8.31,2.82,True
+IS-5_v018,IS-5,Input-Sensitive Inefficiency,hard,2.8,7.88,2.8,True
+MI-1_v000,MI-1,Memory & IO,hard,27.43,25.84,25.84,True
+MI-1_v001,MI-1,Memory & IO,hard,19.95,19.36,19.36,True
+MI-1_v002,MI-1,Memory & IO,hard,55.32,54.14,54.14,True
+IS-5_v019,IS-5,Input-Sensitive Inefficiency,hard,6.32,15.06,6.32,True
+MI-1_v003,MI-1,Memory & IO,hard,55.43,53.43,53.43,True
+MI-1_v004,MI-1,Memory & IO,hard,19.69,18.36,18.36,True
+MI-1_v005,MI-1,Memory & IO,hard,18.32,18.31,18.31,True
+MI-1_v006,MI-1,Memory & IO,hard,27.35,26.51,26.51,True
+MI-1_v007,MI-1,Memory & IO,hard,26.31,26.06,26.06,True
+MI-1_v008,MI-1,Memory & IO,hard,55.16,54.22,54.22,True
+MI-1_v009,MI-1,Memory & IO,hard,20.57,20.55,20.55,True
+MI-1_v010,MI-1,Memory & IO,hard,19.73,18.09,18.09,True
+MI-1_v011,MI-1,Memory & IO,hard,56.85,55.16,55.16,True
+MI-1_v012,MI-1,Memory & IO,hard,17.97,18.46,17.97,True
+MI-1_v013,MI-1,Memory & IO,hard,55.26,53.73,53.73,True
+MI-1_v014,MI-1,Memory & IO,hard,55.21,55.72,55.21,True
+MI-2_v000,MI-2,Memory & IO,medium,2.41,2.74,2.41,True
+MI-2_v001,MI-2,Memory & IO,medium,2.67,2.67,2.67,True
+MI-2_v002,MI-2,Memory & IO,medium,2.76,2.75,2.75,True
+MI-2_v003,MI-2,Memory & IO,medium,2.64,2.65,2.64,True
+MI-2_v004,MI-2,Memory & IO,medium,2.83,2.49,2.49,True
+MI-2_v005,MI-2,Memory & IO,medium,2.78,3.3,2.78,True
+MI-2_v006,MI-2,Memory & IO,medium,2.75,2.66,2.66,True
+MI-2_v007,MI-2,Memory & IO,medium,2.84,2.83,2.83,True
+MI-2_v008,MI-2,Memory & IO,medium,2.75,2.8,2.75,True
+MI-2_v009,MI-2,Memory & IO,medium,2.75,2.79,2.75,True
+MI-2_v010,MI-2,Memory & IO,medium,2.78,2.54,2.54,True
+MI-2_v011,MI-2,Memory & IO,medium,2.85,2.89,2.85,True
+MI-2_v012,MI-2,Memory & IO,medium,2.93,2.98,2.93,True
+MI-2_v013,MI-2,Memory & IO,medium,2.67,2.89,2.67,True
+MI-2_v014,MI-2,Memory & IO,medium,2.85,2.86,2.85,True
+MI-3_v000,MI-3,Memory & IO,hard,17.19,18.71,17.19,True
+MI-3_v001,MI-3,Memory & IO,hard,15.85,15.95,15.85,True
+MI-3_v002,MI-3,Memory & IO,hard,15.84,15.88,15.84,True
+MI-3_v003,MI-3,Memory & IO,hard,17.97,17.85,17.85,True
+MI-3_v004,MI-3,Memory & IO,hard,18.32,17.22,17.22,True
+MI-3_v005,MI-3,Memory & IO,hard,16.67,15.06,15.06,True
+MI-3_v006,MI-3,Memory & IO,hard,18.38,16.41,16.41,True
+MI-3_v007,MI-3,Memory & IO,hard,18.29,18.08,18.08,True
+MI-3_v008,MI-3,Memory & IO,hard,17.75,18.85,17.75,True
+MI-3_v009,MI-3,Memory & IO,hard,17.9,18.44,17.9,True
+MI-3_v010,MI-3,Memory & IO,hard,16.28,15.93,15.93,True
+MI-3_v011,MI-3,Memory & IO,hard,16.69,17.12,16.69,True
+MI-3_v012,MI-3,Memory & IO,hard,17.97,18.26,17.97,True
+MI-3_v013,MI-3,Memory & IO,hard,15.44,18.33,15.44,True
+MI-3_v014,MI-3,Memory & IO,hard,18.48,18.14,18.14,True
+MI-4_v000,MI-4,Memory & IO,medium,9.87,4.13,4.13,True
+MI-4_v001,MI-4,Memory & IO,medium,2.92,2.13,2.13,True
+MI-4_v002,MI-4,Memory & IO,medium,11.09,2.02,2.02,True
+MI-4_v004,MI-4,Memory & IO,medium,7.42,5.2,5.2,True
+MI-4_v003,MI-4,Memory & IO,medium,17.84,3.12,3.12,True
+MI-4_v005,MI-4,Memory & IO,medium,1.1,1.16,1.1,False
+MI-4_v006,MI-4,Memory & IO,medium,1.1,1.09,1.09,False
+MI-4_v007,MI-4,Memory & IO,medium,1.15,1.2,1.15,False
+MI-4_v008,MI-4,Memory & IO,medium,5.17,3.08,3.08,True
+MI-4_v009,MI-4,Memory & IO,medium,5.58,1.93,1.93,False
+MI-4_v010,MI-4,Memory & IO,medium,3.75,2.02,2.02,True
+MI-4_v011,MI-4,Memory & IO,medium,5.01,2.62,2.62,True
+MI-4_v012,MI-4,Memory & IO,medium,,,,
+MI-4_v013,MI-4,Memory & IO,medium,1.43,1.46,1.43,False
+MI-4_v014,MI-4,Memory & IO,medium,13.23,11.85,11.85,True
+MI-4_v015,MI-4,Memory & IO,medium,1.2,1.42,1.2,False
+MI-4_v016,MI-4,Memory & IO,medium,5.98,2.95,2.95,True
+MI-4_v017,MI-4,Memory & IO,medium,5.51,1.58,1.58,False
+MI-4_v018,MI-4,Memory & IO,medium,1.93,1.42,1.42,False
+MI-4_v019,MI-4,Memory & IO,medium,1.17,1.27,1.17,False
+SR-1_v000,SR-1,Semantic Redundancy,hard,726.9,720.73,720.73,True
+SR-1_v002,SR-1,Semantic Redundancy,easy,835.24,877.76,835.24,True
+SR-1_v001,SR-1,Semantic Redundancy,hard,54620.69,51367.29,51367.29,True
+SR-1_v003,SR-1,Semantic Redundancy,easy,123.81,122.42,122.42,True
+SR-1_v004,SR-1,Semantic Redundancy,hard,37831.64,41903.2,37831.64,True
+SR-1_v008,SR-1,Semantic Redundancy,hard,1315.32,1313.3,1313.3,True
+SR-1_v006,SR-1,Semantic Redundancy,hard,9084.47,7969.09,7969.09,True
+SR-1_v009,SR-1,Semantic Redundancy,hard,1329.75,1345.17,1329.75,True
+SR-1_v007,SR-1,Semantic Redundancy,hard,55651.54,52102.29,52102.29,True
+SR-1_v012,SR-1,Semantic Redundancy,easy,4202.32,894.12,894.12,True
+SR-1_v014,SR-1,Semantic Redundancy,hard,939.21,6588.64,939.21,True
+SR-1_v011,SR-1,Semantic Redundancy,hard,30632.4,6639.99,6639.99,True
+SR-1_v013,SR-1,Semantic Redundancy,hard,948.0,8714.06,948.0,True
+SR-2_v000,SR-2,Semantic Redundancy,easy,30.72,30.2,30.2,True
+SR-2_v001,SR-2,Semantic Redundancy,medium,167.38,215.48,167.38,True
+SR-2_v002,SR-2,Semantic Redundancy,easy,30.59,28.31,28.31,True
+SR-2_v003,SR-2,Semantic Redundancy,medium,64.37,46.56,46.56,True
+SR-2_v005,SR-2,Semantic Redundancy,medium,43.49,64.63,43.49,True
+SR-2_v006,SR-2,Semantic Redundancy,easy,25.27,30.4,25.27,True
+SR-2_v004,SR-2,Semantic Redundancy,medium,231.28,238.07,231.28,True
+SR-2_v007,SR-2,Semantic Redundancy,medium,214.93,216.91,214.93,True
+SR-2_v008,SR-2,Semantic Redundancy,easy,26.59,26.82,26.59,True
+SR-2_v009,SR-2,Semantic Redundancy,medium,66.43,68.51,66.43,True
+SR-1_v005,SR-1,Semantic Redundancy,hard,69303.21,68350.23,68350.23,True
+SR-2_v011,SR-2,Semantic Redundancy,easy,28.68,30.91,28.68,True
+SR-2_v010,SR-2,Semantic Redundancy,easy,215.41,255.17,215.41,True
+SR-2_v012,SR-2,Semantic Redundancy,easy,29.28,29.39,29.28,True
+SR-2_v013,SR-2,Semantic Redundancy,medium,197.01,216.05,197.01,True
+SR-2_v016,SR-2,Semantic Redundancy,easy,30.36,30.97,30.36,True
+SR-2_v014,SR-2,Semantic Redundancy,easy,225.31,232.92,225.31,True
+SR-1_v010,SR-1,Semantic Redundancy,hard,57996.12,62620.56,57996.12,True
+SR-2_v018,SR-2,Semantic Redundancy,medium,69.36,64.6,64.6,True
+SR-2_v015,SR-2,Semantic Redundancy,easy,206.12,219.81,206.12,True
+SR-2_v019,SR-2,Semantic Redundancy,easy,26.74,27.06,26.74,True
+SR-2_v017,SR-2,Semantic Redundancy,easy,255.88,200.04,200.04,True
+SR-3_v001,SR-3,Semantic Redundancy,easy,6299.03,672.31,672.31,True
+SR-3_v002,SR-3,Semantic Redundancy,easy,470.2,263.52,263.52,True
+SR-3_v000,SR-3,Semantic Redundancy,easy,13031.49,6203.71,6203.71,True
+SR-3_v003,SR-3,Semantic Redundancy,easy,4071.48,1122.56,1122.56,True
+SR-3_v004,SR-3,Semantic Redundancy,easy,597.18,351.92,351.92,True
+SR-3_v006,SR-3,Semantic Redundancy,easy,2192.73,163.38,163.38,True
+SR-3_v005,SR-3,Semantic Redundancy,easy,10061.95,1945.13,1945.13,True
+SR-3_v007,SR-3,Semantic Redundancy,easy,1867.46,163.9,163.9,True
+SR-3_v009,SR-3,Semantic Redundancy,easy,1667.73,206.72,206.72,True
+SR-3_v010,SR-3,Semantic Redundancy,easy,8381.33,518.45,518.45,True
+SR-3_v011,SR-3,Semantic Redundancy,medium,6.08,3.21,3.21,True
+SR-3_v012,SR-3,Semantic Redundancy,easy,4262.61,283.73,283.73,True
+SR-3_v013,SR-3,Semantic Redundancy,easy,2402.0,551.2,551.2,True
+SR-3_v014,SR-3,Semantic Redundancy,easy,5281.42,405.12,405.12,True
+SR-4_v000,SR-4,Semantic Redundancy,easy,247.67,237.5,237.5,True
+SR-4_v002,SR-4,Semantic Redundancy,hard,7965.38,8002.31,7965.38,True
+SR-4_v004,SR-4,Semantic Redundancy,easy,1.26,1.3,1.26,False
+SR-4_v005,SR-4,Semantic Redundancy,easy,1035.97,692.77,692.77,True
+SR-4_v001,SR-4,Semantic Redundancy,easy,52066.5,52022.5,52022.5,True
+SR-4_v007,SR-4,Semantic Redundancy,easy,678.75,2943.18,678.75,True
+SR-4_v006,SR-4,Semantic Redundancy,hard,3307.37,7155.12,3307.37,True
+SR-4_v003,SR-4,Semantic Redundancy,easy,16275.53,17074.65,16275.53,True
+SR-3_v008,SR-3,Semantic Redundancy,easy,175521.85,11306.29,11306.29,True
+SR-4_v008,SR-4,Semantic Redundancy,hard,26194.38,23348.78,23348.78,True
+SR-4_v011,SR-4,Semantic Redundancy,hard,2.0,1.75,1.75,False
+SR-4_v010,SR-4,Semantic Redundancy,easy,26588.38,26136.88,26136.88,True
+SR-4_v009,SR-4,Semantic Redundancy,hard,6662.53,1846.27,1846.27,True
+SR-4_v012,SR-4,Semantic Redundancy,hard,1.71,1.83,1.71,False
+SR-4_v013,SR-4,Semantic Redundancy,hard,14134.54,14041.77,14041.77,True
+SR-5_v000,SR-5,Semantic Redundancy,hard,34.74,29.1,29.1,True
+SR-5_v001,SR-5,Semantic Redundancy,hard,35.86,30.08,30.08,True
+SR-5_v002,SR-5,Semantic Redundancy,hard,20.9,33.63,20.9,True
+SR-5_v003,SR-5,Semantic Redundancy,hard,51.82,31.83,31.83,True
+SR-5_v004,SR-5,Semantic Redundancy,hard,20.05,15.58,15.58,True
+SR-5_v005,SR-5,Semantic Redundancy,hard,149.11,63.58,63.58,True
+SR-5_v007,SR-5,Semantic Redundancy,hard,85.72,58.15,58.15,True
+SR-5_v006,SR-5,Semantic Redundancy,hard,139.8,61.78,61.78,True
+SR-5_v008,SR-5,Semantic Redundancy,hard,257.73,105.78,105.78,True
+SR-5_v009,SR-5,Semantic Redundancy,hard,48.13,26.26,26.26,True
+SR-5_v010,SR-5,Semantic Redundancy,hard,33.69,30.76,30.76,True
+SR-5_v011,SR-5,Semantic Redundancy,hard,142.01,53.83,53.83,True
+SR-5_v012,SR-5,Semantic Redundancy,hard,51.54,30.92,30.92,True
+SR-5_v013,SR-5,Semantic Redundancy,hard,150.79,61.47,61.47,True
+SR-5_v014,SR-5,Semantic Redundancy,hard,91.93,52.09,52.09,True
+HO-AL-1_v000,HO-AL-1,Algorithmic Inefficiency,hard,4346.0,3916.0,3916.0,True
+HO-AL-2_v000,HO-AL-2,Algorithmic Inefficiency,hard,42.16,39.03,39.03,True
+HO-AL-3_v000,HO-AL-3,Algorithmic Inefficiency,hard,2.85,2.97,2.85,True
+HO-AL-4_v000,HO-AL-4,Algorithmic Inefficiency,hard,0.96,1.02,0.96,False
+HO-CF-1_v000,HO-CF-1,Control Flow,hard,11.58,10.63,10.63,True
+HO-CF-2_v000,HO-CF-2,Control Flow,hard,1.08,1.08,1.08,False
+HO-CF-3_v000,HO-CF-3,Control Flow,hard,1.0,0.91,0.91,False
+HO-CF-4_v000,HO-CF-4,Control Flow,hard,3.26,3.52,3.26,True
+HO-CF-5_v000,HO-CF-5,Control Flow,hard,1.99,1.94,1.94,False
+HO-DS-1_v000,HO-DS-1,Data Structure Inefficiency,hard,11.76,12.59,11.76,True
+HO-DS-2_v000,HO-DS-2,Data Structure Inefficiency,hard,4.29,4.26,4.26,True
+HO-DS-3_v000,HO-DS-3,Data Structure Inefficiency,hard,41.18,45.94,41.18,True
+HO-DS-4_v000,HO-DS-4,Data Structure Inefficiency,hard,4.8,5.26,4.8,True
+HO-DS-5_v000,HO-DS-5,Data Structure Inefficiency,hard,2.31,1.02,1.02,False
+HO-DS-6_v000,HO-DS-6,Data Structure Inefficiency,hard,0.84,0.75,0.75,False
+HO-HR-1_v000,HO-HR-1,Human-Style Antipatterns,medium,2.85,3.28,2.85,True
+HO-HR-2_v000,HO-HR-2,Human-Style Antipatterns,hard,1.0,1.02,1.0,False
+HO-HR-3_v000,HO-HR-3,Human-Style Antipatterns,hard,1.03,1.94,1.03,False
+HO-HR-4_v000,HO-HR-4,Human-Style Antipatterns,hard,121.59,122.08,121.59,True
+SR-4_v014,SR-4,Semantic Redundancy,easy,177362.82,3564024.43,177362.82,True
+HO-HR-5_v000,HO-HR-5,Human-Style Antipatterns,hard,6.22,6.2,6.2,True
+HO-IS-1_v000,HO-IS-1,Input-Sensitive Inefficiency,hard,50.88,75.95,50.88,True
+HO-IS-2_v000,HO-IS-2,Input-Sensitive Inefficiency,hard,2.13,2.16,2.13,True
+HO-IS-3_v000,HO-IS-3,Input-Sensitive Inefficiency,hard,6.5,5.68,5.68,True
+HO-IS-4_v000,HO-IS-4,Input-Sensitive Inefficiency,hard,1.57,1.59,1.57,False
+HO-IS-5_v000,HO-IS-5,Input-Sensitive Inefficiency,hard,1.19,1.35,1.19,False
+HO-MI-1_v000,HO-MI-1,Memory & IO,hard,18.88,20.13,18.88,True
+HO-MI-2_v000,HO-MI-2,Memory & IO,hard,2.29,2.25,2.25,True
+HO-MI-3_v000,HO-MI-3,Memory & IO,hard,2.33,1.38,1.38,False
+HO-MI-4_v000,HO-MI-4,Memory & IO,hard,1.03,1.03,1.03,False
+HO-SR-1_v000,HO-SR-1,Semantic Redundancy,hard,15.5,15.09,15.09,True
+HO-SR-2_v000,HO-SR-2,Semantic Redundancy,hard,2.56,2.57,2.56,True
+HO-SR-3_v000,HO-SR-3,Semantic Redundancy,hard,9.52,8.82,8.82,True
+HO-SR-4_v000,HO-SR-4,Semantic Redundancy,hard,0.19,0.2,0.19,False
+HO-SR-5_v000,HO-SR-5,Semantic Redundancy,hard,0.07,0.07,0.07,False
+HO-SR-6_v000,HO-SR-6,Semantic Redundancy,hard,0.11,0.18,0.11,False
+HO-SR-7_v000,HO-SR-7,Semantic Redundancy,hard,1.0,1.0,1.0,False

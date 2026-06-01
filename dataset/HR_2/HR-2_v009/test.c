@@ -2,7 +2,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define N 10000000
+/* ── standardized correctness check (auto-injected) ─────────────────── */
+static inline int _bench_close(double a, double b, double atol, double rtol) {
+    double d = a - b; if (d < 0) d = -d;
+    double mb = b; if (mb < 0) mb = -mb;
+    return d <= atol + rtol * mb;
+}
+/* ── end ────────────────────────────────────────────────────────────── */
+
+#define N 2000000
 #define REPS 3
 
 // SLOW_CODE_HERE

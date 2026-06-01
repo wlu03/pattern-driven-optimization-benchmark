@@ -1,0 +1,16 @@
+variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
+HR-2_v000,HR-2,Human-Style Antipatterns,medium,False,45.9047,44.376,1.03,False,21.3707,11.035,1.94,False,21.3193,11.0663,1.93,False,4.838,2.943,1.64,False,8.6543,4.987,1.74,False
+HR-2_v001,HR-2,Human-Style Antipatterns,medium,False,8.5007,8.3097,1.02,False,4.2937,2.3543,1.82,False,4.059,2.1883,1.85,False,0.391,0.2957,1.32,False,1.4363,0.825,1.74,False
+HR-2_v002,HR-2,Human-Style Antipatterns,medium,False,9.0483,8.501,1.06,False,4.046,2.1933,1.84,False,3.9987,2.1863,1.83,False,0.385,0.295,1.31,False,1.4127,0.8187,1.73,False
+HR-2_v003,HR-2,Human-Style Antipatterns,medium,False,49.3773,46.1577,1.07,False,21.4253,11.0807,1.93,False,23.5947,11.432,2.06,True,4.9487,2.9767,1.66,False,8.4977,4.755,1.79,False
+HR-2_v004,HR-2,Human-Style Antipatterns,medium,False,46.8657,46.404,1.01,False,22.226,11.0303,2.01,True,22.338,11.0797,2.02,True,4.9227,3.0177,1.63,False,9.069,4.6257,1.96,False
+HR-2_v005,HR-2,Human-Style Antipatterns,medium,False,8.872,9.1807,0.97,False,4.2327,2.2303,1.9,False,4.224,2.214,1.91,False,0.8173,0.5823,1.4,False,1.7027,0.9097,1.87,False
+HR-2_v006,HR-2,Human-Style Antipatterns,medium,False,8.6673,8.6843,1.0,False,4.1477,2.2033,1.88,False,4.1343,2.259,1.83,False,0.4277,0.2943,1.45,False,1.4183,0.821,1.73,False
+HR-2_v007,HR-2,Human-Style Antipatterns,medium,False,8.7247,8.8463,0.99,False,4.136,2.286,1.81,False,4.0417,2.2943,1.76,False,0.3803,0.2923,1.3,False,1.412,0.8237,1.71,False
+HR-2_v008,HR-2,Human-Style Antipatterns,medium,False,8.1807,9.0827,0.9,False,4.3963,2.3457,1.87,False,4.5773,2.4133,1.9,False,0.8553,0.68,1.26,False,1.996,0.9823,2.03,True
+HR-2_v009,HR-2,Human-Style Antipatterns,medium,False,8.302,8.371,0.99,False,4.1437,2.2407,1.85,False,4.2003,2.2693,1.85,False,0.39,0.294,1.33,False,2.377,1.1867,2.0,False
+HR-2_v010,HR-2,Human-Style Antipatterns,medium,False,8.72,8.2677,1.05,False,4.232,2.1913,1.93,False,4.3703,2.3437,1.86,False,0.4707,0.2967,1.59,False,1.8407,1.3177,1.4,False
+HR-2_v011,HR-2,Human-Style Antipatterns,medium,False,21.159,22.5863,0.94,False,11.137,5.7693,1.93,False,11.0567,5.715,1.93,False,2.2293,1.4917,1.49,False,6.4153,2.489,2.58,True
+HR-2_v012,HR-2,Human-Style Antipatterns,medium,False,22.029,23.233,0.95,False,12.3807,5.6363,2.2,True,11.245,5.628,2.0,False,2.5753,1.7367,1.48,False,4.9973,2.4253,2.06,True
+HR-2_v013,HR-2,Human-Style Antipatterns,medium,False,43.6417,46.3233,0.94,False,22.6133,11.4357,1.98,False,21.6567,12.4953,1.73,False,5.8147,3.4863,1.67,False,13.036,5.5357,2.35,True
+HR-2_v014,HR-2,Human-Style Antipatterns,medium,False,8.68,8.7843,0.99,False,4.1363,2.4133,1.71,False,4.2793,2.33,1.84,False,0.4193,0.3577,1.17,False,2.0883,0.99,2.11,True

@@ -1,21 +1,16 @@
 variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
-DS-4_v000,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (32 fields, 256B), accessing ['pressure', 'ozone'], sum reduction",double,hard,False,16x-32x
-DS-4_v001,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['rate', 'confidence', 'amplitude'], sum reduction, while-loop",double,medium,False,10x-32x
-DS-4_v002,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (24 fields, 192B), accessing ['cb', 'cg'], max reduction",double,hard,False,12x-24x
-DS-4_v003,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (40 fields, 320B), accessing ['temp', 'co2', 'signal'], max reduction",double,medium,False,13x-40x
-DS-4_v004,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (40 fields, 320B), accessing ['fy', 'potential'], sum reduction",double,hard,False,20x-40x
-DS-4_v005,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (40 fields, 320B), accessing ['depth', 'opacity'], sum reduction",double,hard,False,20x-40x
-DS-4_v006,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (24 fields, 192B), accessing ['normal_y', 'emissive', 'normal_x'], sum reduction, while-loop",double,medium,False,8x-24x
-DS-4_v007,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (32 fields, 256B), accessing ['pz', 'nw'], sum reduction",double,hard,False,16x-32x
-DS-4_v008,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (32 fields, 256B), accessing ['radiation', 'humidity', 'signal'], sum reduction",double,medium,False,10x-32x
-DS-4_v009,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['channel', 'baseline', 'z'], max reduction",double,medium,False,10x-32x
-DS-4_v010,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (24 fields, 192B), accessing ['potential', 'kinetic'], sum reduction, while-loop",double,hard,False,12x-24x
-DS-4_v011,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['diffuse', 'depth'], sum reduction",double,hard,False,16x-32x
-DS-4_v012,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (24 fields, 192B), accessing ['y', 'energy'], max reduction, while-loop",double,hard,False,12x-24x
-DS-4_v013,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['baseline', 'trigger', 'peak'], sum reduction",double,medium,False,10x-32x
-DS-4_v014,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (40 fields, 320B), accessing ['amplitude', 'confidence'], max reduction",double,hard,False,20x-40x
-DS-4_v015,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (32 fields, 256B), accessing ['pm10', 'humidity', 'signal'], sum reduction",double,medium,False,10x-32x
-DS-4_v016,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (24 fields, 192B), accessing ['age', 'rank', 'timestamp'], max reduction",double,medium,False,8x-24x
-DS-4_v017,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (32 fields, 256B), accessing ['ny', 'py'], sum reduction",double,hard,False,16x-32x
-DS-4_v018,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['normal_y', 'depth'], sum reduction, while-loop",double,hard,False,16x-32x
-DS-4_v019,DS-4,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['y', 'g'], sum reduction, while-loop",double,hard,False,16x-32x
+HR-2_v000,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
+HR-2_v001,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v002,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v003,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
+HR-2_v004,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
+HR-2_v005,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,1.5x-3x
+HR-2_v006,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v007,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v008,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,1.5x-3x
+HR-2_v009,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v010,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+HR-2_v011,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,1.5x-3x
+HR-2_v012,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,1.5x-3x
+HR-2_v013,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
+HR-2_v014,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x

@@ -3,7 +3,7 @@
   "variant_id": "HR-2_v009",
   "category": "Human-Style Antipatterns",
   "pattern_name": "Copy-Paste Loop Duplication",
-  "variant_desc": "float, n=10000000",
+  "variant_desc": "float, n=2000000",
   "dtype": "float",
   "difficulty": "medium",
   "compiler_fixable": false,

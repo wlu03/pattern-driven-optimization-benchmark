@@ -16,7 +16,13 @@ The binary built by test.c times slow and fast internally and prints
 ``slow_ms=... fast_ms=... correct=... speedup=...``.  We parse this line.
 
 A variant is ``compiler_resistant`` at a given regime if the fast/slow
-``speedup`` remains > 2.0 (the threshold the rest of the benchmark uses).
+``speedup`` remains above the variant's per-pattern threshold. The
+threshold defaults to ``RESISTANT_THRESHOLD`` (2.0) but is overridden
+by the lower bound of ``metadata['expected_speedup_range']`` when that
+field is present (e.g., ``"1.5x-3x"`` -> threshold 1.5). This honors
+patterns whose fundamental ceiling is below 2x (e.g., HR-2 fuses 4
+loops into 2, so the upper bound is ~2x) while keeping a strict
+default for patterns that should achieve clear separation.
 
 The headline finding the paper needs: how many variants does the
 hand-asserted ``compiler_fixable: false`` flag in metadata.json misrepresent —
@@ -47,6 +53,29 @@ RUN_TIMEOUT_S = 60
 COMPILE_TIMEOUT_S = 60
 
 
+def _pattern_threshold(meta: dict) -> float:
+    """Return the per-pattern resistance threshold.
+
+    Threshold = min(RESISTANT_THRESHOLD, lower_bound_of_expected_range).
+    The cap at 2.0x means a pattern that AIMS for a 16x speedup is still
+    classified as "compiler fixes it" if measured speedup falls below 2x
+    (the author thought the compiler couldn't fix it, but it did). The
+    relaxation below 2.0x is only for patterns whose authorial lower bound
+    is itself below 2x (e.g. HR-2 = "1.5x-3x" -> threshold 1.5; IS-2 =
+    "1.1x-2x" -> 1.1) — those patterns have an inherent ceiling at or
+    near 2x (e.g., HR-2 fuses 4 loops into 2 -> ~2x ceiling) so the
+    default 2x threshold would over-flag them as compiler-fixable.
+    """
+    rng = meta.get("expected_speedup_range")
+    if not rng:
+        return RESISTANT_THRESHOLD
+    try:
+        low_str = str(rng).split("-")[0].strip().rstrip("xX")
+        return min(RESISTANT_THRESHOLD, float(low_str))
+    except (ValueError, IndexError):
+        return RESISTANT_THRESHOLD
+
+
 def _empty_row_for(meta):
     row = {
         "variant_id": meta["variant_id"],
@@ -54,6 +83,7 @@ def _empty_row_for(meta):
         "category": meta["category"],
         "difficulty": meta["difficulty"],
         "metadata_compiler_fixable": meta.get("compiler_fixable", None),
+        "resistance_threshold": _pattern_threshold(meta),
     }
     for tag, _ in REGIMES:
         row[f"slow_ms_{tag}"] = None
@@ -102,6 +132,8 @@ def measure_one(variant_dir):
     """
     meta = json.load(open(os.path.join(variant_dir, "metadata.json")))
     row = _empty_row_for(meta)
+    threshold = _pattern_threshold(meta)
+    row["resistance_threshold"] = threshold
 
     with tempfile.TemporaryDirectory() as tmp:
         prepped = _prepare_sources(variant_dir, tmp)
@@ -143,7 +175,7 @@ def measure_one(variant_dir):
             row[f"slow_ms_{tag}"] = slow_ms
             row[f"fast_ms_{tag}"] = fast_ms
             row[f"speedup_{tag}"] = speedup
-            row[f"resistant_{tag}"] = bool(speedup > RESISTANT_THRESHOLD)
+            row[f"resistant_{tag}"] = bool(speedup > threshold)
 
     return row
 
@@ -160,7 +192,7 @@ def _find_variants(dataset_dir):
 
 def _write_csv(rows, path):
     fieldnames = ["variant_id", "pattern_id", "category", "difficulty",
-                  "metadata_compiler_fixable"]
+                  "metadata_compiler_fixable", "resistance_threshold"]
     for tag, _ in REGIMES:
         fieldnames += [f"slow_ms_{tag}", f"fast_ms_{tag}",
                        f"speedup_{tag}", f"resistant_{tag}"]

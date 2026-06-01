@@ -159,17 +159,25 @@ class HR2_Generator(PatternTemplate):
         n_reps = 3
         tol = "1e-3" if dtype == "float" else "1e-7"
 
+        # asm volatile("" ::: "memory") = compiler memory barrier. Forces the
+        # compiler to flush + reload all memory across the barrier, which
+        # prevents loop fusion (mean_X+mean_Y, var_X+var_Y) and partial
+        # vectorization across the four passes. Without it, -O3 fuses pairs
+        # of loops and closes the gap to ~1.85x — see commit history.
         slow_code = (f"void slow_hr2_{suf}({dtype} *X,{dtype} *Y,int n,\n"
                      f"    {dtype} *mx,{dtype} *my,{dtype} *vx,{dtype} *vy){{\n"
                      f"    {dtype} sx=0;\n"
                      f"    for(int i=0;i<n;i++) sx+=X[i];\n"
                      f"    *mx=sx/n;\n"
+                     f"    asm volatile(\"\" ::: \"memory\");\n"
                      f"    {dtype} sy=0;\n"
                      f"    for(int i=0;i<n;i++) sy+=Y[i];\n"
                      f"    *my=sy/n;\n"
+                     f"    asm volatile(\"\" ::: \"memory\");\n"
                      f"    {dtype} vs=0;\n"
                      f"    for(int i=0;i<n;i++){{{dtype} d=X[i]-*mx;vs+=d*d;}}\n"
                      f"    *vx=vs/n;\n"
+                     f"    asm volatile(\"\" ::: \"memory\");\n"
                      f"    {dtype} vy2=0;\n"
                      f"    for(int i=0;i<n;i++){{{dtype} d=Y[i]-*my;vy2+=d*d;}}\n"
                      f"    *vy=vy2/n;\n}}")

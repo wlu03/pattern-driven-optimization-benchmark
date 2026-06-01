@@ -1,0 +1,37 @@
+variant_id,pattern_id,category,difficulty,speedup_clang_O3,speedup_clang_polly,min_speedup_across_regimes,resistant
+HO-CF-3_v000,HO-CF-3,Control Flow,hard,0.97,0.82,0.82,False
+HO-CF-2_v000,HO-CF-2,Control Flow,hard,1.08,1.08,1.08,False
+HO-AL-1_v000,HO-AL-1,Algorithmic Inefficiency,hard,4052.0,4234.0,4052.0,True
+HO-AL-2_v000,HO-AL-2,Algorithmic Inefficiency,hard,54.88,57.09,54.88,True
+HO-CF-4_v000,HO-CF-4,Control Flow,hard,2.3,3.57,2.3,True
+HO-AL-3_v000,HO-AL-3,Algorithmic Inefficiency,hard,3.38,2.98,2.98,True
+HO-CF-1_v000,HO-CF-1,Control Flow,hard,9.21,11.85,9.21,True
+HO-AL-4_v000,HO-AL-4,Algorithmic Inefficiency,hard,0.97,0.96,0.96,False
+HO-CF-5_v000,HO-CF-5,Control Flow,hard,1.91,1.91,1.91,False
+HO-DS-1_v000,HO-DS-1,Data Structure Inefficiency,hard,12.77,12.25,12.25,True
+HO-DS-2_v000,HO-DS-2,Data Structure Inefficiency,hard,5.0,4.24,4.24,True
+HO-DS-3_v000,HO-DS-3,Data Structure Inefficiency,hard,42.94,34.21,34.21,True
+HO-HR-1_v000,HO-HR-1,Human-Style Antipatterns,medium,3.21,2.23,2.23,True
+HO-DS-6_v000,HO-DS-6,Data Structure Inefficiency,hard,0.81,0.74,0.74,False
+HO-DS-4_v000,HO-DS-4,Data Structure Inefficiency,hard,3.45,4.92,3.45,True
+HO-DS-5_v000,HO-DS-5,Data Structure Inefficiency,hard,2.23,1.11,1.11,False
+HO-HR-2_v000,HO-HR-2,Human-Style Antipatterns,hard,1.03,0.99,0.99,False
+HO-HR-3_v000,HO-HR-3,Human-Style Antipatterns,hard,1.02,1.0,1.0,False
+HO-HR-4_v000,HO-HR-4,Human-Style Antipatterns,hard,127.69,125.98,125.98,True
+HO-HR-5_v000,HO-HR-5,Human-Style Antipatterns,hard,5.99,5.96,5.96,True
+HO-IS-1_v000,HO-IS-1,Input-Sensitive Inefficiency,hard,75.33,76.68,75.33,True
+HO-IS-4_v000,HO-IS-4,Input-Sensitive Inefficiency,hard,1.55,1.69,1.55,False
+HO-IS-3_v000,HO-IS-3,Input-Sensitive Inefficiency,hard,6.22,6.78,6.22,True
+HO-IS-2_v000,HO-IS-2,Input-Sensitive Inefficiency,hard,2.08,2.14,2.08,True
+HO-IS-5_v000,HO-IS-5,Input-Sensitive Inefficiency,hard,1.17,1.35,1.17,False
+HO-MI-1_v000,HO-MI-1,Memory & IO,hard,19.25,18.35,18.35,True
+HO-MI-2_v000,HO-MI-2,Memory & IO,hard,2.31,2.21,2.21,True
+HO-MI-3_v000,HO-MI-3,Memory & IO,hard,2.31,1.49,1.49,False
+HO-MI-4_v000,HO-MI-4,Memory & IO,hard,1.03,1.03,1.03,False
+HO-SR-1_v000,HO-SR-1,Semantic Redundancy,hard,15.98,15.24,15.24,True
+HO-SR-2_v000,HO-SR-2,Semantic Redundancy,hard,2.52,2.57,2.52,True
+HO-SR-3_v000,HO-SR-3,Semantic Redundancy,hard,9.1,9.06,9.06,True
+HO-SR-4_v000,HO-SR-4,Semantic Redundancy,hard,0.19,0.18,0.18,False
+HO-SR-5_v000,HO-SR-5,Semantic Redundancy,hard,0.06,0.08,0.06,False
+HO-SR-6_v000,HO-SR-6,Semantic Redundancy,hard,0.11,0.17,0.11,False
+HO-SR-7_v000,HO-SR-7,Semantic Redundancy,hard,0.99,1.01,0.99,False
