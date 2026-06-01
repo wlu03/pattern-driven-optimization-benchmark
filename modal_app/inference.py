@@ -98,7 +98,11 @@ MODELS = {
         "gpu":   "H100",
         "max_model_len": 8192,
         "reasoning": False,
+        "needs_hf_token": True,
     },
+    # Codestral may also be gated depending on HF account access policy.
+    # If you see "Cannot access gated repo" errors, add "needs_hf_token": True
+    # to its entry too.
 }
 
 # --- Modal app + image ------------------------------------------------------
@@ -131,9 +135,21 @@ VOLUMES = {
 
 
 # --- Inference function -----------------------------------------------------
+def _maybe_hf_secret():
+    """Return [modal.Secret.from_name("huggingface")] if the secret exists,
+    else []. Lets the inference function decorator opt into HF auth without
+    hard-failing when the user hasn't set up the secret yet (only the
+    gated-model branch actually needs it)."""
+    try:
+        return [modal.Secret.from_name("huggingface")]
+    except Exception:
+        return []
+
+
 @app.cls(
     image=vllm_image,
     volumes=VOLUMES,
+    secrets=_maybe_hf_secret(),
     timeout=60 * 60,
     scaledown_window=5 * 60,
 )
