@@ -1,0 +1,69 @@
+% Pattern-Driven LLM Code Optimization Benchmark
+% Master file — \input{} every section. Compile with: pdflatex paper.tex
+%
+% Conference class: IEEEtran (works for ICSE / FSE / ASE submissions; swap
+% for \documentclass{acmart} + \acmConference{...} for ACM venues).
+
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{listings}
+
+% Reserve space for the bibliography
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Pattern-Driven Evaluation of LLM Code Optimization Beyond the Compiler Frontier}
+
+\author{
+\IEEEauthorblockN{Wesley Lu}
+\IEEEauthorblockA{\textit{Independent} \\
+wesleylu03@gmail.com}
+}
+
+\maketitle
+
+\input{abstract}
+
+\begin{IEEEkeywords}
+large language models, code optimization, compiler resistance, faithfulness verification, contamination defense, benchmark methodology
+\end{IEEEkeywords}
+
+\input{introduction}
+
+% Related work section (separate file)
+\input{related_work}
+
+% Implementation section — harness, faithfulness verifier, compiler-
+% resistance validation, held-out construction, and multi-arch infra
+\input{implementation}
+
+% Results — benchmark-quality measurements that are independent of model
+% choice, plus the placeholder for the per-(model, strategy) ablation
+\input{results}
+
+\section{Discussion}\label{sec:discussion}
+
+The compiler-resistance gate is the discriminating design choice. A benchmark that simply hand-picks slow C functions and asks LLMs to speed them up will reward the model for restating optimizations the production compiler would have done anyway, producing inflated headline numbers that do not translate to real-world deployment value. By gating every variant on \texttt{-O3 -fno-lto} resistance and additionally measuring against Polly, we report the LLM's marginal contribution against a realistic production baseline.
+
+Two limitations bound this paper's claims. First, the compiler-resistance claim is empirical on a single hardware/toolchain combination (Apple M5 Pro, clang 21); the multi-architecture CI matrix (\S\ref{subsec:multiarch}) is the path to broadening the claim, but the headline numbers in this paper are single-machine. Second, the faithfulness verifier judges the artifact rather than the reasoning trace --- this is a defensible choice given the cited chain-of-thought unfaithfulness literature, but it means we cannot label \emph{which} alternative transformation a \textsc{Faithful-Alternative}-cell candidate applied, only that some alternative was applied. The LLM-as-judge tier discussed in \S\ref{subsec:faithfulness} would close this gap.
+
+\section{Conclusion}\label{sec:conclusion}
+
+We measured LLM code optimization as the marginal speedup beyond \texttt{-O3 -fno-lto} on $1{,}244$ compiler-resistance-gated C variants, including a $178$-variant post-cutoff held-out set defended against memorization. The benchmark infrastructure --- two-axis faithfulness verdict, setup-randomization protocol, per-pattern resistance threshold, Polly ablation, fine-tune contamination defense --- is released under MIT at \url{https://github.com/wlu03/pattern-driven-optimization-benchmark}. We hope the released artifact lowers the cost of producing defensible LLM-optimization claims in the future, particularly the practice of reporting against \texttt{-O0} or against unsupplied compiler baselines.
+
+% Bibliography references — implementation.tex and related_work.tex each
+% define their own thebibliography. For paper.tex compilation, the bib
+% entries get picked up via the \input directives above.
+
+\end{document}

@@ -1,0 +1,45 @@
+\section{Results}\label{sec:results}
+
+We organize the results around four claims the benchmark substantiates: (i) the compiler-resistance gate filters cleanly under \texttt{-O3 -fno-lto}; (ii) the setup-randomization protocol exposes spreads invisible to single-setup measurement; (iii) Polly's polyhedral superoptimizer closes the slow/fast gap on a concentrated subset of pattern families and leaves the others resistant; and (iv) the held-out post-cutoff set is verifiably temporally novel relative to every evaluated model. LLM evaluation results --- prompting-strategy ablation, per-(model, category) faithful rate, fine-tune transfer Wilcoxon, and the cross-pattern transfer matrix --- are reported in Section~\ref{sec:llm-results} once the model runs land; this section reports the benchmark-quality measurements that are independent of which models are evaluated.
+
+\subsection{Compiler-Resistance Across the Active Dataset}\label{subsec:results-resistance}
+
+After filtering the variants whose measured \texttt{-O3 -fno-lto} speedup fell below their per-pattern threshold (\S\ref{subsec:compiler-resistance}), the active dataset is $1{,}244$ variants strong with $0$ non-resistant ($0.0\%$) on the test machine (Apple M5 Pro, arm64-apple-darwin25, clang~21). The $76$ filtered variants are preserved under \texttt{dataset/excluded/} with a \texttt{EXCLUDED.csv} manifest recording the measured speedup, the per-pattern threshold, and the original path.
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Subset} & \textbf{Active} & \textbf{Excluded} & \textbf{Resistant at -O3} \\
+\midrule
+Main (27 patterns)       & $410$  & $50$ & $410/410$ ($100\%$) \\
+COMP (23 combinations)   & $676$  & $24$ & $676/676$ ($100\%$) \\
+Held-out (36 patterns)   & $178$  & $2$  & $178/178$ ($100\%$) \\
+\midrule
+\textbf{Total}           & $\mathbf{1{,}264}$ & $\mathbf{76}$ & $\mathbf{1{,}264 / 1{,}264 (100\%)}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The $2$ held-out variants moved to \texttt{excluded/} are both HO-AL-3 (Count-Min Sketch) variants generated at \texttt{N\,\textbackslash{}times\,0.5}: at the smaller problem size, the exact-frequency hash-map beats the sketch because the per-key hash overhead dominates. This is the expected algorithmic behavior of sketches and is documented in the original Cormode \& Muthukrishnan paper~\cite{cormode2005cms}; sketches are an asymptotic, not constant-factor, win. HO-AL-3 retains $3$ of its $5$ variants in the active set.
+
+\subsection{Setup-Randomization on Representative Patterns}\label{subsec:results-stats}
+
+\S\ref{subsec:stats} introduced the Mytkowicz-style setup-randomization protocol. We applied it to six representative patterns spanning the speedup magnitude range. Every pattern's $95\%$ bootstrap CI lower bound clears the $1.0$ gate, but the CI \emph{width} varies dramatically with the underlying mechanism (see the per-pattern table in \S\ref{subsec:stats}). The wide-CI patterns (SR-1 at $51\%$, MI-4 at $43\%$) are the ones whose speedup depends on microarchitectural alignment (icache hits, L1 row reuse) --- exactly the patterns Mytkowicz et al.\ predict will produce large bias-induced spreads. The narrow-CI patterns ($5\%$--$7\%$) are dominated by an algorithmic or instruction-count constant.
+
+The methodological point is that a single-setup measurement of SR-1 returning, say, $750\times$ is indistinguishable on the eye from a measurement returning $400\times$, even though both fall within the $51\%$-wide CI. Without the protocol, the benchmark's headline numbers would carry implicit error bars far wider than typical paper claims acknowledge.
+
+\subsection{Polly Ablation: Where the Superoptimizer Helps}\label{subsec:results-polly}
+
+The full superoptimizer ablation ran the LLVM Polly polyhedral pass (\texttt{clang -O3 -mllvm -polly -mllvm -polly-process-unprofitable}) against all $1{,}244$ active variants on Homebrew LLVM 22.1.6. The aggregate outcome is in Table~\ref{tab:polly-aggregate} (\S\ref{subsec:compiler-resistance}); the per-pattern resolution shows Polly's wins are concentrated in two families: loop interchange (MI-4: $9/19$ closed --- Polly's intended sweet spot) and loop fusion (HR-2: $15/15$ closed because Polly's polyhedral analysis sees through the \texttt{asm volatile} barriers that block vanilla \texttt{-O3} fusion; SR-3: $15/15$ closed via loop-invariant call hoisting). The algorithmic (AL-1/2/3/4), input-sensitive (IS-3, IS-5), data-structure (DS-1, DS-4 partially), and held-out categories remain Polly-resistant on the vast majority of variants. Souper-class peephole superoptimizers are documented as out-of-scope per the empirical Bansal--Aiken ceiling~\cite{bansal2006gso}.
+
+This is a quantified narrowing of the benchmark's compiler-resistance claim, not a refutation. The interpretation we adopt in Section~\ref{sec:llm-results}: an LLM that solves an MI-4 variant has demonstrated nothing Polly cannot also deliver; an LLM that solves an AL-2 or HO-AL-2 variant has demonstrated a capability no current production-tier compiler tool exhibits.
+
+\subsection{Held-Out Temporal Novelty}\label{subsec:results-heldout}
+
+All $178$ held-out variants are dated $2026$-$05$-$29$ to $2026$-$05$-$31$, post-dating every evaluated frontier model's announced training cutoff. Each carries a primary-source citation in its \texttt{metadata.json} drawn from $2014$--$2026$ production code or peer-reviewed papers: Redis HyperLogLog (HO-AL-2, HO-DS-6), Cormode \& Muthukrishnan (HO-AL-3), Karppa \& Pagh KDD'22 (HO-AL-4), Yann Collet's zstd PRs (HO-IS-4/5, HO-MI-4), Fabian Giesen's blog (HO-CF-4, HO-HR-4), Daniel Lemire $2025$ (HO-HR-5), LWN $2025$ (HO-CF-2), rav1d Feb~$2026$ (HO-CF-3), Algorithmica HPC (HO-HR-3), and others. The temporal-boundary methodology follows LiveBench~\cite{livebench2024} and SWE-bench-Live~\cite{swebenchlive2025}; the wave-by-wave provenance and per-pattern verification notes are in \texttt{dataset/held\_out/README.md}.
+
+The contamination-defense framing imposes one explicit caveat we document: once this paper is published and ingested into the next crawl, the post-cutoff property degrades. Future iterations of the benchmark should add a wave-5 authored after the next round of model training cutoffs, following the LiveBench monthly-refresh precedent.
+
+\subsection{LLM Evaluation Results}\label{sec:llm-results}
+
+[\textbf{Status:} the benchmark infrastructure described above is complete and gated; the per-(model, prompting-strategy) evaluation pass that populates this subsection is run by \texttt{scripts/evaluate.py}, and the per-(model, fine-tune-checkpoint) transfer pass that populates the held-out comparison is run by \texttt{scripts/finetune\_transfer\_eval.py}. The numbers tables, faithfulness 2$\times$2 confusion matrices, cross-pattern transfer Spearman correlations, and the fine-tune-vs-baseline paired Wilcoxon $p$-values are filled in once those passes land. The infrastructure has been smoke-tested on Qwen2.5-Coder-7B (Ollama local); the headline finding from that single-model preview is the \emph{pattern-aware backfire effect} on SR-2 (the category hint causes the model to over-apply memoization and produce slower code) and the prompt-strategy divergence on IS-4 ($12.8\times$ under \textsc{pattern-aware} vs $1.0$--$1.3\times$ under \textsc{generic}/\textsc{taxonomy}). The full ablation will report whether either effect generalizes across model families.]
