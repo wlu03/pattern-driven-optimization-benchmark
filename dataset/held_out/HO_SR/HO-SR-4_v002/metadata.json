@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-SR-4",
+  "variant_id": "HO-SR-4_v002",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Constant-Time Bitmask Table Lookup vs Compiler-Introduced Branch (Inverted)",
+  "variant_desc": "Naive intended-constant-time bitmask-OR scan that -O3 transforms into a leaky direct-load (slow) -> volatile-barrier-defended version that preserves the constant-time scan (fast) (variant 2: seed=44, n_scale=1.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 1,
+  "lines_of_code": 12,
+  "expected_speedup_range": "0.5x-2x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Trail of Bits LLVM RFC for __builtin_ct_select (LLVM 22); Schneider et al. 'When Compilers Break Constant-Time' arXiv:2410.13489 (2024); Pornin 'On the Tightness of Constant-Time Cryptographic Constructions' IACR eprint 2025/435.",
+  "novelty_rationale": "INVERTED-FRAMING pattern. The 'slow' version is the version most engineers WRITE when asked for a constant-time table lookup: a bitmask-OR scan with `mask = -(secret_idx == i)`.  At -O3 both LLVM and GCC recognize this idiom and rewrite it into a direct indexed load (a branch + memcpy or single-load), leaking the secret via timing/branch-prediction.  The 'fast' version uses a volatile barrier to forbid that transformation -- it preserves the full unconditional scan at the cost of (sometimes) being SLOWER in wall-clock.  For this pattern, SPEED IS NOT THE METRIC; correctness (r_slow == r_fast == table[secret_idx]) is what we check, and the LLM under test should produce a version that preserves the volatile/barrier discipline.  When LLVM 22's `__builtin_ct_select` lands, that intrinsic will replace the volatile workaround; until then, this is the portable defense.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "constant_time_inverted"
+}

@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-IS-3",
+  "variant_id": "HO-IS-3_v003",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Runtime Cardinality-Driven Chunk Compaction (DuckDB SIGMOD'25)",
+  "variant_desc": "100k chunks each w/ private 2048-int buffer + per-chunk memcpy compaction -> shared buffer + per-chunk selection-vector (no memcpy) (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 3,
+  "lines_of_code": 20,
+  "expected_speedup_range": "2x-5x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "Qiao & Zhang, 'Compacting Vectorized Execution' (SIGMOD'25); DuckDB PR #14956 (up to 3x on head-to-head microbenchmark).",
+  "novelty_rationale": "Tests recognition that when ~40% of chunks contain a single valid element (the DuckDB CRF=2048 measurement), the per-chunk physical compaction (memcpy + scan setup) costs more than the actual data work. Logical compaction with a shared buffer + per-chunk selection vector amortizes the setup. Compilers cannot perform this transformation because it requires redesigning the per-chunk data structure based on observed runtime cardinality distributions."
+}

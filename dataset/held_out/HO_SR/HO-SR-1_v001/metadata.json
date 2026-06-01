@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-SR-1",
+  "variant_id": "HO-SR-1_v001",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Cross-Call Memoization",
+  "variant_desc": "10k separate calls with same key -> static cache of last (key,result) pair (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 13,
+  "expected_speedup_range": "10x-100x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests function-level memoization across separate user-callsite invocations -- distinct from in-loop hoisting (SR-1). A compiler cannot insert a static cache into a function it didn't introduce because the cache would mutate observable behavior on reuse, and the no-inline boundary blocks any cross-call optimization."
+}

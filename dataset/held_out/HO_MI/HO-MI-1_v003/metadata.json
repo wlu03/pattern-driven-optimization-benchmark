@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-MI-1",
+  "variant_id": "HO-MI-1_v003",
+  "category": "Memory & IO",
+  "pattern_name": "Software Prefetch for Pointer-Chase Traversal",
+  "variant_desc": "5e5 nodes x 256B = ~128MB arena, pointer-linked traversal -> indexed traversal with __builtin_prefetch 16 hops ahead (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "long",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 1,
+  "lines_of_code": 18,
+  "expected_speedup_range": "10x-20x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests software prefetch and pointer-vs-index traversal: converting an opaque pointer-chasing linked list into an index-based traversal lets the model issue __builtin_prefetch hints that overlap DRAM latency. Compilers cannot do this transformation because they cannot prove the alternate traversal order preserves observable semantics, and they will not insert prefetches without that proof."
+}

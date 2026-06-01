@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-SR-7",
+  "variant_id": "HO-SR-7_v001",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Shift-Amount Mask to Elide GCC's UB Check",
+  "variant_desc": "Variable-amount shift `x << entry.nbits` triggers GCC's runtime UB guard (cmp + ja) because the shift count is loaded from memory -> `x << (entry.nbits & 0x3F)` is provably < 64 so GCC elides the guard (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 3,
+  "lines_of_code": 30,
+  "expected_speedup_range": "0.9x-1.3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "zstd PR #3826 (Yann Collet 2023). Comment block on 'shift-amount mask elides GCC UB check'.",
+  "novelty_rationale": "Tests recognition that on x86 the hardware shift instruction already masks its count operand by 0x3F (for 64-bit shifts), but the C standard treats `x << n` with `n >= 64` as undefined behavior so GCC inserts a runtime guard around variable-amount shifts whose count is not range-proven. Adding `& 0x3F` to the shift count proves the value is in [0,63] and lets GCC elide the guard. NOTE: this pattern's wall-clock impact is GCC-on-x86-specific. On Apple Silicon / arm64 with clang (the benchmark's reference test machine), clang does NOT insert the UB guard and both versions emit a single `lsr` instruction; measured speedup is ~1.0x. On GCC + x86-64, zstd PR #3826 reports ~+5% throughput. correct=1 is the success metric here; the model under test must produce the masked shift to demonstrate the pattern was recognized.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-AL-1",
+  "variant_id": "HO-AL-1_v001",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Shuffle-Take-K vs Partial Fisher-Yates Sampling",
+  "variant_desc": "Full Fisher-Yates of n=1e6 then take first k=100 -> selection-sampling variant doing only k swaps (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 12,
+  "expected_speedup_range": "100x-10000x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests algorithmic recognition that 'shuffle then take k' is equivalent to a k-step selection-sampling Fisher-Yates variant. No compiler converts a full O(n) shuffle into the O(k) Knuth-Algorithm-S variant; requires the model to reason about sampling theory rather than per-loop micro-optimization."
+}

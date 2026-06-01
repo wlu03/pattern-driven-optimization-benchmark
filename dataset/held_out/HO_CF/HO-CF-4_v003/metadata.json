@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-CF-4",
+  "variant_id": "HO-CF-4_v003",
+  "category": "Control Flow",
+  "pattern_name": "Per-Call EOB Check vs Inlined Bitstream Refill",
+  "variant_desc": "5-bit symbol bitstream decoder, 1M symbols, per-call vs inlined refill (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 1,
+  "lines_of_code": 45,
+  "expected_speedup_range": "1.3x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://fgiesen.wordpress.com/2016/01/02/end-of-buffer-checks-in-decompressors/ \u2014 Fabian Giesen 2016 on end-of-buffer check restructuring. Production in zstd, Oodle, brotli.",
+  "novelty_rationale": "Tests whether the LLM knows to (a) move the EOB check out of the hot loop via a padded temp buffer, (b) replace per-call get_bits() abstraction with inline shifts. CSE cannot hoist the per-call check because cursor changes every call. The fix requires API restructuring (peek-vs-consume separation) that no compiler pass synthesizes.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

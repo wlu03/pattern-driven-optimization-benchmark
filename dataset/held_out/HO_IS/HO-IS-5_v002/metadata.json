@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-IS-5",
+  "variant_id": "HO-IS-5_v002",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Loop-Bound Tightening for Huffman Fast Loop",
+  "variant_desc": "Conservative `ilimit = src + 14` early exit forces ~14 extra slow-path iterations per decode -> `ilowest = src`: fast loop's own 7-byte/iter invariant guarantees safety without the 14-byte margin (variant 2: seed=44, n_scale=1.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 3,
+  "lines_of_code": 50,
+  "expected_speedup_range": "1.0x-1.5x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "zstd PR #3827 (Yann Collet 2023, 'Tighten Huffman fast loop bound'). Commit reports +28% / +30% measured speedup.",
+  "novelty_rationale": "Tests recognition that a defensive `ilimit = src + 14` safety margin in a Huffman fast loop is over-cautious when the loop's own invariant (7 bytes/iter from src, 4 bytes/iter to dst) already guarantees no over-read. Eliminating the margin lets the fast loop run all the way to src_end instead of dropping into the per-symbol slow path 14 bytes early -- zstd PR #3827 measured +28% / +30% on full decode pipelines. No compiler infers this because it cannot prove the loop's own bounds without symbolic execution of the encoder. NOTE: in this isolated microbenchmark we use SAFETY=180 (vs PR #3827's 14) to amplify the effect into a measurable wall-clock signal at -O3; the per-symbol slow path's cost dominates less in microbenchmarks than in a full decoder pipeline, so the at-O3 speedup hovers around 1.1-1.2x rather than the PR's 1.28x.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

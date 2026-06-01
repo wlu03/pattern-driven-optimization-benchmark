@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-CF-1",
+  "variant_id": "HO-CF-1_v001",
+  "category": "Control Flow",
+  "pattern_name": "Tagged-Dispatch If/Else Chain to Lookup Table",
+  "variant_desc": "8-way if/else chain over irregular tag bytes (no switch -> jump-table possible) -> single-load weight table (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "float",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 18,
+  "expected_speedup_range": "5x-15x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests recognizing that an if/else chain dispatching on irregular byte values should be replaced by a lookup table. Compilers do not perform this transformation because the discriminant values are non-contiguous (defeating jump-table generation) and the dispatch arms have different right-hand sides that the compiler cannot prove correspond to a single load-then-fma pattern."
+}

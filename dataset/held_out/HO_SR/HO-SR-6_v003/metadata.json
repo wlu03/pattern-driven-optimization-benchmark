@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-SR-6",
+  "variant_id": "HO-SR-6_v003",
+  "category": "Semantic Redundancy",
+  "pattern_name": "Kyber/ML-KEM Message Bit Decoding vs Compiler-Introduced Branch (Inverted)",
+  "variant_desc": "Canonical Kyber message-bit decode `mask = -((msg[i]>>j)&1); r[8i+j] = mask & 1665;` -- LLVM trunk at -O1+ produces bt/jae/mov, leaking the bit via timing (slow) -> volatile-barrier-defended formulation that preserves the constant-time AND (fast) (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 2,
+  "lines_of_code": 14,
+  "expected_speedup_range": "0.5x-2x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Schneider et al. 'When Compilers Break Constant-Time' arXiv:2410.13489 (2024) Example 3; LLVM RFC __builtin_ct_select (Trail of Bits, 2024); PQShield 'Clangover' key-recovery attack on Kyber (2024).",
+  "novelty_rationale": "INVERTED-FRAMING pattern, third of the CT triplet (HO-SR-4/5/6).  The 'slow' version is the canonical Kyber message-decode loop -- the exact code structure used in the reference Kyber implementation, recommended by NIST PQC reviewers, and reviewed by formal-CT tools that examine the SOURCE.  At -O1 and higher LLVM trunk recognizes the (bit ? 1665 : 0) idiom in `mask & 1665` with `mask = -bit` and rewrites into `bt + jae + mov` -- a branch on the message bit.  The PQShield Clangover attack (2024) exploits exactly this leak to recover Kyber session keys from ML-KEM decapsulation timing.  The 'fast' version uses a volatile barrier per iteration to keep the compiler from collapsing the mask into a select.  SPEED IS NOT THE METRIC: when LLVM 22's __builtin_ct_select intrinsic lands, that's the proper fix; until then, the volatile barrier is the portable defense.  correct=1 is the success metric.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "constant_time_inverted"
+}

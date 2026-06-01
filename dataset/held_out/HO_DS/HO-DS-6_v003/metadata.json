@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-DS-6",
+  "variant_id": "HO-DS-6_v003",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "Sub-Byte Bit-Packing with Cross-Byte Straddling (HLL Dense 6-bit Layout)",
+  "variant_desc": "Naive HLL register layout `uint8_t regs[16384]` (16 KB, 75% waste) -> 12 KB densely packed 6-bit registers with Redis HLL_DENSE_GET_REGISTER cross-byte read `(b0 >> _fb) | (b1 << _fb8)) & 0x3F` (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 2,
+  "lines_of_code": 50,
+  "expected_speedup_range": "0.5x-2x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Redis hyperloglog.c HLL_DENSE_GET_REGISTER / HLL_DENSE_SET_REGISTER macros (antirez 2014, https://github.com/redis/redis/blob/unstable/src/hyperloglog.c).",
+  "novelty_rationale": "Tests recognition that 6-bit registers densely packed across byte boundaries save 25% memory (16 KB -> 12 KB) vs the naive 1-byte-per-register layout. The cross-byte read requires loading two adjacent bytes, shifting and OR-combining, then masking with 0x3F. No compiler invents this packing -- it requires re-interpreting a uint8_t array as a 6-bit stream. Distinct from HO-DS-4 (CedarDB pointer-tag in upper bits of a 64-bit pointer) and HO-DS-3 (narrow-int densification within a struct field). NOTE: this pattern's win is MEMORY (25% saved) not throughput. The unpacking arithmetic (2 loads + shift + OR + mask per get) costs more than the L1-bandwidth savings recovered when both layouts already fit in L1 -- which they do on modern desktops. In this microbenchmark fast may be SLOWER than slow at -O3 (0.7-0.9x); on cache-constrained embedded targets or many-HLL-instance Redis workloads the 25% saving yields proportional wall-clock gains. correct=1 is the primary success metric here.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

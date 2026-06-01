@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-IS-4",
+  "variant_id": "HO-IS-4_v001",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Multi-Stream Huffman Decode for ILP",
+  "variant_desc": "Single-stream Huffman decoder (per-iter chain: refill -> table lookup -> shift, ~5-7 cycle dep chain) -> 4 independent interleaved bitstreams + 4 disjoint output segments so the OoO core overlaps the chains (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 7,
+  "lines_of_code": 50,
+  "expected_speedup_range": "1.5x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Yann Collet, zstd Huffman X4 4-stream decoder (2015); Fabian Giesen 'Reading bits in far too many ways' parts 1-3 (2023, https://fgiesen.wordpress.com)",
+  "novelty_rationale": "Tests recognition that a single-stream Huffman/FSE decoder leaves the OoO core's ILP unused because every iteration is a hard dependence chain (refill -> table lookup -> shift). The fix is an input-format change: encode the source as 4 independent bitstreams so 4 chains run in parallel through the same scalar issue width. No compiler invents this -- it requires changing the data format (and the encoder), not just the decode loop. zstd's 4-stream mode is the textbook real-world instance.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

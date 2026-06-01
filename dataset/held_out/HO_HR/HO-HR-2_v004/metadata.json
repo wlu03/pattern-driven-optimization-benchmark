@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-HR-2",
+  "variant_id": "HO-HR-2_v004",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Defensive unlikely() that is Empirically Wrong",
+  "variant_desc": "hot path with unlikely() hint on a predicate that's true 40% of the time (variant 4: seed=46, n_scale=0.7x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 22,
+  "expected_speedup_range": "0.95x-1.4x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://lwn.net/Articles/420019/ \u2014 Rostedt 2011: page_mapping() annotation was correct 1,909,540,379 times and incorrect 1,270,533,123 times (39% error rate). Wrong hint caused CPU to prefetch wrong instructions and reorder code for the wrong common case.",
+  "novelty_rationale": "Tests whether the LLM knows to REMOVE wrong __builtin_expect annotations. The compiler trusts the programmer's assertion absolutely; without -fprofile-use it has no signal to override the hint. CALIBRATION: documented impact (Rostedt page_mapping case) was on Intel/Linux kernel where deep speculation amplifies the wrong-hint cost. On modern ARM with ITTAGE-class predictors (Apple M-series) the gap closes to ~1x on microbenchmarks; the pattern remains real but only surfaces at workload scale or on Intel.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

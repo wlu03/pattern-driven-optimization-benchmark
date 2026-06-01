@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-DS-3",
+  "variant_id": "HO-DS-3_v004",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "Narrow-Integer Densification",
+  "variant_desc": "int64_t field over [0,255] in 64B struct (1 record/line) -> uint8_t array (64 records/line) (variant 4: seed=46, n_scale=0.7x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 14,
+  "expected_speedup_range": "3x-30x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "Abseil Performance Tip #62 (Densify data): https://abseil.io/fast/62",
+  "novelty_rationale": "Tests recognition that an int64_t field whose runtime values lie in [0,255] should be redeclared as uint8_t. The optimization is purely a data-layout densification (8x cache-line packing) that no compiler can perform because struct field width is an ABI invariant \u2014 other translation units, serialized formats, and mmap'd views may depend on the exact 8-byte layout."
+}

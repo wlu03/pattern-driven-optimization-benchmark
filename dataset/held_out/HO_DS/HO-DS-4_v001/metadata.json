@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-DS-4",
+  "variant_id": "HO-DS-4_v001",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "Pointer-Bit-Packing Tag Scheme",
+  "variant_desc": "tag inside scattered node (pointer-chase DRAM miss per probe) -> 16-bit tag in upper bits of pointer (probe avoids deref on miss) (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 18,
+  "expected_speedup_range": "3x-10x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "Birler, Schmidt, Fent, Neumann. CedarDB DaMoN'24 hash-table paper; https://cedardb.com/blog/efficient_hashtables/",
+  "novelty_rationale": "Tests recognition that a 16-bit per-pointer fingerprint can be folded into the unused upper bits of a 64-bit pointer (4-level paging makes them sign-extension copies of bit 47). The slow version has to dereference the pointer to a scattered node just to READ its fingerprint, which is a DRAM round-trip; packing the tag in the pointer lets the could-contain check use the already-loaded word. Compilers never invent pointer-tagging schemes because they cannot prove the application never inspects raw pointer bits. Caveat: Intel 5-level paging (Ice Lake+) reduces usable upper bits from 16 to 7 \u2014 the pattern still applies, just choose a narrower tag."
+}

@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-CF-3",
+  "variant_id": "HO-CF-3_v002",
+  "category": "Control Flow",
+  "pattern_name": "Predicate-by-Mask vs Fragile Cmov Lowering",
+  "variant_desc": "high-register-pressure hot loop where if-vs-cmov lowering is fragile (variant 2: seed=44, n_scale=1.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 28,
+  "expected_speedup_range": "0.95x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://www.memorysafety.org/blog/rav1d-performance-optimization/ \u2014 rav1d Feb 2026: adding an unrelated TxClass variant changed stack usage and flipped LLVM from cmov to branch on this exact shape",
+  "novelty_rationale": "Tests whether the LLM knows to write explicit bitmask formulation (mask = -(cond); out = (a & mask) | (b & ~mask)) when cmov-vs-branch lowering is fragile to surrounding register pressure. The compiler optimizes for register-pressure heuristics the programmer cannot influence at source level except by removing the if entirely. CALIBRATION CAVEAT: rav1d documented this on x86_64 Clang where adding a TxClass enum variant flipped lowering from cmov to branch. On Apple Silicon ARM with a 50/50 branch the predictor handles it fine and the gap closes to 1x; on x86 with deep speculation the gap is larger but still subtle. Pattern is real even when the test machine doesn't surface it.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

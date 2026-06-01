@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-MI-3",
+  "variant_id": "HO-MI-3_v003",
+  "category": "Memory & IO",
+  "pattern_name": "Loop Splitting to Break RAW Dependency (TSVC s1113)",
+  "variant_desc": "for(i=0;i<N;i++) a[i] = POLY(a[N/2] + b[i]) (scalar chain) -> 3-part split: pre-mid, mid, post-mid (all 4-lane SIMD vectorizable) (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "float",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 3,
+  "num_arrays": 2,
+  "lines_of_code": 22,
+  "expected_speedup_range": "2x-4x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "VecTrans (arXiv:2503.19449) + TSVC_2 microbenchmark s1113",
+  "novelty_rationale": "Tests recognition that a single-iteration RAW dependency at a fixed index (a[N/2]) can be eliminated by splitting the loop into three parts -- before the dependent index (a[mid] is loop-invariant), the dependent iteration (done by hand), and after (a[mid] is a scalar constant). Compilers cannot do this transformation because their may-alias analysis sees the RAW chain and refuses to vectorize the whole loop; they cannot reason about which specific iteration creates the dependency."
+}

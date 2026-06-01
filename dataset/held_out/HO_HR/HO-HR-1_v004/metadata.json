@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-HR-1",
+  "variant_id": "HO-HR-1_v004",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Defensive Over-Copy Through Temporary Buffer",
+  "variant_desc": "memcpy(src->tmp); transform(tmp,tmp); memcpy(tmp->dst) -> transform(src,dst) directly (variant 4: seed=46, n_scale=0.7x)",
+  "dtype": "float",
+  "difficulty": "medium",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 3,
+  "lines_of_code": 8,
+  "expected_speedup_range": "2x-4x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests recognition of redundant defensive copies around a noinline cross-TU transform. Compilers cannot eliminate the memcpy()s because the transform's body is opaque (separate TU + noinline) -- the compiler must assume the transform might alias the input/output through some side channel, so the safe-but-wasteful copies must stay."
+}

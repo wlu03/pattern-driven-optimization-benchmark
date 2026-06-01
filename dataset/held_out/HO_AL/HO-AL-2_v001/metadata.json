@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-AL-2",
+  "variant_id": "HO-AL-2_v001",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Exact Distinct-Count vs HyperLogLog Sketch",
+  "variant_desc": "1M-key chained hash set distinct-count (O(N) memory, ~16MB malloc churn) -> HLL with 16384 6-bit registers (12 KB fixed) harmonic-mean estimate (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 3,
+  "num_arrays": 2,
+  "lines_of_code": 45,
+  "expected_speedup_range": "5x-50x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Redis hyperloglog.c source (antirez) + antirez 2014 blog 'Stream algorithms and HyperLogLog' http://antirez.com/news/75",
+  "novelty_rationale": "Tests algorithmic recognition that exact distinct-count can be swapped for an approximate sketch with bounded error when the user only needs a cardinality estimate (Redis HLL ships at ~0.81% theoretical error with a fixed 12 KB footprint regardless of N). No compiler converts an exact hash-set distinct-count into a HyperLogLog because the swap changes observable output (exact -> approximate); requires reasoning about acceptable error bounds rather than per-loop micro-optimization.",
+  "correctness_tolerance": {
+    "type": "relative",
+    "epsilon": 0.02
+  },
+  "pattern_type": "standard"
+}

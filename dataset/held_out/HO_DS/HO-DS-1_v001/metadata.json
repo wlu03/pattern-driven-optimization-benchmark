@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-DS-1",
+  "variant_id": "HO-DS-1_v001",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "Hot/Cold Field Separation",
+  "variant_desc": "32-double 256B struct (4 cache lines), hot loop reads 2 fields -> split into hot[] (16B/rec, 4 recs/line) + cold[] (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 14,
+  "expected_speedup_range": "5x-15x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests hot/cold field separation as distinct from AoS->SoA (DS-4): the slow struct is exactly one cache line, so a naive SoA split of every field would not help \u2014 what helps is grouping only the actually-accessed fields into a separate dense array. Compilers do not perform cross-program data-layout splitting because they cannot prove no external code reads cold fields."
+}

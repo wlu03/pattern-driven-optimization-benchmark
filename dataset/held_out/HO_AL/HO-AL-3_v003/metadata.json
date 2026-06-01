@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-AL-3",
+  "variant_id": "HO-AL-3_v003",
+  "category": "Algorithmic Inefficiency",
+  "pattern_name": "Exact Frequency Map vs Count-Min Sketch",
+  "variant_desc": "Chained hash-map<int,int> over 1M (key,inc) pairs (variable memory, hash-walk per insert) -> 2048x5 Count-Min Sketch (40 KB fixed, 5 cell updates per insert, min over 5 cells per query) (variant 3: seed=45, n_scale=2.0x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 3,
+  "num_arrays": 4,
+  "lines_of_code": 55,
+  "expected_speedup_range": "3x-20x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "Cormode & Muthukrishnan, 'An Improved Data Stream Summary: The Count-Min Sketch and its Applications' (J. Alg 2005). arXiv:cs/0312050",
+  "novelty_rationale": "Tests algorithmic recognition that exact frequency tracking can be replaced by a Count-Min Sketch when the user only needs upper-bound estimates for the hot keys (a top-K heavy-hitters workload). CMS is a one-sided estimator (always >= true count) with bounded eps*N additive error; choosing w/d trades memory for accuracy. No compiler converts a hash-map<int,int> into a 2D CMS array because the swap changes observable output (exact -> approximate); requires the model to reason about acceptable overestimation rather than per-loop micro-optimization.",
+  "correctness_tolerance": {
+    "type": "relative",
+    "epsilon": 0.05
+  },
+  "pattern_type": "standard"
+}

@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-DS-5",
+  "variant_id": "HO-DS-5_v004",
+  "category": "Data Structure Inefficiency",
+  "pattern_name": "SIMD-Friendly Block Interleaving (block_q4_Kx8)",
+  "variant_desc": "{scale, qs[32]} per block (36B stride) -> {scales[8], qs[32][8]} super-block with transposed quants for 8-lane SIMD (variant 4: seed=46, n_scale=0.7x)",
+  "dtype": "float",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 2,
+  "num_arrays": 2,
+  "lines_of_code": 28,
+  "expected_speedup_range": "1.5x-5x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "llama.cpp PR #12332 (merged 2025-03-20) \u2014 block_q4_Kx8 SIMD-friendly repacking: https://github.com/ggerganov/llama.cpp/pull/12332",
+  "novelty_rationale": "Tests recognition that interleaving 8 quantized blocks at the quant-index level (qs[i][k] over 8 blocks) yields a unit-stride SIMD load and an 8-lane vector accumulator, instead of a 36-byte-stride per-block scan. Compilers cannot perform this transformation because it requires reorganizing the on-disk GGUF model file format and re-arranging quant byte order across block boundaries."
+}

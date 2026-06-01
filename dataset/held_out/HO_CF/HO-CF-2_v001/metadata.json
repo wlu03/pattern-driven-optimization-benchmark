@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-CF-2",
+  "variant_id": "HO-CF-2_v001",
+  "category": "Control Flow",
+  "pattern_name": "Computed-Goto Threaded Dispatch vs Switch",
+  "variant_desc": "10-opcode stack VM, N=1M instructions dispatched (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 2,
+  "lines_of_code": 32,
+  "expected_speedup_range": "1.05x-1.3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://lwn.net/Articles/1010905/ \u2014 LWN 2025 'Computed gotos for efficient dispatch tables'; calibration via Rohou/Swamy/Seznec CGO 2015 (~3% on Haswell ITTAGE); CPython documents 15-20%",
+  "novelty_rationale": "Tests whether the LLM knows that switch() inside a hot loop produces ONE shared indirect-jump site (BTB gets one prediction history slot) while computed-goto via labels-as-values spreads the jumps across N handler sites (one BTB slot per handler). The CFG transformation cannot be done by the compiler because it changes debugger/profiler attribution semantics. Honest calibration: target the 10-30% range, not the folklore 3x.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-HR-4",
+  "variant_id": "HO-HR-4_v001",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Abstraction-Induced Per-Call Bounds-Check Overhead",
+  "variant_desc": "10M bytes scanned: per-byte noinline read helper vs inlined loop (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "byte",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 20,
+  "expected_speedup_range": "20x-200x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://fgiesen.wordpress.com/2016/01/02/end-of-buffer-checks-in-decompressors/ \u2014 Fabian Giesen 2016 on abstraction-induced redundancy in stream consumers.",
+  "novelty_rationale": "Tests whether the LLM knows to remove tiny per-byte wrapper abstractions whose noinline boundary prevents the compiler from dissolving the per-call bounds check AND prevents auto-vectorization of the byte-sum reduction. CSE cannot hoist a check whose condition (cursor) changes every call; only API restructuring (removing the wrapper) helps. Empirical speedup includes both per-call overhead removal (~5-10\u00d7) and SIMD reduction unlock (~16\u00d7), composing to ~100\u00d7. This is the HR-style framing of the same end-of-buffer pattern as HO-CF-4 \u2014 distinct framing: HR emphasizes the abstraction cost, CF emphasizes the branchless refill design.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}

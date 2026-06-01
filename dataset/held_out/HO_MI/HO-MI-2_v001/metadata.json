@@ -1,0 +1,19 @@
+{
+  "pattern_id": "HO-MI-2",
+  "variant_id": "HO-MI-2_v001",
+  "category": "Memory & IO",
+  "pattern_name": "NUMA-Aware Allocation via Parallel First-Touch",
+  "variant_desc": "64M-double (512MB) buffer: serial init then parallel-sum (slow) -> parallel first-touch init then same-partition parallel-sum (fast) (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "double",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 4,
+  "num_arrays": 1,
+  "lines_of_code": 26,
+  "expected_speedup_range": "1x-3x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "source_citation": "ggerganov/llama.cpp issue #12759 (filed 2025-04-04, ~17% throughput loss from non-NUMA-aware allocation): https://github.com/ggerganov/llama.cpp/issues/12759",
+  "novelty_rationale": "Tests recognition that page placement is established at FIRST write under Linux's first-touch NUMA policy, so the threads that will later READ a page must also be the threads that INIT it. Compilers cannot perform this because page placement is an OS-level allocation-time decision driven by which CPU faulted the page in, invisible to any compile-time analysis. NOTE: on non-NUMA hardware (Apple Silicon, single-socket) the only visible speedup comes from parallel zeroing bandwidth; on actual 2-socket NUMA boxes the pattern recovers the ~17% LLM-inference throughput loss documented in the cited issue."
+}

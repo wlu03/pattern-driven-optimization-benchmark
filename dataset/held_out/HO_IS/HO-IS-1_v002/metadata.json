@@ -1,0 +1,18 @@
+{
+  "pattern_id": "HO-IS-1",
+  "variant_id": "HO-IS-1_v002",
+  "category": "Input-Sensitive Inefficiency",
+  "pattern_name": "Counting Sort for Small-Cardinality Data",
+  "variant_desc": "qsort of 1e6 ints in range [0,100) -> counting sort O(n + range) (variant 2: seed=44, n_scale=1.5x)",
+  "dtype": "int",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 3,
+  "num_arrays": 2,
+  "lines_of_code": 11,
+  "expected_speedup_range": "10x-100x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-29",
+  "novelty_rationale": "Tests recognition that small value-range data should use counting sort, not comparison sort. The input characteristic (range << n) is what enables the algorithmic improvement; no compiler can switch from qsort to counting sort based on runtime value distribution."
+}

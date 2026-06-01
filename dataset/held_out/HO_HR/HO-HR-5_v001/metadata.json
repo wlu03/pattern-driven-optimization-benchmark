@@ -1,0 +1,24 @@
+{
+  "pattern_id": "HO-HR-5",
+  "variant_id": "HO-HR-5_v001",
+  "category": "Human-Style Antipatterns",
+  "pattern_name": "Branchless Byte-Class Detection vs Per-Byte Switch",
+  "variant_desc": "10M-byte JSON-escape detection: per-byte switch+jump-table vs branchless boolean math (variant 1: seed=43, n_scale=0.5x)",
+  "dtype": "byte",
+  "difficulty": "hard",
+  "compiler_fixable": false,
+  "num_loops": 1,
+  "num_arrays": 1,
+  "lines_of_code": 30,
+  "expected_speedup_range": "2x-8x",
+  "composition": [],
+  "held_out": true,
+  "creation_date": "2026-05-31",
+  "source_citation": "https://lemire.me/blog/2025/04/ \u2014 Daniel Lemire 2025 on SWAR byte-class detection for parsers. See also simdjson's branchless structural-char detection.",
+  "novelty_rationale": "Tests whether the LLM knows that the conventional switch-based character classifier defeats auto-vectorization (jump table + data-dependent branch every byte), and that rewriting as a pure boolean expression (a | b | c) lets -O3 auto-vectorize into wide SIMD. Achieves ~6\u00d7 because the inner loop becomes vector-pipelineable. The harder SWAR/intrinsics version (manual 8-byte chunks with has_byte tricks) is correctness-tricky due to subtract-carry false positives \u2014 production parsers (simdjson, RapidJSON) sidestep this with NEON/AVX2 intrinsics. The branchless-boolean restructure is the cleanest portable rewrite.",
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
+  "pattern_type": "standard"
+}
