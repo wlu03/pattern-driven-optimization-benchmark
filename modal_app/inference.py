@@ -35,51 +35,69 @@ APP_NAME = "pdob-inference"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # --- Pareto-frontier shortlist ----------------------------------------------
+# Per-model config. `reasoning` flag = the model emits a separate <think>
+# trace before its answer. When True, the harness asks vLLM to expose
+# `reasoning_content` (via --enable-reasoning + --reasoning-parser deepseek_r1
+# in vLLM's CLI; we pass equivalent kwargs to LLM()). The trace is recorded
+# in the CSV's raw_reasoning column for scripts/cot_alignment_analysis.py,
+# NOT used as a verdict input (see docs/implementation.tex on why).
 MODELS = {
     "qwen2.5-coder-1.5b": {
         "hf_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
         "gpu":   "T4",
         "max_model_len": 4096,   # T4 has 16 GB — keep KV cache modest
+        "reasoning": False,
     },
     "qwen2.5-coder-7b": {
         "hf_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
         "gpu":   "A10G",
         "max_model_len": 8192,
+        "reasoning": False,
     },
     "qwen2.5-coder-14b": {
         "hf_id": "Qwen/Qwen2.5-Coder-14B-Instruct",
         "gpu":   "L40S",
         "max_model_len": 8192,
+        "reasoning": False,
     },
     "qwen2.5-coder-32b": {
         "hf_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
         "gpu":   "A100-80GB",
         "max_model_len": 8192,
+        "reasoning": False,
     },
     "deepseek-r1-distill-qwen-1.5b": {
         "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
         "gpu":   "T4",
         "max_model_len": 4096,   # T4 has 16 GB — keep KV cache modest
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
     },
     "deepseek-r1-distill-qwen-7b": {
         "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
         "gpu":   "A10G",
         "max_model_len": 8192,
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
     },
     "deepseek-r1-distill-qwen-32b": {
         "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
         "gpu":   "A100-80GB",
         "max_model_len": 8192,
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
     },
     "codestral-22b": {
         "hf_id": "mistralai/Codestral-22B-v0.1",
         "gpu":   "L40S",
         "max_model_len": 8192,
+        "reasoning": False,
     },
     "llama-3.3-70b": {
         "hf_id": "meta-llama/Llama-3.3-70B-Instruct",
         "gpu":   "H100",
         "max_model_len": 8192,
+        "reasoning": False,
     },
 }
 
@@ -126,7 +144,7 @@ class VLLMServer:
     def load(self):
         from vllm import LLM
         cfg = MODELS[self.model_key]
-        self.llm = LLM(
+        llm_kwargs = dict(
             model=cfg["hf_id"],
             max_model_len=cfg["max_model_len"],
             trust_remote_code=True,
@@ -138,17 +156,49 @@ class VLLMServer:
             # Conservative GPU-mem fraction so KV cache + workspace fits.
             gpu_memory_utilization=0.85,
         )
+        # Reasoning models: enable vLLM's reasoning-content parser so the
+        # <think> trace is exposed separately from the answer text. The
+        # answer text alone is what we extract C from; the trace lands
+        # in raw_reasoning for cot_alignment_analysis.py.
+        self._reasoning_enabled = bool(cfg.get("reasoning"))
+        if self._reasoning_enabled:
+            llm_kwargs["enable_reasoning"] = True
+            llm_kwargs["reasoning_parser"] = cfg.get("reasoning_parser",
+                                                      "deepseek_r1")
+        try:
+            self.llm = LLM(**llm_kwargs)
+        except TypeError:
+            # Older vLLM may not accept enable_reasoning kwarg. Retry
+            # without it (CoT will land in the main text and we'll
+            # extract heuristically downstream).
+            for k in ("enable_reasoning", "reasoning_parser"):
+                llm_kwargs.pop(k, None)
+            self.llm = LLM(**llm_kwargs)
+            self._reasoning_enabled = False
 
     @modal.method()
     def generate_batch(self, prompts: list[str],
-                       max_tokens: int = 2048) -> list[str]:
-        """Generate completions for a batch of prompts (vLLM continuous batching)."""
+                       max_tokens: int = 2048) -> list[dict]:
+        """Generate completions for a batch.
+
+        Returns a list of {"text": str, "reasoning": Optional[str]} dicts.
+        `reasoning` is populated for reasoning-tagged models (vLLM exposes
+        it via output.outputs[0].reasoning_content); None otherwise.
+        """
         from vllm import SamplingParams
         params = SamplingParams(
             temperature=0.0, top_p=1.0, max_tokens=max_tokens,
         )
         outputs = self.llm.generate(prompts, params)
-        return [o.outputs[0].text for o in outputs]
+        results = []
+        for o in outputs:
+            out0 = o.outputs[0]
+            results.append({
+                "text":      out0.text,
+                "reasoning": getattr(out0, "reasoning_content", None)
+                             if self._reasoning_enabled else None,
+            })
+        return results
 
 
 # --- Local prompt building (uses pdob_core's authoritative builders) --------
@@ -254,7 +304,8 @@ def evaluate_all(
         ok_w = csv.writer(fout)
         ok_w.writerow(["variant_id", "pattern_id", "category", "model",
                        "strategy", "hw_target", "raw_output_chars",
-                       "raw_output"])
+                       "raw_output", "raw_reasoning_chars",
+                       "raw_reasoning"])
         err_w = csv.writer(ferr)
         err_w.writerow(["batch_idx", "variant_id_first", "n_variants",
                         "exception_type", "exception_message"])
@@ -278,8 +329,19 @@ def evaluate_all(
                       f"{str(batch_out)[:120]}", flush=True)
                 continue
             for v, r in zip(batch_vs, batch_out):
-                ok_w.writerow([v.variant_id, v.pattern_id, v.category, model,
-                               strategy, hw_target, len(r), r])
+                # r is now a dict {"text": ..., "reasoning": ...}
+                # Tolerate older string-returning workers.
+                if isinstance(r, str):
+                    text, reasoning = r, None
+                else:
+                    text     = r.get("text", "")
+                    reasoning = r.get("reasoning")
+                ok_w.writerow([
+                    v.variant_id, v.pattern_id, v.category, model,
+                    strategy, hw_target,
+                    len(text), text,
+                    len(reasoning) if reasoning else 0, reasoning or "",
+                ])
                 n_ok += 1
             n_variants_done += len(batch_vs)
             fout.flush(); ferr.flush()

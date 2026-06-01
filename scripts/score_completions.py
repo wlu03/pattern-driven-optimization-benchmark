@@ -89,11 +89,19 @@ def main():
     for i, r in enumerate(raw_rows, 1):
         vp = by_vid[r["variant_id"]]
         precomputed_text = r["raw_output"]
+        precomputed_reasoning = r.get("raw_reasoning") or None
 
         # call_llm_fn signature: (prompt: str, model: str) -> str
         # The pre-computed text is returned regardless of which prompt the
         # retry loop constructs — we're just replaying the inference.
+        # Reasoning trace is captured via the get_last_reasoning_trace()
+        # hook that pdob_core.evaluator reads after each call_llm_fn call;
+        # we monkey-patch the module-level _last variable for that hook
+        # to surface the pre-computed reasoning.
+        from pdob_core import models as _m
         def fake_llm(prompt: str, model: str) -> str:
+            if precomputed_reasoning:
+                _m._LAST_REASONING_TRACE = precomputed_reasoning
             return precomputed_text
 
         model = r.get("model") or args.model
@@ -109,6 +117,12 @@ def main():
                 runs=args.runs,
                 faithfulness=args.faithfulness,
             )
+            # Ensure reasoning_trace lands on the result regardless of
+            # whether evaluate_variant's hook fired (the dataset path
+            # currently doesn't read it).
+            if precomputed_reasoning and not getattr(eval_result,
+                                                     "reasoning_trace", None):
+                eval_result.reasoning_trace = precomputed_reasoning
             results.append(eval_result)
         except Exception as e:
             print(f"  [{i}/{len(raw_rows)}] {vp.variant_id} FAILED: {e}",

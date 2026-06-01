@@ -1,0 +1,161 @@
+pattern_id,model,strategy,llm_code,compiles,correct,slow_ms,llm_ms,ref_fast_ms,speedup_vs_slow,speedup_vs_ref,diagnosed_pattern,hw_target,variant_id,sample_idx,slow_ms_mad,llm_ms_mad,ref_fast_ms_mad,llm_ms_O0,llm_ms_O3,unreliable,unreliable_reason,faithfulness_cell,faithfulness_equivalent,faithfulness_expected_shape,faithfulness_structural_verdict,faithfulness_structural_score,faithfulness_equiv_configs,faithfulness_equiv_passed,iter_rounds,iter_initial_speedup,reasoning_trace
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v012(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,6.138,6.115,0.037,1.0037612428454619,0.006050695012264922,,generic,DS-1_v012,0,0.08400000000000052,0.056999999999999496,0.003999999999999997,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v013(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,0.674,0.674,0.01,1.0,0.014836795252225518,,generic,DS-1_v013,0,0.0020000000000000018,0.0,0.0,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v014(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,2.631,2.723,0.017,0.9662137348512669,0.006243114212265884,,generic,DS-1_v014,0,0.0009999999999998899,0.07200000000000006,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v007(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,2.646,2.64,0.017,1.0022727272727272,0.006439393939393939,,generic,DS-1_v007,0,0.005999999999999783,0.01200000000000001,0.0020000000000000018,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v000(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,6.201,6.186,0.04,1.0024248302618817,0.006466214031684449,,generic,DS-1_v000,0,0.22599999999999998,0.08399999999999963,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v009(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,11.887,11.701,0.048,1.015896077258354,0.0041022134860268355,,generic,DS-1_v009,0,0.1509999999999998,0.0990000000000002,0.003999999999999997,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v008(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,11.729,12.016,0.051,0.9761151797603195,0.004244340878828229,,generic,DS-1_v008,0,0.21999999999999886,0.3149999999999995,0.003999999999999997,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v001(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,1.26,1.302,0.022,0.9677419354838709,0.016897081413210443,,generic,DS-1_v001,0,0.001000000000000112,0.008999999999999897,0.006999999999999999,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v006(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,1.352,1.345,0.014,1.005204460966543,0.010408921933085503,,generic,DS-1_v006,0,0.010000000000000009,0.0040000000000000036,0.002,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v011(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,0.674,0.681,0.011,0.9897209985315712,0.016152716593245225,,generic,DS-1_v011,0,0.0020000000000000018,0.0040000000000000036,0.0009999999999999992,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v010(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,6.193,6.191,0.036,1.0003230495881117,0.005814892586011953,,generic,DS-1_v010,0,0.2160000000000002,0.15800000000000036,0.001999999999999995,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v003(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,0.674,0.657,0.027,1.025875190258752,0.0410958904109589,,generic,DS-1_v003,0,0.014999999999999902,0.0040000000000000036,0.0,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v004(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,1.343,1.304,0.013,1.0299079754601226,0.009969325153374233,,generic,DS-1_v004,0,0.010000000000000009,0.001000000000000112,0.002,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v005(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,1.297,1.262,0.016,1.0277337559429476,0.012678288431061807,,generic,DS-1_v005,0,0.0040000000000000036,0.0030000000000001137,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+DS-1,qwen2.5-coder-1.5b,taxonomy-guided,"int slow_ds1_v002(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}",True,True,1.263,1.26,0.016,1.0023809523809524,0.012698412698412698,,generic,DS-1_v002,0,0.0040000000000000036,0.001000000000000112,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+MI-1,qwen2.5-coder-1.5b,taxonomy-guided,"double slow_mi1_v012(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}",True,True,5.678,5.562,0.307,1.0208558072635743,0.05519597267170082,,generic,MI-1_v012,0,0.02400000000000002,0.20599999999999952,0.0050000000000000044,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+MI-1,qwen2.5-coder-1.5b,taxonomy-guided,"double slow_mi1_v014(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}",True,True,16.171,15.893,0.294,1.0174919776002012,0.01849871012395394,,generic,MI-1_v014,0,0.11899999999999977,0.053000000000000824,0.0020000000000000018,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+MI-1,qwen2.5-coder-1.5b,taxonomy-guided,"double slow_mi1_v013(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}",True,True,15.864,15.909,0.293,0.997171412408071,0.01841724809856056,,generic,MI-1_v013,0,0.040000000000000924,0.09700000000000131,0.0040000000000000036,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+MI-1,qwen2.5-coder-1.5b,taxonomy-guided,"double slow_mi1_v009(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}",True,True,1.268,1.25,0.061,1.0144,0.048799999999999996,,generic,MI-1_v009,0,0.0040000000000000036,0.014999999999999902,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
+MI-1,qwen2.5-coder-1.5b,taxonomy-guided,"double slow_mi1_v000(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}",True,True,3.261,3.292,0.122,0.9905832320777643,0.037059538274605106,,generic,MI-1_v000,0,0.03500000000000014,0.005999999999999783,0.0010000000000000009,,,False,,FAITHFUL_ALTERNATIVE,True,False,,,1,1,0,,
