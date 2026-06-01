@@ -1,16 +1,1111 @@
-variant_id,pattern_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,expected_speedup_range
-HR-2_v000,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
-HR-2_v001,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v002,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v003,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
-HR-2_v004,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
-HR-2_v005,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,1.5x-3x
-HR-2_v006,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v007,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v008,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,1.5x-3x
-HR-2_v009,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v010,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
-HR-2_v011,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,1.5x-3x
-HR-2_v012,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,1.5x-3x
-HR-2_v013,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,1.5x-3x
-HR-2_v014,HR-2,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,1.5x-3x
+pattern_id,variant_id,category,pattern_name,variant_desc,dtype,difficulty,compiler_fixable,num_loops,num_arrays,lines_of_code,expected_speedup_range
+AL-1,AL-1_v000,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v001,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v002,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v003,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Catalan numbers: exponential recursive -> O(n^2) DP,long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v004,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v005,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v006,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Min cost path: exponential recursive -> O(m*n) DP,long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v007,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..3): O(3^n) -> O(n*3),long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v008,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Coin ways: exponential recursive -> O(amount * coins),long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v009,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Catalan numbers: exponential recursive -> O(n^2) DP,long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v010,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Grid paths: exponential recursive -> O(r*c) DP,long long,hard,False,1,0,8,1000x+
+AL-1,AL-1_v011,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..4): O(4^n) -> O(n*4),long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v012,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Staircase (step 1..4): O(4^n) -> O(n*4),long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v013,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Tribonacci: O(3^n) recursive -> O(n) iterative,long long,medium,False,1,0,8,1000x+
+AL-1,AL-1_v014,Algorithmic Inefficiency,Brute Force vs Memoization/DP,Derangements: O(2^n) recursive -> O(n) iterative,long long,medium,False,1,0,8,1000x+
+AL-2,AL-2_v000,Algorithmic,Repeated Sort vs Sorted Insertion,"float, n_items=5000",float,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v001,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=2000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v002,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=10000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v003,Algorithmic,Repeated Sort vs Sorted Insertion,"float, n_items=2000",float,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v004,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=5000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v005,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=5000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v006,Algorithmic,Repeated Sort vs Sorted Insertion,"float, n_items=5000",float,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v007,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=10000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v008,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=10000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v009,Algorithmic,Repeated Sort vs Sorted Insertion,"float, n_items=10000",float,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v010,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=5000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v011,Algorithmic,Repeated Sort vs Sorted Insertion,"float, n_items=5000",float,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v012,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=2000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v013,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=2000",double,hard,False,1,1,12,5x-50x
+AL-2,AL-2_v014,Algorithmic,Repeated Sort vs Sorted Insertion,"double, n_items=2000",double,hard,False,1,1,12,5x-50x
+AL-3,AL-3_v000,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=300, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v001,Algorithmic,Naive vs KMP Pattern Matching,"tn=10000000, pn=400, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v002,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=400, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v003,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=200, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v004,Algorithmic,Naive vs KMP Pattern Matching,"tn=10000000, pn=500, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v005,Algorithmic,Naive vs KMP Pattern Matching,"tn=10000000, pn=400, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v006,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=200, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v007,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=250, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v008,Algorithmic,Naive vs KMP Pattern Matching,"tn=10000000, pn=500, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v009,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=500, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v010,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=250, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v011,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=500, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v012,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=300, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v013,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=400, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-3,AL-3_v014,Algorithmic,Naive vs KMP Pattern Matching,"tn=20000000, pn=500, adversarial all-ones",int,hard,False,2,1,18,5x-50x
+AL-4,AL-4_v000,Algorithmic,Recursive vs DP (Grid Paths),grid 16x17,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v001,Algorithmic,Recursive vs DP (Grid Paths),grid 18x17,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v002,Algorithmic,Recursive vs DP (Grid Paths),grid 18x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v003,Algorithmic,Recursive vs DP (Grid Paths),grid 16x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v004,Algorithmic,Recursive vs DP (Grid Paths),grid 17x17,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v005,Algorithmic,Recursive vs DP (Grid Paths),grid 18x17,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v006,Algorithmic,Recursive vs DP (Grid Paths),grid 17x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v007,Algorithmic,Recursive vs DP (Grid Paths),grid 17x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v008,Algorithmic,Recursive vs DP (Grid Paths),grid 15x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v009,Algorithmic,Recursive vs DP (Grid Paths),grid 15x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v010,Algorithmic,Recursive vs DP (Grid Paths),grid 17x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v011,Algorithmic,Recursive vs DP (Grid Paths),grid 16x17,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v012,Algorithmic,Recursive vs DP (Grid Paths),grid 17x15,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v013,Algorithmic,Recursive vs DP (Grid Paths),grid 17x16,int,hard,False,2,0,8,1000x+
+AL-4,AL-4_v014,Algorithmic,Recursive vs DP (Grid Paths),grid 15x17,int,hard,False,2,0,8,1000x+
+CF-3,CF-3_v000,Control Flow,Vectorization-Hostile Redundant Conditional,"poly op, double, n=2000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v001,Control Flow,Vectorization-Hostile Redundant Conditional,"poly op, double, n=5000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v002,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, double, n=5000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v003,Control Flow,Vectorization-Hostile Redundant Conditional,"cubic op, float, n=2000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v004,Control Flow,Vectorization-Hostile Redundant Conditional,"poly op, float, n=2000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v005,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, double, n=2000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v006,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, double, n=10000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v007,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, float, n=2000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v008,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, float, n=2000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v009,Control Flow,Vectorization-Hostile Redundant Conditional,"cubic op, double, n=2000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v010,Control Flow,Vectorization-Hostile Redundant Conditional,"poly op, double, n=5000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v011,Control Flow,Vectorization-Hostile Redundant Conditional,"poly op, double, n=10000000",double,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v012,Control Flow,Vectorization-Hostile Redundant Conditional,"cubic op, float, n=10000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v013,Control Flow,Vectorization-Hostile Redundant Conditional,"cubic op, float, n=5000000",float,hard,False,1,1,8,2x-8x
+CF-3,CF-3_v014,Control Flow,Vectorization-Hostile Redundant Conditional,"quadratic op, double, n=5000000",double,hard,False,1,1,8,2x-8x
+CF-4,CF-4_v000,Control Flow,Function Dispatch in Hot Loop,"tag=0, float, n=2000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v001,Control Flow,Function Dispatch in Hot Loop,"tag=1, float, n=10000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v002,Control Flow,Function Dispatch in Hot Loop,"tag=1, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v003,Control Flow,Function Dispatch in Hot Loop,"tag=0, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v004,Control Flow,Function Dispatch in Hot Loop,"tag=0, double, n=2000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v005,Control Flow,Function Dispatch in Hot Loop,"tag=0, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v006,Control Flow,Function Dispatch in Hot Loop,"tag=0, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v007,Control Flow,Function Dispatch in Hot Loop,"tag=0, float, n=10000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v008,Control Flow,Function Dispatch in Hot Loop,"tag=2, float, n=10000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v009,Control Flow,Function Dispatch in Hot Loop,"tag=1, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v010,Control Flow,Function Dispatch in Hot Loop,"tag=1, float, n=5000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v011,Control Flow,Function Dispatch in Hot Loop,"tag=1, double, n=5000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v012,Control Flow,Function Dispatch in Hot Loop,"tag=0, double, n=10000000",double,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v013,Control Flow,Function Dispatch in Hot Loop,"tag=2, float, n=2000000",float,hard,False,1,1,10,2x-6x
+CF-4,CF-4_v014,Control Flow,Function Dispatch in Hot Loop,"tag=2, double, n=5000000",double,hard,False,1,1,10,2x-6x
+COMP,COMP_v000,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v001,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v002,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v004,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v005,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v006,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v007,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v008,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v010,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v011,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v012,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v013,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v014,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v015,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v016,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v018,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v019,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v020,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v022,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v023,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v024,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v025,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v026,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v027,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v028,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v029,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v030,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v031,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v032,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v033,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v034,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v035,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v036,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v037,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v038,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v039,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v040,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v041,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v042,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v043,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v044,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v045,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v046,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v047,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v048,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v049,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v050,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v051,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v052,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v053,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v054,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v055,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v056,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v057,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v059,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v060,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v061,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v062,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v063,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v064,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v065,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v066,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v067,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v068,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v070,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v071,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v072,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v073,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v074,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v075,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v076,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v077,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v078,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v079,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v080,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v081,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v082,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v084,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v085,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v086,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v087,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v088,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v089,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v090,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v091,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v092,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v093,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v094,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v095,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v096,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v097,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v098,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v099,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v100,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v101,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v102,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v103,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v104,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v105,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v106,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v107,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v108,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v109,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v110,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v111,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v112,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v113,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v114,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v115,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v116,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v117,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v118,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v119,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v120,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v122,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v123,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v124,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v125,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v126,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v127,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v128,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v129,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v130,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v131,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v132,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v133,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v134,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v135,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v136,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v137,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v138,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v139,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v140,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v141,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v142,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v143,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v144,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v145,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v146,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v147,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v148,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v149,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v150,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v151,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v152,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v153,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v154,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v155,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v156,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v157,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v158,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v159,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v160,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v161,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v162,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v163,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v164,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v166,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v167,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v168,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v169,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v170,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v171,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v172,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v173,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v174,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v175,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v176,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v177,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v178,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v179,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v180,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v181,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v182,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v183,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v184,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v185,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v186,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v187,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v188,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v189,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v191,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v192,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v193,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v194,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v195,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v196,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v197,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v198,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v199,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v200,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v201,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v202,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v203,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v204,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v205,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v206,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v207,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v208,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v209,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v210,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v211,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v212,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v213,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v214,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v215,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v216,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v217,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v218,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v219,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v220,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v221,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v222,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v223,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v224,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v225,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v226,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v227,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v228,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v229,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v230,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v231,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v232,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v233,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v234,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v235,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v236,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v237,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v238,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v239,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v240,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v241,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v242,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v243,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v244,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v245,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v246,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v247,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v248,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v249,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v250,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v251,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v252,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v253,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v254,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v255,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v256,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v257,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v258,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v259,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v260,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v261,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v262,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v263,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v265,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v266,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v267,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v268,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v269,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v270,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v271,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v272,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v273,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v274,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v275,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v276,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v277,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v278,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v279,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v280,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v281,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v282,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v283,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v284,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v285,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v286,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v287,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v288,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v289,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v290,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v291,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v292,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v293,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v294,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v295,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v296,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v297,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v298,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v299,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v300,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v301,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v302,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v303,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v304,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v305,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v306,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v307,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v308,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v309,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v310,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v311,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v312,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v313,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v314,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v316,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v317,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v318,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v319,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v320,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v321,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v322,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v323,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v324,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v325,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v326,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v327,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v328,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v329,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v330,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v331,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v332,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v333,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v334,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v335,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v336,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v337,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v338,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v339,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v340,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v341,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v342,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v343,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v344,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v345,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v346,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v347,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v348,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v349,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v350,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v351,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v352,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v353,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v354,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v355,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v356,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v357,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v358,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v359,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v360,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v361,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v362,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v363,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v364,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v365,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v366,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v367,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v368,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v369,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v370,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v371,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v373,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v374,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v375,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v376,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v377,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v378,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v379,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v380,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v381,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v382,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v383,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v384,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v386,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v387,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v388,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v389,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v390,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v391,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v392,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v393,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v394,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v395,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v396,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v397,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v398,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v399,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v400,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v401,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v402,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v403,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v404,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v405,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v406,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v407,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v408,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v409,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v410,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v411,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v412,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v413,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v414,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v415,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v416,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v417,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v418,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v419,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v420,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v421,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v422,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v423,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v424,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v425,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v426,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v427,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v428,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v429,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v430,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v431,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v432,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v433,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v434,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v435,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v436,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v437,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v438,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v439,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v440,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v441,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v442,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v443,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v444,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v445,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v446,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v447,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v448,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v449,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v450,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v451,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v452,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v453,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v454,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v455,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v456,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v457,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v458,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v459,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v461,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v462,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v463,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v464,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v465,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v466,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v467,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v468,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v469,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v470,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v471,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v472,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v473,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v474,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v475,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v476,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v477,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v478,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v479,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v480,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v482,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v483,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v484,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v485,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v486,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v487,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v488,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v489,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v490,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v491,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v493,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v494,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v495,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v496,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v497,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v498,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v499,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v500,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v501,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v502,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v503,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v504,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v505,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v506,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v507,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v508,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v509,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v510,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v511,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v512,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v513,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v514,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v515,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v516,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v517,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v518,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v519,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v520,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v521,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v522,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v523,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v524,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v525,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v526,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v527,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v528,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v529,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v530,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v531,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v532,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v533,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v534,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v536,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v537,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v538,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v539,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v540,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v541,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v542,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v543,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v544,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v545,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v546,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v547,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v548,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v549,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v550,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v551,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v552,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v553,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v554,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v555,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v556,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v558,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v559,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v560,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v561,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v562,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v563,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v564,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v565,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v566,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v567,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v568,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v569,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v570,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v571,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v572,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v573,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v574,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v575,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v576,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v577,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v578,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v579,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v580,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v581,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v582,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v583,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v584,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v585,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v586,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v587,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v588,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v589,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v590,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v591,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v592,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v593,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v594,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v595,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v596,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v597,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v599,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v600,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v601,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v602,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v604,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v605,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v606,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v607,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v609,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v610,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v611,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v612,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v613,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v614,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v615,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v616,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v617,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v618,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v619,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v620,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v621,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v622,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v623,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v624,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v625,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v626,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v627,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v628,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v629,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v630,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v631,Composed,Multiple Overlapping Patterns,"Q4_K blocks scattered vs Q4_K_x8 interleaved [llama.cpp #12332], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v632,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v633,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v634,Composed,Multiple Overlapping Patterns,"qsort + per-elem noinline vs detect-sorted + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v635,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v636,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v637,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v638,Composed,Multiple Overlapping Patterns,"Noinline penalty + temp decomposition, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v639,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v640,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v641,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v642,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v643,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v644,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v645,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v646,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v647,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v648,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v649,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v650,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v651,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v652,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v653,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v654,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v655,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v656,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v657,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v658,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v659,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v660,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v661,Composed,Multiple Overlapping Patterns,"Recursive Fib + noinline lookup vs iterative + hoist, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v663,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v664,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v665,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v667,Composed,Multiple Overlapping Patterns,"AoS dense over sparse vs SoA skip-zero, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v668,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v669,Composed,Multiple Overlapping Patterns,"Wide struct vs hot/cold split [Abseil Tip 62], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v670,Composed,Multiple Overlapping Patterns,"Per-element input branch vs split-pass vectorize, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v671,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v672,Composed,Multiple Overlapping Patterns,"Linear branchy vs binary branchless search, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v673,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v674,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v675,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v676,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v677,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v678,Composed,Multiple Overlapping Patterns,"Invariant function call + defensive checks, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v679,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v680,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v681,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v682,Composed,Multiple Overlapping Patterns,"Recursive 2D DP col-major vs iterative row-major, double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v683,Composed,Multiple Overlapping Patterns,"Noinline loop-invariant scale + hoistable branch, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v684,Composed,Multiple Overlapping Patterns,"Top-down DP descent vs bottom-up sequential, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v685,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v686,Composed,Multiple Overlapping Patterns,"Triple: temps + bounds + cache, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v687,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v688,Composed,Multiple Overlapping Patterns,"Triple: invariant call + branch + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v689,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v690,Composed,Multiple Overlapping Patterns,"Redundant aggregation + column-major, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v691,Composed,Multiple Overlapping Patterns,"Parallel arrays vs tagged pointers + lookup [CedarDB DaMoN24], double",double,hard,False,2,2,15,10x-1000x
+COMP,COMP_v692,Composed,Multiple Overlapping Patterns,"Hoistable branch + column-major access, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v693,Composed,Multiple Overlapping Patterns,"Per-chunk memcpy vs shared buffer + selection [DuckDB SIGMOD25], int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v695,Composed,Multiple Overlapping Patterns,"Noinline log-scale + bounds check + temps, float",float,hard,False,2,2,15,10x-1000x
+COMP,COMP_v696,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v697,Composed,Multiple Overlapping Patterns,"Wide AoS stride access + redundant bounds, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v698,Composed,Multiple Overlapping Patterns,"Brute scan vs hash-table lookup, int",int,hard,False,2,2,15,10x-1000x
+COMP,COMP_v699,Composed,Multiple Overlapping Patterns,"Sparse vec x col-major matrix vs sparse fast + row-major, int",int,hard,False,2,2,15,10x-1000x
+DS-1,DS-1_v000,Data Structure,Linear Search vs Hash Lookup,"n_keys=5000, n_q=10000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v001,Data Structure,Linear Search vs Hash Lookup,"n_keys=2000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v002,Data Structure,Linear Search vs Hash Lookup,"n_keys=2000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v003,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v004,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=10000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v005,Data Structure,Linear Search vs Hash Lookup,"n_keys=2000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v006,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=10000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v007,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=20000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v008,Data Structure,Linear Search vs Hash Lookup,"n_keys=5000, n_q=20000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v009,Data Structure,Linear Search vs Hash Lookup,"n_keys=5000, n_q=20000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v010,Data Structure,Linear Search vs Hash Lookup,"n_keys=5000, n_q=10000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v011,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v012,Data Structure,Linear Search vs Hash Lookup,"n_keys=5000, n_q=10000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v013,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=5000",int,hard,False,2,2,12,10x-1000x
+DS-1,DS-1_v014,Data Structure,Linear Search vs Hash Lookup,"n_keys=1000, n_q=20000",int,hard,False,2,2,12,10x-1000x
+DS-2,DS-2_v000,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=10000000, chunk=16",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v001,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=20000000, chunk=8",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v002,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=20000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v003,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=20000000, chunk=8",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v004,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=10000000, chunk=8",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v005,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=10000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v006,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=20000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v007,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=20000000, chunk=16",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v008,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=10000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v009,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=20000000, chunk=16",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v010,Data Structure,Repeated Allocation vs Pre-allocation,"float, n=10000000, chunk=16",float,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v011,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=20000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v012,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=20000000, chunk=16",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v013,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=10000000, chunk=8",double,hard,False,2,1,12,2x-10x
+DS-2,DS-2_v014,Data Structure,Repeated Allocation vs Pre-allocation,"double, n=20000000, chunk=8",double,hard,False,2,1,12,2x-10x
+DS-3,DS-3_v000,Data Structure,Unnecessary Struct Copy (Pass-by-Value),"n_fields=128, n=2000000",double,medium,False,1,1,10,2x-8x
+DS-3,DS-3_v002,Data Structure,Unnecessary Struct Copy (Pass-by-Value),"n_fields=128, n=4000000",double,medium,False,1,1,10,2x-8x
+DS-3,DS-3_v005,Data Structure,Unnecessary Struct Copy (Pass-by-Value),"n_fields=128, n=4000000",double,medium,False,1,1,10,2x-8x
+DS-3,DS-3_v009,Data Structure,Unnecessary Struct Copy (Pass-by-Value),"n_fields=128, n=4000000",double,medium,False,1,1,10,2x-8x
+DS-3,DS-3_v013,Data Structure,Unnecessary Struct Copy (Pass-by-Value),"n_fields=128, n=2000000",double,medium,False,1,1,10,2x-8x
+DS-4,DS-4_v000,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (32 fields, 256B), accessing ['pressure', 'ozone'], sum reduction",double,hard,False,1,2,15,16x-32x
+DS-4,DS-4_v001,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['rate', 'confidence', 'amplitude'], sum reduction, while-loop",double,medium,False,1,3,15,10x-32x
+DS-4,DS-4_v002,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (24 fields, 192B), accessing ['cb', 'cg'], max reduction",double,hard,False,1,2,15,12x-24x
+DS-4,DS-4_v003,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (40 fields, 320B), accessing ['temp', 'co2', 'signal'], max reduction",double,medium,False,1,3,15,13x-40x
+DS-4,DS-4_v004,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"particles struct (40 fields, 320B), accessing ['fy', 'potential'], sum reduction",double,hard,False,1,2,15,20x-40x
+DS-4,DS-4_v005,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (40 fields, 320B), accessing ['depth', 'opacity'], sum reduction",double,hard,False,1,2,15,20x-40x
+DS-4,DS-4_v007,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (32 fields, 256B), accessing ['pz', 'nw'], sum reduction",double,hard,False,1,2,15,16x-32x
+DS-4,DS-4_v008,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"sensors struct (32 fields, 256B), accessing ['radiation', 'humidity', 'signal'], sum reduction",double,medium,False,1,3,15,10x-32x
+DS-4,DS-4_v009,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['channel', 'baseline', 'z'], max reduction",double,medium,False,1,3,15,10x-32x
+DS-4,DS-4_v011,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['diffuse', 'depth'], sum reduction",double,hard,False,1,2,15,16x-32x
+DS-4,DS-4_v012,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (24 fields, 192B), accessing ['y', 'energy'], max reduction, while-loop",double,hard,False,1,2,15,12x-24x
+DS-4,DS-4_v013,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (32 fields, 256B), accessing ['baseline', 'trigger', 'peak'], sum reduction",double,medium,False,1,3,15,10x-32x
+DS-4,DS-4_v014,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"events struct (40 fields, 320B), accessing ['amplitude', 'confidence'], max reduction",double,hard,False,1,2,15,20x-40x
+DS-4,DS-4_v016,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"records struct (24 fields, 192B), accessing ['age', 'rank', 'timestamp'], max reduction",double,medium,False,1,3,15,8x-24x
+DS-4,DS-4_v017,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"vertices struct (32 fields, 256B), accessing ['ny', 'py'], sum reduction",double,hard,False,1,2,15,16x-32x
+DS-4,DS-4_v018,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['normal_y', 'depth'], sum reduction, while-loop",double,hard,False,1,2,15,16x-32x
+DS-4,DS-4_v019,Data Structure Inefficiency,Cache-Unfriendly Access (AoS vs SoA),"pixels struct (32 fields, 256B), accessing ['y', 'g'], sum reduction, while-loop",double,hard,False,1,2,15,16x-32x
+HO-AL-1,HO-AL-1_v000,Algorithmic Inefficiency,Shuffle-Take-K vs Partial Fisher-Yates Sampling,Full Fisher-Yates of n=1e6 then take first k=100 -> selection-sampling variant doing only k swaps,int,hard,False,2,2,12,100x-10000x
+HO-AL-2,HO-AL-2_v000,Algorithmic Inefficiency,Exact Distinct-Count vs HyperLogLog Sketch,"1M-key chained hash set distinct-count (O(N) memory, ~16MB malloc churn) -> HLL with 16384 6-bit registers (12 KB fixed) harmonic-mean estimate",int,hard,False,3,2,45,5x-50x
+HO-AL-3,HO-AL-3_v000,Algorithmic Inefficiency,Exact Frequency Map vs Count-Min Sketch,"Chained hash-map<int,int> over 1M (key,inc) pairs (variable memory, hash-walk per insert) -> 2048x5 Count-Min Sketch (40 KB fixed, 5 cell updates per insert, min over 5 cells per query)",int,hard,False,3,4,55,3x-20x
+HO-AL-4,HO-AL-4_v000,Algorithmic Inefficiency,HyperLogLogLog (Compressed HLL) via Base+Offset and Bulking,"Vanilla HLL with 16384x8b registers (16 KB) -> HyperLogLogLog with 16384x4b offsets + 256x8b per-block bases (~8.25 KB), amortized O(1) inserts via 256-element bulking that batches rebases",int,hard,False,4,4,80,0.5x-2x
+HO-CF-1,HO-CF-1_v000,Control Flow,Tagged-Dispatch If/Else Chain to Lookup Table,8-way if/else chain over irregular tag bytes (no switch -> jump-table possible) -> single-load weight table,float,hard,False,1,2,18,5x-15x
+HO-CF-2,HO-CF-2_v000,Control Flow,Computed-Goto Threaded Dispatch vs Switch,"10-opcode stack VM, N=1M instructions dispatched",int,hard,False,1,2,32,1.05x-1.3x
+HO-CF-3,HO-CF-3_v000,Control Flow,Predicate-by-Mask vs Fragile Cmov Lowering,high-register-pressure hot loop where if-vs-cmov lowering is fragile,int,hard,False,1,3,28,0.95x-3x
+HO-CF-4,HO-CF-4_v000,Control Flow,Per-Call EOB Check vs Inlined Bitstream Refill,"5-bit symbol bitstream decoder, 1M symbols, per-call vs inlined refill",int,hard,False,2,1,45,1.3x-3x
+HO-CF-5,HO-CF-5_v000,Control Flow,FSE-Style Table-Driven FSM vs Nested If/Else,8-state FSM decoded from 1M-byte input via nested if-else vs precomputed table,int,hard,False,1,3,56,1.5x-6x
+HO-DS-1,HO-DS-1_v000,Data Structure Inefficiency,Hot/Cold Field Separation,"32-double 256B struct (4 cache lines), hot loop reads 2 fields -> split into hot[] (16B/rec, 4 recs/line) + cold[]",double,hard,False,1,2,14,5x-15x
+HO-DS-2,HO-DS-2_v000,Data Structure Inefficiency,Small Dictionary as Linear Array,"Open-addressed hash table with noinline strong hash (12 keys) -> 12-pair flat linear scan; 1e6 lookups, 100% hit rate",int,hard,False,2,3,22,3x-10x
+HO-DS-3,HO-DS-3_v000,Data Structure Inefficiency,Narrow-Integer Densification,"int64_t field over [0,255] in 64B struct (1 record/line) -> uint8_t array (64 records/line)",int,hard,False,1,2,14,3x-30x
+HO-DS-4,HO-DS-4_v000,Data Structure Inefficiency,Pointer-Bit-Packing Tag Scheme,tag inside scattered node (pointer-chase DRAM miss per probe) -> 16-bit tag in upper bits of pointer (probe avoids deref on miss),int,hard,False,1,1,18,3x-10x
+HO-DS-5,HO-DS-5_v000,Data Structure Inefficiency,SIMD-Friendly Block Interleaving (block_q4_Kx8),"{scale, qs[32]} per block (36B stride) -> {scales[8], qs[32][8]} super-block with transposed quants for 8-lane SIMD",float,hard,False,2,2,28,1.5x-5x
+HO-DS-6,HO-DS-6_v000,Data Structure Inefficiency,Sub-Byte Bit-Packing with Cross-Byte Straddling (HLL Dense 6-bit Layout),"Naive HLL register layout `uint8_t regs[16384]` (16 KB, 75% waste) -> 12 KB densely packed 6-bit registers with Redis HLL_DENSE_GET_REGISTER cross-byte read `(b0 >> _fb) | (b1 << _fb8)) & 0x3F`",int,hard,False,4,2,50,0.5x-2x
+HO-HR-1,HO-HR-1_v000,Human-Style Antipatterns,Defensive Over-Copy Through Temporary Buffer,"memcpy(src->tmp); transform(tmp,tmp); memcpy(tmp->dst) -> transform(src,dst) directly",float,medium,False,1,3,8,2x-4x
+HO-HR-2,HO-HR-2_v000,Human-Style Antipatterns,Defensive unlikely() that is Empirically Wrong,hot path with unlikely() hint on a predicate that's true 40% of the time,int,hard,False,1,1,22,0.95x-1.4x
+HO-HR-3,HO-HR-3_v000,Human-Style Antipatterns,Missing __builtin_unreachable Invariant for Bounds-Check Elimination,10M-element loop with per-iter bounds check the compiler cannot prove away without programmer-supplied contract,int,hard,False,1,1,22,0.95x-3x
+HO-HR-4,HO-HR-4_v000,Human-Style Antipatterns,Abstraction-Induced Per-Call Bounds-Check Overhead,10M bytes scanned: per-byte noinline read helper vs inlined loop,byte,hard,False,1,1,20,20x-200x
+HO-HR-5,HO-HR-5_v000,Human-Style Antipatterns,Branchless Byte-Class Detection vs Per-Byte Switch,10M-byte JSON-escape detection: per-byte switch+jump-table vs branchless boolean math,byte,hard,False,1,1,30,2x-8x
+HO-IS-1,HO-IS-1_v000,Input-Sensitive Inefficiency,Counting Sort for Small-Cardinality Data,"qsort of 1e6 ints in range [0,100) -> counting sort O(n + range)",int,hard,False,3,2,11,10x-100x
+HO-IS-2,HO-IS-2_v000,Input-Sensitive Inefficiency,Multi-Tier Adaptive Sort Dispatch (DuckDB 2025 Sort Redesign),"unconditional qsort on 1M ints -> 3-tier adaptive: pre-sorted-run detection, counting sort for small range, qsort fallback",int,hard,False,8,1,56,5x-30x
+HO-IS-3,HO-IS-3_v000,Input-Sensitive Inefficiency,Runtime Cardinality-Driven Chunk Compaction (DuckDB SIGMOD'25),100k chunks each w/ private 2048-int buffer + per-chunk memcpy compaction -> shared buffer + per-chunk selection-vector (no memcpy),int,hard,False,2,3,20,2x-5x
+HO-IS-4,HO-IS-4_v000,Input-Sensitive Inefficiency,Multi-Stream Huffman Decode for ILP,"Single-stream Huffman decoder (per-iter chain: refill -> table lookup -> shift, ~5-7 cycle dep chain) -> 4 independent interleaved bitstreams + 4 disjoint output segments so the OoO core overlaps the chains",int,hard,False,2,7,50,1.5x-3x
+HO-IS-5,HO-IS-5_v000,Input-Sensitive Inefficiency,Loop-Bound Tightening for Huffman Fast Loop,Conservative `ilimit = src + 14` early exit forces ~14 extra slow-path iterations per decode -> `ilowest = src`: fast loop's own 7-byte/iter invariant guarantees safety without the 14-byte margin,int,hard,False,4,3,50,1.0x-1.5x
+HO-MI-1,HO-MI-1_v000,Memory & IO,Software Prefetch for Pointer-Chase Traversal,"5e5 nodes x 256B = ~128MB arena, pointer-linked traversal -> indexed traversal with __builtin_prefetch 16 hops ahead",long,hard,False,2,1,18,10x-20x
+HO-MI-2,HO-MI-2_v000,Memory & IO,NUMA-Aware Allocation via Parallel First-Touch,64M-double (512MB) buffer: serial init then parallel-sum (slow) -> parallel first-touch init then same-partition parallel-sum (fast),double,hard,False,4,1,26,1x-3x
+HO-MI-3,HO-MI-3_v000,Memory & IO,Loop Splitting to Break RAW Dependency (TSVC s1113),"for(i=0;i<N;i++) a[i] = POLY(a[N/2] + b[i]) (scalar chain) -> 3-part split: pre-mid, mid, post-mid (all 4-lane SIMD vectorizable)",float,hard,False,3,2,22,2x-4x
+HO-MI-4,HO-MI-4_v000,Memory & IO,Manual 8x Unroll Required Under Security Mitigation Flags,Tight 1-symbol-per-iter Huffman inner loop relying on compiler auto-unroll (which is suppressed under -mretpoline / -mcet-switch / -fcf-protection=full) -> manually unrolled 8x body,int,hard,False,3,4,60,1x-3x
+HO-SR-1,HO-SR-1_v000,Semantic Redundancy,Cross-Call Memoization,"10k separate calls with same key -> static cache of last (key,result) pair",int,hard,False,1,1,13,10x-100x
+HO-SR-2,HO-SR-2_v000,Semantic Redundancy,Specialized Integer Hash via CRC32,xxh3-style 12-multiply avalanche on 8-byte keys (~30 insns) -> CRC32 + single multiply (~5 insns x86) or 2-multiply Mulxsh (~3 insns ARM),int,hard,False,4,3,30,2x-5x
+HO-SR-3,HO-SR-3_v000,Semantic Redundancy,Heap-to-Stack Allocation Conversion (Abseil Tip #83),"malloc()/free() of 120B struct per iter, populated by cross-TU noinline init, hot field reads -> stack alloc + same init, no malloc per iter",int,hard,False,1,0,12,3x-20x
+HO-SR-4,HO-SR-4_v000,Semantic Redundancy,Constant-Time Bitmask Table Lookup vs Compiler-Introduced Branch (Inverted),Naive intended-constant-time bitmask-OR scan that -O3 transforms into a leaky direct-load (slow) -> volatile-barrier-defended version that preserves the constant-time scan (fast),int,hard,False,2,1,12,0.5x-2x
+HO-SR-5,HO-SR-5_v000,Semantic Redundancy,BearSSL Conditional-Move via Mask vs Compiler-Introduced Branch (Inverted),Canonical BearSSL CT conditional copy with mask = -(((x|-x)>>31)^1) -- clang/gcc at -O3 recognize 'is x zero?' and rewrite to test/je/jmp memcpy@PLT (slow) -> volatile-barrier-defended version that preserves the masked scan (fast),int,hard,False,2,3,12,0.5x-2x
+HO-SR-6,HO-SR-6_v000,Semantic Redundancy,Kyber/ML-KEM Message Bit Decoding vs Compiler-Introduced Branch (Inverted),"Canonical Kyber message-bit decode `mask = -((msg[i]>>j)&1); r[8i+j] = mask & 1665;` -- LLVM trunk at -O1+ produces bt/jae/mov, leaking the bit via timing (slow) -> volatile-barrier-defended formulation that preserves the constant-time AND (fast)",int,hard,False,4,2,14,0.5x-2x
+HO-SR-7,HO-SR-7_v000,Semantic Redundancy,Shift-Amount Mask to Elide GCC's UB Check,Variable-amount shift `x << entry.nbits` triggers GCC's runtime UB guard (cmp + ja) because the shift count is loaded from memory -> `x << (entry.nbits & 0x3F)` is provably < 64 so GCC elides the guard,int,hard,False,2,3,30,0.9x-1.3x
+HR-2,HR-2_v000,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v001,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v002,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v003,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v004,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v005,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v006,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v007,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v008,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=2000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v009,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v010,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v011,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v012,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=5000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v013,Human-Style Antipatterns,Copy-Paste Loop Duplication,"double, n=10000000",double,medium,False,4,2,18,1.5x-3x
+HR-2,HR-2_v014,Human-Style Antipatterns,Copy-Paste Loop Duplication,"float, n=2000000",float,medium,False,4,2,18,1.5x-3x
+HR-3,HR-3_v000,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, float, n=5000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v001,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"scale_add, float, n=5000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v002,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"linear_combo, double, n=5000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v003,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, double, n=2000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v004,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"scale_add, float, n=2000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v005,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"linear_combo, double, n=5000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v006,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, float, n=2000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v007,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, double, n=5000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v008,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, float, n=5000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v009,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, double, n=2000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v010,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, float, n=10000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v011,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"scale_add, float, n=10000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v012,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"scale_add, float, n=5000000",float,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v013,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, double, n=10000000",double,hard,False,1,1,10,1.5x-4x
+HR-3,HR-3_v014,Human-Style Antipatterns,Dead / Debug Code in Hot Loop,"quadratic, float, n=5000000",float,hard,False,1,1,10,1.5x-4x
+HR-4,HR-4_v000,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"sum, float, n=2000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v001,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, float, n=5000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v002,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, float, n=2000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v003,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"scale_sum, double, n=5000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v004,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"scale_sum, float, n=10000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v005,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, float, n=10000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v006,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"sum, double, n=2000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v007,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=5000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v008,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=10000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v009,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, float, n=10000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v010,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"scale_sum, float, n=10000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v011,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"sum, float, n=2000000",float,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v012,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=2000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v013,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=5000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v014,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=10000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v015,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"scale_sum, double, n=10000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v016,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=5000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v017,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"sum, double, n=10000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v018,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"dot, double, n=2000000",double,medium,False,1,1,8,2x-6x
+HR-4,HR-4_v019,Human-Style Antipatterns,Overly Defensive Checks in Hot Loop,"sum, double, n=10000000",double,medium,False,1,1,8,2x-6x
+IS-1,IS-1_v001,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (99.0% zeros), skip zero elements, float",float,hard,False,3,3,10,100x
+IS-1,IS-1_v002,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (99.0% zeros), skip zero rows/cols, float",float,medium,False,2,3,10,100x
+IS-1,IS-1_v003,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (99.0% zeros), skip zero elements, double",double,hard,False,3,3,10,100x
+IS-1,IS-1_v004,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (95.0% zeros), skip zero elements, float, while-loop",float,hard,False,3,3,10,20x
+IS-1,IS-1_v005,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (90.0% zeros), skip zero elements, float",float,hard,False,3,3,10,10x
+IS-1,IS-1_v008,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95.0% zeros), skip zero rows/cols, float",float,medium,False,2,3,10,20x
+IS-1,IS-1_v010,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95.0% zeros), skip zero rows/cols, float",float,medium,False,2,3,10,20x
+IS-1,IS-1_v011,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95.0% zeros), skip zero rows/cols, float",float,medium,False,2,3,10,20x
+IS-1,IS-1_v012,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (90.0% zeros), skip zero elements, double",double,hard,False,3,3,10,10x
+IS-1,IS-1_v014,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (99.0% zeros), skip zero rows/cols, double",double,medium,False,2,3,10,100x
+IS-1,IS-1_v015,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (90.0% zeros), skip zero elements, float",float,hard,False,3,3,10,10x
+IS-1,IS-1_v016,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse matrix-matrix multiply (99.0% zeros), skip zero elements, double",double,hard,False,3,3,10,100x
+IS-1,IS-1_v018,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (99.0% zeros), skip zero rows/cols, double",double,medium,False,2,3,10,100x
+IS-1,IS-1_v019,Input-Sensitive Inefficiency,Sparse Data Redundancy,"Sparse outer product (95.0% zeros), skip zero rows/cols, float, while-loop",float,medium,False,2,3,10,20x
+IS-2,IS-2_v000,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 5% outliers, double, n=2000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v001,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"sqrt_offset transform, 5% outliers, double, n=5000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v002,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 2% outliers, float, n=5000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v003,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 2% outliers, double, n=2000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v004,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"sqrt_offset transform, 1% outliers, float, n=10000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v005,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"log transform, 1% outliers, float, n=10000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v006,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"sqrt_offset transform, 2% outliers, double, n=2000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v007,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"log transform, 5% outliers, float, n=2000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v008,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"sqrt_offset transform, 1% outliers, double, n=5000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v009,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 1% outliers, double, n=10000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v010,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 5% outliers, float, n=10000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v011,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"exp_clamp transform, 5% outliers, float, n=10000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v012,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"sqrt_offset transform, 1% outliers, double, n=10000000",double,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v013,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"log transform, 1% outliers, float, n=5000000",float,medium,False,1,1,8,1.1x-2x
+IS-2,IS-2_v014,Input-Sensitive Inefficiency,Unconditional Expensive Call on Skewed Data,"log transform, 5% outliers, float, n=5000000",float,medium,False,1,1,8,1.1x-2x
+IS-3,IS-3_v000,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 50, double, n=10000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v001,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 100, double, n=10000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v002,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 5, double, n=5000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v003,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 50, float, n=5000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v004,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 500, double, n=2000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v005,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 10, double, n=5000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v006,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 50, float, n=10000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v007,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 10, double, n=10000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v008,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 100, float, n=2000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v009,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 10, double, n=10000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v010,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 100, float, n=5000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v011,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 5, float, n=5000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v012,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 5, float, n=5000000",float,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v013,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 500, double, n=5000000",double,hard,False,1,1,6,100x-10000x
+IS-3,IS-3_v014,Input-Sensitive Inefficiency,Early Termination Opportunity,"violation at pos 50, float, n=10000000",float,hard,False,1,1,6,100x-10000x
+IS-4,IS-4_v000,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=1000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v001,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=5000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v002,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=5000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v003,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=5000000, sample_k=64",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v004,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=1000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v006,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=500000, sample_k=64",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v007,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=1000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v010,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=1000000, sample_k=32",int,hard,False,1,1,15,5x-20x
+IS-4,IS-4_v011,Input-Sensitive Inefficiency,Adaptive Sort (Nearly-Sorted Detection),"2% swaps, n=1000000, sample_k=64",int,hard,False,1,1,15,5x-20x
+IS-5,IS-5_v000,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, double, n=80000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v001,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, float, n=50000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v003,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, double, n=60000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v004,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, double, n=80000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v005,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, double, n=60000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v006,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, float, n=60000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v007,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, double, n=80000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v008,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, double, n=60000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v009,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, float, n=50000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v010,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, double, n=60000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v011,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, double, n=80000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v012,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, float, n=80000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v013,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, float, n=80000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v014,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, float, n=60000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v015,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, double, n=60000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v016,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, float, n=60000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v017,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"linear_combo expr, double, n=80000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v018,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"quadratic expr, double, n=50000000, loop-carried dep slow",double,hard,False,1,2,10,2x-6x
+IS-5,IS-5_v019,Input-Sensitive Inefficiency,Runtime Alias Check for Restrict Fast-Path,"fused expr, float, n=50000000, loop-carried dep slow",float,hard,False,1,2,10,2x-6x
+MI-1,MI-1_v000,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=32",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v001,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v002,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=64",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v003,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=64",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v004,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v005,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v006,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=32",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v007,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=32",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v008,Memory & IO,Allocation in Loop vs Sliding Window,"n=100000, window=64",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v009,Memory & IO,Allocation in Loop vs Sliding Window,"n=100000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v010,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v011,Memory & IO,Allocation in Loop vs Sliding Window,"n=200000, window=64",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v012,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=16",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v013,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=64",double,hard,False,1,1,10,5x-50x
+MI-1,MI-1_v014,Memory & IO,Allocation in Loop vs Sliding Window,"n=500000, window=64",double,hard,False,1,1,10,5x-50x
+MI-2,MI-2_v000,Memory & IO,Redundant Memory Zeroing,"add, float, n=5000000",float,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v001,Memory & IO,Redundant Memory Zeroing,"add, double, n=10000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v002,Memory & IO,Redundant Memory Zeroing,"add, double, n=5000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v003,Memory & IO,Redundant Memory Zeroing,"add, float, n=20000000",float,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v004,Memory & IO,Redundant Memory Zeroing,"add, double, n=5000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v005,Memory & IO,Redundant Memory Zeroing,"fused, float, n=5000000",float,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v006,Memory & IO,Redundant Memory Zeroing,"fused, float, n=20000000",float,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v007,Memory & IO,Redundant Memory Zeroing,"mul, double, n=10000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v008,Memory & IO,Redundant Memory Zeroing,"fused, double, n=5000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v009,Memory & IO,Redundant Memory Zeroing,"mul, double, n=10000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v010,Memory & IO,Redundant Memory Zeroing,"fused, float, n=5000000",float,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v011,Memory & IO,Redundant Memory Zeroing,"mul, double, n=20000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v012,Memory & IO,Redundant Memory Zeroing,"add, double, n=20000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v013,Memory & IO,Redundant Memory Zeroing,"mul, double, n=10000000",double,medium,False,1,2,6,1.5x-3x
+MI-2,MI-2_v014,Memory & IO,Redundant Memory Zeroing,"mul, float, n=20000000",float,medium,False,1,2,6,1.5x-3x
+MI-3,MI-3_v000,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.125, n=1000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v001,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.25, n=2000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v002,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.5, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v003,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.5, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v004,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.125, n=2000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v005,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.5, n=1000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v006,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.125, n=1000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v007,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.5, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v008,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.125, n=2000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v009,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.25, n=1000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v010,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.125, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v011,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.5, n=1000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v012,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.5, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v013,Memory & IO,Heap Alloc in Hot Loop,"quad=8, scale=0.25, n=5000000",double,hard,False,1,1,10,5x-50x
+MI-3,MI-3_v014,Memory & IO,Heap Alloc in Hot Loop,"quad=4, scale=0.25, n=2000000",double,hard,False,1,1,10,5x-50x
+MI-4,MI-4_v000,Memory & IO,Column vs Row Major Access,"scale operation, float, 5000x1000 matrix",float,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v001,Memory & IO,Column vs Row Major Access,"transform operation, double, 1000x3000 matrix",double,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v002,Memory & IO,Column vs Row Major Access,"copy operation, int, 2000x5000 matrix",int,medium,False,2,2,8,2x-10x
+MI-4,MI-4_v003,Memory & IO,Column vs Row Major Access,"add_arrays operation, float, 4000x4000 matrix",float,medium,False,2,2,8,2x-10x
+MI-4,MI-4_v004,Memory & IO,Column vs Row Major Access,"scale operation, float, 1000x4000 matrix",float,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v008,Memory & IO,Column vs Row Major Access,"scale operation, int, 5000x2000 matrix",int,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v009,Memory & IO,Column vs Row Major Access,"copy operation, double, 1000x4000 matrix",double,medium,False,2,2,8,2x-10x
+MI-4,MI-4_v010,Memory & IO,Column vs Row Major Access,"transform operation, double, 3000x4000 matrix",double,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v011,Memory & IO,Column vs Row Major Access,"scale operation, int, 2000x1000 matrix",int,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v012,Memory & IO,Column vs Row Major Access,"transform operation, int, 5000x3000 matrix",int,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v014,Memory & IO,Column vs Row Major Access,"reduce operation, int, 4000x1000 matrix",int,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v016,Memory & IO,Column vs Row Major Access,"scale operation, float, 5000x1000 matrix",float,medium,False,2,1,8,2x-10x
+MI-4,MI-4_v017,Memory & IO,Column vs Row Major Access,"add_arrays operation, float, 1000x1000 matrix",float,medium,False,2,2,8,2x-10x
+SR-1,SR-1_v000,Semantic Redundancy,Loop-Invariant Semantic Computation,"hash_chain function, 3 invariant calls, work=50, float",float,hard,False,1,1,18,100x-1000x
+SR-1,SR-1_v001,Semantic Redundancy,Loop-Invariant Semantic Computation,"exp_chain function, 3 invariant calls, work=200, float",float,hard,False,1,1,18,100x-1000x
+SR-1,SR-1_v002,Semantic Redundancy,Loop-Invariant Semantic Computation,"trig_combo function, 1 invariant calls, work=30, double",double,easy,False,1,1,14,100x-1000x
+SR-1,SR-1_v003,Semantic Redundancy,Loop-Invariant Semantic Computation,"hash_chain function, 1 invariant calls, work=50, double, additive apply",double,easy,False,1,1,14,100x-1000x
+SR-1,SR-1_v004,Semantic Redundancy,Loop-Invariant Semantic Computation,"log_sum function, 4 invariant calls, work=500, float, additive apply",float,hard,False,1,1,20,100x-1000x
+SR-1,SR-1_v005,Semantic Redundancy,Loop-Invariant Semantic Computation,"power_tower function, 2 invariant calls, work=500, double",double,hard,False,1,1,16,100x-1000x
+SR-1,SR-1_v006,Semantic Redundancy,Loop-Invariant Semantic Computation,"nested_sqrt function, 4 invariant calls, work=100, float",float,hard,False,1,1,20,100x-1000x
+SR-1,SR-1_v007,Semantic Redundancy,Loop-Invariant Semantic Computation,"exp_chain function, 3 invariant calls, work=200, float, while-loop",float,hard,False,1,1,18,100x-1000x
+SR-1,SR-1_v008,Semantic Redundancy,Loop-Invariant Semantic Computation,"polynomial function, 3 invariant calls, work=50, float, while-loop",float,hard,False,1,1,18,100x-1000x
+SR-1,SR-1_v009,Semantic Redundancy,Loop-Invariant Semantic Computation,"nested_sqrt function, 3 invariant calls, work=50, double, additive apply",double,hard,False,1,1,18,100x-1000x
+SR-1,SR-1_v010,Semantic Redundancy,Loop-Invariant Semantic Computation,"power_tower function, 4 invariant calls, work=500, float",float,hard,False,1,1,20,100x-1000x
+SR-1,SR-1_v011,Semantic Redundancy,Loop-Invariant Semantic Computation,"log_sum function, 2 invariant calls, work=500, float",float,hard,False,1,1,16,100x-1000x
+SR-1,SR-1_v012,Semantic Redundancy,Loop-Invariant Semantic Computation,"power_tower function, 1 invariant calls, work=30, float, while-loop, additive apply",float,easy,False,1,1,14,100x-1000x
+SR-1,SR-1_v013,Semantic Redundancy,Loop-Invariant Semantic Computation,"polynomial function, 4 invariant calls, work=200, float",float,hard,False,1,1,20,100x-1000x
+SR-1,SR-1_v014,Semantic Redundancy,Loop-Invariant Semantic Computation,"power_tower function, 4 invariant calls, work=30, double, while-loop, additive apply",double,hard,False,1,1,20,100x-1000x
+SR-2,SR-2_v000,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), double, while-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v001,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (trig_sum), double, while-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v002,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), double, while-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v003,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (polynomial), double, while-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v004,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (trig_sum), float, for-loop",float,medium,False,1,2,8,10x-1000x
+SR-2,SR-2_v005,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (polynomial), double, while-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v006,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), double, for-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v007,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (trig_sum), double, for-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v008,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (sqrt_chain), float, while-loop",float,easy,False,1,3,8,10x-1000x
+SR-2,SR-2_v009,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (polynomial), double, while-loop",double,medium,False,1,2,8,10x-1000x
+SR-2,SR-2_v010,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (log_chain), float, while-loop",float,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v011,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), double, for-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v012,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), double, while-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v013,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (trig_sum), double, for-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v014,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (log_chain), double, while-loop",double,easy,False,1,2,8,10x-1000x
+SR-2,SR-2_v015,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (log_chain), double, while-loop",double,easy,False,1,3,8,10x-1000x
+SR-2,SR-2_v016,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (sqrt_chain), double, for-loop",double,easy,False,1,3,8,10x-1000x
+SR-2,SR-2_v017,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (log_chain), float, for-loop",float,easy,False,1,3,8,10x-1000x
+SR-2,SR-2_v018,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"3 arrays, penalty (polynomial), double, while-loop",double,medium,False,1,3,8,10x-1000x
+SR-2,SR-2_v019,Semantic Redundancy,Loop-Invariant Penalty in Compound Expression,"2 arrays, penalty (sqrt_chain), float, for-loop",float,easy,False,1,2,8,10x-1000x
+SR-3,SR-3_v000,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative variance recomputed from scratch (O(n^2) -> O(n)), float, N=30000",float,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v001,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative RMS recomputed from scratch, double, while-loop, N=30000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v002,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, int, while-loop, N=20000",int,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v003,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, double, N=20000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v004,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, int, N=30000",int,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v005,Semantic Redundancy,Redundant Aggregation Recomputation,"Running minimum recomputed from scratch, float, N=30000",float,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v006,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, double, N=10000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v007,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative mean recomputed from scratch each iteration, double, while-loop, N=10000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v008,Semantic Redundancy,Redundant Aggregation Recomputation,"Exponential moving average (alpha=0.3) recomputed from scratch, float, while-loop, N=100000",float,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v009,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, float, N=10000",float,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v010,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, float, N=30000",float,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v011,Semantic Redundancy,Redundant Aggregation Recomputation,"Sliding window sum (window=64) recomputed from scratch, float, while-loop, N=10000",float,medium,False,2,1,10,100x-10000x
+SR-3,SR-3_v012,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, double, N=20000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v013,Semantic Redundancy,Redundant Aggregation Recomputation,"Running maximum recomputed from scratch, double, N=10000",double,easy,False,2,1,10,100x-10000x
+SR-3,SR-3_v014,Semantic Redundancy,Redundant Aggregation Recomputation,"Cumulative sum (prefix sum) recomputed from scratch, float, N=20000",float,easy,False,2,1,10,100x-10000x
+SR-4,SR-4_v000,Semantic Redundancy,Invariant Function Call in Loop,"hash_chain function, 1 invariant calls, work=50, float",float,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v001,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=500, float",float,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v002,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=500, double",double,hard,False,1,1,18,100x-1000x
+SR-4,SR-4_v003,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=200, double",double,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v005,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 1 invariant calls, work=100, float, additive apply",float,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v006,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 2 invariant calls, work=50, double",double,hard,False,1,1,16,100x-1000x
+SR-4,SR-4_v007,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 1 invariant calls, work=100, double, while-loop",double,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v008,Semantic Redundancy,Invariant Function Call in Loop,"log_sum function, 2 invariant calls, work=500, float, additive apply",float,hard,False,1,1,16,100x-1000x
+SR-4,SR-4_v009,Semantic Redundancy,Invariant Function Call in Loop,"polynomial function, 3 invariant calls, work=200, float",float,hard,False,1,1,18,100x-1000x
+SR-4,SR-4_v010,Semantic Redundancy,Invariant Function Call in Loop,"power_tower function, 1 invariant calls, work=200, float, additive apply",float,easy,False,1,1,14,100x-1000x
+SR-4,SR-4_v013,Semantic Redundancy,Invariant Function Call in Loop,"trig_combo function, 2 invariant calls, work=200, double, while-loop",double,hard,False,1,1,16,100x-1000x
+SR-4,SR-4_v014,Semantic Redundancy,Invariant Function Call in Loop,"exp_chain function, 1 invariant calls, work=1000, float",float,easy,False,1,1,14,100x-1000x
+SR-5,SR-5_v000,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=2000000, m=64",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v001,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=5000000, m=64",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v002,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=5000000, m=64",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v003,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, double, n=5000000, m=128",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v004,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, double, n=2000000, m=64",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v005,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"rms norm, double, n=1000000, m=256",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v006,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, double, n=5000000, m=256",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v007,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=1000000, m=128",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v008,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l2 norm, float, n=2000000, m=256",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v009,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"rms norm, double, n=1000000, m=128",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v010,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=5000000, m=64",float,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v011,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, double, n=5000000, m=256",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v012,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l2 norm, double, n=1000000, m=128",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v013,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, double, n=2000000, m=256",double,hard,False,1,2,10,10x-100x
+SR-5,SR-5_v014,Semantic Redundancy,Repeated Division by Loop-Invariant Denominator,"l1 norm, float, n=2000000, m=128",float,hard,False,1,2,10,10x-100x

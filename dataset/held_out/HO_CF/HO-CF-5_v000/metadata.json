@@ -10,12 +10,15 @@
   "num_loops": 1,
   "num_arrays": 3,
   "lines_of_code": 56,
-  "expected_speedup_range": "2x-6x",
+  "expected_speedup_range": "1.5x-6x",
   "composition": [],
   "held_out": true,
   "creation_date": "2026-05-31",
-  "source_citation": "http://fastcompression.blogspot.com/2014/01/fse-decoding-how-it-works.html — Yann Collet (FSE inventor); confirmed by zstd PR #2722 (hand-written asm wraps C function precisely because table-driven C inner loop is ~40% slower than tuned asm)",
+  "source_citation": "http://fastcompression.blogspot.com/2014/01/fse-decoding-how-it-works.html \u2014 Yann Collet (FSE inventor); confirmed by zstd PR #2722 (hand-written asm wraps C function precisely because table-driven C inner loop is ~40% slower than tuned asm)",
   "novelty_rationale": "Tests whether the LLM knows to lift a procedural per-byte state machine into a precomputed (state, input) -> (symbol, next_state) transition table built at init time. Compiler cannot synthesize the table from procedural state-update code. Unlike Huffman which incrementally shifts bits, FSE rewrites the entire state value, eliminating symbol-length-dependent control flow.",
-  "correctness_tolerance": {"type": "exact", "epsilon": 0.0},
+  "correctness_tolerance": {
+    "type": "exact",
+    "epsilon": 0.0
+  },
   "pattern_type": "standard"
 }

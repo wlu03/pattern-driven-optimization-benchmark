@@ -1,0 +1,21 @@
+variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,resistance_threshold,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
+IS-5_v000,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,317.265,135.4723,2.34,True,89.4113,29.8767,2.99,True,94.784,31.0893,3.05,True,201.3013,28.512,7.06,True,85.862,31.2227,2.75,True
+IS-5_v001,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,193.5933,114.5773,1.69,False,50.192,9.8567,5.09,True,52.7273,9.741,5.41,True,127.2027,9.31,13.66,True,53.217,8.684,6.13,True
+IS-5_v002,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,248.097,127.6227,1.94,False,68.439,20.6173,3.32,True,63.6513,21.3363,2.98,True,146.7,21.2243,6.91,True,67.285,20.6877,3.25,True
+IS-5_v003,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,241.223,104.14,2.32,True,62.4933,20.8157,3.0,True,62.645,30.4,2.06,True,143.0993,22.094,6.48,True,62.8553,21.9527,2.86,True
+IS-5_v004,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,330.5647,169.923,1.95,False,85.8667,31.611,2.72,True,86.0087,28.5467,3.01,True,194.549,27.8507,6.99,True,92.097,28.9527,3.18,True
+IS-5_v005,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,249.0013,126.1513,1.97,False,65.0417,21.333,3.05,True,64.4807,22.1063,2.92,True,148.167,21.2373,6.98,True,65.1747,22.1447,2.94,True
+IS-5_v006,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,231.402,120.0107,1.93,False,60.373,10.7373,5.62,True,59.9083,13.6257,4.4,True,140.2297,10.446,13.42,True,60.2367,10.5097,5.73,True
+IS-5_v007,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,332.6373,167.3937,1.99,False,92.2517,28.5247,3.23,True,86.1583,28.291,3.05,True,198.8537,28.1453,7.07,True,87.794,28.632,3.07,True
+IS-5_v008,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,248.62,126.3767,1.97,False,64.1113,20.7593,3.09,True,63.686,21.1247,3.01,True,145.3473,21.578,6.74,True,67.3577,21.793,3.09,True
+IS-5_v009,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,175.6293,79.333,2.21,True,48.1827,8.7757,5.49,True,48.2367,8.858,5.45,True,115.1247,12.0883,9.52,True,48.0027,8.6907,5.52,True
+IS-5_v010,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,253.257,126.157,2.01,True,64.626,22.4197,2.88,True,65.0577,22.486,2.89,True,146.1543,20.9683,6.97,True,65.2577,21.633,3.02,True
+IS-5_v011,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,317.6853,140.253,2.27,True,85.4873,28.5147,3.0,True,83.594,28.3277,2.95,True,192.1513,28.1293,6.83,True,84.7257,29.3127,2.89,True
+IS-5_v012,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,311.6383,159.2373,1.96,False,77.6357,14.1597,5.48,True,77.7007,13.874,5.6,True,190.1047,13.8927,13.68,True,77.885,14.49,5.38,True
+IS-5_v013,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,319.3447,160.3807,1.99,False,82.2917,14.6923,5.6,True,79.1083,14.0187,5.64,True,185.856,13.7133,13.55,True,81.9053,14.5377,5.63,True
+IS-5_v014,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,232.6187,120.138,1.94,False,58.756,11.024,5.33,True,58.9373,10.3793,5.68,True,140.0707,10.54,13.29,True,58.745,10.9643,5.36,True
+IS-5_v015,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,249.6717,126.924,1.97,False,64.8447,21.4897,3.02,True,64.453,21.9727,2.93,True,146.6987,27.074,5.42,True,65.868,21.759,3.03,True
+IS-5_v016,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,208.148,99.162,2.1,True,57.404,10.522,5.46,True,57.792,15.115,3.82,True,147.847,11.3267,13.05,True,66.0523,11.7777,5.61,True
+IS-5_v017,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,333.287,146.0207,2.28,True,100.9403,30.1787,3.34,True,89.4837,29.1877,3.07,True,191.924,30.2697,6.34,True,85.939,29.687,2.89,True
+IS-5_v018,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,210.175,113.8067,1.85,False,57.2667,17.9363,3.19,True,53.6923,17.7877,3.02,True,124.5697,17.2643,7.22,True,53.955,17.8277,3.03,True
+IS-5_v019,IS-5,Input-Sensitive Inefficiency,hard,False,2.0,190.969,111.6273,1.71,False,50.7357,9.5753,5.3,True,49.4367,9.4133,5.25,True,117.6183,8.5867,13.7,True,49.286,9.12,5.4,True

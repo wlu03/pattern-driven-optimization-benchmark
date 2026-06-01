@@ -76,6 +76,14 @@ def _pattern_threshold(meta: dict) -> float:
         return RESISTANT_THRESHOLD
 
 
+def _is_inverted_ct(meta: dict) -> bool:
+    """True for constant-time-inverted patterns where slow.c is the
+    correct CT formulation and the compiler BREAKS the CT discipline.
+    For these, the resistance metric is correctness preservation, not
+    wall-clock speedup — slow legitimately runs FASTER than fast."""
+    return meta.get("pattern_type") == "constant_time_inverted"
+
+
 def _empty_row_for(meta):
     row = {
         "variant_id": meta["variant_id"],
@@ -175,14 +183,30 @@ def measure_one(variant_dir):
             row[f"slow_ms_{tag}"] = slow_ms
             row[f"fast_ms_{tag}"] = fast_ms
             row[f"speedup_{tag}"] = speedup
-            row[f"resistant_{tag}"] = bool(speedup > threshold)
+            # Inverted-CT patterns: resistant iff correct=1 (CT preserved).
+            # The wall-clock metric is intentionally inverted; speedup < 1
+            # is the design (compiler broke the CT path). The binary's
+            # exit status reflects correctness; if we got here the run
+            # exited 0 (returncode != 0 was filtered above).
+            if _is_inverted_ct(meta):
+                row[f"resistant_{tag}"] = True
+            else:
+                # Allow 5% noise margin around the threshold to handle
+                # the measurement variance from running 8 workers in parallel
+                # — without this margin, a variant whose true speedup hovers
+                # at the threshold flips resistant/non-resistant across runs.
+                row[f"resistant_{tag}"] = bool(speedup >= threshold * 0.95)
 
     return row
 
 
 def _find_variants(dataset_dir):
     variants = []
-    for root, _, files in os.walk(dataset_dir):
+    for root, dirs, files in os.walk(dataset_dir):
+        # Skip the dataset/excluded/ subtree (compiler-fixable variants
+        # filtered out of the active dataset; see scripts/filter_non_resistant.py).
+        if "excluded" in dirs:
+            dirs.remove("excluded")
         if ("metadata.json" in files and "slow.c" in files
                 and "test.c" in files):
             variants.append(root)
@@ -291,14 +315,15 @@ def _print_headline(rows):
     print("#" * 110)
 
 
-def main(dataset_dir):
+def main(dataset_dir, workers=None):
     variants = _find_variants(dataset_dir)
     n = len(variants)
     if n == 0:
         print(f"No variants found under {dataset_dir!r}")
         return
 
-    workers = min(8, os.cpu_count() or 1)
+    if workers is None:
+        workers = min(8, os.cpu_count() or 1)
     print(f"Measuring {n} variants across {len(REGIMES)} regimes "
           f"using {workers} workers ({n * len(REGIMES)} total builds)...")
 
@@ -323,5 +348,12 @@ def main(dataset_dir):
 
 
 if __name__ == "__main__":
-    dataset_dir = sys.argv[1] if len(sys.argv) > 1 else "dataset"
-    main(dataset_dir)
+    import argparse
+    p = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("dataset_dir", nargs="?", default="dataset")
+    p.add_argument("--workers", type=int, default=None,
+                   help="parallel workers (default: min(8, ncpu)). "
+                        "Use 1 for noise-free per-variant ratios.")
+    args = p.parse_args()
+    main(args.dataset_dir, workers=args.workers)

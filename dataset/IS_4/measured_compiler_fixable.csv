@@ -1,0 +1,16 @@
+variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,resistance_threshold,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
+IS-4_v000,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.206,1.747,1.84,False,2.824,0.426,6.63,True,3.015,0.467,6.46,True,2.937,0.436,6.74,True,3.06,0.481,6.36,True
+IS-4_v001,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,15.888,8.642,1.84,False,14.048,2.423,5.8,True,14.475,2.376,6.09,True,14.361,2.352,6.11,True,14.526,2.348,6.19,True
+IS-4_v002,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,15.489,8.472,1.83,False,14.645,2.419,6.05,True,14.862,2.479,6.0,True,14.849,2.283,6.5,True,14.77,2.345,6.3,True
+IS-4_v003,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,15.647,8.499,1.84,False,14.83,2.409,6.16,True,14.644,2.436,6.01,True,14.795,2.374,6.23,True,13.901,2.33,5.97,True
+IS-4_v004,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.174,1.72,1.85,False,2.914,0.451,6.46,True,3.007,0.459,6.55,True,2.923,0.472,6.19,True,2.925,0.454,6.44,True
+IS-4_v005,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.096,3.093,1.0,False,2.927,2.945,0.99,False,2.857,2.843,1.0,False,2.89,2.85,1.01,False,2.852,2.736,1.04,False
+IS-4_v006,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,1.624,0.875,1.86,False,1.409,0.24,5.87,True,1.453,0.24,6.05,True,1.453,0.22,6.6,True,1.494,0.232,6.44,True
+IS-4_v007,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.147,1.721,1.83,False,3.012,0.464,6.49,True,2.936,0.45,6.52,True,2.949,0.444,6.64,True,2.951,0.452,6.53,True
+IS-4_v008,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,1.587,1.58,1.0,False,1.467,1.454,1.01,False,1.452,1.403,1.03,False,1.511,1.491,1.01,False,1.498,1.446,1.04,False
+IS-4_v009,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.093,3.082,1.0,False,2.928,2.845,1.03,False,2.87,2.842,1.01,False,2.75,2.655,1.04,False,2.909,2.844,1.02,False
+IS-4_v010,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.15,1.741,1.81,False,2.909,0.448,6.49,True,2.919,0.449,6.5,True,2.966,0.441,6.73,True,2.918,0.447,6.53,True
+IS-4_v011,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.134,1.719,1.82,False,2.906,0.473,6.14,True,2.959,0.48,6.16,True,2.914,0.441,6.61,True,3.639,0.454,8.02,True
+IS-4_v012,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,1.556,1.464,1.06,False,1.503,1.505,1.0,False,1.556,1.464,1.06,False,1.491,1.49,1.0,False,1.493,1.403,1.06,False
+IS-4_v013,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,1.535,1.542,1.0,False,1.453,1.451,1.0,False,1.453,1.457,1.0,False,1.448,1.41,1.03,False,1.463,1.466,1.0,False
+IS-4_v014,IS-4,Input-Sensitive Inefficiency,hard,False,2.0,3.108,1.655,1.88,False,9.045,1.046,8.65,True,3.164,2.448,1.29,False,2.859,0.39,7.33,True,2.861,0.39,7.34,True

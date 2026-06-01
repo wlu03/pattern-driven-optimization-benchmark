@@ -1,0 +1,21 @@
+variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,resistance_threshold,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
+DS-3_v000,DS-3,Data Structure,medium,False,2.0,53.486,25.15,2.13,True,51.448,22.478,2.29,True,49.342,22.654,2.18,True,48.085,22.753,2.11,True,44.505,23.793,1.87,False
+DS-3_v001,DS-3,Data Structure,medium,False,2.0,90.139,59.948,1.5,False,91.883,43.501,2.11,True,77.395,40.607,1.91,False,84.114,40.192,2.09,True,66.429,40.41,1.64,False
+DS-3_v002,DS-3,Data Structure,medium,False,2.0,124.968,53.111,2.35,True,129.041,45.828,2.82,True,113.285,45.435,2.49,True,110.602,45.881,2.41,True,77.747,44.732,1.74,False
+DS-3_v003,DS-3,Data Structure,medium,False,2.0,50.985,24.728,2.06,True,39.721,20.959,1.9,False,41.203,20.753,1.99,False,48.57,20.32,2.39,True,35.516,20.449,1.74,False
+DS-3_v004,DS-3,Data Structure,medium,False,2.0,94.104,51.269,1.84,False,91.716,43.748,2.1,True,73.202,40.474,1.81,False,87.476,42.644,2.05,True,68.101,40.752,1.67,False
+DS-3_v005,DS-3,Data Structure,medium,False,2.0,132.179,52.685,2.51,True,99.211,46.597,2.13,True,115.793,45.34,2.55,True,99.203,44.988,2.21,True,78.178,55.998,1.4,False
+DS-3_v006,DS-3,Data Structure,medium,False,2.0,59.554,47.664,1.25,False,49.73,40.839,1.22,False,50.01,40.552,1.23,False,50.351,40.721,1.24,False,61.895,40.536,1.53,False
+DS-3_v007,DS-3,Data Structure,medium,False,2.0,93.181,48.447,1.92,False,83.939,40.804,2.06,True,75.28,40.369,1.86,False,71.969,40.235,1.79,False,67.275,40.133,1.68,False
+DS-3_v008,DS-3,Data Structure,medium,False,2.0,106.72,50.032,2.13,True,98.852,44.906,2.2,True,97.796,45.212,2.16,True,96.693,44.898,2.15,True,76.558,45.23,1.69,False
+DS-3_v009,DS-3,Data Structure,medium,False,2.0,107.513,49.906,2.15,True,99.33,45.01,2.21,True,97.865,45.186,2.17,True,96.394,44.782,2.15,True,75.17,44.743,1.68,False
+DS-3_v010,DS-3,Data Structure,medium,False,2.0,27.649,23.939,1.15,False,24.445,20.393,1.2,False,24.653,20.02,1.23,False,25.102,20.491,1.23,False,29.251,20.258,1.44,False
+DS-3_v011,DS-3,Data Structure,medium,False,2.0,56.334,48.345,1.17,False,49.939,40.475,1.23,False,49.379,40.466,1.22,False,50.242,41.312,1.22,False,59.97,40.573,1.48,False
+DS-3_v012,DS-3,Data Structure,medium,False,2.0,96.619,49.651,1.95,False,81.794,42.286,1.93,False,111.183,42.226,2.63,True,76.759,42.059,1.83,False,77.253,41.865,1.85,False
+DS-3_v013,DS-3,Data Structure,medium,False,2.0,56.789,26.328,2.16,True,54.783,22.926,2.39,True,54.417,22.94,2.37,True,52.128,23.261,2.24,True,45.09,23.143,1.95,False
+DS-3_v014,DS-3,Data Structure,medium,False,2.0,29.476,24.393,1.21,False,26.506,20.724,1.28,False,27.697,20.927,1.32,False,25.845,21.162,1.22,False,33.924,20.834,1.63,False
+DS-3_v015,DS-3,Data Structure,medium,False,2.0,44.582,24.645,1.81,False,37.882,21.424,1.77,False,40.851,21.289,1.92,False,40.6,21.05,1.93,False,36.993,22.61,1.64,False
+DS-3_v016,DS-3,Data Structure,medium,False,2.0,44.18,24.762,1.78,False,41.976,20.931,2.01,True,40.694,20.882,1.95,False,40.061,20.867,1.92,False,60.507,22.147,2.73,True
+DS-3_v017,DS-3,Data Structure,medium,False,2.0,33.613,25.942,1.3,False,29.854,22.171,1.35,False,29.289,21.567,1.36,False,26.824,21.384,1.25,False,35.088,20.734,1.69,False
+DS-3_v018,DS-3,Data Structure,medium,False,2.0,59.174,49.817,1.19,False,52.893,44.031,1.2,False,66.797,48.019,1.39,False,62.583,44.554,1.4,False,70.458,49.558,1.42,False
+DS-3_v019,DS-3,Data Structure,medium,False,2.0,73.849,56.463,1.31,False,55.864,42.386,1.32,False,60.813,44.468,1.37,False,53.596,41.63,1.29,False,69.198,41.777,1.66,False

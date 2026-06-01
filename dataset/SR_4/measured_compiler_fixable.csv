@@ -1,0 +1,16 @@
+variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,resistance_threshold,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
+SR-4_v000,SR-4,Semantic Redundancy,easy,False,2.0,3.703,0.057,64.96,True,1.511,0.006,251.83,True,1.569,0.006,261.5,True,1.971,0.008,246.37,True,1.487,0.006,247.83,True
+SR-4_v001,SR-4,Semantic Redundancy,easy,False,2.0,633.303,0.063,10052.43,True,618.291,0.012,51524.25,True,607.474,0.013,46728.77,True,606.128,0.012,50510.67,True,610.387,0.012,50865.58,True
+SR-4_v002,SR-4,Semantic Redundancy,hard,False,2.0,517.221,0.08,6465.26,True,101.621,0.012,8468.42,True,101.959,0.014,7282.79,True,27.064,0.016,1691.5,True,101.853,0.014,7275.21,True
+SR-4_v003,SR-4,Semantic Redundancy,easy,False,2.0,2107.282,1.649,1277.92,True,2116.836,0.228,9284.37,True,2057.453,0.286,7193.89,True,2054.945,0.119,17268.45,True,2063.976,0.547,3773.27,True
+SR-4_v004,SR-4,Semantic Redundancy,easy,False,2.0,55.039,0.602,91.43,True,0.154,0.116,1.33,False,0.147,0.115,1.28,False,0.156,0.132,1.18,False,0.144,0.108,1.33,False
+SR-4_v005,SR-4,Semantic Redundancy,easy,False,2.0,344.43,0.575,599.01,True,61.482,0.06,1024.7,True,62.331,0.082,760.13,True,0.245,0.057,4.3,True,61.389,0.145,423.37,True
+SR-4_v006,SR-4,Semantic Redundancy,hard,False,2.0,873.763,1.593,548.5,True,872.827,0.544,1604.46,True,875.611,0.557,1572.01,True,869.768,0.128,6795.06,True,870.538,0.82,1061.63,True
+SR-4_v007,SR-4,Semantic Redundancy,easy,False,2.0,409.904,1.067,384.16,True,380.206,0.124,3066.18,True,446.344,0.598,746.39,True,380.404,0.12,3170.03,True,380.011,0.121,3140.59,True
+SR-4_v008,SR-4,Semantic Redundancy,hard,False,2.0,213.155,0.066,3229.62,True,207.821,0.008,25977.62,True,225.129,0.008,28141.12,True,207.856,0.008,25982.0,True,212.344,0.009,23593.78,True
+SR-4_v009,SR-4,Semantic Redundancy,hard,False,2.0,2071.204,1.017,2036.58,True,394.683,0.183,2156.74,True,394.175,0.059,6680.93,True,53.654,0.212,253.08,True,392.948,0.1,3929.48,True
+SR-4_v010,SR-4,Semantic Redundancy,easy,False,2.0,199.025,0.059,3373.31,True,199.491,0.008,24936.38,True,199.708,0.007,28529.71,True,199.194,0.008,24899.25,True,200.715,0.008,25089.38,True
+SR-4_v011,SR-4,Semantic Redundancy,hard,False,2.0,20.14,0.083,242.65,True,0.023,0.015,1.53,False,0.022,0.012,1.83,False,0.021,0.011,1.91,False,0.021,0.011,1.91,False
+SR-4_v012,SR-4,Semantic Redundancy,hard,False,2.0,95.696,0.064,1495.25,True,92.868,0.007,13266.86,True,0.012,0.007,1.71,False,0.012,0.007,1.71,False,0.01,0.005,2.0,False
+SR-4_v013,SR-4,Semantic Redundancy,hard,False,2.0,962.911,0.341,2823.79,True,893.442,0.202,4422.98,True,852.482,0.158,5395.46,True,860.776,0.061,14111.08,True,876.388,0.063,13910.92,True
+SR-4_v014,SR-4,Semantic Redundancy,easy,False,2.0,12665.131,0.967,13097.34,True,12406.58,0.194,63951.44,True,12508.128,0.365,34268.84,True,12439.572,0.307,40519.78,True,12305.87,0.278,44265.72,True
