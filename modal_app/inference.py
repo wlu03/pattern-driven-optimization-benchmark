@@ -159,6 +159,7 @@ class VLLMServer:
     @modal.enter()
     def load(self):
         from vllm import LLM
+        from transformers import AutoTokenizer
         cfg = MODELS[self.model_key]
         llm_kwargs = dict(
             model=cfg["hf_id"],
@@ -186,26 +187,51 @@ class VLLMServer:
         except TypeError:
             # Older vLLM may not accept enable_reasoning kwarg. Retry
             # without it (CoT will land in the main text and we'll
-            # extract heuristically downstream).
+            # extract via the <think>...</think> regex in
+            # scripts/score_completions.py).
             for k in ("enable_reasoning", "reasoning_parser"):
                 llm_kwargs.pop(k, None)
             self.llm = LLM(**llm_kwargs)
             self._reasoning_enabled = False
+        # Load the chat-template tokenizer so we can format prompts the
+        # way the instruct-tuned model was fine-tuned to expect. Without
+        # this, instruct models (Qwen2.5-Coder-Instruct, DeepSeek-R1-
+        # Distill-Instruct, Codestral-Instruct, Llama-3.3-70B-Instruct)
+        # receive raw text and emit degenerate / empty completions
+        # (observed: Qwen2.5-Coder-7B produced empty output for 97% of
+        # the 1244 variants on the first sweep because the chat template
+        # was not applied).
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            cfg["hf_id"], trust_remote_code=True,
+        )
 
     @modal.method()
     def generate_batch(self, prompts: list[str],
-                       max_tokens: int = 2048) -> list[dict]:
+                       max_tokens: int = 4096) -> list[dict]:
         """Generate completions for a batch.
 
         Returns a list of {"text": str, "reasoning": Optional[str]} dicts.
-        `reasoning` is populated for reasoning-tagged models (vLLM exposes
-        it via output.outputs[0].reasoning_content); None otherwise.
+        `reasoning` is populated when vLLM's reasoning_content extractor
+        is active (output.outputs[0].reasoning_content); None otherwise.
+        Downstream score_completions.py will additionally split out
+        <think>...</think> blocks from the main text when reasoning was
+        not separated by vLLM (fallback for older vLLM versions).
         """
         from vllm import SamplingParams
         params = SamplingParams(
             temperature=0.0, top_p=1.0, max_tokens=max_tokens,
         )
-        outputs = self.llm.generate(prompts, params)
+        # Apply each model's chat template so instruct-tuned models get
+        # the role/turn markers they were fine-tuned to receive.
+        formatted = [
+            self.tokenizer.apply_chat_template(
+                [{"role": "user", "content": p}],
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for p in prompts
+        ]
+        outputs = self.llm.generate(formatted, params)
         results = []
         for o in outputs:
             out0 = o.outputs[0]

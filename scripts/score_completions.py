@@ -85,11 +85,39 @@ def main():
     raw_rows = [r for r in raw_rows if r["variant_id"] in by_vid]
 
     pattern_lookup = {p.pattern_id: p for p in PATTERNS}
+    # Regex to split out <think>...</think> CoT blocks from the main
+    # text. Reasoning models that don't have vLLM's reasoning_content
+    # extractor active (e.g. older vLLM where enable_reasoning kwarg
+    # was rejected) emit their CoT inline; we split it out at scoring
+    # time so the C-extraction pipeline doesn't trip on the prose.
+    import re as _re
+    _THINK_RE = _re.compile(r'<think>(.*?)</think>\s*', _re.DOTALL)
+    _THINK_OPEN_RE = _re.compile(r'<think>(.*)$', _re.DOTALL)
+
     results = []
     for i, r in enumerate(raw_rows, 1):
         vp = by_vid[r["variant_id"]]
         precomputed_text = r["raw_output"]
         precomputed_reasoning = r.get("raw_reasoning") or None
+
+        # Fallback: extract <think>...</think> from main text if reasoning
+        # wasn't already separated by the inference pipeline.
+        if "<think>" in precomputed_text and not precomputed_reasoning:
+            m = _THINK_RE.search(precomputed_text)
+            if m:
+                # Closed tag: split cleanly.
+                precomputed_reasoning = m.group(1).strip()
+                precomputed_text = _THINK_RE.sub('', precomputed_text).strip()
+            else:
+                # Unclosed: model ran out of tokens while thinking.
+                # Everything after <think> is reasoning; main text is
+                # whatever came before (usually empty). This row will
+                # likely fail compile — that's the correct outcome,
+                # because the model never produced code.
+                m2 = _THINK_OPEN_RE.search(precomputed_text)
+                if m2:
+                    precomputed_reasoning = m2.group(1).strip()
+                    precomputed_text = _THINK_OPEN_RE.sub('', precomputed_text).strip()
 
         # call_llm_fn signature: (prompt: str, model: str) -> str
         # The pre-computed text is returned regardless of which prompt the
