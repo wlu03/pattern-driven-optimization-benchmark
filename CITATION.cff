@@ -1,0 +1,74 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+title: "Pattern-Driven LLM Code Optimization Benchmark"
+abstract: >-
+  A benchmark for evaluating whether large language models can recognize
+  and fix C-code inefficiency patterns that production compilers cannot
+  optimize automatically. Includes 27 base patterns across 7 categories,
+  a variant generator producing 1,140 dataset entries (700 composed
+  multi-pattern variants spanning 23 distinct two- and three-pattern
+  combinations), a 36-pattern post-cutoff held-out test set for
+  contamination defense, a two-axis faithfulness verifier (differential
+  equivalence + AST structural checks), setup-randomization and bootstrap
+  CI protocols following Mytkowicz et al. (ASPLOS 2009), and a LoRA
+  fine-tuning workflow with explicit held-out exclusion for transfer
+  measurement.
+type: software
+authors:
+  - given-names: Wesley
+    family-names: Lu
+    email: wesleylu03@gmail.com
+    alias: wlu03
+repository-code: "https://github.com/wlu03/pattern-driven-optimization-benchmark"
+license: MIT
+keywords:
+  - llm-evaluation
+  - code-optimization
+  - compiler-resistance
+  - faithfulness-verification
+  - contamination-defense
+  - benchmark
+  - c-programming
+preferred-citation:
+  type: software
+  title: "Pattern-Driven LLM Code Optimization Benchmark"
+  authors:
+    - given-names: Wesley
+      family-names: Lu
+  repository-code: "https://github.com/wlu03/pattern-driven-optimization-benchmark"
+  year: 2026
+references:
+  - type: article
+    title: "LiveBench: A Challenging, Contamination-Free LLM Benchmark"
+    authors:
+      - family-names: White
+        given-names: Colin
+    year: 2024
+    identifiers:
+      - type: other
+        value: "arXiv:2406.19314"
+    notes: "Held-out methodology precedent for the post-cutoff contamination defense."
+  - type: article
+    title: "Producing Wrong Data Without Doing Anything Obviously Wrong!"
+    authors:
+      - family-names: Mytkowicz
+        given-names: Todd
+      - family-names: Diwan
+        given-names: Amer
+      - family-names: Hauswirth
+        given-names: Matthias
+      - family-names: Sweeney
+        given-names: Peter F.
+    year: 2009
+    doi: 10.1145/1508244.1508275
+    notes: "Setup-randomization protocol for defensible speedup claims."
+  - type: article
+    title: "INVALIDATOR: Automated Patch Correctness Assessment via Semantic and Syntactic Reasoning"
+    authors:
+      - family-names: Le-Cong
+        given-names: Thanh
+    year: 2023
+    identifiers:
+      - type: other
+        value: "arXiv:2301.01113"
+    notes: "Cascade architecture (semantic-first, structural-second) for the 2x2 faithfulness verdict."

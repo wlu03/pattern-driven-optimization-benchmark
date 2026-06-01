@@ -1,9 +1,37 @@
 variant_id,pattern_id,category,difficulty,metadata_compiler_fixable,slow_ms_O0,fast_ms_O0,speedup_O0,resistant_O0,slow_ms_O2,fast_ms_O2,speedup_O2,resistant_O2,slow_ms_O3,fast_ms_O3,speedup_O3,resistant_O3,slow_ms_O3_fast_math,fast_ms_O3_fast_math,speedup_O3_fast_math,resistant_O3_fast_math,slow_ms_O3_lto,fast_ms_O3_lto,speedup_O3_lto,resistant_O3_lto
-HO-AL-1_v000,HO-AL-1,Algorithmic Inefficiency,hard,False,4.637,0.001,4637.0,True,3.877,0.001,3877.0,True,3.894,0.004,973.5,True,3.91,0.006,651.67,True,3.857,0.001,3857.0,True
-HO-CF-1_v000,HO-CF-1,Control Flow,hard,False,48.118,5.457,8.82,True,32.0,3.213,9.96,True,31.881,3.191,9.99,True,31.91,1.847,17.28,True,31.956,3.205,9.97,True
-HO-DS-1_v000,HO-DS-1,Data Structure Inefficiency,hard,False,9.015,2.107,4.28,True,8.81,0.754,11.68,True,8.782,0.81,10.84,True,8.784,0.372,23.61,True,8.994,0.75,11.99,True
-HO-DS-2_v000,HO-DS-2,Data Structure Inefficiency,hard,False,127.305,10.36,12.29,True,26.32,6.145,4.28,True,25.342,5.874,4.31,True,25.351,5.995,4.23,True,25.709,7.008,3.67,True
-HO-HR-1_v000,HO-HR-1,Human-Style Antipatterns,medium,False,15.471,12.072,1.28,False,7.491,2.7,2.77,True,8.09,2.651,3.05,True,8.909,2.731,3.26,True,8.284,2.619,3.16,True
-HO-IS-1_v000,HO-IS-1,Input-Sensitive Inefficiency,hard,False,27.658,3.729,7.42,True,19.538,0.295,66.23,True,19.035,0.335,56.82,True,18.93,0.325,58.25,True,18.674,0.33,56.59,True
-HO-MI-1_v000,HO-MI-1,Memory & IO,hard,False,57.882,3.171,18.25,True,57.748,3.017,19.14,True,57.808,3.075,18.8,True,57.945,3.08,18.81,True,57.626,2.933,19.65,True
-HO-SR-1_v000,HO-SR-1,Semantic Redundancy,hard,False,46.415,6.582,7.05,True,15.035,0.82,18.34,True,15.034,0.821,18.31,True,15.058,0.858,17.55,True,0.739,0.684,1.08,False
+HO-AL-1_v000,HO-AL-1,Algorithmic Inefficiency,hard,False,4.501,0.012,375.08,True,4.106,0.005,821.2,True,3.919,0.001,3919.0,True,3.918,0.003,1306.0,True,3.906,0.001,3906.0,True
+HO-AL-2_v000,HO-AL-2,Algorithmic Inefficiency,hard,False,50.276,4.403,11.42,True,46.403,1.007,46.08,True,43.669,1.025,42.6,True,43.441,1.011,42.97,True,45.422,0.99,45.88,True
+HO-AL-3_v000,HO-AL-3,Algorithmic Inefficiency,hard,False,9.697,10.433,0.93,False,4.621,1.245,3.71,True,4.456,1.253,3.56,True,4.723,1.233,3.83,True,4.551,1.241,3.67,True
+HO-AL-4_v000,HO-AL-4,Algorithmic Inefficiency,hard,False,17.293,49.748,0.35,False,10.439,10.902,0.96,False,10.446,10.824,0.97,False,4.155,6.893,0.6,False,10.702,10.772,0.99,False
+HO-CF-1_v000,HO-CF-1,Control Flow,hard,False,47.547,7.281,6.53,True,31.862,3.407,9.35,True,31.778,3.303,9.62,True,32.024,1.772,18.07,True,32.064,3.14,10.21,True
+HO-CF-2_v000,HO-CF-2,Control Flow,hard,False,,,,,6.101,5.75,1.06,False,6.045,5.695,1.06,False,6.019,5.562,1.08,False,-5404660247392.377,5.612,-963054213719.24,False
+HO-CF-3_v000,HO-CF-3,Control Flow,hard,False,6.396,8.49,0.75,False,3.451,3.474,0.99,False,3.268,3.263,1.0,False,3.257,3.313,0.98,False,3.242,3.252,1.0,False
+HO-CF-4_v000,HO-CF-4,Control Flow,hard,False,3.755,1.118,3.36,True,1.163,0.356,3.27,True,1.11,0.34,3.26,True,1.192,0.347,3.44,True,1.111,0.341,3.26,True
+HO-CF-5_v000,HO-CF-5,Control Flow,hard,False,7.641,3.39,2.25,True,3.707,1.988,1.86,False,3.929,1.955,2.01,True,3.483,1.95,1.79,False,3.659,2.008,1.82,False
+HO-DS-1_v000,HO-DS-1,Data Structure Inefficiency,hard,False,9.8,1.776,5.52,True,8.739,0.731,11.95,True,8.658,0.747,11.59,True,8.914,0.373,23.9,True,8.727,0.731,11.94,True
+HO-DS-2_v000,HO-DS-2,Data Structure Inefficiency,hard,False,126.662,10.459,12.11,True,26.777,6.372,4.2,True,24.972,6.413,3.89,True,25.276,5.944,4.25,True,25.063,7.08,3.54,True
+HO-DS-3_v000,HO-DS-3,Data Structure Inefficiency,hard,False,2.27,0.627,3.62,True,1.751,0.062,28.24,True,1.768,0.06,29.47,True,1.86,0.06,31.0,True,1.552,0.06,25.87,True
+HO-DS-4_v000,HO-DS-4,Data Structure Inefficiency,hard,False,99.096,59.096,1.68,False,97.327,23.974,4.06,True,101.72,20.181,5.04,True,93.533,18.933,4.94,True,102.247,21.668,4.72,True
+HO-DS-5_v000,HO-DS-5,Data Structure Inefficiency,hard,False,99.675,117.565,0.85,False,15.781,7.174,2.2,True,15.731,7.095,2.22,True,6.542,8.135,0.8,False,15.766,7.024,2.24,True
+HO-DS-6_v000,HO-DS-6,Data Structure Inefficiency,hard,False,123.636,254.093,0.49,False,47.512,55.555,0.86,False,47.755,55.495,0.86,False,16.239,56.23,0.29,False,47.226,55.511,0.85,False
+HO-HR-1_v000,HO-HR-1,Human-Style Antipatterns,medium,False,16.793,11.919,1.41,False,9.471,2.967,3.19,True,8.971,2.78,3.23,True,7.964,2.718,2.93,True,8.192,2.725,3.01,True
+HO-HR-2_v000,HO-HR-2,Human-Style Antipatterns,hard,False,28.713,28.415,1.01,False,7.509,7.693,0.98,False,7.471,7.231,1.03,False,7.511,7.109,1.06,False,7.081,7.098,1.0,False
+HO-HR-3_v000,HO-HR-3,Human-Style Antipatterns,hard,False,7.513,7.487,1.0,False,0.998,0.508,1.96,False,0.93,0.478,1.95,False,1.025,0.498,2.06,True,1.431,0.475,3.01,True
+HO-HR-4_v000,HO-HR-4,Human-Style Antipatterns,hard,False,22.59,5.741,3.93,True,16.31,0.127,128.43,True,16.354,0.149,109.76,True,16.398,0.129,127.12,True,16.4,0.128,128.12,True
+HO-HR-5_v000,HO-HR-5,Human-Style Antipatterns,hard,False,20.349,11.317,1.8,False,4.922,0.803,6.13,True,4.961,0.809,6.13,True,4.935,0.801,6.16,True,4.937,0.804,6.14,True
+HO-IS-1_v000,HO-IS-1,Input-Sensitive Inefficiency,hard,False,27.565,3.484,7.91,True,18.556,0.341,54.42,True,18.922,0.378,50.06,True,18.641,0.295,63.19,True,18.962,0.396,47.88,True
+HO-IS-2_v000,HO-IS-2,Input-Sensitive Inefficiency,hard,False,134.712,65.995,2.04,True,94.839,43.759,2.17,True,94.93,43.989,2.16,True,94.536,43.804,2.16,True,95.785,44.78,2.14,True
+HO-IS-3_v000,HO-IS-3,Input-Sensitive Inefficiency,hard,False,25.398,7.774,3.27,True,14.087,2.494,5.65,True,14.021,2.44,5.75,True,15.197,2.491,6.1,True,13.476,2.385,5.65,True
+HO-IS-4_v000,HO-IS-4,Input-Sensitive Inefficiency,hard,False,31.022,19.725,1.57,False,14.962,9.494,1.58,False,17.048,9.862,1.73,False,14.77,9.545,1.55,False,14.924,9.353,1.6,False
+HO-IS-5_v000,HO-IS-5,Input-Sensitive Inefficiency,hard,False,103.208,70.93,1.46,False,53.542,45.165,1.19,False,49.981,44.629,1.12,False,51.375,45.412,1.13,False,53.875,48.613,1.11,False
+HO-MI-1_v000,HO-MI-1,Memory & IO,hard,False,63.142,3.194,19.77,True,60.31,3.168,19.04,True,65.334,3.301,19.79,True,61.012,3.461,17.63,True,61.719,3.546,17.41,True
+HO-MI-2_v000,HO-MI-2,Memory & IO,hard,False,140.893,42.059,3.35,True,57.882,73.694,0.79,False,51.261,39.556,1.3,False,36.721,53.067,0.69,False,43.465,17.145,2.54,True
+HO-MI-3_v000,HO-MI-3,Memory & IO,hard,False,100.105,87.085,1.15,False,38.641,14.785,2.61,True,42.583,15.345,2.78,True,34.809,12.886,2.7,True,30.438,12.251,2.48,True
+HO-MI-4_v000,HO-MI-4,Memory & IO,hard,False,62.698,83.843,0.75,False,45.56,51.488,0.88,False,43.751,41.595,1.05,False,38.379,37.797,1.02,False,38.061,38.251,1.0,False
+HO-SR-1_v000,HO-SR-1,Semantic Redundancy,hard,False,52.23,7.73,6.76,True,16.408,0.87,18.86,True,15.829,0.865,18.3,True,15.114,0.83,18.21,True,0.676,0.711,0.95,False
+HO-SR-2_v000,HO-SR-2,Semantic Redundancy,hard,False,40.539,8.825,4.59,True,11.997,4.769,2.52,True,13.095,4.704,2.78,True,11.511,4.255,2.71,True,12.548,4.591,2.73,True
+HO-SR-3_v000,HO-SR-3,Semantic Redundancy,hard,False,2.368,0.875,2.71,True,2.1,0.246,8.54,True,2.147,0.241,8.91,True,1.911,0.238,8.03,True,2.127,0.228,9.33,True
+HO-SR-4_v000,HO-SR-4,Semantic Redundancy,hard,False,105.913,110.849,0.96,False,14.708,69.727,0.21,False,14.342,68.649,0.21,False,12.016,64.889,0.19,False,12.917,59.575,0.22,False
+HO-SR-5_v000,HO-SR-5,Semantic Redundancy,hard,False,66.853,74.408,0.9,False,2.075,20.96,0.1,False,1.174,19.101,0.06,False,1.263,20.414,0.06,False,1.243,22.25,0.06,False
+HO-SR-6_v000,HO-SR-6,Semantic Redundancy,hard,False,46.713,66.493,0.7,False,4.554,38.202,0.12,False,5.716,37.254,0.15,False,4.212,39.057,0.11,False,4.357,37.7,0.12,False
+HO-SR-7_v000,HO-SR-7,Semantic Redundancy,hard,False,145.22,145.307,1.0,False,78.99,80.253,0.98,False,83.32,86.397,0.96,False,84.245,83.089,1.01,False,79.914,80.032,1.0,False

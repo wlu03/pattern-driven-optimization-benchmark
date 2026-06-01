@@ -1,0 +1,7 @@
+pattern_id,median_speedup,ci95_low,ci95_high,n_setups,width_pct,gate_pass
+SR-1,700.472,392.901,752.203,16,51.3,True
+IS-4,6.173,6.071,6.468,12,6.4,True
+MI-4,9.416,6.051,10.130,12,43.3,True
+CF-3,2.571,2.501,2.637,12,5.3,True
+HR-2,1.848,1.762,1.889,12,6.9,True
+DS-4,3.641,3.497,3.764,16,7.3,True

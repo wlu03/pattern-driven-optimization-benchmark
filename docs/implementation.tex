@@ -30,7 +30,24 @@ A single-shot wall-clock timing is not a defensible basis for a speedup claim. M
 
 The harness mitigates these effects in three layers. First, per-run system configuration follows the Google Benchmark guidance for Linux x86: the CPU frequency governor is forced to \texttt{performance} (\texttt{cpupower frequency-set --governor performance}), Turbo Boost is disabled (\texttt{cpufreq/boost} and, on Intel P-state systems, \texttt{intel\_pstate/no\_turbo}), the benchmark process is pinned to a single core (\texttt{taskset -c 0}), ASLR is disabled via \texttt{setarch -R}, and SMT/hyper-threading is disabled when host privileges permit. Second, candidate and reference are timed in the same evaluation pass under identical conditions; the evaluator returns the median of $r \geq 10$ runs together with the median absolute deviation rather than a mean (the median is robust against single-run context-switch outliers). Third, every published per-pattern speedup is computed under explicit setup randomization rather than from a single experimental setup: \texttt{scripts/setup\_randomization.sh} produces sixteen $(slow\_ms, fast\_ms)$ measurements per pattern by sweeping four linker input orderings and four UNIX environment-padding sizes, and \texttt{scripts/setup\_randomization\_all.py} runs this sweep across all 27 patterns in parallel. A $95\%$ percentile-bootstrap confidence interval on the speedup ratio is then computed by \texttt{scripts/bootstrap\_speedup\_ci.py} ($10{,}000$ resamples) and a speedup claim is gated on the lower CI bound exceeding $1.0$. Patterns whose CI crosses $1.0$ are reclassified in the results table as ``no measurable speedup'' rather than published as point estimates that would not survive the setup-randomization check.
 
-We applied this protocol to our own benchmark as a self-check. On SR-1, the link-order $\times$ env-padding sweep produces a $10.3\%$ spread in measured speedup ($95\%$ CI $[700, 776]\times$) about a median of $737\times$. The headline ratio remains defensible only because the absolute speedup vastly exceeds the bias-induced variance; the same protocol confirms IS-4 at $6.29\times$ with CI $[6.13, 6.52]\times$ ($6.3\%$ spread), turning a previously marginal-looking pattern into a defensible result. The setup-randomization spread on our own benchmark is direct empirical support for the methodology being necessary, consistent with the prediction of~\cite{mytkowicz2009producing}: even a several-hundred-x speedup carries a several-tens-of-percent spread that single-setup measurement would obscure.
+We applied this protocol to our own benchmark as a self-check (measurements on Apple M5 Pro / clang 21, 12--16 setups per pattern, $10{,}000$ bootstrap resamples). Across six representative patterns spanning the speedup magnitude range, every pattern's $95\%$ bootstrap CI lower bound clears the $1.0$ gate (all defensible), but the CI \emph{width} varies dramatically with the underlying mechanism:
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Pattern} & \textbf{Median speedup} & \textbf{$95\%$ CI} & \textbf{Width} & \textbf{$n$ setups} \\
+\midrule
+SR-1 & $700.5\times$  & $[392.9, 752.2]\times$ & $51\%$ & 16 \\
+MI-4 & $9.42\times$   & $[6.05, 10.13]\times$  & $43\%$ & 12 \\
+DS-4 & $3.64\times$   & $[3.50, 3.76]\times$   & $7.3\%$ & 16 \\
+HR-2 & $1.85\times$   & $[1.76, 1.89]\times$   & $6.9\%$ & 12 \\
+IS-4 & $6.17\times$   & $[6.07, 6.47]\times$   & $6.4\%$ & 12 \\
+CF-3 & $2.57\times$   & $[2.50, 2.64]\times$   & $5.3\%$ & 12 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The wide-CI patterns (SR-1 and MI-4) are exactly the ones whose speedup mechanism is microarchitectural: SR-1's headline number depends on the L1-icache hit rate for the \texttt{slow} variant's repeated noinline call site, and MI-4's depends on which row of the input array survives in L1 between iterations. Both are exactly the patterns Mytkowicz et al.\ predict will produce large bias-induced spreads. The narrow-CI patterns (IS-4 at $6.5\%$, HR-2 at $6.9\%$, DS-4 at $7.3\%$, CF-3 at $5.3\%$) are dominated by an algorithmic or instruction-count constant rather than a layout-sensitive cache effect. The single most important methodological point is that a single-setup measurement of SR-1 returning, say, $750\times$ would be \emph{indistinguishable on the eye} from a measurement returning $400\times$, even though both fall within the $51\%$-wide CI; only the protocol exposes that spread. Raw per-pattern setup-runs CSVs are checked into \texttt{setup\_randomization\_results/}; the summary table above is regenerable via \texttt{setup\_randomization\_results/summary.csv}. This is direct empirical support for the necessity of setup randomization, consistent with the prediction of~\cite{mytkowicz2009producing}: even a several-hundred-x speedup carries a several-tens-of-percent spread that single-setup measurement would obscure.
 
 \subsection{Variant Generation Pipeline}
 
