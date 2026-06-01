@@ -93,7 +93,12 @@ vllm_image = (
     .entrypoint([])
     .uv_pip_install(
         "vllm==0.21.0",
-        "huggingface_hub[hf_transfer]==0.26.0",
+        # Don't pin huggingface_hub — vllm 0.21.0 requires >=0.34.0 (or >=1.5.0
+        # for newer transformers branches); let the resolver pick a compatible
+        # version. hf-transfer is enabled via env var below; it's available as
+        # a separate `hf_transfer` package or as the `[hf_transfer]` extra of
+        # any modern huggingface_hub.
+        "hf_transfer",
     )
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
 )
