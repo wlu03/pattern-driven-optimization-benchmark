@@ -90,6 +90,15 @@ patterns total. Two new metadata fields appear in this wave:
   declares per-pattern tolerance for the correctness check. Sketch
   patterns (HO-AL-2/3/4) use `{"type": "relative", "epsilon": 0.02}` or
   `0.05`; standard patterns use `exact`.
+- **Constant-time scope caveat:** the inverted-CT patterns verify only
+  functional equality of slow/fast on a single secret-index input.
+  They do NOT include `dudect`-style timing-distribution tests,
+  disassembly checks for secret-dependent branches/loads, or any
+  formal leakage analysis. Models that pass these patterns demonstrate
+  recognition of the volatile-barrier defense pattern (structural)
+  plus value-correctness, NOT provable constant-time behavior on a
+  given target. Adding real CT validation (dudect, ctgrind, Microwalk
+  instrumentation) is documented future work.
 - `pattern_type` (`"standard"` or `"constant_time_inverted"`): marks
   patterns where the SLOW version is the naive intended-correct
   formulation that -O3 BREAKS (HO-SR-4/5/6 are the constant-time

@@ -116,6 +116,63 @@ CHECKERS: dict[str, PatternChecker] = {
 }
 
 
+def _heldout_fallback_check(slow_code: str,
+                             model_output: str) -> FaithfulnessResult:
+    """Structural fallback for HO-* patterns without a dedicated checker.
+
+    Per-pattern AST-level checkers for the 36 held-out patterns are not
+    yet authored (the held-out wave was added after the base-pattern
+    checker registry). Until they are, return a coarse but useful
+    verdict based on whether the model emitted code structurally
+    different from slow.c.
+
+    Verdicts:
+      - "unfaithful" + score 0.0  if model_output is essentially a
+        copy of slow.c (no transformation attempted)
+      - "partial" + score 0.5     if model_output differs from slow.c
+        but we cannot judge whether the difference is the expected
+        transformation
+      - never returns "faithful" — that requires a per-pattern checker
+        and would be misleading without one
+    """
+    import re
+
+    def _normalize(s: str) -> str:
+        # Strip comments, whitespace, blank lines for a coarse
+        # is-this-the-same-code? comparison.
+        s = re.sub(r"//[^\n]*", "", s)
+        s = re.sub(r"/\*.*?\*/", "", s, flags=re.DOTALL)
+        return "".join(s.split())
+
+    slow_n = _normalize(slow_code)
+    out_n = _normalize(model_output)
+    if not out_n:
+        return FaithfulnessResult(
+            Verdict.UNFAITHFUL, 0.0,
+            "held-out fallback: model output is empty",
+            checks_passed=[], checks_failed=["non_empty_output"],
+        )
+    # Substring containment heuristic — if the model just wrapped slow_code
+    # in a stub, the slow body still appears verbatim.
+    if (slow_n and slow_n in out_n) or slow_n == out_n:
+        return FaithfulnessResult(
+            Verdict.UNFAITHFUL, 0.0,
+            "held-out fallback: model output contains slow body verbatim "
+            "(no transformation attempted)",
+            checks_passed=[], checks_failed=["any_transformation"],
+        )
+    # Different from slow but no per-pattern checker available — verdict
+    # is structurally indeterminate. Mark as UNKNOWN (not FAITHFUL/PARTIAL)
+    # so downstream analyses don't mistake the fallback for a real verdict.
+    return FaithfulnessResult(
+        Verdict.UNKNOWN, 0.5,
+        "held-out fallback: model output differs from slow.c but no "
+        "pattern-specific checker is implemented — verdict is "
+        "structurally indeterminate (counted toward STRUCTURAL_ONLY)",
+        checks_passed=[], checks_failed=[],
+    )
+
+
 def check_faithfulness(
     pattern_id: str,
     slow_code: str,
@@ -126,20 +183,32 @@ def check_faithfulness(
     Main entry point. Returns a FaithfulnessResult for the given pattern.
 
     Args:
-        pattern_id:   e.g. "SR-1", "AL-3", "COMP"
+        pattern_id:   e.g. "SR-1", "AL-3", "COMP", "HO-CF-2"
         slow_code:    contents of slow.c
         model_output: the model's optimized C code
         composition:  for COMP only — list of constituent pattern IDs from metadata.json
+
+    Held-out (HO-*) patterns fall through to a coarse structural fallback
+    when no dedicated checker is registered; see _heldout_fallback_check.
     """
     checker = CHECKERS.get(pattern_id)
-    if checker is None:
-        return _unknown(f"no checker implemented for pattern '{pattern_id}'")
-    try:
-        if pattern_id == "COMP":
-            return checker.check(slow_code, model_output, composition=composition)
-        return checker.check(slow_code, model_output)
-    except Exception as e:
-        return _unknown(f"checker raised exception: {e}")
+    if checker is not None:
+        try:
+            if pattern_id == "COMP":
+                return checker.check(slow_code, model_output, composition=composition)
+            return checker.check(slow_code, model_output)
+        except Exception as e:
+            return _unknown(f"checker raised exception: {e}")
+
+    # Held-out patterns: structural fallback (better than "unknown" because
+    # it can still catch the "model returned slow.c verbatim" failure mode)
+    if pattern_id.startswith("HO-"):
+        try:
+            return _heldout_fallback_check(slow_code, model_output)
+        except Exception as e:
+            return _unknown(f"heldout fallback raised: {e}")
+
+    return _unknown(f"no checker implemented for pattern '{pattern_id}'")
 
 
 __all__ = [

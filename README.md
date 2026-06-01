@@ -2,7 +2,7 @@
 
 A benchmark for evaluating whether LLMs can optimize C code patterns that compilers **cannot** fix automatically. Each pattern is specifically selected because `-O3` leaves it unoptimized — the inefficiency is semantic, algorithmic, or data-structural, not syntactic.
 
-Includes 27 base patterns across 7 categories, a variant generator producing 1,140 dataset entries (including 700 composed multi-pattern variants in `dataset/COMP/` spanning 23 distinct two- and three-pattern combinations), a 36-pattern post-cutoff held-out test set for contamination defense (`dataset/held_out/`), and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement.
+Includes 27 base patterns across 7 categories (391 main variants), a variant generator producing 675 composed multi-pattern variants in `dataset/COMP/` spanning 23 distinct two- and three-pattern combinations, a 36-pattern post-cutoff held-out test set of 178 variants for contamination defense (`dataset/held_out/`), and an LLM evaluation pipeline with correctness checking, retry-on-failure, and performance measurement. **Total active dataset: 1,244 variants**, all compiler-resistant at `-O3 -fno-lto` under per-pattern thresholds. An additional 76 variants that initially failed the resistance gate are preserved under `dataset/excluded/` for transparency.
 
 ---
 
@@ -24,67 +24,22 @@ The patterns are organized by *why* the compiler fails to fix them:
 
 ---
 
-## Key Findings (Qwen2.5-Coder-7B)
+## LLM Evaluation Status
 
-### Correctness by Prompting Strategy
+**No scored model-results CSV is currently committed.** The benchmark infrastructure (prompt strategies, evaluator, faithfulness layer, Modal fan-out, score-from-CSV scoring) is complete and smoke-tested, but the per-(model, strategy) sweep across the Pareto-frontier model shortlist has not yet been run end-to-end. Earlier drafts of this README presented findings from a preliminary single-machine Qwen2.5-Coder-7B-Ollama run (e.g. "taxonomy 16/16, pattern-aware 12.8× on IS-4, SR-2 backfire effect") whose raw outputs were not preserved as a committed artifact. Those numbers should be treated as *exploratory pre-registration hypotheses* rather than results, and have been removed from this README to avoid presenting them as supported claims.
 
-| Strategy | Score | Note |
-|---|---|---|
-| `taxonomy-guided` | **16/16 (100%)** | Provide the full taxonomy; model self-diagnoses |
-| `generic` | 15/16 (93.8%) | Plain "optimize this" prompt |
-| `pattern-aware` | 15/16 (93.8%) | Tell the model which category the bug is in |
+**Once a scored CSV is committed**, this section will report:
+- Per-(model, strategy) correctness, speedup-vs-slow, speedup-vs-hand-optimized
+- Faithfulness 2×2 (Faithful / Faithful-Alternative / Structural-Only / Failed) per pattern
+- Cross-pattern transfer Spearman correlations across models
+- Fine-tune-vs-baseline paired-Wilcoxon p-value on held-out
 
-**Counterintuitive finding:** telling the model the specific pattern category (*pattern-aware*) is no better than — and sometimes worse than — not telling it anything. In one case (SR-2), the category hint caused the model to over-apply memoization and produce *slower* code. Providing the full taxonomy and letting the model self-diagnose consistently outperforms both.
+**Hypotheses to test (from the preliminary Qwen-7B-Ollama exploration, NOT verified):**
+1. Taxonomy-guided prompting achieves highest *correctness*; pattern-aware sometimes degrades it on patterns where the category label triggers a wrong but plausible transformation (the "backfire effect").
+2. Input-sensitive patterns (IS-1/2/3/4/5) are hardest; the spread between best and worst prompt strategy is largest on this category.
+3. Algorithmic and semantic-redundancy patterns are easiest; the model's marginal contribution over `-O3` is dominated by these two.
 
-### Performance Results (taxonomy-guided, compiled -O2)
-
-| Pattern | Speedup vs Slow | Speedup vs Hand-Optimized | What the LLM did |
-|---|---|---|---|
-| SR-3 | **3743x** | 0.63x | Hoisted `strlen()` out of loop |
-| SR-4 | **1212x** | 0.69x | Hoisted `expensive_lookup()` before loop |
-| MI-4 | **9.2x** | 1.48x | Swapped column/row loop order |
-| SR-2 | **2.3x** | 1.29x | Factored loop-invariant `alpha*beta` out |
-| CF-3 | **1.7x** | 0.98x | Hoisted scalar multiply |
-| SR-1, SR-5 | 1.2–1.3x | ~1.0x | Modest restructuring |
-| CF-4 | ~1.0x | ~1.0x | Correct but no measurable speedup |
-| IS-4 | **1.0x** | 0.10x | Correct but misses the 10x opportunity |
-| DS-4 | ~1.0x | ~1.0x | Correct AoS loop; never restructures to SoA |
-| IS-1, IS-3 | **0.6–0.8x** | — | Slower than the naive version |
-
-### Where LLMs Excel
-
-**Semantic Redundancy** — The model reliably recognizes and hoists loop-invariant work. SR-3 and SR-4 show 1000x+ speedups because the slow code repeats expensive computation on every iteration. This is the most text-book-like optimization: look for an expression in a loop that doesn't change, move it out. LLMs have clearly internalized this pattern deeply.
-
-**Algorithmic rewrites** — AL-1 (O(2^n) Fibonacci → O(n) iterative) is handled correctly and consistently. The model knows the canonical DP rewrite.
-
-**Cache-friendly access** — MI-4 (column vs row major) is fixed correctly by swapping loop order. Once the model has the taxonomy hint, it finds this immediately.
-
-### Where LLMs Struggle
-
-**Input-Sensitive patterns** — The hardest category. IS-4 requires sampling the input at runtime, detecting whether it is already sorted or reverse-sorted, and branching to a specialized algorithm. The model almost always just calls `qsort()` — correct, safe, but misses the 10x speedup the reference captures. This class of optimization requires reasoning about *data distributions at runtime*, which LLMs do not model well.
-
-**Data structure layout** — DS-4 measures AoS vs SoA. The model correctly loops over `p[i].mass` and passes correctness — but the actual optimization is restructuring `Particle[]` into a separate `double mass[]` array, which requires changing the call site's data model. The model never does this. It optimizes *within* the given data structure, not *across* it.
-
-**Overhead addition** — IS-1 (sparse vector) and IS-3 (adaptive sort) are made *slower* by the model in the generic and taxonomy strategies. In IS-1, the model adds a redundant inner loop reorganization that increases work. This shows the model sometimes mistakes "more code" for "more optimized."
-
-### The Prompt Strategy Effect in Detail
-
-Three patterns show large performance divergence across strategies:
-
-**SR-2** (spread: 8x across strategies)
-- Generic: 0.29x — model expanded `alpha*beta` *into* the loop, adding work
-- Pattern-aware: 1.14x — correct separation of sums
-- Taxonomy: 2.31x — fully factors out both loop-invariant terms
-
-**IS-4** (spread: 12.8x across strategies)
-- Generic / Taxonomy: 1.0–1.3x — just calls `qsort()`
-- Pattern-aware: **12.8x** — adds a sorted-check pre-scan, skips sort entirely if already ordered. The "Input-Sensitive" label pushed the model toward data-distribution thinking.
-
-**MI-4** (spread: 8.8x across strategies)
-- Generic: 1.1x — kept column-major order (the slow version)
-- Pattern-aware / Taxonomy: 8–9x — swapped to row-major
-
-**Implication:** for complex patterns, prompt strategy matters as much as model capability. The taxonomy-guided approach wins on *correctness*, but pattern-aware wins on *IS-4 performance* — suggesting that different prompt strategies activate different optimization instincts. A hybrid approach (taxonomy for diagnosis, category label for input-sensitive patterns) may be optimal.
+These will be confirmed or refuted by the scored sweep.
 
 ---
 
@@ -275,7 +230,7 @@ To add a new model, append an entry to `models.yaml` — no code changes require
 │   ├── train.jsonl / val.jsonl       # Prepared training data
 │   └── lora_fine_tuning/             # Trained adapter checkpoints
 │
-└── dataset/                          # Generated variants (1,140 main + 36 held-out)
+└── dataset/                          # 1,244 active variants (391 main + 675 COMP + 178 held-out); 76 excluded under dataset/excluded/
     ├── index.json / index.csv
     ├── <PID>/<PID>_v<NNN>/           # 27 base patterns × ~15 variants + COMP × 700
     │   ├── slow.c                    # Inefficient code

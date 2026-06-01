@@ -142,15 +142,38 @@ def compile_and_time(variant_dir: str, regime_name: str,
         }
 
 
+def _pattern_threshold(meta: dict) -> float:
+    """Return the per-pattern resistance threshold.
+
+    Threshold = min(2.0, lower_bound_of_expected_speedup_range). Mirrors
+    scripts/measure_compiler_fixable.py::_pattern_threshold so the two
+    scripts apply the SAME bar to the SAME variant. Without this, HR-2
+    (expected lower 1.5x) and IS-2 (expected lower 1.1x) get flagged as
+    "Polly closed the gap" by this script even when their measured
+    speedup is still above their authorial floor — disagreeing with the
+    compiler-fixable script's verdict on the same data.
+    """
+    rng = meta.get("expected_speedup_range")
+    if not rng:
+        return 2.0
+    try:
+        low_str = str(rng).split("-")[0].strip().rstrip("xX")
+        return min(2.0, float(low_str))
+    except (ValueError, IndexError):
+        return 2.0
+
+
 def measure_one(args) -> dict:
     """Top-level callable for multiprocessing (must be picklable)."""
     variant_dir, regimes = args
     meta = json.loads((Path(variant_dir) / "metadata.json").read_text())
+    threshold = _pattern_threshold(meta)
     row = {
         "variant_id": meta["variant_id"],
         "pattern_id": meta["pattern_id"],
         "category":   meta["category"],
         "difficulty": meta["difficulty"],
+        "resistance_threshold": threshold,
     }
     for regime, (compiler, flags) in regimes.items():
         r = compile_and_time(variant_dir, regime, compiler, flags)
@@ -162,7 +185,10 @@ def measure_one(args) -> dict:
                 if k.startswith("speedup_") and v is not None]
     if speedups:
         row["min_speedup_across_regimes"] = min(speedups)
-        row["resistant"] = min(speedups) > 2.0
+        # 5% noise margin (matches measure_compiler_fixable.py's tolerance)
+        # so a variant doesn't flap resistant/non-resistant across runs
+        # purely from parallel-worker contention.
+        row["resistant"] = min(speedups) >= threshold * 0.95
     else:
         row["min_speedup_across_regimes"] = None
         row["resistant"] = None
@@ -221,7 +247,8 @@ def main():
         print("No results.", file=sys.stderr)
         sys.exit(1)
 
-    fieldnames = ["variant_id", "pattern_id", "category", "difficulty"]
+    fieldnames = ["variant_id", "pattern_id", "category", "difficulty",
+                  "resistance_threshold"]
     for regime in regimes:
         fieldnames.append(f"speedup_{regime}")
     fieldnames += ["min_speedup_across_regimes", "resistant"]

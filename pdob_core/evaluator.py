@@ -87,6 +87,45 @@ class EvalResult:
     reasoning_trace:       Optional[str]  = None
 
 
+_DIAGNOSIS_CATEGORY_HINTS = {
+    "SR":  ["semantic redundancy", "loop-invariant", "hoist", "redundant computation"],
+    "IS":  ["input-sensitive", "input distribution", "data-dependent", "sorted", "skew"],
+    "CF":  ["control flow", "control-flow", "branch", "predication", "loop unswitch"],
+    "DS":  ["data structure", "data-structure", "aos", "soa", "layout"],
+    "AL":  ["algorithmic", "complexity", "dynamic programming", "memoization", "asymptotic"],
+    "MI":  ["memory", "cache", "prefetch", "row-major", "column-major", "alignment"],
+    "HR":  ["human-style", "antipattern", "copy-paste", "redundant temporar", "dead code"],
+}
+
+
+def _extract_diagnosed_pattern(text: str) -> Optional[str]:
+    """Best-effort category extractor for diagnosis-strategy responses.
+
+    Looks for explicit category mentions or characteristic vocabulary in
+    the model's free-form text and returns the two-letter category code
+    (SR, IS, CF, DS, AL, MI, HR) it most likely identifies. Returns None
+    if no clear signal. The result is stored on EvalResult so downstream
+    analysis (scripts/diagnostic_accuracy.py) can compare against ground
+    truth (the variant's pattern_id prefix).
+    """
+    if not text:
+        return None
+    t = text.lower()
+    # First pass: explicit pattern IDs (e.g. "SR-3", "MI-4")
+    import re
+    m = re.search(r"\b([A-Z]{2})-\d+\b", text)
+    if m:
+        return m.group(1)
+    # Second pass: keyword voting
+    scores = {cat: 0 for cat in _DIAGNOSIS_CATEGORY_HINTS}
+    for cat, kws in _DIAGNOSIS_CATEGORY_HINTS.items():
+        for kw in kws:
+            if kw in t:
+                scores[cat] += 1
+    best_cat, best_score = max(scores.items(), key=lambda kv: kv[1])
+    return best_cat if best_score > 0 else None
+
+
 def _compute_faithfulness(
     pattern_id: str,
     slow_code: str,
@@ -225,6 +264,36 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
     primary_opt = opt_levels[0]
 
     prompt = build_prompt(pattern, strategy, hw_target)
+
+    # Diagnosis-only strategy short-circuit. The diagnosis prompt asks the
+    # model to NAME the inefficiency category, not to emit C. Running the
+    # output through extract_code_from_response -> compile -> retry-with-
+    # "fix the code" feedback contaminates the experiment by feeding the
+    # model back into a code-generation loop. Instead: call the model
+    # once, store the raw response as a textual classification, skip all
+    # compile/run measurement, and return a row that records the response
+    # without pretending it's runnable C.
+    if strategy == "diagnosis":
+        llm_response = call_llm_fn(prompt, model)
+        try:
+            from .models import get_last_reasoning_trace
+            _last_reasoning = get_last_reasoning_trace()
+        except Exception:
+            _last_reasoning = None
+        return EvalResult(
+            pattern_id=pattern.pattern_id,
+            model=model,
+            strategy=strategy,
+            llm_code=llm_response,           # raw text, NOT extracted C
+            compiles=False,                  # not applicable; diagnosis is text
+            correct=False,                   # not applicable
+            slow_ms=0.0, llm_ms=0.0, ref_fast_ms=0.0,
+            speedup_vs_slow=0.0, speedup_vs_ref=0.0,
+            diagnosed_pattern=_extract_diagnosed_pattern(llm_response),
+            hw_target=hw_target,
+            variant_id=None,
+            sample_idx=sample_idx,
+        )
 
     llm_code = ""
     result: dict = {"compiles": False, "correct": False, "time_ms": 0}
@@ -590,15 +659,48 @@ def evaluate_variant(variant, model: str, strategy: str, call_llm_fn, *,
         speedup_vs_ref = 0.0
 
     fhfn = {}
-    if faithfulness and result.get("correct"):
-        # Variant path: structural-only (the on-disk test.c isn't a string we
-        # can re-run with env vars without more plumbing). Equivalence axis
-        # left None; the cell stays None and the structural verdict is still
-        # recorded so the row is informative.
+    if faithfulness:
+        # Dataset path: compute the 2x2 verdict from the two axes we *can*
+        # measure for on-disk variants.
+        #
+        # - Structural axis (expected_shape): per-pattern AST checker on
+        #   the LLM output vs slow.c. Returns FAITHFUL / UNFAITHFUL /
+        #   PARTIAL / UNKNOWN.
+        # - Equivalence axis: canonical-input correctness as already
+        #   measured by _gather_runs above (result["correct"]). This is
+        #   weaker than the differential-equivalence-over-9-configs the
+        #   patterns.py path runs, because the dataset's test.c files do
+        #   not (yet) expose BENCH_N / BENCH_SEED / BENCH_DIST hooks.
+        #   The cell is therefore honest about its scope: equivalence
+        #   means "passes the variant's own test.c on its canonical
+        #   input", not "passes 9 randomized configurations".
         fhfn = _compute_faithfulness(
             variant.pattern_id, variant_slow_src, llm_code,
-            test_harness=None,
+            test_harness=None,  # structural tier only inside helper
         )
+        # Overlay the canonical-input equivalence + derive the 2x2 cell.
+        is_equivalent = bool(result.get("correct"))
+        struct_verdict = fhfn.get("faithfulness_structural_verdict")
+        expected_shape = (struct_verdict == "faithful")
+        fhfn["faithfulness_equivalent"]    = is_equivalent
+        fhfn["faithfulness_expected_shape"] = expected_shape
+        # 2x2 routing — same scheme as faithfulness.equivalence.two_axis_verdict
+        # but computed here because we use the EvalResult's canonical-input
+        # correctness instead of the in-string harness's 9-config verdict.
+        if is_equivalent and expected_shape:
+            fhfn["faithfulness_cell"] = "FAITHFUL"
+        elif is_equivalent and not expected_shape:
+            fhfn["faithfulness_cell"] = "FAITHFUL_ALTERNATIVE"
+        elif (not is_equivalent) and expected_shape:
+            fhfn["faithfulness_cell"] = "STRUCTURAL_ONLY"
+        else:
+            fhfn["faithfulness_cell"] = "FAILED"
+        # Record that the equivalence axis came from canonical-input only
+        # (single config), not the 9-config sweep. Downstream analyses
+        # (e.g. report_2x2.py) can distinguish dataset-derived rows from
+        # patterns.py-derived rows by looking at this field.
+        fhfn["faithfulness_equiv_configs"] = 1
+        fhfn["faithfulness_equiv_passed"]  = int(is_equivalent)
 
     return EvalResult(
         pattern_id=variant.pattern_id,

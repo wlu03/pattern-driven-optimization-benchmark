@@ -1,0 +1,4611 @@
+variant_id,pattern_id,category,model,strategy,hw_target,raw_output_chars,raw_output
+DS-1_v012,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v013,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v014,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v007,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v000,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v009,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v008,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v001,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v006,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v011,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v010,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v003,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v004,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v005,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+DS-1_v002,DS-1,Data Structure,qwen2.5-coder-1.5b,taxonomy-guided,generic,6602," ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i];break;}
+    }
+    return total;
+}
+``` ```c
+int optimized(int *keys,int *vals,int n_keys,int *queries,int n_q){
+    int total=0;
+    for(int q=0;q<n_q;q++){
+        for(int i=0;i<n_keys;i++) if(keys[i]==queries[q]){total+=vals[i"
+MI-1_v012,MI-1,Memory & IO,qwen2.5-coder-1.5b,taxonomy-guided,generic,7149," ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for"
+MI-1_v014,MI-1,Memory & IO,qwen2.5-coder-1.5b,taxonomy-guided,generic,7149," ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for"
+MI-1_v013,MI-1,Memory & IO,qwen2.5-coder-1.5b,taxonomy-guided,generic,7149," ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for"
+MI-1_v009,MI-1,Memory & IO,qwen2.5-coder-1.5b,taxonomy-guided,generic,7149," ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for"
+MI-1_v000,MI-1,Memory & IO,qwen2.5-coder-1.5b,taxonomy-guided,generic,7149," ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for(int j=0;j<window;j++) sum+=buf[j];
+        total+=sum/window;
+        free(buf);
+    }
+    return total;
+}
+``` ```c
+double optimized(double *input,int n,int window){
+    double total=0.0;
+    for(int i=0;i<=n-window;i++){
+        double *buf=(double*)malloc(window*sizeof(double));
+        for(int j=0;j<window;j++) buf[j]=input[i+j];
+        double sum=0.0; for"
