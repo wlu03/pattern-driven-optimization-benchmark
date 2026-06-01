@@ -660,33 +660,53 @@ def evaluate_variant(variant, model: str, strategy: str, call_llm_fn, *,
 
     fhfn = {}
     if faithfulness:
-        # Dataset path: compute the 2x2 verdict from the two axes we *can*
-        # measure for on-disk variants.
+        # Dataset path: compute the 2x2 verdict.
         #
         # - Structural axis (expected_shape): per-pattern AST checker on
-        #   the LLM output vs slow.c. Returns FAITHFUL / UNFAITHFUL /
-        #   PARTIAL / UNKNOWN.
-        # - Equivalence axis: canonical-input correctness as already
-        #   measured by _gather_runs above (result["correct"]). This is
-        #   weaker than the differential-equivalence-over-9-configs the
-        #   patterns.py path runs, because the dataset's test.c files do
-        #   not (yet) expose BENCH_N / BENCH_SEED / BENCH_DIST hooks.
-        #   The cell is therefore honest about its scope: equivalence
-        #   means "passes the variant's own test.c on its canonical
-        #   input", not "passes 9 randomized configurations".
+        #   the LLM output vs slow.c.
+        # - Equivalence axis: differential testing across multiple
+        #   BENCH_N / BENCH_SEED configs via scripts.bench_hooks +
+        #   faithfulness.equivalence.differential_equivalence_on_variant.
+        #   Falls back to canonical-input correctness (n_configs=1) if:
+        #     * bench_hooks can't patch the variant's test.c (no
+        #       #define N or VLA-incompatible structure)
+        #     * the multi-TU compile fails (e.g. function-rename edge
+        #       case on patterns with multiple top-level functions)
+        #   The faithfulness_equiv_configs field on EvalResult records
+        #   which mode was used so downstream analyses can distinguish.
         fhfn = _compute_faithfulness(
             variant.pattern_id, variant_slow_src, llm_code,
             test_harness=None,  # structural tier only inside helper
         )
-        # Overlay the canonical-input equivalence + derive the 2x2 cell.
-        is_equivalent = bool(result.get("correct"))
+
+        # Equivalence axis: try multi-config differential first.
+        is_equivalent = False
+        n_configs = 1
+        n_passed = 0
+        try:
+            from faithfulness.equivalence import differential_equivalence_on_variant
+            eq = differential_equivalence_on_variant(
+                llm_code, variant, n_inputs=9, opt_level="O2",
+            )
+            if eq.n_configs > 0 and not eq.compile_error:
+                is_equivalent = eq.equivalent
+                n_configs = eq.n_configs
+                n_passed = eq.n_correct
+            else:
+                # Fallback: canonical-input correctness from _gather_runs.
+                is_equivalent = bool(result.get("correct"))
+                n_passed = int(is_equivalent)
+        except Exception:
+            is_equivalent = bool(result.get("correct"))
+            n_passed = int(is_equivalent)
+
         struct_verdict = fhfn.get("faithfulness_structural_verdict")
         expected_shape = (struct_verdict == "faithful")
-        fhfn["faithfulness_equivalent"]    = is_equivalent
+        fhfn["faithfulness_equivalent"]     = is_equivalent
         fhfn["faithfulness_expected_shape"] = expected_shape
-        # 2x2 routing — same scheme as faithfulness.equivalence.two_axis_verdict
-        # but computed here because we use the EvalResult's canonical-input
-        # correctness instead of the in-string harness's 9-config verdict.
+        fhfn["faithfulness_equiv_configs"]  = n_configs
+        fhfn["faithfulness_equiv_passed"]   = n_passed
+        # 2x2 routing
         if is_equivalent and expected_shape:
             fhfn["faithfulness_cell"] = "FAITHFUL"
         elif is_equivalent and not expected_shape:
@@ -695,12 +715,6 @@ def evaluate_variant(variant, model: str, strategy: str, call_llm_fn, *,
             fhfn["faithfulness_cell"] = "STRUCTURAL_ONLY"
         else:
             fhfn["faithfulness_cell"] = "FAILED"
-        # Record that the equivalence axis came from canonical-input only
-        # (single config), not the 9-config sweep. Downstream analyses
-        # (e.g. report_2x2.py) can distinguish dataset-derived rows from
-        # patterns.py-derived rows by looking at this field.
-        fhfn["faithfulness_equiv_configs"] = 1
-        fhfn["faithfulness_equiv_passed"]  = int(is_equivalent)
 
     return EvalResult(
         pattern_id=variant.pattern_id,

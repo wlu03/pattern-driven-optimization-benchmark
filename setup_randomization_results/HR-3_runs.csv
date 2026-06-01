@@ -1,0 +1,13 @@
+setup_id,link_order,env_pad_size,slow_ms,fast_ms,speedup
+1,testdelsslow,0,5.0117,0.7487,6.69
+2,testdelsslow,64,5.1063,0.8087,6.31
+3,testdelsslow,256,5.0660,0.8420,6.02
+4,testdelsslow,1024,4.8797,0.7507,6.50
+5,fastslowtest,0,5.1347,0.9527,5.39
+6,fastslowtest,64,5.0427,0.7583,6.65
+7,fastslowtest,256,4.8760,0.7417,6.57
+8,fastslowtest,1024,5.0763,0.8377,6.06
+9,slowfasttest,0,4.0593,0.7740,5.24
+10,slowfasttest,64,4.0730,0.7810,5.22
+11,slowfasttest,256,4.0203,0.7763,5.18
+12,slowfasttest,1024,3.9697,0.7807,5.08

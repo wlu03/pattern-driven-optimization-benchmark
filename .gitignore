@@ -13,3 +13,9 @@ figures/
 fine_tune/lora_fine_tuning/*/checkpoint-*/
 passk.pdf
 passk.png
+
+# LaTeX intermediates (paper.pdf can be committed; .aux/.out should not)
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc

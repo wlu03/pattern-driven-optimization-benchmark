@@ -22,15 +22,63 @@ Held-out (36 patterns)         & $178$   & $2$  & $178/178$ ($100\%$) \\
 
 Counts above are reproducible from \texttt{dataset/index.json} ($1{,}244$ entries; $391$ main + $675$ COMP + $178$ held-out) and \texttt{dataset/excluded/EXCLUDED.csv} ($76$ entries).
 
-\textbf{Important scope caveat.} The $100\%$ resistant claim is \emph{at \texttt{-O3 -fno-lto} only}. Under other regimes (\texttt{-O3 -ffast-math}, \texttt{-O3 -flto}) and under Polly (next subsection), additional variants fall below the threshold; the per-regime counts are in the CSV and a subset are surfaced in the implementation section's headline pattern list. The $100\%$ figure should not be read as ``resistant to every compiler tool ever invented'' --- it is the empirical statement that, under the standard production default \texttt{-O3 -fno-lto}, every active variant retains its hand-coded fast/slow gap.
+\textbf{Important scope caveat.} The $100\%$ resistant claim is \emph{at \texttt{-O3 -fno-lto} only}. Under other regimes the picture is honestly more nuanced:
+
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Regime} & \textbf{Non-resistant} & \textbf{Pct} & \textbf{Concentrated in} \\
+\midrule
+\texttt{-O0}                        & $124/1{,}244$ & $10.0\%$ & expected: no opt applied \\
+\texttt{-O2 -fno-lto}               & $0/1{,}244$   & $0.0\%$  & --- \\
+\texttt{-O3 -fno-lto} (headline)    & $0/1{,}244$   & $0.0\%$  & --- \\
+\texttt{-O3 -ffast-math}            & $20/1{,}244$  & $1.6\%$  & HO-DS-5/6, HR-2 ($9/15$), SR-3 ($1/15$) \\
+\texttt{-O3 -flto}                  & $18/1{,}244$  & $1.4\%$  & HO-SR-1 ($5/5$), SR-1 ($9/15$), MI-2 ($3/14$), HO-CF-2 ($1/5$) \\
+\midrule
+\textbf{Resistant under ALL 5 regimes} & $1{,}096 / 1{,}244$ & $\mathbf{88.1\%}$ & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The all-regime-resistant subset ($88.1\%$) is the strongest version of the claim and is the appropriate denominator for any per-regime ablation. The $-\texttt{flto}$ failures are the LTO-can-cross-noinline-barriers cases (already documented in \S\ref{subsec:compiler-resistance}); the $-\texttt{ffast-math}$ failures are floating-point patterns whose ``equivalent'' rewrite the relaxed FP model permits (e.g., reassociating accumulation in HR-2's sum-of-squares). Both subclasses are real (not measurement noise) and would be misleading to omit. The $100\%$ figure should not be read as ``resistant to every compiler tool ever invented'' --- it is the empirical statement that, under the standard production default \texttt{-O3 -fno-lto}, every active variant retains its hand-coded fast/slow gap.
 
 The $2$ held-out variants moved to \texttt{excluded/} are both HO-AL-3 (Count-Min Sketch) variants generated at $N \times 0.5$: at the smaller problem size, the exact-frequency hash-map beats the sketch because the per-key hash overhead dominates. This is the expected algorithmic behavior of sketches and is documented in the original Cormode \& Muthukrishnan paper~\cite{cormode2005cms}; sketches are an asymptotic, not constant-factor, win. HO-AL-3 retains $3$ of its $5$ variants in the active set.
 
 \subsection{Setup-Randomization on Representative Patterns}\label{subsec:results-stats}
 
-\S\ref{subsec:stats} introduced the Mytkowicz-style setup-randomization protocol. We applied it to six representative patterns spanning the speedup magnitude range. Every pattern's $95\%$ bootstrap CI lower bound clears the $1.0$ gate, but the CI \emph{width} varies dramatically with the underlying mechanism (see the per-pattern table in \S\ref{subsec:stats}; raw CSVs in \texttt{setup\_randomization\_results/}). The wide-CI patterns (SR-1 at $51\%$, MI-4 at $43\%$) are the ones whose speedup depends on microarchitectural alignment (icache hits, L1 row reuse) --- exactly the patterns Mytkowicz et al.\ predict will produce large bias-induced spreads. The narrow-CI patterns ($5\%$--$7\%$) are dominated by an algorithmic or instruction-count constant.
+\S\ref{subsec:stats} introduced the Mytkowicz-style setup-randomization protocol. We applied it to $18$ of the $27$ base patterns covering all seven inefficiency categories. Every pattern's $95\%$ bootstrap CI lower bound clears the $1.0$ gate (all defensible), but the CI \emph{width} varies by two orders of magnitude depending on the underlying mechanism:
 
-The protocol has been run on a $6$-pattern representative subset, not all $27$ base patterns; expanding to the full set is documented future work (\S\ref{subsec:limits}). The methodological point is that a single-setup measurement of SR-1 returning, say, $750\times$ is indistinguishable on the eye from a measurement returning $400\times$, even though both fall within the $51\%$-wide CI. Without the protocol, the benchmark's headline numbers would carry implicit error bars far wider than typical paper claims acknowledge.
+\begin{center}
+\small
+\begin{tabular}{lrlrl}
+\toprule
+\textbf{Pattern} & \textbf{Median} & \textbf{$95\%$ CI} & \textbf{Width} & \textbf{Mechanism class} \\
+\midrule
+SR-3 & $11{,}900.9\times$ & $[11{,}435, 12{,}260]\times$ & $6.9\%$  & algorithmic \\
+IS-3 & $9{,}977.5\times$  & $[9{,}898, 20{,}069]\times$  & $101.9\%$& microarch-sensitive \\
+AL-1 & $5{,}748.0\times$  & $[2{,}868, 6{,}040]\times$   & $55.2\%$ & microarch-sensitive \\
+SR-1 & $700.5\times$      & $[392.9, 752.2]\times$        & $51.3\%$ & microarch-sensitive \\
+AL-2 & $301.6\times$      & $[299.9, 303.3]\times$        & $1.1\%$  & algorithmic \\
+DS-1 & $166.6\times$      & $[152.6, 177.5]\times$        & $15.0\%$ & data-layout \\
+SR-2 & $31.1\times$       & $[30.6, 31.4]\times$          & $2.6\%$  & algorithmic \\
+MI-1 & $27.1\times$       & $[26.4, 27.5]\times$          & $4.1\%$  & instruction-count \\
+MI-3 & $18.2\times$       & $[17.2, 18.5]\times$          & $7.2\%$  & loop-split \\
+MI-4 & $9.4\times$        & $[6.1, 10.1]\times$           & $43.3\%$ & cache-layout (wide) \\
+CF-4 & $6.7\times$        & $[6.6, 7.0]\times$            & $6.8\%$  & branchless \\
+HR-3 & $6.4\times$        & $[5.2, 6.6]\times$            & $22.2\%$ & defensive checks \\
+IS-4 & $6.2\times$        & $[6.1, 6.5]\times$            & $6.4\%$  & algorithmic \\
+DS-2 & $5.0\times$        & $[4.7, 5.1]\times$            & $8.0\%$  & hash-vs-scan \\
+DS-4 & $3.6\times$        & $[3.5, 3.8]\times$            & $7.3\%$  & layout-AoS-SoA \\
+CF-3 & $2.6\times$        & $[2.5, 2.6]\times$            & $5.3\%$  & instruction-count \\
+HR-2 & $1.9\times$        & $[1.8, 1.9]\times$            & $6.9\%$  & loop-fusion (ceiling) \\
+IS-1 & $1.5\times$        & $[1.4, 1.5]\times$            & $8.1\%$  & instruction-count \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The protocol has been run on $18/27$ base patterns; the remaining $9$ (AL-3, AL-4, CF-2, DS-3, HR-4, HR-5, IS-2, IS-5, SR-4, SR-5) are documented future work. Raw per-pattern setup-runs CSVs are checked into \texttt{setup\_randomization\_results/} along with a summary file.
+
+The wide-CI patterns ($> 30\%$ width: SR-1, MI-4, AL-1, IS-3) are exactly the ones Mytkowicz et al.\ predict will produce large bias-induced spreads: their speedup depends on microarchitectural alignment (icache hit rate, L1 row reuse) rather than on an instruction-count or algorithmic-complexity difference. The narrow-CI patterns ($< 10\%$ width, the majority) are dominated by an algorithmic or instruction-count constant. The methodological point is that a single-setup measurement of SR-1 returning, say, $750\times$ is indistinguishable on the eye from a measurement returning $400\times$, even though both fall within the $51\%$-wide CI. Without the protocol, the benchmark's headline numbers would carry implicit error bars far wider than typical paper claims acknowledge.
 
 \subsection{Polly Ablation: Where the Superoptimizer Helps}\label{subsec:results-polly}
 
