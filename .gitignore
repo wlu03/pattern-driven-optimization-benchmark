@@ -19,3 +19,9 @@ docs/*.aux
 docs/*.log
 docs/*.out
 docs/*.toc
+
+# Modal sweep transient files (logs, partial CSVs); commit *_scored.csv only
+results/pareto/*.submit.log
+results/pareto/*.score.log
+results/pareto/*.errors.csv
+results/pareto/*.failed_variants.txt
