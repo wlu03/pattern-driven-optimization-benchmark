@@ -234,27 +234,77 @@ def evaluate_all(
     batch_size = max(1, len(prompts) // max(1, max_concurrent))
     batches = [prompts[i:i+batch_size]
                for i in range(0, len(prompts), batch_size)]
+    batch_variants = [variants[i:i+batch_size]
+                       for i in range(0, len(variants), batch_size)]
     print(f"Splitting into {len(batches)} batches of ~{batch_size} prompts each")
 
-    all_outputs = []
-    for batch_out in server.generate_batch.map(batches, order_outputs=True):
-        all_outputs.extend(batch_out)
-    assert len(all_outputs) == len(prompts), \
-        f"output count mismatch: {len(all_outputs)} != {len(prompts)}"
-
+    # Open the output CSV up-front and stream results in as each batch
+    # completes — that way a mid-sweep failure preserves the completed
+    # work instead of losing everything.
     out_path = Path(output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["variant_id", "pattern_id", "category", "model",
-                    "strategy", "hw_target", "raw_output_chars",
-                    "raw_output"])
-        for v, r in zip(variants, all_outputs):
-            w.writerow([v.variant_id, v.pattern_id, v.category, model,
-                        strategy, hw_target, len(r), r])
-    print(f"Wrote {len(all_outputs)} results to {out_path}")
+    err_path = out_path.with_suffix(".errors.csv")
+    fail_path = out_path.with_suffix(".failed_variants.txt")
+
+    n_ok, n_err, n_variants_done = 0, 0, 0
+    failed_variant_ids: list[str] = []
+
+    with open(out_path, "w", newline="") as fout, \
+         open(err_path, "w", newline="") as ferr:
+        ok_w = csv.writer(fout)
+        ok_w.writerow(["variant_id", "pattern_id", "category", "model",
+                       "strategy", "hw_target", "raw_output_chars",
+                       "raw_output"])
+        err_w = csv.writer(ferr)
+        err_w.writerow(["batch_idx", "variant_id_first", "n_variants",
+                        "exception_type", "exception_message"])
+
+        # return_exceptions=True surfaces per-batch failures in-band, so
+        # one dead container doesn't kill the whole sweep.
+        batch_results = server.generate_batch.map(
+            batches, order_outputs=True, return_exceptions=True,
+        )
+
+        for batch_idx, (batch_out, batch_vs) in enumerate(
+                zip(batch_results, batch_variants)):
+            if isinstance(batch_out, Exception):
+                n_err += 1
+                first_vid = batch_vs[0].variant_id if batch_vs else "?"
+                err_w.writerow([batch_idx, first_vid, len(batch_vs),
+                                type(batch_out).__name__, str(batch_out)])
+                failed_variant_ids.extend(v.variant_id for v in batch_vs)
+                print(f"  [batch {batch_idx+1}/{len(batches)}] "
+                      f"FAILED ({type(batch_out).__name__}): "
+                      f"{str(batch_out)[:120]}", flush=True)
+                continue
+            for v, r in zip(batch_vs, batch_out):
+                ok_w.writerow([v.variant_id, v.pattern_id, v.category, model,
+                               strategy, hw_target, len(r), r])
+                n_ok += 1
+            n_variants_done += len(batch_vs)
+            fout.flush(); ferr.flush()
+            print(f"  [batch {batch_idx+1}/{len(batches)}] "
+                  f"OK ({len(batch_vs)} variants, "
+                  f"{n_variants_done}/{len(variants)} total)", flush=True)
+
+    if failed_variant_ids:
+        fail_path.write_text("\n".join(failed_variant_ids) + "\n")
+        print(f"\n{n_err}/{len(batches)} batches failed "
+              f"({len(failed_variant_ids)} variants).")
+        print(f"  Failed variant IDs: {fail_path}")
+        print(f"  Per-batch error CSV: {err_path}")
+        print(f"  Retry just the failed variants by passing them as --patterns "
+              f"to scripts/evaluate.py, or rerun this script (it will skip "
+              f"variants already in the output CSV if you also implement a "
+              f"--skip-existing flag).")
+    else:
+        # No failures — drop the empty errors file.
+        if err_path.exists() and err_path.stat().st_size <= 200:
+            err_path.unlink()
+
+    print(f"\nWrote {n_ok}/{len(variants)} successful completions to {out_path}")
     print(f"Next steps:")
-    print(f"  1. Score with: python3 scripts/evaluate.py "
-          f"--score-from-csv {out_path}")
+    print(f"  1. Score: python3 scripts/score_completions.py {out_path} "
+          f"--output {out_path.with_name(out_path.stem + '_scored.csv')}")
     print(f"  2. Faithfulness 2x2: python3 faithfulness/report_2x2.py "
-          f"{out_path}")
+          f"{out_path.with_name(out_path.stem + '_scored.csv')}")
