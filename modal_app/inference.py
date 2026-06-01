@@ -39,7 +39,7 @@ MODELS = {
     "qwen2.5-coder-1.5b": {
         "hf_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
         "gpu":   "T4",
-        "max_model_len": 8192,
+        "max_model_len": 4096,   # T4 has 16 GB — keep KV cache modest
     },
     "qwen2.5-coder-7b": {
         "hf_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -59,7 +59,7 @@ MODELS = {
     "deepseek-r1-distill-qwen-1.5b": {
         "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
         "gpu":   "T4",
-        "max_model_len": 8192,
+        "max_model_len": 4096,   # T4 has 16 GB — keep KV cache modest
     },
     "deepseek-r1-distill-qwen-7b": {
         "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
@@ -131,6 +131,12 @@ class VLLMServer:
             max_model_len=cfg["max_model_len"],
             trust_remote_code=True,
             dtype="auto",
+            # Skip CUDA graph compilation — the capture phase OOMs on T4
+            # (16 GB) for some model sizes, killing the worker silently.
+            # Eager mode is ~10-20% slower at decode but avoids the trap.
+            enforce_eager=True,
+            # Conservative GPU-mem fraction so KV cache + workspace fits.
+            gpu_memory_utilization=0.85,
         )
 
     @modal.method()
