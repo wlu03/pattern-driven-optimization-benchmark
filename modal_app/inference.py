@@ -99,18 +99,19 @@ MODELS = {
     },
     "llama-3.3-70b": {
         "hf_id": "meta-llama/Llama-3.3-70B-Instruct",
-        "gpu":   "H100",
+        # 70B params in bf16 = ~140 GB; doesn't fit on single H100 (80 GB).
+        # H200 has 141 GB — fits with headroom for KV cache.
+        "gpu":   "H200",
         "max_model_len": 8192,
         "reasoning": False,
         "needs_hf_token": True,
     },
-    # Non-gated 70B-class alternative to Llama-3.3 — same role in the
-    # Pareto frontier (general-purpose large open dense model, not
-    # code-specialized) but downloadable without HF approval. Slightly
-    # bigger (72B vs 70B) but fits on the same H100 in bf16.
+    # Non-gated 72B-class general-purpose model. 72B in bf16 = ~144 GB;
+    # H200's 141 GB is just tight enough at gpu_memory_utilization=0.85
+    # (~120 GB allocation, ~24 GB headroom for KV cache).
     "qwen2.5-72b": {
         "hf_id": "Qwen/Qwen2.5-72B-Instruct",
-        "gpu":   "H100",
+        "gpu":   "H200",
         "max_model_len": 8192,
         "reasoning": False,
     },
