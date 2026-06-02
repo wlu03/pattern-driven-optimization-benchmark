@@ -104,6 +104,16 @@ MODELS = {
         "reasoning": False,
         "needs_hf_token": True,
     },
+    # Non-gated 70B-class alternative to Llama-3.3 — same role in the
+    # Pareto frontier (general-purpose large open dense model, not
+    # code-specialized) but downloadable without HF approval. Slightly
+    # bigger (72B vs 70B) but fits on the same H100 in bf16.
+    "qwen2.5-72b": {
+        "hf_id": "Qwen/Qwen2.5-72B-Instruct",
+        "gpu":   "H100",
+        "max_model_len": 8192,
+        "reasoning": False,
+    },
     # Codestral may also be gated depending on HF account access policy.
     # If you see "Cannot access gated repo" errors, add "needs_hf_token": True
     # to its entry too.
