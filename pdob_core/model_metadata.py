@@ -105,6 +105,20 @@ MODEL_METADATA: dict[str, ModelMeta] = {
     "qwen-lora-generic":   ModelMeta("Qwen", 7.0, 0.0, 0.0, False),
     "qwen-lora-pattern":   ModelMeta("Qwen", 7.0, 0.0, 0.0, False),
     "qwen-lora-taxonomy":  ModelMeta("Qwen", 7.0, 0.0, 0.0, False),
+
+    # ── Modal-hosted (Pareto sweep; local vLLM, no API cost) ──────────────
+    # Param counts are the nominal sizes from each model card.
+    # Qwen2.5-Coder (instruct) — base family, non-reasoning.
+    "qwen2.5-coder-1.5b":  ModelMeta("Qwen",  1.5, 0.0, 0.0, False),
+    "qwen2.5-coder-7b":    ModelMeta("Qwen",  7.0, 0.0, 0.0, False),
+    "qwen2.5-coder-14b":   ModelMeta("Qwen", 14.0, 0.0, 0.0, False),
+    "qwen2.5-coder-32b":   ModelMeta("Qwen", 32.0, 0.0, 0.0, False),
+    # DeepSeek-R1-Distill-Qwen — reasoning distills (own family trend line).
+    "deepseek-r1-distill-qwen-1.5b": ModelMeta("DeepSeek",  1.5, 0.0, 0.0, True),
+    "deepseek-r1-distill-qwen-7b":   ModelMeta("DeepSeek",  7.0, 0.0, 0.0, True),
+    "deepseek-r1-distill-qwen-32b":  ModelMeta("DeepSeek", 32.0, 0.0, 0.0, True),
+    # Mistral Codestral 22B.
+    "codestral-22b":       ModelMeta("Mistral", 22.0, 0.0, 0.0, False),
 }
 
 

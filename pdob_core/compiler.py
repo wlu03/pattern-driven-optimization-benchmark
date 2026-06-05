@@ -300,4 +300,14 @@ def extract_code_from_response(response: str, test_harness: str = None) -> str:
         else:
             unterminated = re.search(r"```(?:c)?\s*(.*)", response, flags=re.DOTALL)
             code = unterminated.group(1).strip() if unterminated else response.strip()
+    # Recovery for malformed fences: some models (observed on qwen2.5-coder-32b)
+    # emit a bare leading language tag ("c\n...") with an orphan *closing* ``` and
+    # no opening fence. The fence regexes above miss it, and the unterminated-fence
+    # fallback matches the closing ``` and captures the empty tail after it, dropping
+    # the real code that precedes it. When that leaves us empty, re-extract the body
+    # before the closing fence and strip the stray language tag.
+    if not code:
+        body = response.rsplit("```", 1)[0] if "```" in response else response
+        body = re.sub(r"^\s*(?:c|cpp|cc|c\+\+|C)\s*\n", "", body)
+        code = body.strip()
     return normalize_function_name(code, test_harness)
