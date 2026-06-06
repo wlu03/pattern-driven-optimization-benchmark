@@ -46,8 +46,13 @@ for raw in "${to_score[@]}"; do
       > "$log" 2>&1 &
   active=$((active+1))
   if [ "$active" -ge "$JOBS" ]; then
-    wait -n
-    active=$((active-1))
+    # Poll for a free slot (wait -n is Bash 4.3+; macOS ships 3.2.57).
+    # Block until at least one running background job has completed.
+    while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do
+      sleep 1
+    done
+    # Reset counter to actual running count
+    active="$(jobs -rp | wc -l | tr -d ' ')"
   fi
 done
 wait
