@@ -289,7 +289,22 @@ def extract_code_from_response(response: str, test_harness: str = None) -> str:
     unterminated fences by treating the rest of the response as the body.
     When test_harness is supplied, the entry-point rename uses the
     arg-count of the `optimized(...)` call site for disambiguation.
+
+    Reasoning models (QwQ-32B, Qwen3-32B, the R1 distills) emit a <think>
+    chain before the answer, which is full of *draft* optimized() functions.
+    The opening <think> is often consumed by the chat template, leaving an
+    orphan </think> with no opener — so score_completions' <think>...</think>
+    stripper never fires and the whole chain reaches us. QwQ in particular
+    then writes its FINAL function unfenced right after </think> (only ~46%
+    of rows carry a ```c fence). Drop everything through the last </think>
+    so we extract from the answer, not from a draft in the reasoning. This
+    is a no-op for the existing high-fence models (their think block is
+    already stripped upstream, or the ```c fence is found either way), so
+    re-scoring them is unchanged.
     """
+    if "</think>" in response:
+        response = response.rsplit("</think>", 1)[1]
+
     c_blocks = re.findall(r"```c\s*(.*?)```", response, flags=re.DOTALL)
     if c_blocks:
         code = max(c_blocks, key=len).strip()
