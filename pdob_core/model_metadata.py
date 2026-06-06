@@ -119,6 +119,17 @@ MODEL_METADATA: dict[str, ModelMeta] = {
     "deepseek-r1-distill-qwen-32b":  ModelMeta("DeepSeek", 32.0, 0.0, 0.0, True),
     # Mistral Codestral 22B.
     "codestral-22b":       ModelMeta("Mistral", 22.0, 0.0, 0.0, False),
+    "qwen2.5-72b":                   ModelMeta("Qwen",     72.0, 0.0, 0.0, False),
+    "deepseek-r1-distill-llama-70b": ModelMeta("DeepSeek", 70.0, 0.0, 0.0, True),
+    # Added anchors (non-gated). QwQ-32B = RL-trained reasoning (not an R1
+    # distill); Qwen3-32B = newer-gen reasoning (thinking mode default).
+    "qwq-32b":               ModelMeta("Qwen",     32.5, 0.0, 0.0, True),
+    "qwen3-32b":             ModelMeta("Qwen",     32.8, 0.0, 0.0, True),
+    # Second/third coder families (test coder-edge generality beyond Qwen).
+    # deepseek-coder-v2-lite is a 16B-total MoE (2.4B active).
+    "opencoder-8b":          ModelMeta("OpenCoder", 8.0, 0.0, 0.0, False),
+    "deepseek-coder-v2-lite": ModelMeta("DeepSeek", 16.0, 0.0, 0.0, False),
+    "yi-coder-9b":           ModelMeta("Yi",        9.0, 0.0, 0.0, False),
 }
 
 

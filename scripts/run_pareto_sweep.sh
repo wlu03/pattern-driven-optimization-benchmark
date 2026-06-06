@@ -11,7 +11,7 @@
 # script is safe to re-run after a partial failure.
 #
 # Usage:
-#   bash scripts/run_pareto_sweep.sh             # full 9-model x 3-strategy sweep
+#   bash scripts/run_pareto_sweep.sh             # full 10-model x 3-strategy sweep
 #   bash scripts/run_pareto_sweep.sh smoke       # 2 cheapest models, 20 variants
 #   MODELS="qwen2.5-coder-7b" bash scripts/run_pareto_sweep.sh   # custom subset
 #
@@ -25,9 +25,9 @@
 #   14B       on L40S       : ~$9.75
 #   22B       on L40S       : ~$9.75
 #   32B-2x    on A100-80GB  : ~$37.50
-#   70B       on H100       : ~$19.80
+#   70B-2x    on H200       : ~$13-26 (qwen2.5-72b + deepseek-r1-distill-llama-70b)
 #   ------------------------------------------------------------
-#   Total                   : ~$85 + cold-start budget = ~$100-130
+#   Total                   : ~$95 + cold-start budget = ~$110-145
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -40,7 +40,7 @@ case "$PROFILE" in
     LIMIT="${LIMIT:-20}"
     ;;
   full)
-    MODELS="${MODELS:-qwen2.5-coder-1.5b qwen2.5-coder-7b qwen2.5-coder-14b qwen2.5-coder-32b deepseek-r1-distill-qwen-1.5b deepseek-r1-distill-qwen-7b deepseek-r1-distill-qwen-32b codestral-22b llama-3.3-70b}"
+    MODELS="${MODELS:-qwen2.5-coder-1.5b qwen2.5-coder-7b qwen2.5-coder-14b qwen2.5-coder-32b deepseek-r1-distill-qwen-1.5b deepseek-r1-distill-qwen-7b deepseek-r1-distill-qwen-32b codestral-22b qwen2.5-72b deepseek-r1-distill-llama-70b qwq-32b qwen3-32b opencoder-8b deepseek-coder-v2-lite yi-coder-9b}"
     STRATEGIES="${STRATEGIES:-generic pattern-aware taxonomy-guided}"
     LIMIT="${LIMIT:-0}"   # 0 = full dataset
     ;;
@@ -72,6 +72,9 @@ for m in $MODELS; do
         --model "$m" --strategy "$s" --output "$out" $extra_args \
         &> "results/pareto/${m}_${s}${suffix}.submit.log" &
     submitted=$((submitted+1))
+    # Space out app creation: Modal rate-limits rapid-fire submissions
+    # ("App creation failed: rate limit exceeded"). Override with SUBMIT_DELAY=0.
+    sleep "${SUBMIT_DELAY:-15}"
   done
 done
 wait
