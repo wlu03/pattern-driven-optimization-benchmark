@@ -59,10 +59,15 @@ def _kind(model_id: str, reasoning: bool) -> str:
     return "general"
 
 
-def collect() -> pd.DataFrame:
-    """One row per (model, strategy) cell. Streams files; tiny peak memory."""
+def collect(files: list[str]) -> pd.DataFrame:
+    """One row per (model, strategy) cell. Streams files; tiny peak memory.
+
+    ``files`` may be the per-cell scored CSVs (the default glob) OR a single
+    combined CSV holding every (model, strategy) — the groupby below handles
+    both, and ``usecols`` keeps the giant text columns off the heap either way.
+    """
     cells: list[dict] = []
-    for f in sorted(glob.glob(SCORED_GLOB)):
+    for f in files:
         # usecols is the whole game: never materialize the giant text columns.
         df = pd.read_csv(
             f,
@@ -142,15 +147,26 @@ def build_table(cells: pd.DataFrame, drop_zero: bool) -> pd.DataFrame:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("source", nargs="?", default=None,
+                    help="optional combined scored CSV to rank from; "
+                         f"default streams the per-cell glob {SCORED_GLOB!r}")
     ap.add_argument("--sort", choices=["size", "peak"], default="size",
                     help="rank by parameter count (default) or by peak geomean speedup")
     ap.add_argument("--keep-zero", action="store_true",
                     help="keep models whose scores are all zero (default: drop)")
     args = ap.parse_args()
 
-    cells = collect()
+    if args.source:
+        if not os.path.isfile(args.source):
+            print(f"no such file: {args.source}", file=sys.stderr)
+            sys.exit(1)
+        files = [args.source]
+    else:
+        files = sorted(glob.glob(SCORED_GLOB))
+    cells = collect(files)
     if cells.empty:
-        print("no scored cells found under", SCORED_GLOB, file=sys.stderr)
+        src = args.source or SCORED_GLOB
+        print("no scored cells found in", src, file=sys.stderr)
         sys.exit(1)
     table = build_table(cells, drop_zero=not args.keep_zero)
 
