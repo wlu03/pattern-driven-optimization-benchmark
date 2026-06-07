@@ -120,6 +120,25 @@ def main():
                    help="Also run the 2x2 faithfulness cascade per variant")
     args = p.parse_args()
 
+    # Guard: the 2x2 faithfulness cascade's structural axis is AST-based and
+    # needs pycparser. Without it, check_faithfulness silently returns UNKNOWN
+    # for every row -> faithfulness_expected_shape is False everywhere and the
+    # cell collapses to FAITHFUL_ALTERNATIVE/FAILED (never FAITHFUL/
+    # STRUCTURAL_ONLY). That degradation is invisible in the output, so a whole
+    # sweep can be scored with dead faithfulness. Fail loudly instead — there is
+    # nothing to self-heal. (Run under an interpreter that has pycparser, e.g.
+    # base python3, not a venv missing it.)
+    if args.faithfulness:
+        try:
+            import pycparser  # noqa: F401
+        except ImportError:
+            raise SystemExit(
+                "--faithfulness requires pycparser (the structural checkers are "
+                "AST-based); it is not importable under this interpreter "
+                f"({sys.executable}). Without it every row would score as "
+                "structurally unfaithful. Install it (`pip install pycparser`) "
+                "or run with an interpreter that has it.")
+
     out_path = args.output or args.input_csv.replace(".csv", "_scored.csv")
     if out_path == args.input_csv:
         out_path = args.input_csv + ".scored.csv"
