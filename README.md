@@ -56,9 +56,15 @@ The patterns are organized by *why* the compiler fails to fix them:
 
 | | Faithful | Unfaithful | Row |
 |---|---|---|---|
-| **Fast** | 23.6% | 6.7% | 30.2% |
-| **Slow** | 22.0% | 47.7% | 69.8% |
-| **Col** | 45.6% | 54.4% | 100% |
+| **Fast** | 18.7% | 11.5% | 30.2% |
+| **Slow** | 13.0% | 56.7% | 69.8% |
+| **Col** | 31.8% | 68.2% | 100% |
+
+Per-strategy faithful rates are close: generic 30.0%, pattern-aware 33.8%, taxonomy-guided 31.5%.
+
+**Faithfulness-scoring caveats.** Two structural factors shape this aggregate, and the headline rate is sensitive to both:
+- **COMP composition (≈54% of rows).** COMP variants are scored against their constituent-pattern list (`composition` from `metadata.json`); the COMP checker *requires* it, and without it falls back to a generic regex battery that massively over-reports `FAITHFUL`. Earlier runs omitted it and reported an inflated ~45.6% overall (COMP alone read 58% faithful); both `faithfulness/report_2x2.py` and `scripts/rescore_faithfulness.py` now thread `composition`, which drops COMP to 33% faithful and the overall rate to 31.8%.
+- **Held-out patterns (`HO-*`, ≈14% of rows).** These post-cutoff patterns have no dedicated AST checker and fall through to a coarse structural fallback, so they essentially cannot earn a `FAITHFUL` verdict and weigh toward the unfaithful column. Authoring per-pattern held-out checkers is the remaining faithfulness-coverage gap.
 
 ### Findings from the sweep
 

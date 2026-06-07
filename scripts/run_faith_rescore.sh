@@ -20,11 +20,21 @@ for m in $OLD; do for s in generic pattern-aware taxonomy-guided; do
   $PY scripts/rescore_faithfulness.py "$f" --equivalence reuse
 done; done
 
-echo "=== [2/4] recompute faithfulness: 18 venv-scored cells (recompute 9-config equiv, slow) ==="
+# [2/4] The 6 venv-scored models had their equivalence axis degraded to
+# correctness-based single-config (faithfulness_equivalent == correct on every
+# row). Full 9-config recompute would re-run differential equivalence on ~22k
+# rows; ~39% are timeout-prone broken candidates costing up to 30s x 9 configs
+# each -> weeks single-threaded on a laptop (and the compile+spin load OOM-crashed
+# the machine last attempt). We therefore reuse the stored (correctness-based)
+# equivalence -- identical to what recompute falls back to for any non-overfit
+# candidate. The composition-aware COMP structural fix (the actual point of this
+# rescore) is recomputed in BOTH modes. Bounded limitation: no 9-config overfit
+# detection on the equivalence axis for these 6 models. Sequential, no compilation.
+echo "=== [2/4] recompute faithfulness: 18 venv-scored cells (reuse equiv, fast) ==="
 for m in $NEW; do for s in generic pattern-aware taxonomy-guided; do
   f="results/pareto/${m}_${s}_scored.csv"
-  echo "  recompute  ${m}_${s}"
-  $PY scripts/rescore_faithfulness.py "$f" --equivalence recompute
+  echo "  reuse  ${m}_${s}"
+  $PY scripts/rescore_faithfulness.py "$f" --equivalence reuse
 done; done
 
 echo "=== [3/4] rebuild combined + lean CSVs ==="

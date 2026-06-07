@@ -60,6 +60,29 @@ try:
 except Exception:
     _PATTERNS_BY_ID = {}
 
+# COMP variants carry their constituent pattern list in dataset metadata. The
+# COMP checker NEEDS that list: without it, it falls back to a generic regex
+# battery that massively over-reports `FAITHFUL` (COMP is ~54% of the dataset,
+# so this dominates the aggregate). Build variant_id -> composition lazily so
+# non-COMP runs pay nothing, and resolve the dataset relative to the repo root
+# so the lookup works regardless of the caller's cwd.
+_COMP_COMPOSITION: Optional[dict] = None
+
+
+def _composition_for(variant_id: str):
+    global _COMP_COMPOSITION
+    if _COMP_COMPOSITION is None:
+        _COMP_COMPOSITION = {}
+        try:
+            from pdob_core.dataset_evaluator import discover_variants  # type: ignore
+            for v in discover_variants(str(_HERE.parent / "dataset")):
+                comp = v.metadata.get("composition") if getattr(v, "metadata", None) else None
+                if comp:
+                    _COMP_COMPOSITION[v.variant_id] = comp
+        except Exception:
+            pass
+    return _COMP_COMPOSITION.get(variant_id)
+
 
 # --------------------------------------------------------------------------
 # Instrumentation: wrap PatternChecker.check + _parse so we can report
@@ -229,7 +252,16 @@ def _compute_faithfulness_for_row(
 
     _INSTR.reset()
     try:
-        result = check_faithfulness(pid, slow_code, llm_code)
+        if pid == "COMP":
+            # Thread the composition so COMPChecker scores the actual
+            # constituent transforms instead of the over-reporting regex
+            # fallback. Mirrors scripts/rescore_faithfulness.py.
+            result = check_faithfulness(
+                pid, slow_code, llm_code,
+                composition=_composition_for(row.get("variant_id", "")),
+            )
+        else:
+            result = check_faithfulness(pid, slow_code, llm_code)
     except Exception:
         return (Verdict.UNKNOWN, _INSTR.last_path)
     return (result.verdict, _INSTR.last_path)
