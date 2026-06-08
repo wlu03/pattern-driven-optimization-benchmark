@@ -271,34 +271,29 @@ def _compute_faithfulness_for_row(
 # 2x2 classification
 # --------------------------------------------------------------------------
 
-# Cell names
-A = "A_faithful_fast"      # faithful + fast
-B = "B_unfaithful_fast"    # unfaithful + fast    (interesting!)
-C = "C_faithful_slow"      # faithful + slow      (interesting!)
-D = "D_unfaithful_slow"    # unfaithful + slow
+# Two-axis faithfulness cells (the `faithfulness_cell` column): the canonical
+# cascade categories (equivalence x expected-shape). The headline report breaks
+# each down by fast/slow rather than collapsing to a binary faithful column, so
+# FAITHFUL_ALTERNATIVE (equivalent via a different transform) is no longer
+# conflated with the genuine failures.
+FAITHFUL    = "FAITHFUL"               # expected transform AND equivalent
+FAITH_ALT   = "FAITHFUL_ALTERNATIVE"   # equivalent via a different transform
+STRUCT_ONLY = "STRUCTURAL_ONLY"        # expected shape but NOT equivalent
+FAILED      = "FAILED"                 # neither
+CELLS = [FAITHFUL, FAITH_ALT, STRUCT_ONLY, FAILED]
+CELL_HDR = {FAITHFUL: "FAITHFUL", FAITH_ALT: "FAITH_ALT",
+            STRUCT_ONLY: "STRUCT_ONLY", FAILED: "FAILED"}
 
-CELL_LABELS = {
-    A: "A faithful_fast",
-    B: "B unfaithful_fast",
-    C: "C faithful_slow",
-    D: "D unfaithful_slow",
-}
 
-
-def _classify(verdict: str, speedup: float, fast_thr: float) -> str:
-    # Treat only FAITHFUL as truly faithful. PARTIAL, UNFAITHFUL, and UNKNOWN
-    # all collapse to the "unfaithful" column for the purposes of this 2x2 —
-    # PARTIAL means "some structural checks failed", which we still want to
-    # flag for the publishable analysis.
-    is_faithful = verdict == Verdict.FAITHFUL
-    is_fast = speedup > fast_thr
-    if is_faithful and is_fast:
-        return A
-    if not is_faithful and is_fast:
-        return B
-    if is_faithful and not is_fast:
-        return C
-    return D
+def _synth_cell(verdict: str, equivalent: bool) -> str:
+    """Route a single-axis structural verdict + an equivalence bit into a
+    two-axis cell. Used only when the canonical `faithfulness_cell` column is
+    absent (a raw results CSV, or a --faithfulness override file)."""
+    shape = verdict == Verdict.FAITHFUL
+    if equivalent and shape:        return FAITHFUL
+    if equivalent and not shape:    return FAITH_ALT
+    if not equivalent and shape:    return STRUCT_ONLY
+    return FAILED
 
 
 # --------------------------------------------------------------------------
@@ -312,7 +307,9 @@ def _pad(s: str, w: int, right: bool = False) -> str:
     return (s.rjust(w) if right else s.ljust(w))
 
 
-def _print_2x2_table(title: str, counts: dict[str, int]) -> None:
+def _print_cell_table(title: str, counts: dict) -> None:
+    """Print fast/slow x four-cell breakdown. `counts` is keyed by
+    (speed, cell) with speed in {"fast","slow"} and cell in CELLS."""
     total = sum(counts.values())
     if total == 0:
         return
@@ -320,17 +317,18 @@ def _print_2x2_table(title: str, counts: dict[str, int]) -> None:
     def pct(n: int) -> str:
         return f"{n} ({100*n/total:.1f}%)"
 
-    a, b, c, d = counts[A], counts[B], counts[C], counts[D]
-    fast = a + b
-    slow = c + d
-    faith = a + c
-    unfaith = b + d
-
+    w = 18
     print(f"\n{title}  (n={total})")
-    print(f"  {'':<10} {'Faithful':>20} {'Unfaithful':>20} {'Row':>14}")
-    print(f"  {'Fast':<10} {pct(a):>20} {pct(b):>20} {pct(fast):>14}")
-    print(f"  {'Slow':<10} {pct(c):>20} {pct(d):>20} {pct(slow):>14}")
-    print(f"  {'Col':<10} {pct(faith):>20} {pct(unfaith):>20} {pct(total):>14}")
+    print("  " + f"{'':<6}" + "".join(f"{CELL_HDR[c]:>{w}}" for c in CELLS)
+          + f"{'Row':>{w}}")
+    for speed in ("fast", "slow"):
+        rowsum = sum(counts.get((speed, c), 0) for c in CELLS)
+        body = "".join(f"{pct(counts.get((speed, c), 0)):>{w}}" for c in CELLS)
+        print(f"  {speed.capitalize():<6}{body}{pct(rowsum):>{w}}")
+    colbody = "".join(
+        f"{pct(sum(counts.get((s, c), 0) for s in ('fast', 'slow'))):>{w}}"
+        for c in CELLS)
+    print(f"  {'Col':<6}{colbody}{pct(total):>{w}}")
 
 
 def _print_per_pattern_table(
@@ -339,10 +337,11 @@ def _print_per_pattern_table(
 ) -> None:
     if not per_pattern:
         return
-    print("\nPer-pattern 2x2 + parse rate:")
+    print("\nPer-pattern four-cell breakdown + parse rate "
+          "(FTHFL=FAITHFUL, ALT=FAITHFUL_ALTERNATIVE, STRUCT=STRUCTURAL_ONLY):")
     hdr = (
-        f"  {'pattern':<8} {'N':>4} "
-        f"{'A_FF':>6} {'B_UF':>6} {'C_FS':>6} {'D_US':>6} "
+        f"  {'pattern':<8} {'N':>5} "
+        f"{'FTHFL':>7} {'ALT':>7} {'STRUCT':>7} {'FAIL':>7} "
         f"{'parse%':>8} {'ast':>5} {'regex':>5} {'no_ast':>6}"
     )
     print(hdr)
@@ -350,14 +349,15 @@ def _print_per_pattern_table(
     for pid in sorted(per_pattern):
         c = per_pattern[pid]
         total = sum(c.values())
+        tc = {cell: sum(c.get((s, cell), 0) for s in ("fast", "slow")) for cell in CELLS}
         paths = parse_paths.get(pid, {})
         parse_attempts = paths.get("parse_attempts", 0)
         parse_failures = paths.get("parse_failures", 0)
         parse_succ = parse_attempts - parse_failures
         parse_pct = (100 * parse_succ / parse_attempts) if parse_attempts else 0.0
         print(
-            f"  {pid:<8} {total:>4} "
-            f"{c[A]:>6} {c[B]:>6} {c[C]:>6} {c[D]:>6} "
+            f"  {pid:<8} {total:>5} "
+            f"{tc[FAITHFUL]:>7} {tc[FAITH_ALT]:>7} {tc[STRUCT_ONLY]:>7} {tc[FAILED]:>7} "
             f"{parse_pct:>7.1f}% "
             f"{paths.get('ast', 0):>5} {paths.get('regex', 0):>5} "
             f"{paths.get('no_ast', 0):>6}"
@@ -419,43 +419,52 @@ def _print_cell_highlights(
     fast_thr: float,
     suspicious_ratio: float,
 ) -> None:
-    """Highlight cell B (fast-but-unfaithful) and cell C (faithful-but-slow).
+    """Highlight the two analysis-worthy cells:
 
-    For B, flag rows whose speedup is suspiciously high vs the hand-optimized
-    fast reference (often DCE-style cheating).
+    * STRUCTURAL_ONLY — has the expected shape but is NOT equivalent: the code
+      looks like the intended transform yet breaks correctness (overfit / DCE /
+      hardcoded-output cheats). Flag fast ones whose speedup vs the hand-tuned
+      reference is suspiciously high.
+    * fast FAITHFUL_ALTERNATIVE — equivalent and fast via a *different* valid
+      transform than the labeled one (genuine alternative solutions).
     """
-    cell_b = [r for r in classifications if r["cell"] == B]
-    cell_c = [r for r in classifications if r["cell"] == C]
+    struct = [r for r in classifications if r["cell"] == STRUCT_ONLY]
+    alt_fast = [r for r in classifications
+                if r["cell"] == FAITH_ALT and r["fast"]]
 
-    if cell_b:
-        print(f"\nCell B (fast but unfaithful)  n={len(cell_b)}:")
+    if struct:
+        print(f"\nSTRUCTURAL_ONLY (expected shape but not equivalent)  n={len(struct)}:")
         print(
             f"  {'model':<22} {'strategy':<18} {'pattern':<8} "
             f"{'sp_vs_slow':>10} {'sp_vs_ref':>10}  flag"
         )
-        for r in sorted(cell_b, key=lambda x: -x["speedup_vs_slow"]):
-            flag = ""
+        for r in sorted(struct, key=lambda x: -x["speedup_vs_slow"])[:40]:
             sp_ref = r["speedup_vs_ref"]
-            if sp_ref > suspicious_ratio:
-                flag = f"SUSPICIOUS (>{suspicious_ratio:g}x ref, possible DCE/cheat)"
+            flag = (f"SUSPICIOUS (>{suspicious_ratio:g}x ref, possible DCE/cheat)"
+                    if sp_ref > suspicious_ratio else "")
             print(
                 f"  {r['model'][:22]:<22} {r['strategy'][:18]:<18} "
                 f"{r['pattern_id']:<8} "
                 f"{r['speedup_vs_slow']:>10.2f} {sp_ref:>10.2f}  {flag}"
             )
+        if len(struct) > 40:
+            print(f"  ... ({len(struct) - 40} more)")
 
-    if cell_c:
-        print(f"\nCell C (faithful but slow)  n={len(cell_c)}:")
+    if alt_fast:
+        print(f"\nfast FAITHFUL_ALTERNATIVE (equivalent via a different transform)  "
+              f"n={len(alt_fast)}:")
         print(
             f"  {'model':<22} {'strategy':<18} {'pattern':<8} "
             f"{'sp_vs_slow':>10} {'sp_vs_ref':>10}"
         )
-        for r in sorted(cell_c, key=lambda x: x["speedup_vs_slow"]):
+        for r in sorted(alt_fast, key=lambda x: -x["speedup_vs_slow"])[:40]:
             print(
                 f"  {r['model'][:22]:<22} {r['strategy'][:18]:<18} "
                 f"{r['pattern_id']:<8} "
                 f"{r['speedup_vs_slow']:>10.2f} {r['speedup_vs_ref']:>10.2f}"
             )
+        if len(alt_fast) > 40:
+            print(f"  ... ({len(alt_fast) - 40} more)")
 
 
 # --------------------------------------------------------------------------
@@ -473,19 +482,21 @@ def _write_2x2_csv(
         writer = csv.writer(f)
         writer.writerow([
             "model", "strategy", "pattern_id",
-            "faithful_fast", "unfaithful_fast",
-            "faithful_slow", "unfaithful_slow",
-            "parse_success_rate",
+            "faithful", "faithful_alternative", "structural_only", "failed",
+            "n_fast", "parse_success_rate",
         ])
         for (model, strategy, pid), counts in sorted(per_model_strategy_pattern.items()):
             p = parse_paths_per_pattern.get(pid, {})
             attempts = p.get("parse_attempts", 0)
             failures = p.get("parse_failures", 0)
             succ_rate = ((attempts - failures) / attempts) if attempts else 0.0
+            tc = {cell: sum(counts.get((s, cell), 0) for s in ("fast", "slow"))
+                  for cell in CELLS}
+            n_fast = sum(counts.get(("fast", cell), 0) for cell in CELLS)
             writer.writerow([
                 model, strategy, pid,
-                counts[A], counts[B], counts[C], counts[D],
-                round(succ_rate, 4),
+                tc[FAITHFUL], tc[FAITH_ALT], tc[STRUCT_ONLY], tc[FAILED],
+                n_fast, round(succ_rate, 4),
             ])
     return out_path
 
@@ -508,8 +519,8 @@ def main():
     parser.add_argument("--fast-threshold", type=float, default=1.5,
                         help="speedup_vs_slow > this counts as 'fast' (default: 1.5)")
     parser.add_argument("--suspicious-ratio", type=float, default=10.0,
-                        help="Flag cell-B rows whose speedup_vs_ref exceeds this "
-                             "(default: 10.0, suggesting DCE/cheat)")
+                        help="Flag STRUCTURAL_ONLY rows whose speedup_vs_ref "
+                             "exceeds this (default: 10.0, suggesting DCE/cheat)")
     args = parser.parse_args()
 
     rows = _read_results_csv(args.results_csv)
@@ -541,58 +552,77 @@ def main():
         speedup = _to_float(row.get("speedup_vs_slow"))
         speedup_ref = _to_float(row.get("speedup_vs_ref"))
 
-        # Look up precomputed verdict; otherwise compute on the fly.
-        verdict = precomputed.get((model, strategy, pid)) or precomputed.get(("", "", pid))
-        if verdict is None:
-            verdict, path = _compute_faithfulness_for_row(row)
-            if path is not None:
-                parse_paths_per_pattern[pid][path] += 1
-                parse_paths_per_pattern[pid]["parse_attempts"] += _INSTR.parse_attempts
-                parse_paths_per_pattern[pid]["parse_failures"] += _INSTR.parse_failures
+        # Equivalence proxy for the fast/slow axis: an incorrect or
+        # non-compiling program has no creditable speedup.
+        equivalent_proxy = compiles and correct
 
-        # Treat non-compiling / wrong rows as unfaithful AND slow — they're cell D.
-        if not (compiles and correct):
-            verdict = Verdict.UNFAITHFUL
-            speedup = 0.0
+        # Two-axis faithfulness cell — source-of-truth precedence:
+        #   1. an explicit --faithfulness file (single-axis verdict -> synth),
+        #   2. the canonical `faithfulness_cell` column written by
+        #      scripts/rescore_faithfulness.py (real slow source + COMP
+        #      composition + the full checker registry, computed once),
+        #   3. on-the-fly recompute -> synth, ONLY when neither is present
+        #      (e.g. a raw results CSV). Only (3) parses per row; recomputing
+        #      when the column exists would re-parse every output one-by-one.
+        override = precomputed.get((model, strategy, pid)) or precomputed.get(("", "", pid))
+        if override is not None:
+            cell = _synth_cell(override, equivalent_proxy)
+        else:
+            col = (row.get("faithfulness_cell") or "").strip().upper()
+            if col in CELLS:
+                cell = col
+            else:
+                verdict, path = _compute_faithfulness_for_row(row)
+                if path is not None:
+                    parse_paths_per_pattern[pid][path] += 1
+                    parse_paths_per_pattern[pid]["parse_attempts"] += _INSTR.parse_attempts
+                    parse_paths_per_pattern[pid]["parse_failures"] += _INSTR.parse_failures
+                cell = _synth_cell(verdict, equivalent_proxy)
 
-        cell = _classify(verdict, speedup, args.fast_threshold)
-        overall_counts[cell] += 1
-        per_pattern_counts[pid][cell] += 1
-        per_model_counts[model][cell] += 1
-        per_strategy_counts[strategy][cell] += 1
-        per_msp_counts[(model, strategy, pid)][cell] += 1
+        is_fast = equivalent_proxy and speedup > args.fast_threshold
+        key = ("fast" if is_fast else "slow", cell)
+        overall_counts[key] += 1
+        per_pattern_counts[pid][key] += 1
+        per_model_counts[model][key] += 1
+        per_strategy_counts[strategy][key] += 1
+        per_msp_counts[(model, strategy, pid)][key] += 1
 
         classifications.append({
             "model": model,
             "strategy": strategy,
             "pattern_id": pid,
-            "verdict": verdict,
+            "cell": cell,
+            "fast": is_fast,
             "speedup_vs_slow": speedup,
             "speedup_vs_ref": speedup_ref,
-            "cell": cell,
         })
 
-    # Make sure all 4 cells exist in counters (defaultdict pre-population).
+    # Pre-populate all 8 (speed, cell) buckets so the tables show zeros.
     for d in [overall_counts, *per_pattern_counts.values(),
               *per_model_counts.values(), *per_strategy_counts.values(),
               *per_msp_counts.values()]:
-        for cell in (A, B, C, D):
-            d.setdefault(cell, 0)
+        for speed in ("fast", "slow"):
+            for cell in CELLS:
+                d.setdefault((speed, cell), 0)
 
-    # ── Report 1 — 2x2 ───────────────────────────────────────────────────
+    # ── Report 1 — faithfulness cells x fast/slow ────────────────────────
     print("=" * 72)
-    print("Report 1 — faithful x fast 2x2  "
+    print("Report 1 — faithfulness cells x fast/slow  "
           f"(fast = speedup_vs_slow > {args.fast_threshold:g})")
+    print("  FAITHFUL = intended transform + equivalent | "
+          "FAITHFUL_ALTERNATIVE = equivalent, different transform")
+    print("  STRUCTURAL_ONLY = expected shape, not equivalent | "
+          "FAILED = neither")
     print("=" * 72)
 
-    _print_2x2_table("OVERALL", overall_counts)
+    _print_cell_table("OVERALL", overall_counts)
 
     if len(per_model_counts) > 1 or (per_model_counts and next(iter(per_model_counts)) != ""):
         for model in sorted(per_model_counts):
-            _print_2x2_table(f"model={model}", per_model_counts[model])
+            _print_cell_table(f"model={model}", per_model_counts[model])
     if len(per_strategy_counts) > 1:
         for strat in sorted(per_strategy_counts):
-            _print_2x2_table(f"strategy={strat}", per_strategy_counts[strat])
+            _print_cell_table(f"strategy={strat}", per_strategy_counts[strat])
 
     _print_per_pattern_table(per_pattern_counts, parse_paths_per_pattern)
     _print_cell_highlights(classifications, args.fast_threshold, args.suspicious_ratio)

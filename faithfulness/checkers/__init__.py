@@ -74,6 +74,45 @@ from .semantic_redundancy import (
     SR4Checker,
     SR5Checker,
 )
+# Held-out (HO-*) checkers — added phase by phase per family.
+from .held_out import (
+    HOAL1Checker,
+    HOAL2Checker,
+    HOAL3Checker,
+    HOAL4Checker,
+    HOSR1Checker,
+    HOSR2Checker,
+    HOSR3Checker,
+    HOSR4Checker,
+    HOSR5Checker,
+    HOSR6Checker,
+    HOSR7Checker,
+    HOCF1Checker,
+    HOCF2Checker,
+    HOCF3Checker,
+    HOCF4Checker,
+    HOCF5Checker,
+    HODS1Checker,
+    HODS2Checker,
+    HODS3Checker,
+    HODS4Checker,
+    HODS5Checker,
+    HODS6Checker,
+    HOHR1Checker,
+    HOHR2Checker,
+    HOHR3Checker,
+    HOHR4Checker,
+    HOHR5Checker,
+    HOIS1Checker,
+    HOIS2Checker,
+    HOIS3Checker,
+    HOIS4Checker,
+    HOIS5Checker,
+    HOMI1Checker,
+    HOMI2Checker,
+    HOMI3Checker,
+    HOMI4Checker,
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -113,6 +152,49 @@ CHECKERS: dict[str, PatternChecker] = {
     "MI-3":  MI3Checker(),
     "MI-4":  MI4Checker(),
     "COMP":  COMPChecker(),
+    # Held-out (HO-*) — Algorithmic Inefficiency family.
+    "HO-AL-1": HOAL1Checker(),
+    "HO-AL-2": HOAL2Checker(),
+    "HO-AL-3": HOAL3Checker(),
+    "HO-AL-4": HOAL4Checker(),
+    # Held-out (HO-*) — Semantic Redundancy family.
+    "HO-SR-1": HOSR1Checker(),
+    "HO-SR-2": HOSR2Checker(),
+    "HO-SR-3": HOSR3Checker(),
+    "HO-SR-4": HOSR4Checker(),
+    "HO-SR-5": HOSR5Checker(),
+    "HO-SR-6": HOSR6Checker(),
+    "HO-SR-7": HOSR7Checker(),
+    # Held-out (HO-*) — Control Flow family.
+    "HO-CF-1": HOCF1Checker(),
+    "HO-CF-2": HOCF2Checker(),
+    "HO-CF-3": HOCF3Checker(),
+    "HO-CF-4": HOCF4Checker(),
+    "HO-CF-5": HOCF5Checker(),
+    # Held-out (HO-*) — Data Structure Inefficiency family.
+    "HO-DS-1": HODS1Checker(),
+    "HO-DS-2": HODS2Checker(),
+    "HO-DS-3": HODS3Checker(),
+    "HO-DS-4": HODS4Checker(),
+    "HO-DS-5": HODS5Checker(),
+    "HO-DS-6": HODS6Checker(),
+    # Held-out (HO-*) — Human-Style Antipatterns family.
+    "HO-HR-1": HOHR1Checker(),
+    "HO-HR-2": HOHR2Checker(),
+    "HO-HR-3": HOHR3Checker(),
+    "HO-HR-4": HOHR4Checker(),
+    "HO-HR-5": HOHR5Checker(),
+    # Held-out (HO-*) — Input-Sensitive Inefficiency family.
+    "HO-IS-1": HOIS1Checker(),
+    "HO-IS-2": HOIS2Checker(),
+    "HO-IS-3": HOIS3Checker(),
+    "HO-IS-4": HOIS4Checker(),
+    "HO-IS-5": HOIS5Checker(),
+    # Held-out (HO-*) — Memory & IO family.
+    "HO-MI-1": HOMI1Checker(),
+    "HO-MI-2": HOMI2Checker(),
+    "HO-MI-3": HOMI3Checker(),
+    "HO-MI-4": HOMI4Checker(),
 }
 
 

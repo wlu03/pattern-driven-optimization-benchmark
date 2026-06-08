@@ -52,19 +52,24 @@ The patterns are organized by *why* the compiler fails to fix them:
 | deepseek-r1-distill-llama-70b | 70 | reasoning | 46 / 42 / 46 | 13.4 / 12.3 / 12.2 |
 | qwen2.5-72b | 72 | general | 57 / 54 / 62 | 6.8 / 14.1 / 10.3 |
 
-**Faithful × fast 2×2** (overall, n=55,980; "fast" = `speedup_vs_slow` > 1.5; full per-model/per-pattern breakdown in `results/aggregate_2x2/report.txt`):
+**Faithfulness cells × fast/slow** (overall, n=55,980; "fast" = `speedup_vs_slow` > 1.5; full per-model/per-pattern breakdown in `results/aggregate_2x2/report.txt`). The two-axis cascade (equivalence × expected-shape) routes each attempt into one of four cells rather than a binary faithful/unfaithful split:
 
-| | Faithful | Unfaithful | Row |
-|---|---|---|---|
-| **Fast** | 18.7% | 11.5% | 30.2% |
-| **Slow** | 13.0% | 56.7% | 69.8% |
-| **Col** | 31.8% | 68.2% | 100% |
+| | FAITHFUL | FAITHFUL_ALTERNATIVE | STRUCTURAL_ONLY | FAILED | Row |
+|---|---|---|---|---|---|
+| **Fast** | 19.2% | 10.9% | 0.2% | 0.0% | 30.2% |
+| **Slow** | 9.9% | 21.2% | 18.9% | 19.7% | 69.8% |
+| **Col** | 29.1% | 32.1% | 19.1% | 19.7% | 100% |
 
-Per-strategy faithful rates are close: generic 30.0%, pattern-aware 33.8%, taxonomy-guided 31.5%.
+- **FAITHFUL** — performed the labeled transformation *and* stays equivalent.
+- **FAITHFUL_ALTERNATIVE** — equivalent via a *different* valid transformation; deliberately not conflated with failure.
+- **STRUCTURAL_ONLY** — has the expected shape but breaks correctness (overfit / DCE / hardcoded output).
+- **FAILED** — neither.
 
-**Faithfulness-scoring caveats.** Two structural factors shape this aggregate, and the headline rate is sensitive to both:
-- **COMP composition (≈54% of rows).** COMP variants are scored against their constituent-pattern list (`composition` from `metadata.json`); the COMP checker *requires* it, and without it falls back to a generic regex battery that massively over-reports `FAITHFUL`. Earlier runs omitted it and reported an inflated ~45.6% overall (COMP alone read 58% faithful); both `faithfulness/report_2x2.py` and `scripts/rescore_faithfulness.py` now thread `composition`, which drops COMP to 33% faithful and the overall rate to 31.8%.
-- **Held-out patterns (`HO-*`, ≈14% of rows).** These post-cutoff patterns have no dedicated AST checker and fall through to a coarse structural fallback, so they essentially cannot earn a `FAITHFUL` verdict and weigh toward the unfaithful column. Authoring per-pattern held-out checkers is the remaining faithfulness-coverage gap.
+Faithful-family rate (FAITHFUL + FAITHFUL_ALTERNATIVE) by segment: base patterns 60.6%, COMP 65.0%, held-out 48.2%.
+
+**Faithfulness-scoring notes.**
+- **COMP composition (≈54% of rows).** COMP variants are scored against their constituent-pattern list (`composition` from `metadata.json`); the COMP checker *requires* it — without it a generic regex battery over-reports `FAITHFUL` (an earlier omission inflated the headline to ~45.6%). Both `scripts/rescore_faithfulness.py` and `faithfulness/report_2x2.py` thread `composition`, and `report_2x2.py` now consumes the canonical `faithfulness_cell` column written by the rescore (real `slow.c` + composition + the full checker registry) rather than recomputing per-row with an empty slow source.
+- **Held-out coverage (`HO-*`, ≈14% of rows) — gap closed.** All 36 held-out patterns now have dedicated per-pattern checkers (`faithfulness/checkers/held_out.py`); HO rows earn a real verdict (16.5% FAITHFUL, 31.7% FAITHFUL_ALTERNATIVE) instead of auto-failing the old coarse fallback. Several held-out patterns are un-fast *by design* on this single-socket test machine — inverted constant-time defenses that trade speed for leak-resistance, sub-1.5× tricks (shift-mask UB-guard elision), and NUMA/prefetch effects absent without remote DRAM — and correctly land in **(slow, FAITHFUL)**. The purely algorithmic held-out patterns (HLL/Count-Min sampling) read near-zero faithful because no model reproduces them, which is the contamination-defense working as intended.
 
 ### Findings from the sweep
 
