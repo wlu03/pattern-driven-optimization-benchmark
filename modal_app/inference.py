@@ -97,27 +97,89 @@ MODELS = {
         "max_model_len": 8192,
         "reasoning": False,
     },
-    "llama-3.3-70b": {
-        "hf_id": "meta-llama/Llama-3.3-70B-Instruct",
-        # 70B params in bf16 = ~140 GB; doesn't fit on single H100 (80 GB).
-        # H200 has 141 GB — fits with headroom for KV cache.
-        "gpu":   "H200",
+    # DeepSeek-R1-Distill-Llama-70B — non-gated (MIT) reasoning distill; the
+    # 70B member of the DeepSeek-R1-Distill series (base: Llama-3.3-70B). Used
+    # in place of the gated meta-llama/Llama-3.3-70B-Instruct so no HF token is
+    # needed. 70B bf16 checkpoint ≈ 131 GiB — a single H200 (140 GiB) loads the
+    # weights but has no room left for the KV cache ("Available KV cache: -16
+    # GiB"), so shard across 2× H200 with tensor parallelism.
+    "deepseek-r1-distill-llama-70b": {
+        "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+        "gpu":   "H200:2",
+        "tensor_parallel_size": 2,
         "max_model_len": 8192,
-        "reasoning": False,
-        "needs_hf_token": True,
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
     },
-    # Non-gated 72B-class general-purpose model. 72B in bf16 = ~144 GB;
-    # H200's 141 GB is just tight enough at gpu_memory_utilization=0.85
-    # (~120 GB allocation, ~24 GB headroom for KV cache).
+    # Non-gated 72B-class general-purpose model. 72B bf16 checkpoint ≈ 135 GiB —
+    # does NOT fit one H200 (140 GiB) once memory profiling + KV cache are added
+    # (OOMs with ~131 MiB free). Shard across 2× H200 with tensor parallelism.
     "qwen2.5-72b": {
         "hf_id": "Qwen/Qwen2.5-72B-Instruct",
-        "gpu":   "H200",
+        "gpu":   "H200:2",
+        "tensor_parallel_size": 2,
         "max_model_len": 8192,
         "reasoning": False,
     },
     # Codestral may also be gated depending on HF account access policy.
     # If you see "Cannot access gated repo" errors, add "needs_hf_token": True
     # to its entry too.
+
+    # ── Added anchors (non-gated) ─────────────────────────────────────────
+    # Second reasoning family + newer generation, both 32B. Both emit <think>,
+    # so the deepseek_r1 reasoning parser applies.
+    #
+    # These run on a SINGLE H200 (not A100-80GB) at 16384 ctx, unlike the
+    # R1-distill-32b. A limit-4 smoke test showed QwQ on A100-80GB@8192
+    # exhausted its token budget (~5k tokens) mid-reasoning and never emitted
+    # code — A100-80GB only leaves ~18.9k tokens of KV pool for a 32B model,
+    # so it can't hold a longer context. QwQ's reasoning is far more verbose
+    # than the R1 distills, so it needs both more tokens (16384) and the KV
+    # headroom of an H200 (~58 GiB free after weights) to batch at that length.
+    "qwq-32b": {
+        # RL-trained reasoning model (NOT an R1 distill). Apache-2.0.
+        # max_tokens 12288 (vs 4096 default): a smoke test showed QwQ's <think>
+        # alone exceeds 4096 tokens, truncating before any code. 12288 + a
+        # ~2-3k prompt stays within the 16384 max_model_len.
+        "hf_id": "Qwen/QwQ-32B",
+        "gpu":   "H200",
+        "max_model_len": 16384,
+        "max_tokens": 12288,
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
+    },
+    "qwen3-32b": {
+        # Newer generation; thinking mode on by default. Apache-2.0.
+        "hf_id": "Qwen/Qwen3-32B",
+        "gpu":   "H200",
+        "max_model_len": 16384,
+        "max_tokens": 12288,
+        "reasoning": True,
+        "reasoning_parser": "deepseek_r1",
+    },
+    # Second coder family — tests whether the coder edge is Qwen-specific.
+    # Non-reasoning; given comfortable GPU headroom to avoid vLLM-init OOM.
+    "opencoder-8b": {
+        # Open/reproducible code LLM (infly). ~7B-tier peer to coder-7b.
+        "hf_id": "infly/OpenCoder-8B-Instruct",
+        "gpu":   "L40S",
+        "max_model_len": 8192,
+        "reasoning": False,
+    },
+    "deepseek-coder-v2-lite": {
+        # 16B MoE (2.4B active) code model — adds a dense-vs-MoE axis too.
+        "hf_id": "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct",
+        "gpu":   "A100-80GB",
+        "max_model_len": 8192,
+        "reasoning": False,
+    },
+    "yi-coder-9b": {
+        # 9B code model, Apache-2.0. Optional third coder family.
+        "hf_id": "01-ai/Yi-Coder-9B-Chat",
+        "gpu":   "L40S",
+        "max_model_len": 8192,
+        "reasoning": False,
+    },
 }
 
 # --- Modal app + image ------------------------------------------------------
@@ -187,6 +249,9 @@ class VLLMServer:
             enforce_eager=True,
             # Conservative GPU-mem fraction so KV cache + workspace fits.
             gpu_memory_utilization=0.85,
+            # Shard large models across multiple GPUs (1 = single-GPU default).
+            # 70B+ bf16 weights exceed a single H200, so those cfgs set this to 2.
+            tensor_parallel_size=cfg.get("tensor_parallel_size", 1),
         )
         # Reasoning models: enable vLLM's reasoning-content parser so the
         # <think> trace is exposed separately from the answer text. The
@@ -233,8 +298,13 @@ class VLLMServer:
         not separated by vLLM (fallback for older vLLM versions).
         """
         from vllm import SamplingParams
+        # Per-model override: verbose reasoning models (QwQ, Qwen3-thinking)
+        # need far more than the 4096 default or they exhaust the budget mid-
+        # <think> and never emit code. Set "max_tokens" in their MODELS entry.
+        effective_max_tokens = MODELS[self.model_key].get("max_tokens",
+                                                           max_tokens)
         params = SamplingParams(
-            temperature=0.0, top_p=1.0, max_tokens=max_tokens,
+            temperature=0.0, top_p=1.0, max_tokens=effective_max_tokens,
         )
         # Apply each model's chat template so instruct-tuned models get
         # the role/turn markers they were fine-tuned to receive.

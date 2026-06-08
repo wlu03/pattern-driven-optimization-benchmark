@@ -25,3 +25,8 @@ results/pareto/*.submit.log
 results/pareto/*.score.log
 results/pareto/*.errors.csv
 results/pareto/*.failed_variants.txt
+
+# Local analysis venv + transient re-score artifacts / scored-CSV backups
+.venv-analysis/
+*.prebugfix
+results/pareto/rescore/

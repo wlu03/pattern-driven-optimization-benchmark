@@ -35,6 +35,68 @@ from pdob_core.evaluator import evaluate_variant  # noqa: E402
 from pdob_core.patterns import PATTERNS  # noqa: E402
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# Byte-level-BPE auto-decode guard
+#
+# Byte-level BPE tokenizers (Llama, DeepSeek-R1-Distill-Llama, GPT-2, RoBERTa,
+# ...) can't carry raw control/whitespace bytes inside token strings, so they
+# map every byte to a printable stand-in: space (0x20) -> "Ġ", newline (0x0A)
+# -> "Ċ", and so on. The final detokenizer step reverses that mapping. When it
+# is skipped upstream (a Modal/vLLM detokenizer glitch hit the Llama-tokenizer
+# 70B), raw_output arrives stuck in this intermediate form ("ĊOkay,ĠsoĠI...")
+# and code extraction finds nothing -> the whole cell silently scores 0%.
+#
+# This guard detects that form and reverses it at load time, so a recurrence
+# self-heals instead of needing a manual re-decode + re-score. The byte<->char
+# table below is the standard byte-level-BPE alphabet (stdlib only — no
+# tokenizer/transformers dependency, which this script must avoid).
+# ──────────────────────────────────────────────────────────────────────────
+def _byte_level_bpe_char_to_byte() -> dict:
+    """Map each printable byte-level-BPE stand-in character back to its byte."""
+    printable = (list(range(ord("!"), ord("~") + 1)) +
+                 list(range(ord("¡"), ord("¬") + 1)) +
+                 list(range(ord("®"), ord("ÿ") + 1)))
+    chars = printable[:]
+    n = 0
+    for b in range(256):
+        if b not in printable:
+            printable.append(b)
+            chars.append(256 + n)
+            n += 1
+    return {chr(c): b for b, c in zip(printable, chars)}
+
+
+_BLBPE_CHAR_TO_BYTE = _byte_level_bpe_char_to_byte()
+
+
+def _looks_byte_level_bpe(s: str) -> bool:
+    """True iff ``s`` is byte-level-BPE-encoded rather than plain text.
+
+    Encoded text maps every space to "Ġ" and every newline to "Ċ", so it
+    carries those markers and contains NO literal space. Any real completion
+    (C code + English reasoning) always has literal spaces, so this never
+    false-positives on clean output.
+    """
+    return bool(s) and (("Ġ" in s) or ("Ċ" in s)) and (" " not in s)
+
+
+def maybe_decode_byte_level_bpe(s: str) -> str:
+    """Reverse byte-level-BPE encoding if present; otherwise return ``s`` as-is.
+
+    Idempotent: plain text is returned unchanged.
+    """
+    if not _looks_byte_level_bpe(s):
+        return s
+    out = bytearray()
+    for ch in s:
+        b = _BLBPE_CHAR_TO_BYTE.get(ch)
+        if b is None:
+            out.extend(ch.encode("utf-8"))   # pass any unmapped char through
+        else:
+            out.append(b)
+    return out.decode("utf-8", errors="replace")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -57,6 +119,25 @@ def main():
     p.add_argument("--faithfulness", action="store_true",
                    help="Also run the 2x2 faithfulness cascade per variant")
     args = p.parse_args()
+
+    # Guard: the 2x2 faithfulness cascade's structural axis is AST-based and
+    # needs pycparser. Without it, check_faithfulness silently returns UNKNOWN
+    # for every row -> faithfulness_expected_shape is False everywhere and the
+    # cell collapses to FAITHFUL_ALTERNATIVE/FAILED (never FAITHFUL/
+    # STRUCTURAL_ONLY). That degradation is invisible in the output, so a whole
+    # sweep can be scored with dead faithfulness. Fail loudly instead — there is
+    # nothing to self-heal. (Run under an interpreter that has pycparser, e.g.
+    # base python3, not a venv missing it.)
+    if args.faithfulness:
+        try:
+            import pycparser  # noqa: F401
+        except ImportError:
+            raise SystemExit(
+                "--faithfulness requires pycparser (the structural checkers are "
+                "AST-based); it is not importable under this interpreter "
+                f"({sys.executable}). Without it every row would score as "
+                "structurally unfaithful. Install it (`pip install pycparser`) "
+                "or run with an interpreter that has it.")
 
     out_path = args.output or args.input_csv.replace(".csv", "_scored.csv")
     if out_path == args.input_csv:
@@ -95,10 +176,20 @@ def main():
     _THINK_OPEN_RE = _re.compile(r'<think>(.*)$', _re.DOTALL)
 
     results = []
+    n_decoded = 0
     for i, r in enumerate(raw_rows, 1):
         vp = by_vid[r["variant_id"]]
         precomputed_text = r["raw_output"]
         precomputed_reasoning = r.get("raw_reasoning") or None
+
+        # Self-heal byte-level-BPE-encoded completions (see guard above): an
+        # upstream detokenizer glitch can leave raw_output as "ĊOkay,ĠI...".
+        if _looks_byte_level_bpe(precomputed_text):
+            precomputed_text = maybe_decode_byte_level_bpe(precomputed_text)
+            if precomputed_reasoning:
+                precomputed_reasoning = maybe_decode_byte_level_bpe(
+                    precomputed_reasoning)
+            n_decoded += 1
 
         # Fallback: extract <think>...</think> from main text if reasoning
         # wasn't already separated by the inference pipeline.
@@ -158,6 +249,10 @@ def main():
             continue
         if i % 25 == 0 or i == len(raw_rows):
             print(f"  [{i}/{len(raw_rows)}] scored")
+
+    if n_decoded:
+        print(f"[guard] auto-decoded {n_decoded}/{len(raw_rows)} byte-level-BPE "
+              f"completions (upstream detokenizer glitch — self-healed)")
 
     if not results:
         raise SystemExit("No results scored — nothing to write.")

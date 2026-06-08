@@ -2,6 +2,75 @@ import os
 import re
 import subprocess
 import tempfile
+import time
+
+# --- Resource caps for executing untrusted, LLM-generated binaries -------
+# macOS does NOT enforce RLIMIT_AS / `ulimit -v`, so a generated binary with
+# a bad allocation can exhaust all RAM and crash the machine before its
+# wall-clock timeout fires. We instead run each binary under a watchdog that
+# polls resident memory (via `ps`, since psutil isn't a dep and macOS has no
+# /proc) and caps captured output, killing the child if it exceeds either.
+# A killed binary is reported as a runtime error -- the correct outcome for a
+# broken optimization. Real benchmarks here allocate a few hundred MB at most
+# (largest is ~10M doubles = 80 MB/array), so these caps never trip on
+# legitimate code; they only catch pathological allocations / print loops.
+MEM_CAP_MB = int(os.environ.get("PDOB_MEM_CAP_MB", "4096"))   # per-process RSS
+OUT_CAP_MB = int(os.environ.get("PDOB_OUT_CAP_MB", "64"))     # captured stdout
+_RSS_CAP_KB = MEM_CAP_MB * 1024
+_OUT_CAP_BYTES = OUT_CAP_MB * 1024 * 1024
+
+
+def _rss_kb(pid):
+    """Resident set size of ``pid`` in KB, or None if it can't be read."""
+    try:
+        out = subprocess.run(
+            ["ps", "-o", "rss=", "-p", str(pid)],
+            capture_output=True, text=True, timeout=5,
+        ).stdout.strip()
+        return int(out) if out else None
+    except Exception:
+        return None
+
+
+def _run_with_limits(cmd, timeout, env, poll=0.1):
+    """Run ``cmd`` under a wall-clock, resident-memory, and output watchdog.
+
+    Returns ``(returncode, stdout, stderr, reason)`` where ``reason`` is
+    None on a clean exit, or one of ``"timeout" | "memory" | "output"`` if
+    the watchdog killed the child. stdout/stderr are written to temp files
+    (not PIPEs) so a runaway print loop can't balloon the parent's memory.
+    """
+    with tempfile.TemporaryFile() as out_f, tempfile.TemporaryFile() as err_f:
+        proc = subprocess.Popen(cmd, stdout=out_f, stderr=err_f, env=env)
+        start = time.monotonic()
+        reason = None
+        while True:
+            try:
+                proc.wait(timeout=poll)
+                break  # exited on its own
+            except subprocess.TimeoutExpired:
+                pass   # still running -- check the caps
+            if time.monotonic() - start > timeout:
+                reason = "timeout"
+                break
+            rss = _rss_kb(proc.pid)
+            if rss is not None and rss > _RSS_CAP_KB:
+                reason = "memory"
+                break
+            if out_f.tell() > _OUT_CAP_BYTES:
+                reason = "output"
+                break
+        if reason:
+            proc.kill()
+            try:
+                proc.wait(timeout=5)
+            except Exception:
+                pass
+        out_f.seek(0)
+        stdout = out_f.read(_OUT_CAP_BYTES + 1).decode("utf-8", "replace")
+        err_f.seek(0)
+        stderr = err_f.read(65536).decode("utf-8", "replace")
+    return proc.returncode, stdout, stderr, reason
 
 
 def compile_and_run(code: str, test_harness: str, timeout: int = 120,
@@ -42,13 +111,18 @@ def compile_and_run(code: str, test_harness: str, timeout: int = 120,
         correct = False
         result_val = ""
         for _ in range(runs):
-            run = subprocess.run(
-                [bin_path], capture_output=True, text=True, timeout=timeout,
-                env=env,
+            rc, stdout, _stderr, reason = _run_with_limits(
+                [bin_path], timeout, env,
             )
-            if run.returncode != 0:
-                return {"compiles": True, "correct": False, "error": "runtime error"}
-            output = run.stdout.strip()
+            if reason == "timeout":
+                # Preserve the original subprocess.run(timeout=) contract:
+                # callers already expect TimeoutExpired to propagate.
+                raise subprocess.TimeoutExpired([bin_path], timeout)
+            if reason in ("memory", "output") or rc != 0:
+                detail = reason or f"exit {rc}"
+                return {"compiles": True, "correct": False,
+                        "error": f"runtime error ({detail})"}
+            output = stdout.strip()
             parts = dict(p.split("=") for p in output.split() if "=" in p)
             correct = parts.get("correct", "0") == "1"
             result_val = parts.get("result", "")
@@ -215,7 +289,22 @@ def extract_code_from_response(response: str, test_harness: str = None) -> str:
     unterminated fences by treating the rest of the response as the body.
     When test_harness is supplied, the entry-point rename uses the
     arg-count of the `optimized(...)` call site for disambiguation.
+
+    Reasoning models (QwQ-32B, Qwen3-32B, the R1 distills) emit a <think>
+    chain before the answer, which is full of *draft* optimized() functions.
+    The opening <think> is often consumed by the chat template, leaving an
+    orphan </think> with no opener — so score_completions' <think>...</think>
+    stripper never fires and the whole chain reaches us. QwQ in particular
+    then writes its FINAL function unfenced right after </think> (only ~46%
+    of rows carry a ```c fence). Drop everything through the last </think>
+    so we extract from the answer, not from a draft in the reasoning. This
+    is a no-op for the existing high-fence models (their think block is
+    already stripped upstream, or the ```c fence is found either way), so
+    re-scoring them is unchanged.
     """
+    if "</think>" in response:
+        response = response.rsplit("</think>", 1)[1]
+
     c_blocks = re.findall(r"```c\s*(.*?)```", response, flags=re.DOTALL)
     if c_blocks:
         code = max(c_blocks, key=len).strip()
@@ -226,4 +315,14 @@ def extract_code_from_response(response: str, test_harness: str = None) -> str:
         else:
             unterminated = re.search(r"```(?:c)?\s*(.*)", response, flags=re.DOTALL)
             code = unterminated.group(1).strip() if unterminated else response.strip()
+    # Recovery for malformed fences: some models (observed on qwen2.5-coder-32b)
+    # emit a bare leading language tag ("c\n...") with an orphan *closing* ``` and
+    # no opening fence. The fence regexes above miss it, and the unterminated-fence
+    # fallback matches the closing ``` and captures the empty tail after it, dropping
+    # the real code that precedes it. When that leaves us empty, re-extract the body
+    # before the closing fence and strip the stray language tag.
+    if not code:
+        body = response.rsplit("```", 1)[0] if "```" in response else response
+        body = re.sub(r"^\s*(?:c|cpp|cc|c\+\+|C)\s*\n", "", body)
+        code = body.strip()
     return normalize_function_name(code, test_harness)

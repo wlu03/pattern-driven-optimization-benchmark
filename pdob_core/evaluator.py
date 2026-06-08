@@ -133,6 +133,7 @@ def _compute_faithfulness(
     *,
     test_harness: Optional[str] = None,
     equiv_n_inputs: int = 9,
+    composition: Optional[list] = None,
 ) -> dict:
     """Run the 2x2 faithfulness cascade and return new-field dict for EvalResult.
 
@@ -152,7 +153,12 @@ def _compute_faithfulness(
     }
     try:
         from faithfulness.checkers import check_faithfulness
-        struct = check_faithfulness(pattern_id, slow_code, model_output)
+        # composition matters for COMP variants: without it COMPChecker falls
+        # back to a generic regex battery that over-reports faithful. Pass the
+        # constituent pattern list from metadata so the real per-constituent
+        # checkers run.
+        struct = check_faithfulness(pattern_id, slow_code, model_output,
+                                    composition=composition)
         fields["faithfulness_structural_verdict"] = struct.verdict
         fields["faithfulness_structural_score"]   = struct.score
     except Exception:
@@ -455,6 +461,7 @@ def evaluate_pattern(pattern: PatternEntry, model: str, strategy: str,
         fhfn = _compute_faithfulness(
             pattern.pattern_id, pattern.slow_code, llm_code,
             test_harness=pattern.test_harness,
+            composition=getattr(pattern, "composition", None),
         )
 
     return EvalResult(
@@ -677,6 +684,7 @@ def evaluate_variant(variant, model: str, strategy: str, call_llm_fn, *,
         fhfn = _compute_faithfulness(
             variant.pattern_id, variant_slow_src, llm_code,
             test_harness=None,  # structural tier only inside helper
+            composition=variant.metadata.get("composition"),
         )
 
         # Equivalence axis: try multi-config differential first.
