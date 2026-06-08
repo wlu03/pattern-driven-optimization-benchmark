@@ -182,6 +182,19 @@ MODELS = {
     },
 }
 
+# Fine-tuned variants produced by modal_app/finetune_weak3.py. Each inherits its
+# base model's decode config but loads the merged 16-bit weights from the
+# pdob-finetuned volume (mounted at /finetuned, see VOLUMES below). Keep these
+# keys in sync with TARGETS[*].name in finetune_weak3.py.
+_FINETUNED = {
+    "r1-distill-qwen-7b-ft": "deepseek-r1-distill-qwen-7b",
+    "yi-coder-9b-ft":        "yi-coder-9b",
+    "opencoder-8b-ft":       "opencoder-8b",
+}
+for _ft_key, _base_key in _FINETUNED.items():
+    if _base_key in MODELS:
+        MODELS[_ft_key] = {**MODELS[_base_key], "hf_id": f"/finetuned/{_ft_key}"}
+
 # --- Modal app + image ------------------------------------------------------
 app = modal.App(APP_NAME)
 
@@ -204,10 +217,13 @@ vllm_image = (
 
 hf_cache_vol   = modal.Volume.from_name("pdob-hf-cache",   create_if_missing=True)
 vllm_cache_vol = modal.Volume.from_name("pdob-vllm-cache", create_if_missing=True)
+finetuned_vol  = modal.Volume.from_name("pdob-finetuned",  create_if_missing=True)
 
 VOLUMES = {
     "/root/.cache/huggingface": hf_cache_vol,
     "/root/.cache/vllm":        vllm_cache_vol,
+    # Merged fine-tuned weights from finetune_weak3.py; *-ft model keys load from here.
+    "/finetuned":               finetuned_vol,
 }
 
 
