@@ -1,15 +1,23 @@
-"""modal_app/finetune_weak3.py — QLoRA fine-tune the 3 weakest ~7B models on
-Modal, merge to 16-bit, and stage eval-ready weights on a Modal volume.
+"""modal_app/finetune_weak3.py — QLoRA fine-tune the 3 weakest fine-tune-
+friendly models on Modal, merge to 16-bit, and stage eval-ready weights on a
+Modal volume. Goal: see whether fine-tuning can rescue a failing model.
 
-Targets (the 3 weakest ~7B-tier models by sweep pass@1; see
-results/category_difficulty.txt for the wider ranking):
+Targets — the 3 weakest models that fit a single GPU (sweep pass@1), including
+a really small one:
 
-    deepseek-r1-distill-qwen-7b   26.7%   (reasoning; SFT teaches direct output)
-    yi-coder-9b                   66.2%
-    opencoder-8b                  76.7%
+    deepseek-r1-distill-qwen-1.5b    2.8%   (reasoning, 1.5B — really small + weakest)
+    deepseek-r1-distill-qwen-7b     26.7%   (reasoning, 7B)
+    qwen2.5-coder-1.5b              59.4%   (non-reasoning, 1.5B — size-matched control)
 
-(Qwen2.5-Coder-7B at 81.4% is the strongest of the tier and is intentionally
-left as the un-tuned ceiling reference.)
+Reasoning vs non-reasoning: the only genuinely weak models in the roster ARE the
+reasoning ones — every non-reasoning model already scores >=59%. Their failure
+mode is verbose non-termination (running out of tokens mid-<think> without ever
+emitting code), which SFT on direct (no-CoT) targets fixes head-on, so a large
+lift is plausible. The qwen2.5-coder-1.5b control (matched 1.5B size, non-
+reasoning) shows whether the reasoning models gain more from the same data.
+NOTE: SFT on no-CoT targets suppresses the <think> trace — an accepted, intended
+part of this "make the weak model emit better code" experiment (for a clean
+task-learning measurement, fine-tune the non-reasoning baselines instead).
 
 Training data is fine_tune/{train,val}.jsonl — chat format produced by
 fine_tune/prepare_finetune_data.py, which EXCLUDES dataset/held_out/ so the
@@ -22,12 +30,12 @@ volume. modal_app/inference.py mounts that volume and registers a `<name>` model
 key per fine-tune, so eval is the unchanged pipeline:
 
     modal run modal_app/finetune_weak3.py                 # train all 3 (parallel)
-    modal run modal_app/finetune_weak3.py --only opencoder-8b-ft
-    modal run modal_app/inference.py --model opencoder-8b-ft --strategy taxonomy-guided
+    modal run modal_app/finetune_weak3.py --only r1-distill-qwen-7b-ft
+    modal run modal_app/inference.py --model r1-distill-qwen-7b-ft --strategy taxonomy-guided
     # then score + compare exactly like the base sweep.
 
 Pull weights locally instead:
-    modal volume get pdob-finetuned opencoder-8b-ft/ ./fine_tune/merged/opencoder-8b-ft/
+    modal volume get pdob-finetuned r1-distill-qwen-7b-ft/ ./fine_tune/merged/r1-distill-qwen-7b-ft/
 """
 from pathlib import Path
 
@@ -36,14 +44,14 @@ import modal
 APP_NAME = "pdob-finetune-weak3"
 app = modal.App(APP_NAME)
 
-# The 3 weakest ~7B-tier targets. `name` is the eval model-key that
-# inference.py exposes (it appends nothing — keep these in sync with the
-# _FINETUNED map in inference.py). `reasoning` only affects the doc note;
-# SFT on no-CoT targets is what teaches a reasoning model to answer directly.
+# The 3 weakest fine-tune-friendly targets (incl. a really small 1.5B). `name`
+# is the eval model-key inference.py exposes — keep in sync with the _FINETUNED
+# map there. `reasoning` only affects the doc note; SFT on no-CoT targets is
+# what teaches a reasoning model to answer directly.
 TARGETS = [
-    {"base": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B", "name": "r1-distill-qwen-7b-ft", "reasoning": True},
-    {"base": "01-ai/Yi-Coder-9B-Chat",                  "name": "yi-coder-9b-ft",        "reasoning": False},
-    {"base": "infly/OpenCoder-8B-Instruct",             "name": "opencoder-8b-ft",       "reasoning": False},
+    {"base": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", "name": "r1-distill-qwen-1.5b-ft", "reasoning": True},
+    {"base": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",   "name": "r1-distill-qwen-7b-ft",   "reasoning": True},
+    {"base": "Qwen/Qwen2.5-Coder-1.5B-Instruct",          "name": "qwen2.5-coder-1.5b-ft",   "reasoning": False},
 ]
 
 # Image follows Modal's official Unsloth recipe (unsloth must be imported FIRST

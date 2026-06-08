@@ -187,9 +187,9 @@ MODELS = {
 # pdob-finetuned volume (mounted at /finetuned, see VOLUMES below). Keep these
 # keys in sync with TARGETS[*].name in finetune_weak3.py.
 _FINETUNED = {
-    "r1-distill-qwen-7b-ft": "deepseek-r1-distill-qwen-7b",
-    "yi-coder-9b-ft":        "yi-coder-9b",
-    "opencoder-8b-ft":       "opencoder-8b",
+    "r1-distill-qwen-1.5b-ft": "deepseek-r1-distill-qwen-1.5b",
+    "r1-distill-qwen-7b-ft":   "deepseek-r1-distill-qwen-7b",
+    "qwen2.5-coder-1.5b-ft":   "qwen2.5-coder-1.5b",
 }
 for _ft_key, _base_key in _FINETUNED.items():
     if _base_key in MODELS:
