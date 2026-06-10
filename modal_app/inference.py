@@ -191,6 +191,19 @@ _FINETUNED = {
     "r1-distill-qwen-7b-ft":   "deepseek-r1-distill-qwen-7b",
     "qwen2.5-coder-1.5b-ft":   "qwen2.5-coder-1.5b",
 }
+# Hyperparameter-sweep variants from modal_app/finetune_sweep.py. Modal mounts
+# only inference.py, so we can't import that module here — keep this map in sync
+# with finetune_sweep.SWEEP_MODELS (short->base_key) and CONFIGS (names).
+_SWEEP_BASES = {
+    "qwen2.5-coder-1.5b": "qwen2.5-coder-1.5b",
+    "r1-distill-qwen-7b": "deepseek-r1-distill-qwen-7b",
+}
+_SWEEP_CONFIGS = ["baseline", "gentle", "gentle-lowrank", "medium",
+                  "lowlr", "replay", "gentle-replay"]
+for _short, _bk in _SWEEP_BASES.items():
+    for _cn in _SWEEP_CONFIGS:
+        _FINETUNED[f"{_short}-{_cn}-ft"] = _bk
+
 for _ft_key, _base_key in _FINETUNED.items():
     if _base_key in MODELS:
         MODELS[_ft_key] = {**MODELS[_base_key], "hf_id": f"/finetuned/{_ft_key}"}
