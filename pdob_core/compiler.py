@@ -92,6 +92,11 @@ def compile_and_run(code: str, test_harness: str, timeout: int = 120,
         ``BENCH_N`` / ``BENCH_SEED`` / ``BENCH_DIST`` and re-run the same
         compiled harness under different input configurations.
     """
+    # Allow Modal/CI to shorten the watchdog timeouts (broken candidates then
+    # die fast) without threading kwargs through every caller. Only overrides
+    # when the env var is set.
+    timeout = int(os.environ.get("PDOB_RUN_TIMEOUT", timeout))
+    compile_timeout = int(os.environ.get("PDOB_COMPILE_TIMEOUT", compile_timeout))
     with tempfile.TemporaryDirectory() as tmpdir:
         src_path = os.path.join(tmpdir, "test.c")
         bin_path = os.path.join(tmpdir, "test")
