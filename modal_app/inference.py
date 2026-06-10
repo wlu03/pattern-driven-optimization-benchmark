@@ -204,6 +204,12 @@ for _short, _bk in _SWEEP_BASES.items():
     for _cn in _SWEEP_CONFIGS:
         _FINETUNED[f"{_short}-{_cn}-ft"] = _bk
 
+# Epoch-sweep variants on the clean split (modal_app/finetune_indist.py); keep in
+# sync with finetune_indist.MODELS (short->base_key) and EPOCHS.
+for _short, _bk in _SWEEP_BASES.items():
+    for _ep in (1, 3, 6, 10):
+        _FINETUNED[f"{_short}-indist-ep{_ep}-ft"] = _bk
+
 for _ft_key, _base_key in _FINETUNED.items():
     if _base_key in MODELS:
         MODELS[_ft_key] = {**MODELS[_base_key], "hf_id": f"/finetuned/{_ft_key}"}
