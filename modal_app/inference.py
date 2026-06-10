@@ -237,6 +237,9 @@ vllm_image = (
 hf_cache_vol   = modal.Volume.from_name("pdob-hf-cache",   create_if_missing=True)
 vllm_cache_vol = modal.Volume.from_name("pdob-vllm-cache", create_if_missing=True)
 finetuned_vol  = modal.Volume.from_name("pdob-finetuned",  create_if_missing=True)
+# Completion CSVs from the server-side orchestrator (evaluate_all_modal) land
+# here so a detached sweep survives the local caller disconnecting.
+eval_results_vol = modal.Volume.from_name("pdob-results", create_if_missing=True)
 
 VOLUMES = {
     "/root/.cache/huggingface": hf_cache_vol,
@@ -532,3 +535,112 @@ def evaluate_all(
           f"--output {out_path.with_name(out_path.stem + '_scored.csv')}")
     print(f"  2. Faithfulness 2x2: python3 faithfulness/report_2x2.py "
           f"{out_path.with_name(out_path.stem + '_scored.csv')}")
+
+
+# --- Survivable server-side eval (generation + CSV write run on Modal) -------
+@app.function(
+    image=modal.Image.debian_slim(python_version="3.12"),
+    volumes={"/results": eval_results_vol},
+    timeout=6 * 60 * 60,
+)
+def collect_eval(model: str, strategy: str, hw_target: str, output_name: str,
+                 prompts: list, variant_meta: list,
+                 max_concurrent: int = 10) -> str:
+    """Generate completions + write the CSV to /results, all server-side.
+
+    Unlike evaluate_all (a local entrypoint whose .map() Modal CANCELS when the
+    local caller disconnects), this runs entirely on Modal — so a `modal run
+    --detach` sweep survives your laptop sleeping / the turn ending. The result
+    lands on the pdob-results volume; pull with `modal volume get pdob-results`.
+
+    variant_meta is a list of {variant_id, pattern_id, category} dicts parallel
+    to prompts.
+    """
+    import csv
+    import io
+
+    server = VLLMServer.with_options(
+        gpu=MODELS[model]["gpu"], max_containers=max_concurrent,
+    )(model_key=model)
+    batch_size = max(1, len(prompts) // max(1, max_concurrent))
+    batches = [prompts[i:i+batch_size]
+               for i in range(0, len(prompts), batch_size)]
+    batch_meta = [variant_meta[i:i+batch_size]
+                  for i in range(0, len(variant_meta), batch_size)]
+    print(f"[{output_name}] {len(prompts)} prompts -> {len(batches)} batches "
+          f"on {MODELS[model]['gpu']}", flush=True)
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["variant_id", "pattern_id", "category", "model", "strategy",
+                "hw_target", "raw_output_chars", "raw_output",
+                "raw_reasoning_chars", "raw_reasoning"])
+    n_ok = n_err = 0
+    results = server.generate_batch.map(batches, order_outputs=True,
+                                        return_exceptions=True)
+    for bi, (bout, bmeta) in enumerate(zip(results, batch_meta)):
+        if isinstance(bout, Exception):
+            n_err += 1
+            print(f"[{output_name}] batch {bi+1}/{len(batches)} FAILED: "
+                  f"{type(bout).__name__}: {str(bout)[:120]}", flush=True)
+            continue
+        for v, r in zip(bmeta, bout):
+            if isinstance(r, str):
+                text, reasoning = r, None
+            else:
+                text, reasoning = r.get("text", ""), r.get("reasoning")
+            w.writerow([v["variant_id"], v["pattern_id"], v["category"], model,
+                        strategy, hw_target, len(text), text,
+                        len(reasoning) if reasoning else 0, reasoning or ""])
+            n_ok += 1
+        # Checkpoint after every batch so a mid-sweep crash keeps finished work.
+        Path(f"/results/{output_name}").write_text(buf.getvalue())
+        eval_results_vol.commit()
+        print(f"[{output_name}] batch {bi+1}/{len(batches)} ok "
+              f"({n_ok} rows so far)", flush=True)
+    print(f"[{output_name}] DONE {n_ok} rows, {n_err} failed batches", flush=True)
+    return f"{output_name}:{n_ok}"
+
+
+@app.local_entrypoint()
+def evaluate_all_modal(
+    model: str,
+    strategy: str = "pattern-aware",
+    output_name: str = "",
+    dataset_dir: str = "dataset",
+    limit: int = 0,
+    max_concurrent: int = 10,
+    hw_target: str = "generic",
+):
+    """Survivable variant of evaluate_all: build prompts locally (fast), then
+    SPAWN the generation + CSV write server-side so a detached run survives.
+
+    Run with --detach so the app + spawned job persist after you disconnect:
+        modal run --detach modal_app/inference.py::evaluate_all_modal \
+            --model qwen2.5-coder-1.5b-indist-ep3-ft --strategy pattern-aware
+    Then pull the result:
+        modal volume get pdob-results <model>_<strategy>.csv ./results/pareto/
+    """
+    if model not in MODELS:
+        raise SystemExit(f"Unknown model {model!r}. Available: {list(MODELS)}")
+    sys.path.insert(0, str(REPO_ROOT))
+    from pdob_core.dataset_evaluator import discover_variants
+    from pdob_core.evaluator import _build_variant_prompt
+    from pdob_core.patterns import PATTERNS
+
+    variants = list(discover_variants(dataset_dir))
+    if limit > 0:
+        variants = variants[:limit]
+    pattern_lookup = {p.pattern_id: p for p in PATTERNS}
+    prompts = [_build_variant_prompt(v, pattern_lookup, strategy, hw_target)
+               for v in variants]
+    variant_meta = [{"variant_id": v.variant_id, "pattern_id": v.pattern_id,
+                     "category": v.category} for v in variants]
+    if not output_name:
+        output_name = f"{model}_{strategy}.csv"
+    print(f"Built {len(prompts)} prompts (strategy={strategy}). "
+          f"Spawning server-side eval -> /results/{output_name}")
+    h = collect_eval.spawn(model, strategy, hw_target, output_name,
+                           prompts, variant_meta, max_concurrent)
+    print(f"  spawned {h.object_id} (runs server-side; survives disconnect)")
+    print(f"  pull:  modal volume get pdob-results {output_name} ./results/pareto/")
