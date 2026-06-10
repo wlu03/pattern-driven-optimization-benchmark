@@ -66,9 +66,18 @@ def train_one(base_model: str, name: str, train_jsonl_bytes: bytes,
               epochs: int, max_seq_length: int = 4096):
     import json
     out = Path("/finetuned") / name
-    if (out / "config.json").exists():
+    # Check for actual WEIGHTS, not just config.json — a merge interrupted
+    # mid-write (e.g. local caller disconnected) leaves config.json + tokenizer
+    # but no safetensors, which vLLM then can't load. Re-train those.
+    has_weights = ((out / "model.safetensors").exists()
+                   or (out / "model.safetensors.index.json").exists())
+    if has_weights:
         print(f"[{name}] already merged — skipping")
         return f"/finetuned/{name}"
+    if out.exists():
+        import shutil
+        print(f"[{name}] partial merge (no weights) — wiping + retraining")
+        shutil.rmtree(out, ignore_errors=True)
 
     import unsloth  # noqa: F401
     from unsloth import FastLanguageModel
